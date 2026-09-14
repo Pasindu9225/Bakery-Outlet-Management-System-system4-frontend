@@ -346,6 +346,9 @@ export default function POSGoodsEntry() {
       });
 
       // Prepare manual entry requests
+      const currentOutletId = localStorage.getItem("outletId") ? parseInt(localStorage.getItem("outletId")) : 1;
+      const currentUserId = localStorage.getItem("userId") || "35000000-0000-0000-0000-000000000000";
+
       const manualRequests = entries.map((entry) => {
         const payload = {
           productId: entry.productId,
@@ -353,7 +356,8 @@ export default function POSGoodsEntry() {
           unit: (entry.unit || "").toUpperCase(),
           remarks: entry.remarks,
           source: (entry.source || "").toUpperCase(),
-          userId: "35000000-0000-0000-0000-000000000000",
+          userId: currentUserId,
+          outletId: currentOutletId,
         };
 
         return fetch(`${process.env.REACT_APP_BASE_URL}/api/pos/v1/manual-entry`, {
@@ -998,7 +1002,7 @@ export default function POSGoodsEntry() {
           )}
 
           {/* Confirm Entry Button */}
-          {activeTab === "expected" && (
+          {(activeTab === "expected" || (activeTab === "manual" && entries.length > 0)) && (
             <div className="flex justify-center pt-6">
               <button
                 onClick={confirmMorningEntry}
@@ -1006,7 +1010,7 @@ export default function POSGoodsEntry() {
                 className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-[500]"
               >
                 <CheckCircle size={20} />
-                {isConfirmed ? "Entry Confirmed" : "Confirm Entry"}
+                {isConfirmed ? "Entry Confirmed" : activeTab === "manual" ? "Confirm & Update Manual Stock" : "Confirm Entry"}
               </button>
             </div>
           )}

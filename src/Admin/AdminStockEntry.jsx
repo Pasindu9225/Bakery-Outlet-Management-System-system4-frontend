@@ -125,7 +125,7 @@ export default function AdminStockEntry() {
         remarks: form.remarks || "Direct Stock Entry by Admin",
         source: (form.source || "Store").toUpperCase(),
         userId: userId,
-        outletId: outletId ? parseInt(outletId) : null,
+        outletId: outletId ? parseInt(outletId) : 1,
       };
 
       const response = await fetch(`${process.env.REACT_APP_BASE_URL}/api/pos/v1/manual-entry`, {
