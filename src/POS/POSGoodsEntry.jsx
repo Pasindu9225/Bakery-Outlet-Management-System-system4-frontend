@@ -193,9 +193,33 @@ export default function POSGoodsEntry() {
     }
   };
 
+  // Product catalog list for manual entry dropdown
+  const [productList, setProductList] = useState([]);
+
+  const fetchProductList = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      let res = await fetch(`${process.env.REACT_APP_BASE_URL}/api/products`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        res = await fetch(`${process.env.REACT_APP_BASE_URL}/api/manager/products`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+      if (res.ok) {
+        const data = await res.json();
+        setProductList(Array.isArray(data) ? data : data.content || []);
+      }
+    } catch (err) {
+      console.error("Error fetching product catalog:", err);
+    }
+  };
+
   useEffect(() => {
     fetchGtnProducts();
     fetchPendingTransfers();
+    fetchProductList();
   }, []);
 
   // Manual entry form state
@@ -778,32 +802,53 @@ export default function POSGoodsEntry() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-[12px] font-[500] text-[#667085] mb-1">
-                      Product ID *
+                      Select Product *
                     </label>
-                    <input
-                      type="number"
+                    <select
                       value={manualEntry.productId}
-                      onChange={(e) =>
-                        handleManualEntryChange("productId", e.target.value)
-                      }
+                      onChange={(e) => {
+                        const selectedId = e.target.value;
+                        const selectedProd = productList.find(
+                          (p) => String(p.id) === String(selectedId)
+                        );
+                        if (selectedProd) {
+                          setManualEntry((prev) => ({
+                            ...prev,
+                            productId: selectedProd.id,
+                            productName: selectedProd.productName || selectedProd.name || "",
+                            productCode: selectedProd.productCode || `PRD-${selectedProd.id}`,
+                            unit: selectedProd.unitOfMeasure || selectedProd.unit || "pieces",
+                          }));
+                        } else {
+                          setManualEntry((prev) => ({
+                            ...prev,
+                            productId: "",
+                            productName: "",
+                            productCode: "",
+                          }));
+                        }
+                      }}
                       className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-[#0F50AA]"
-                      placeholder="Enter product ID"
                       disabled={isConfirmed}
-                    />
+                    >
+                      <option value="">-- Choose a Product --</option>
+                      {productList.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.productName || p.name} ({p.productCode || `ID:${p.id}`})
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="block text-[12px] font-[500] text-[#667085] mb-1">
-                      Product Name *
+                      Product Name (Auto-filled)
                     </label>
                     <input
                       type="text"
                       value={manualEntry.productName}
-                      onChange={(e) =>
-                        handleManualEntryChange("productName", e.target.value)
-                      }
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-[#0F50AA]"
-                      placeholder="Enter product name"
-                      disabled={isConfirmed}
+                      readOnly
+                      className="w-full px-3 py-2 bg-gray-50 border border-[#E4E6EA] rounded-lg text-gray-700"
+                      placeholder="Selected product name"
                     />
                   </div>
 
