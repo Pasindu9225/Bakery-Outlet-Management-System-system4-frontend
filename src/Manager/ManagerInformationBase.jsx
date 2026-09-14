@@ -1,0 +1,381 @@
+import React, { useState, useEffect } from "react";
+import {
+    Package,
+    ArrowLeftRight,
+    TrendingUp,
+    FileText,
+    Search,
+    RefreshCw,
+    AlertCircle
+} from "lucide-react";
+import ManagerNavBar from "../component/ManagerNavBar.jsx";
+import ManagerSidebar from "../component/ManagerSidebar.jsx";
+import Loader from "../component/Loader.jsx";
+
+export default function ManagerInformationBase() {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [activeSection] = useState('Store Information Base');
+    const [activeTab, setActiveTab] = useState("purchases"); // purchases, grns, returns, stock
+
+    // Data States
+    const [purchaseOrders, setPurchaseOrders] = useState([]);
+    const [grns, setGrns] = useState([]);
+    const [returns, setReturns] = useState([]);
+    const [stock, setStock] = useState([]);
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    // Fetch all storekeeper data on mount
+    useEffect(() => {
+        fetchAllData();
+    }, []);
+
+    const fetchAllData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const baseUrl = process.env.REACT_APP_BASE_URL || "";
+            
+            // 1. Fetch Purchase Orders
+            const poResponse = await fetch(`${baseUrl}/STK/v1/purchase-orders`);
+            if (poResponse.ok) {
+                const poData = await poResponse.json();
+                setPurchaseOrders(poData.purchaseOrders || []);
+            }
+
+            // 2. Fetch GRNs
+            const grnResponse = await fetch(`${baseUrl}/STK/v1/grns`);
+            if (grnResponse.ok) {
+                const grnData = await grnResponse.json();
+                setGrns(grnData.grns || []);
+            }
+
+            // 3. Fetch Returns
+            const returnResponse = await fetch(`${baseUrl}/STK/v1/returns`);
+            if (returnResponse.ok) {
+                const returnData = await returnResponse.json();
+                setReturns(returnData.returns || []);
+            }
+
+            // 4. Fetch Stock
+            const stockResponse = await fetch(`${baseUrl}/STK/v1/materials/aggregated-stock`);
+            if (stockResponse.ok) {
+                const stockData = await stockResponse.json();
+                setStock(stockData || []);
+            }
+
+        } catch (err) {
+            console.error("Error fetching information base data:", err);
+            setError("Failed to load storekeeper information. " + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getFilteredData = (data, searchKeys) => {
+        if (!searchQuery) return data;
+        const lowerQuery = searchQuery.toLowerCase();
+        return data.filter(item => 
+            searchKeys.some(key => {
+                const val = item[key];
+                return val && String(val).toLowerCase().includes(lowerQuery);
+            })
+        );
+    };
+
+    const handleApprovePO = async (poId) => {
+        if (!window.confirm(`Are you sure you want to approve Purchase Order PO-${poId}? This will automatically generate a Goods Received Note for the Storekeeper.`)) {
+            return;
+        }
+        
+        try {
+            const baseUrl = process.env.REACT_APP_BASE_URL || "";
+            const response = await fetch(`${baseUrl}/api/manager/purchase-orders/${poId}/approve`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response.ok) {
+                alert(`Purchase Order PO-${poId} has been successfully approved!`);
+                fetchAllData(); // Refresh to show it as APPROVED and populate the GRNs tab
+            } else {
+                const errorData = await response.json();
+                alert(`Error approving PO: ${errorData.message || 'Unknown error'}`);
+            }
+        } catch (err) {
+            console.error("Failed to approve PO:", err);
+            alert("Network error: Failed to connect to backend");
+        }
+    };
+
+    const renderTabs = () => (
+        <div className="flex border-b border-[#E4E6EA] mb-6 overflow-x-auto hide-scrollbar">
+            {[
+                { id: "purchases", label: "Purchases (POs)", icon: <FileText size={18} /> },
+                { id: "grns", label: "Goods Received (GRNs)", icon: <Package size={18} /> },
+                { id: "returns", label: "Returns", icon: <ArrowLeftRight size={18} /> },
+                { id: "stock", label: "Stock Levels", icon: <TrendingUp size={18} /> }
+            ].map(tab => (
+                <button
+                    key={tab.id}
+                    onClick={() => { setActiveTab(tab.id); setSearchQuery(""); }}
+                    className={`flex items-center gap-2 px-6 py-3 border-b-2 transition-colors whitespace-nowrap ${
+                        activeTab === tab.id
+                            ? "border-[#0F50AA] text-[#0F50AA] font-semibold"
+                            : "border-transparent text-[#667085] hover:text-[#383E49]"
+                    }`}
+                >
+                    {tab.icon}
+                    {tab.label}
+                </button>
+            ))}
+        </div>
+    );
+
+    const renderTable = () => {
+        if (loading) {
+            return (
+                <Loader variant="section" text="Loading Store Information..." />
+            );
+        }
+
+        if (error) {
+            return (
+                <div className="flex items-center justify-center p-8 bg-red-50 text-red-600 rounded-lg">
+                    <AlertCircle className="mr-2" />
+                    <span>{error}</span>
+                </div>
+            );
+        }
+
+        switch (activeTab) {
+            case "purchases":
+                const filteredPOs = getFilteredData(purchaseOrders, ["poId", "supplierName", "status"]);
+                return (
+                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] overflow-hidden">
+                        <table className="w-full text-left text-[14px]">
+                            <thead className="bg-[#F8F9FA] text-[#667085] font-[500] border-b border-[#E4E6EA]">
+                                <tr>
+                                    <th className="p-4">PO ID</th>
+                                    <th className="p-4">Delivery Date</th>
+                                    <th className="p-4">Supplier</th>
+                                    <th className="p-4">Items count</th>
+                                    <th className="p-4">Total Cost</th>
+                                    <th className="p-4">Status</th>
+                                    <th className="p-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#E4E6EA]">
+                                {filteredPOs.length === 0 ? (
+                                    <tr><td colSpan="6" className="p-8 text-center text-[#667085]">No purchase orders found.</td></tr>
+                                ) : (
+                                    filteredPOs.map((po, index) => (
+                                        <tr key={index} className="hover:bg-[#F8F9FA]">
+                                            <td className="p-4 font-semibold text-[#383E49]">PO-{po.poId}</td>
+                                            <td className="p-4 text-[#667085]">{po.estimatedDeliveryDate}</td>
+                                            <td className="p-4 text-[#383E49]">{po.supplierName}</td>
+                                            <td className="p-4 text-[#667085]">{po.numberOfItems}</td>
+                                            <td className="p-4 text-[#383E49]">Rs. {po.totalCost?.toFixed(2)}</td>
+                                            <td className="p-4">
+                                                <span className={`px-2 py-1 rounded-full text-[12px] font-medium ${
+                                                    po.status?.toUpperCase() === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                                                    po.status?.toUpperCase().includes('PENDING') ? 'bg-orange-100 text-orange-700' :
+                                                    'bg-gray-100 text-gray-700'
+                                                }`}>
+                                                    {po.status}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 text-right">
+                                                {po.status?.toUpperCase().includes('PENDING') && (
+                                                    <button
+                                                        onClick={() => handleApprovePO(po.poId)}
+                                                        className="px-3 py-1 bg-[#0F50AA] text-white text-[13px] font-medium rounded-lg hover:bg-[#0A3D80] transition-colors shadow-sm"
+                                                    >
+                                                        Approve
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                );
+            case "grns":
+                const filteredGRNs = getFilteredData(grns, ["grnId", "supplierName", "poReference", "grnStatus"]);
+                return (
+                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] overflow-hidden">
+                        <table className="w-full text-left text-[14px]">
+                            <thead className="bg-[#F8F9FA] text-[#667085] font-[500] border-b border-[#E4E6EA]">
+                                <tr>
+                                    <th className="p-4">GRN ID</th>
+                                    <th className="p-4">Received Date</th>
+                                    <th className="p-4">PO Ref</th>
+                                    <th className="p-4">Supplier</th>
+                                    <th className="p-4">Total</th>
+                                    <th className="p-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#E4E6EA]">
+                                {filteredGRNs.length === 0 ? (
+                                    <tr><td colSpan="6" className="p-8 text-center text-[#667085]">No GRNs found.</td></tr>
+                                ) : (
+                                    filteredGRNs.map((grn, index) => (
+                                        <tr key={index} className="hover:bg-[#F8F9FA]">
+                                            <td className="p-4 font-semibold text-[#383E49]">GRN-{grn.grnId}</td>
+                                            <td className="p-4 text-[#667085]">{new Date(grn.receivedDate).toLocaleDateString()}</td>
+                                            <td className="p-4 text-[#0F50AA]">PO-{grn.poId}</td>
+                                            <td className="p-4 text-[#383E49]">{grn.supplierName}</td>
+                                            <td className="p-4 text-[#383E49]">Rs. {grn.total?.toFixed(2)}</td>
+                                            <td className="p-4">
+                                                <span className={`px-2 py-1 rounded-full text-[12px] font-medium ${
+                                                    grn.grnStatus === 'COMPLETED' ? 'bg-blue-100 text-blue-700' :
+                                                    'bg-gray-100 text-gray-700'
+                                                }`}>
+                                                    {grn.grnStatus}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                );
+            case "returns":
+                const filteredReturns = getFilteredData(returns, ["returnId", "supplierName", "status"]);
+                return (
+                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] overflow-hidden">
+                        <table className="w-full text-left text-[14px]">
+                            <thead className="bg-[#F8F9FA] text-[#667085] font-[500] border-b border-[#E4E6EA]">
+                                <tr>
+                                    <th className="p-4">Return ID</th>
+                                    <th className="p-4">Return Date</th>
+                                    <th className="p-4">Supplier</th>
+                                    <th className="p-4">Total Value</th>
+                                    <th className="p-4">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#E4E6EA]">
+                                {filteredReturns.length === 0 ? (
+                                    <tr><td colSpan="5" className="p-8 text-center text-[#667085]">No returns found.</td></tr>
+                                ) : (
+                                    filteredReturns.map((rtn, index) => (
+                                        <tr key={index} className="hover:bg-[#F8F9FA]">
+                                            <td className="p-4 font-semibold text-[#383E49]">RET-{rtn.returnId}</td>
+                                            <td className="p-4 text-[#667085]">{new Date(rtn.returnDate).toLocaleDateString()}</td>
+                                            <td className="p-4 text-[#383E49]">{rtn.supplierName}</td>
+                                            <td className="p-4 text-[#383E49]">Rs. {rtn.totalCost?.toFixed(2)}</td>
+                                            <td className="p-4">
+                                                <span className={`px-2 py-1 rounded-full text-[12px] font-medium bg-gray-100 text-gray-700`}>
+                                                    {rtn.status || "COMPLETED"}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                );
+            case "stock":
+                const filteredStock = getFilteredData(stock, ["name", "category"]);
+                return (
+                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] overflow-hidden">
+                        <table className="w-full text-left text-[14px]">
+                            <thead className="bg-[#F8F9FA] text-[#667085] font-[500] border-b border-[#E4E6EA]">
+                                <tr>
+                                    <th className="p-4">Material Name</th>
+                                    <th className="p-4">Category</th>
+                                    <th className="p-4">Unit of Measure</th>
+                                    <th className="p-4 text-right">Total Current Stock</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#E4E6EA]">
+                                {filteredStock.length === 0 ? (
+                                    <tr><td colSpan="4" className="p-8 text-center text-[#667085]">No stock information found.</td></tr>
+                                ) : (
+                                    filteredStock.map((item, index) => (
+                                        <tr key={index} className="hover:bg-[#F8F9FA]">
+                                            <td className="p-4 font-semibold text-[#383E49]">{item.name || item.genericMaterialName}</td>
+                                            <td className="p-4 text-[#667085] capitalize">{item.category}</td>
+                                            <td className="p-4 text-[#667085]">{item.unitOfMeasure}</td>
+                                            <td className="p-4 text-right">
+                                                <span className={`font-semibold ${item.totalStock <= 0 ? 'text-red-500' : 'text-[#383E49]'}`}>
+                                                    {item.totalStock !== undefined && item.totalStock !== null ? item.totalStock : '0'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
+    return (
+        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+            <ManagerSidebar sidebarOpen={sidebarOpen} />
+
+            <div className="flex-1 flex flex-col h-screen overflow-hidden">
+                <ManagerNavBar
+                    sidebarOpen={sidebarOpen}
+                    setSidebarOpen={setSidebarOpen}
+                    activeSection={activeSection}
+                />
+
+                <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+                    <div className="max-w-7xl mx-auto">
+                        
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                            <div>
+                                <h1 className="text-2xl font-bold text-[#383E49]">Store Information Base</h1>
+                                <p className="text-[#667085] mt-1">Oversight and tracking of all storekeeper activities</p>
+                            </div>
+
+                            <div className="flex items-center gap-3 w-full sm:w-auto">
+                                <div className="relative flex-1 sm:w-64">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                    <input
+                                        type="text"
+                                        placeholder={`Search ${activeTab}...`}
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent"
+                                    />
+                                </div>
+                                <button 
+                                    onClick={fetchAllData}
+                                    className="p-2 bg-white border border-[#E4E6EA] rounded-lg shadow-sm hover:bg-gray-50 text-[#667085] transition-colors"
+                                    title="Refresh Data"
+                                >
+                                    <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {renderTabs()}
+                        {renderTable()}
+
+                    </div>
+                </main>
+            </div>
+            
+            {sidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+        </div>
+    );
+}

@@ -1,0 +1,531 @@
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  RefreshCw,
+  Package,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
+  Send,
+  X,
+  ClipboardList,
+  ShoppingBasket,
+  CheckCircle2,
+  XCircle,
+  Inbox,
+  Search,
+  Plus,
+  Trash2,
+} from "lucide-react";
+
+import BakeryWorkerNavBar from "../component/BakeryWorkerNavBar.jsx";
+import BakeryWorkerSideBar from "../component/BakeryWorkerSideBar.jsx";
+
+const BASE_URL = process.env.REACT_APP_BASE_URL;
+
+function authHeaders() {
+  const token = localStorage.getItem("authToken");
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+const STATUS_META = {
+  PENDING: {
+    label: "Pending",
+    color: "text-[#667085] bg-[#F0F1F3]",
+    icon: <Clock size={12} />,
+  },
+  ISSUED: {
+    label: "Issued",
+    color: "text-[#199D26] bg-[#F0FDF4]",
+    icon: <CheckCircle2 size={12} />,
+  },
+  RECEIVED: {
+    label: "Received",
+    color: "text-[#1366D9] bg-[#F0F8FF]",
+    icon: <CheckCircle size={12} />,
+  },
+  REJECTED: {
+    label: "Rejected",
+    color: "text-[#EF4444] bg-[#FEF2F2]",
+    icon: <XCircle size={12} />,
+  },
+};
+
+const getStatusMeta = (status) =>
+  STATUS_META[status?.toUpperCase()] || STATUS_META["PENDING"];
+
+function ConfirmReceiptModal({ request, onClose, onConfirm, loading }) {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+        <div className="p-5 border-b border-[#E4E6EA] flex items-center justify-between">
+          <div>
+            <h3 className="text-[16px] font-[600] text-[#383E49]">Confirm Receipt</h3>
+            <p className="text-[12px] text-[#667085] mt-0.5">Request #{request.id}</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 hover:bg-[#F0F1F3] rounded-lg">
+            <X size={18} className="text-[#667085]" />
+          </button>
+        </div>
+        <div className="p-5">
+          <p className="text-[13px] text-[#383E49] mb-3">
+            Confirm that you have received all issued ingredients for this request?
+          </p>
+          <div className="space-y-1.5 max-h-40 overflow-y-auto">
+            {request.items?.map((item) => (
+              <div key={item.id} className="flex justify-between text-[12px] text-[#667085]">
+                <span>{item.rawMaterialName}</span>
+                <span className="font-[500]">{item.issuedQty ?? item.requestedQty} {item.unitOfMeasure}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="p-5 border-t border-[#E4E6EA] flex gap-3 justify-end">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="px-4 py-2 border border-[#E4E6EA] text-[#667085] text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA]"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="px-4 py-2 bg-[#199D26] text-white text-[13px] font-[500] rounded-lg hover:bg-[#157A1E] flex items-center gap-2 disabled:opacity-60"
+          >
+            {loading ? <RefreshCw size={14} className="animate-spin" /> : <CheckCircle2 size={15} />}
+            Confirm Receipt
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NewRequestForm({ rawMaterials, onSubmit, submitting }) {
+  const [items, setItems] = useState([{ rawMaterialId: "", requestedQty: "" }]);
+  const [notes, setNotes] = useState("");
+  const [error, setError] = useState("");
+
+  const addItem = () => setItems((prev) => [...prev, { rawMaterialId: "", requestedQty: "" }]);
+  const removeItem = (idx) => setItems((prev) => prev.filter((_, i) => i !== idx));
+  const updateItem = (idx, field, value) =>
+    setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, [field]: value } : it)));
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const validItems = items.filter((it) => it.rawMaterialId && it.requestedQty > 0);
+    if (validItems.length === 0) {
+      setError("Add at least one ingredient with a positive quantity.");
+      return;
+    }
+    setError("");
+    onSubmit({
+      productionPlanId: null,
+      notes: notes.trim() || null,
+      items: validItems.map((it) => ({
+        rawMaterialId: Number(it.rawMaterialId),
+        requestedQty: Number(it.requestedQty),
+      })),
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        {items.map((item, idx) => (
+          <div key={idx} className="flex gap-2 items-center">
+            <select
+              className="flex-1 px-3 py-2 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+              value={item.rawMaterialId}
+              onChange={(e) => updateItem(idx, "rawMaterialId", e.target.value)}
+            >
+              <option value="">— Select ingredient —</option>
+              {rawMaterials.map((rm) => (
+                <option key={rm.id} value={rm.id}>
+                  {rm.materialName || rm.name || rm.genericMaterialName || `Material #${rm.id}`} ({rm.unit || rm.unitOfMeasure || "unit"})
+                </option>
+              ))}
+            </select>
+            <input
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="Qty"
+              value={item.requestedQty}
+              onChange={(e) => updateItem(idx, "requestedQty", e.target.value)}
+              className="w-24 px-3 py-2 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+            />
+            {items.length > 1 && (
+              <button
+                type="button"
+                onClick={() => removeItem(idx)}
+                className="p-2 text-[#EF4444] hover:bg-[#FEF2F2] rounded-lg"
+              >
+                <Trash2 size={14} />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={addItem}
+        className="inline-flex items-center gap-1.5 text-[12px] text-[#0F50AA] hover:underline"
+      >
+        <Plus size={13} /> Add another ingredient
+      </button>
+
+      <div>
+        <label className="block text-[12px] font-[500] text-[#383E49] mb-1">
+          Notes <span className="text-[#667085]">(optional)</span>
+        </label>
+        <textarea
+          rows={2}
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Any special instructions..."
+          className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] resize-none"
+        />
+      </div>
+
+      {error && (
+        <div className="flex items-center gap-2 text-[#EF4444] text-[12px]">
+          <AlertTriangle size={13} /> {error}
+        </div>
+      )}
+
+      <button
+        type="submit"
+        disabled={submitting}
+        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0F50AA] text-white text-[13px] font-[500] rounded-lg hover:bg-[#0D4494] disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        {submitting ? (
+          <><RefreshCw size={14} className="animate-spin" /> Submitting...</>
+        ) : (
+          <><Send size={14} /> Submit Request</>
+        )}
+      </button>
+    </form>
+  );
+}
+
+export default function BakeryGetIngredients() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const activeSection = "Get Ingredients";
+
+  const [requests, setRequests] = useState([]);
+  const [rawMaterials, setRawMaterials] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [confirmRequest, setConfirmRequest] = useState(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  const fetchRequests = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    console.log(`[BakeryGetIngredients] Fetching requests from ${BASE_URL}/api/v1/worker/ingredient-requests. Token: ${localStorage.getItem("authToken") ? 'present' : 'MISSING'}`);
+    try {
+      const res = await fetch(`${BASE_URL}/api/v1/worker/ingredient-requests`, {
+        headers: authHeaders(),
+      });
+
+      if (!res.ok) throw new Error(`Failed to load requests (${res.status})`);
+      const data = await res.json();
+      setRequests(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchRawMaterials = useCallback(async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/STK/v1/materials/all`, {
+        headers: authHeaders(),
+      });
+      if (!res.ok) return; // non-critical; form still works with empty list
+      const data = await res.json();
+      // STK/v1/materials/all returns AllRawMaterialsResponseDto — try to extract list
+      const list = Array.isArray(data) ? data : data.rawMaterials ?? data.materials ?? [];
+      setRawMaterials(list);
+    } catch {
+      // silently ignore — user can still type IDs
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRequests();
+    fetchRawMaterials();
+  }, [fetchRequests, fetchRawMaterials]);
+
+  const handleSubmitRequest = async (payload) => {
+    setSubmitting(true);
+    setError("");
+    setSuccessMsg("");
+    console.log(`[BakeryGetIngredients] Submitting request to ${BASE_URL}/api/v1/worker/ingredient-requests. Token: ${localStorage.getItem("authToken") ? 'present' : 'MISSING'}`);
+    try {
+      const res = await fetch(`${BASE_URL}/api/v1/worker/ingredient-requests`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || `Error ${res.status}`);
+      }
+      const created = await res.json();
+      setRequests((prev) => [created, ...prev]);
+      setShowNewForm(false);
+      setSuccessMsg("Ingredient request submitted successfully!");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleConfirmReceipt = async () => {
+    if (!confirmRequest) return;
+    setConfirmLoading(true);
+    setError("");
+    try {
+      const res = await fetch(
+        `${BASE_URL}/api/v1/worker/ingredient-requests/${confirmRequest.id}/confirm-receipt`,
+        { method: "POST", headers: authHeaders() }
+      );
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || `Error ${res.status}`);
+      }
+      const updated = await res.json();
+      setRequests((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+      setConfirmRequest(null);
+      setSuccessMsg("Receipt confirmed!");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setConfirmLoading(false);
+    }
+  };
+
+  const filteredRequests = requests.filter(
+    (r) =>
+      !searchTerm ||
+      String(r.id).includes(searchTerm) ||
+      (r.notes ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.status ?? "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+      <BakeryWorkerSideBar sidebarOpen={sidebarOpen} />
+
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        <BakeryWorkerNavBar
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          activeSection={activeSection}
+        />
+
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+          {/* Page Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+            <div>
+              <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">Get Ingredients</h1>
+              <p className="text-[14px] text-[#667085]">
+                Request raw materials &amp; semi-finished goods from store
+              </p>
+            </div>
+            <div className="flex gap-2 mt-3 sm:mt-0">
+              <button
+                onClick={fetchRequests}
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] bg-white text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+              >
+                <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
+                Refresh
+              </button>
+              <button
+                onClick={() => { setShowNewForm((v) => !v); setSuccessMsg(""); setError(""); }}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0F50AA] text-white text-[13px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors"
+              >
+                <Plus size={15} />
+                New Request
+              </button>
+            </div>
+          </div>
+
+          {/* Alerts */}
+          {error && (
+            <div className="mb-4 flex items-center gap-2 bg-[#FEF2F2] border border-[#FECACA] rounded-lg p-3 text-[13px] text-[#EF4444]">
+              <AlertTriangle size={14} /> {error}
+            </div>
+          )}
+          {successMsg && (
+            <div className="mb-4 flex items-center gap-2 bg-[#F0FDF4] border border-[#BBF7D0] rounded-lg p-3 text-[13px] text-[#199D26]">
+              <CheckCircle2 size={14} /> {successMsg}
+            </div>
+          )}
+
+          {/* New Request Form */}
+          {showNewForm && (
+            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6 mb-5">
+              <div className="flex items-center gap-2 mb-4">
+                <ClipboardList size={16} className="text-[#0F50AA]" />
+                <h3 className="text-[15px] font-[600] text-[#383E49]">New Ingredient Request</h3>
+              </div>
+              <NewRequestForm
+                rawMaterials={rawMaterials}
+                onSubmit={handleSubmitRequest}
+                submitting={submitting}
+              />
+            </div>
+          )}
+
+          {/* Requests List */}
+          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
+              <h3 className="text-[16px] font-[600] text-[#383E49]">My Ingredient Requests</h3>
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={15} />
+                <input
+                  type="text"
+                  placeholder="Search by ID, status, notes..."
+                  className="w-full pl-9 pr-4 py-2 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="text-center py-14">
+                <RefreshCw size={36} className="mx-auto text-[#0F50AA] mb-4 animate-spin" />
+                <p className="text-[14px] font-[500] text-[#383E49]">Loading requests...</p>
+              </div>
+            ) : filteredRequests.length === 0 ? (
+              <div className="text-center py-14">
+                <ShoppingBasket size={44} className="mx-auto text-[#C8CDD5] mb-4" />
+                <p className="text-[15px] font-[500] text-[#383E49] mb-1">No ingredient requests yet</p>
+                <p className="text-[13px] text-[#667085]">
+                  Click "New Request" above to request ingredients from the store.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredRequests.map((request) => {
+                  const meta = getStatusMeta(request.status);
+                  return (
+                    <div
+                      key={request.id}
+                      className="border border-[#E4E6EA] rounded-lg p-4 hover:bg-[#F8F9FA] transition-colors"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-orange-50 rounded-lg">
+                            <Package size={16} className="text-orange-500" />
+                          </div>
+                          <div>
+                            <p className="text-[14px] font-[600] text-[#383E49]">
+                              Request #{request.id}
+                            </p>
+                            <p className="text-[11px] text-[#667085]">
+                              {request.createdAt
+                                ? new Date(request.createdAt).toLocaleString()
+                                : "—"}
+                              {request.notes && ` · ${request.notes}`}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={`inline-flex items-center gap-1.5 text-[11px] font-[500] px-2.5 py-1 rounded-full ${meta.color}`}
+                          >
+                            {meta.icon}
+                            {meta.label}
+                          </span>
+                          {request.status === "ISSUED" && (
+                            <button
+                              onClick={() => setConfirmRequest(request)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#199D26] text-white text-[12px] font-[500] rounded-lg hover:bg-[#157A1E] transition-colors"
+                            >
+                              <CheckCircle2 size={13} />
+                              Confirm Receipt
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Items */}
+                      {request.items && request.items.length > 0 && (
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-[12px]">
+                            <thead>
+                              <tr className="border-b border-[#E4E6EA]">
+                                <th className="text-left py-2 px-2 font-[500] text-[#667085]">Ingredient</th>
+                                <th className="text-center py-2 px-2 font-[500] text-[#667085]">Requested</th>
+                                <th className="text-center py-2 px-2 font-[500] text-[#667085]">Issued</th>
+                                <th className="text-center py-2 px-2 font-[500] text-[#667085]">Unit</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {request.items.map((item) => (
+                                <tr key={item.id} className="border-b border-[#E4E6EA] last:border-0">
+                                  <td className="py-2 px-2 text-[#383E49] font-[500]">
+                                    {item.rawMaterialName}
+                                  </td>
+                                  <td className="py-2 px-2 text-center text-[#383E49]">
+                                    {item.requestedQty}
+                                  </td>
+                                  <td className="py-2 px-2 text-center text-[#383E49]">
+                                    {item.issuedQty ?? "—"}
+                                  </td>
+                                  <td className="py-2 px-2 text-center">
+                                    <span className="text-[#667085] bg-[#F0F1F3] px-1.5 py-0.5 rounded">
+                                      {item.unitOfMeasure}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+
+      {/* Confirm Receipt Modal */}
+      {confirmRequest && (
+        <ConfirmReceiptModal
+          request={confirmRequest}
+          onClose={() => setConfirmRequest(null)}
+          onConfirm={handleConfirmReceipt}
+          loading={confirmLoading}
+        />
+      )}
+
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+    </div>
+  );
+}

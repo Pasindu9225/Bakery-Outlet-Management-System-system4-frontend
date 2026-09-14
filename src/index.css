@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    overflow-y: auto !important;
+    background-color: #F0F1F3;
+    color: #383E49;
+}
+
+@keyframes pulse-highlight {
+    0% { background-color: transparent; }
+    30% { background-color: rgba(15, 80, 170, 0.1); }
+    100% { background-color: transparent; }
+}
+
+.pulse-item {
+    animation: pulse-highlight 1s ease-out;
+}

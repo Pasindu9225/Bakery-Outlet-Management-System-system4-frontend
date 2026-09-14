@@ -1,0 +1,30 @@
+const fs = require('fs');
+let content = fs.readFileSync('src/POS/POSTableBilling.jsx', 'utf-8');
+
+content = content.replaceAll('POSTableBilling', 'POSWaiterBilling');
+content = content.replaceAll('Table Management', 'Waiter Management');
+content = content.replaceAll('Table Selection', 'Waiter Selection');
+content = content.replaceAll('selectedTable', 'selectedWaiter');
+content = content.replaceAll('setSelectedTable', 'setSelectedWaiter');
+content = content.replaceAll('tables', 'waiters');
+content = content.replaceAll('setTables', 'setWaiters');
+content = content.replaceAll('targetTableId', 'targetWaiterId');
+content = content.replaceAll('setTargetTableId', 'setTargetWaiterId');
+content = content.replaceAll('fetchTables', 'fetchWaiters');
+content = content.replaceAll('tableOrders', 'waiterOrders');
+content = content.replaceAll('setTableOrders', 'setWaiterOrders');
+content = content.replaceAll('fetchTableDetails', 'fetchWaiterDetails');
+content = content.replaceAll('handleTransferTable', 'handleTransferWaiter');
+content = content.replaceAll('Transfer to Table', 'Transfer to Waiter');
+content = content.replaceAll('Select available table', 'Select waiter to transfer to');
+content = content.replaceAll('Manage table orders', 'Manage waiter orders');
+content = content.replaceAll('Table 01', 'Waiter');
+content = content.replaceAll('Current Order - Table', 'Current Order - Waiter');
+content = content.replaceAll('tableId', 'waiterId');
+content = content.replaceAll('/api/pos/v1/table-billing/tables', '/api/pos/v1/waiter-billing/waiters?outletId=\${localStorage.getItem(\"outletId\")}');
+content = content.replaceAll('/api/pos/v1/table-billing/table-details', '/api/pos/v1/waiter-billing/waiter-details');
+content = content.replaceAll('/api/pos/v1/table-billing/add-item', '/api/pos/v1/waiter-billing/add-item');
+content = content.replaceAll('/api/pos/v1/table-billing/finish-billing', '/api/pos/v1/waiter-billing/finish-billing');
+content = content.replaceAll('posService.removeTableItem(itemId)', 'axios.delete(process.env.REACT_APP_BASE_URL + `/api/pos/v1/waiter-billing/items/${itemId}`)');
+
+fs.writeFileSync('src/POS/POSWaiterBilling.jsx', content);
