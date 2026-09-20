@@ -1,17 +1,10 @@
 import React from "react";
 import {
-  Calendar,
   Calculator,
-  Factory,
-  ChefHat,
-  Store,
-  History,
-  ClipboardCheck,
   Settings,
   FileText,
   ArrowLeft,
   LayoutDashboard,
-  Package2,
   TrendingUp,
   Users,
   LogOut,
@@ -39,64 +32,16 @@ export default function ManagerSidebar({ sidebarOpen }) {
       color: "text-blue-600",
     },
     {
-      name: "Production Planning",
-      icon: Calendar,
-      path: "/managerProductionPlanning",
-      color: "text-blue-600",
-    },
-    {
       name: "Credit Orders",
       icon: CreditCard,
       path: "/managerCreditOrders",
       color: "text-purple-600",
     },
     {
-      name: "Bakery Requests",
-      icon: Factory,
-      path: "/managerBakeryRequests",
-      color: "text-orange-600",
-    },
-    {
-      name: "Kitchen Requests",
-      icon: ChefHat,
-      path: "/managerKitchenRequests",
-      color: "text-red-600",
-    },
-    {
-      name: "Outlet Distribution",
-      icon: Store,
-      path: "/managerOutletDistribution",
-      color: "text-purple-600",
-    },
-    {
-      name: "Actual Production",
-      icon: Store,
-      path: "/managerActualProduction",
-      color: "text-green-600",
-    },
-    {
-      name: "Outlet Stock",
-      icon: Store,
-      path: "/managerOutletStock",
-      color: "text-indigo-600",
-    },
-    {
-      name: "Stock Adjustments",
-      icon: ClipboardCheck,
-      path: "/managerStockAdjustments",
-      color: "text-cyan-600",
-    },
-    {
       name: "Manager Approval",
       icon: UserCheck,
       path: "/managerApprovalRequests",
       color: "text-cyan-600",
-    },
-    {
-      name: "Store Info Base",
-      icon: Package2,
-      path: "/managerInformationBase",
-      color: "text-amber-600",
     },
     {
       name: "Discount Management",
@@ -149,7 +94,7 @@ export default function ManagerSidebar({ sidebarOpen }) {
         <div className="px-4 py-3 bg-gradient-to-r from-[#0F50AA] to-[#1E40AF] text-white">
           <h2 className="text-[16px] font-[600]">Manager Module</h2>
           <p className="text-[12px] text-blue-100">
-            Production & Distribution Management
+            Approvals & Discount Management
           </p>
         </div>
 
@@ -160,18 +105,18 @@ export default function ManagerSidebar({ sidebarOpen }) {
           </p>
           <div className="grid grid-cols-2 gap-2">
             <NavLink
-              to={"/managerProductionPlanning"}
+              to={"/managerApprovalRequests"}
               className="flex items-center gap-2 p-2 text-[11px] bg-white rounded border hover:bg-blue-50 hover:border-blue-200 transition-colors"
             >
-              <Calendar size={14} className="text-blue-600" />
-              <span>New Plan</span>
+              <UserCheck size={14} className="text-blue-600" />
+              <span>Approvals</span>
             </NavLink>
             <NavLink
-              to={"/managerOutletDistribution"}
+              to={"/managerDiscountRules"}
               className="flex items-center gap-2 p-2 text-[11px] bg-white rounded border hover:bg-green-50 hover:border-green-200 transition-colors"
             >
-              <Store size={14} className="text-green-600" />
-              <span>Distribution</span>
+              <Tag size={14} className="text-green-600" />
+              <span>Discounts</span>
             </NavLink>
           </div>
         </div>

@@ -1,23 +1,8 @@
 import React from "react";
 import {
-  Calendar,
-  Store,
-  ClipboardList,
-  Package,
-  ShoppingCart,
-  FileText,
-  RotateCcw,
-  Settings2,
   ArrowLeft,
   LayoutDashboard,
-  AlertTriangle,
-  Receipt,
-  ArrowLeftRight,
-  Users,
   LogOut,
-  Eye,
-  Filter,
-  Truck,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { performLogout, getRoleName } from "../utils/auth";
@@ -36,54 +21,6 @@ export default function StorekeeperSidebar({ sidebarOpen }) {
       icon: LayoutDashboard,
       path: "/storekeeperDashboard",
       color: "text-blue-600",
-    },
-    {
-      name: "Manager Requests",
-      icon: ClipboardList,
-      path: "/storekeeperManagerRequests",
-      color: "text-orange-600",
-    },
-    /* {
-      name: "Worker Requests",
-      icon: Truck,
-      path: "/storekeeperIngredientRequests",
-      color: "text-blue-600",
-    }, */
-    {
-      name: "View Full Store",
-      icon: Package,
-      path: "/storekeeperViewStore",
-      color: "text-green-600",
-    },
-    {
-      name: "Create Purchase Order",
-      icon: ShoppingCart,
-      path: "/storekeeperCreatePO",
-      color: "text-purple-600",
-    },
-    {
-      name: "Goods Received Note",
-      icon: Receipt,
-      path: "/storekeeperGRN",
-      color: "text-indigo-600",
-    },
-    {
-      name: "Return Materials",
-      icon: RotateCcw,
-      path: "/storekeeperReturnMaterials",
-      color: "text-red-600",
-    },
-    {
-      name: "Stock Adjustments",
-      icon: Settings2,
-      path: "/storekeeperStockAdjustments",
-      color: "text-yellow-600",
-    },
-    {
-      name: "IOU Purchase",
-      icon: FileText,
-      path: "/storekeeperIOUPurchase",
-      color: "text-cyan-600",
     },
   ];
 
@@ -112,31 +49,8 @@ export default function StorekeeperSidebar({ sidebarOpen }) {
         <div className="px-4 py-3 bg-gradient-to-r from-[#0F50AA] to-[#1E40AF] text-white">
           <h2 className="text-[16px] font-[600]">Storekeeper Module</h2>
           <p className="text-[12px] text-blue-100">
-            Inventory & Stock Management
+            Not used in this deployment
           </p>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="px-4 py-3 bg-[#F8F9FA] border-b border-[#E4E6EA]">
-          <p className="text-[10px] font-[600] text-[#667085] uppercase tracking-wide mb-2">
-            Quick Actions
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <NavLink
-              to={"/storekeeperManagerRequests"}
-              className="flex items-center gap-2 p-2 text-[11px] bg-white rounded border hover:bg-orange-50 hover:border-orange-200 transition-colors"
-            >
-              <ClipboardList size={14} className="text-orange-600" />
-              <span>Requests</span>
-            </NavLink>
-            <NavLink
-              to={"/storekeeperCreatePO"}
-              className="flex items-center gap-2 p-2 text-[11px] bg-white rounded border hover:bg-purple-50 hover:border-purple-200 transition-colors"
-            >
-              <ShoppingCart size={14} className="text-purple-600" />
-              <span>Order</span>
-            </NavLink>
-          </div>
         </div>
 
         {/* Navigation */}

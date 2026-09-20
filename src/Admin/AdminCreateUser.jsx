@@ -64,12 +64,12 @@ export default function AdminCreateUser() {
   const [roleSearchInput, setRoleSearchInput] = useState("");
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
 
+  // Store Keeper, Manager, Bakery Worker and Kitchen Worker are not part of this
+  // deployment's scope (no production plans, process-item flows, or store section) —
+  // removed from the assignable list so new accounts can't be created with them.
+  // Existing accounts with those roles, if any, are unaffected.
   const roles = [
     "POS Cashier",
-    "Store Keeper",
-    "Manager",
-    "Bakery Worker",
-    "Kitchen Worker",
     "MPC Worker",
     "Admin",
     "MIS Admin",

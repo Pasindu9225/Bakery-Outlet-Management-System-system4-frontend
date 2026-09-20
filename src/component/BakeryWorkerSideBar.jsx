@@ -1,15 +1,8 @@
 import React from "react";
 import {
   LayoutDashboard,
-  ClipboardList,
-  ShoppingBasket,
-  Layers,
-  BarChart3,
   ArrowLeft,
   LogOut,
-  ChefHat,
-  History,
-  Store,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { performLogout, getRoleName } from "../utils/auth";
@@ -28,36 +21,6 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
       icon: LayoutDashboard,
       path: "/bakeryWorkerDashboard",
       color: "text-blue-600",
-    },
-    {
-      name: "Production Requests",
-      icon: ClipboardList,
-      path: "/bakeryProductionRequests",
-      color: "text-orange-600",
-    },
-    {
-      name: "Get Ingredients",
-      icon: ShoppingBasket,
-      path: "/bakeryGetIngredients",
-      color: "text-green-600",
-    },
-    {
-      name: "My Store Inventory",
-      icon: Store,
-      path: "/bakeryStoreInventory",
-      color: "text-emerald-600",
-    },
-    {
-      name: "Partial Production",
-      icon: Layers,
-      path: "/bakeryPartialProduction",
-      color: "text-purple-600",
-    },
-    {
-      name: "Production History",
-      icon: History,
-      path: "/bakeryProductionHistory",
-      color: "text-slate-600",
     },
   ];
 
@@ -87,31 +50,8 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
         <div className="px-4 py-3 bg-gradient-to-r from-[#0F50AA] to-[#1E40AF] text-white">
           <h2 className="text-[16px] font-[600]">Bakery Worker Module</h2>
           <p className="text-[12px] text-blue-100">
-            Production & Ingredient Management
+            Not used in this deployment
           </p>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="px-4 py-3 bg-[#F8F9FA] border-b border-[#E4E6EA]">
-          <p className="text-[10px] font-[600] text-[#667085] uppercase tracking-wide mb-2">
-            Quick Actions
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <NavLink
-              to={"/bakeryProductionRequests"}
-              className="flex items-center gap-2 p-2 text-[11px] bg-white rounded border hover:bg-orange-50 hover:border-orange-200 transition-colors"
-            >
-              <ClipboardList size={14} className="text-orange-600" />
-              <span>Tasks</span>
-            </NavLink>
-            <NavLink
-              to={"/bakeryGetIngredients"}
-              className="flex items-center gap-2 p-2 text-[11px] bg-white rounded border hover:bg-green-50 hover:border-green-200 transition-colors"
-            >
-              <ShoppingBasket size={14} className="text-green-600" />
-              <span>Ingredients</span>
-            </NavLink>
-          </div>
         </div>
 
         {/* Navigation */}

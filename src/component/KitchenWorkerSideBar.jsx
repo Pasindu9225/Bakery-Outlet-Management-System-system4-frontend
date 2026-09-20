@@ -1,13 +1,8 @@
 import React from "react";
 import {
   LayoutDashboard,
-  ClipboardList,
-  ShoppingBasket,
-  ArrowLeftRight,
-  RotateCcw,
   ArrowLeft,
   LogOut,
-  Store,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { performLogout, getRoleName } from "../utils/auth";
@@ -26,36 +21,6 @@ export default function KitchenWorkerSideBar({ sidebarOpen }) {
       icon: LayoutDashboard,
       path: "/kitchenWorkerDashboard",
       color: "text-blue-600",
-    },
-    {
-      name: "Production Requests",
-      icon: ClipboardList,
-      path: "/kitchenProductionRequests",
-      color: "text-orange-600",
-    },
-    {
-      name: "Get Ingredients",
-      icon: ShoppingBasket,
-      path: "/kitchenGetIngredients",
-      color: "text-green-600",
-    },
-    {
-      name: "My Store Inventory",
-      icon: Store,
-      path: "/kitchenStoreInventory",
-      color: "text-emerald-600",
-    },
-    {
-      name: "Transfer Note",
-      icon: ArrowLeftRight,
-      path: "/kitchenTransferNote",
-      color: "text-purple-600",
-    },
-    {
-      name: "Return to Store",
-      icon: RotateCcw,
-      path: "/kitchenReturnToStore",
-      color: "text-red-600",
     },
   ];
 
@@ -85,31 +50,8 @@ export default function KitchenWorkerSideBar({ sidebarOpen }) {
         <div className="px-4 py-3 bg-gradient-to-r from-[#0F50AA] to-[#1E40AF] text-white">
           <h2 className="text-[16px] font-[600]">Kitchen Worker Module</h2>
           <p className="text-[12px] text-blue-100">
-            Production & Ingredient Management
+            Not used in this deployment
           </p>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="px-4 py-3 bg-[#F8F9FA] border-b border-[#E4E6EA]">
-          <p className="text-[10px] font-[600] text-[#667085] uppercase tracking-wide mb-2">
-            Quick Actions
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <NavLink
-              to={"/kitchenProductionRequests"}
-              className="flex items-center gap-2 p-2 text-[11px] bg-white rounded border hover:bg-orange-50 hover:border-orange-200 transition-colors"
-            >
-              <ClipboardList size={14} className="text-orange-600" />
-              <span>My Tasks</span>
-            </NavLink>
-            <NavLink
-              to={"/kitchenGetIngredients"}
-              className="flex items-center gap-2 p-2 text-[11px] bg-white rounded border hover:bg-green-50 hover:border-green-200 transition-colors"
-            >
-              <ShoppingBasket size={14} className="text-green-600" />
-              <span>Ingredients</span>
-            </NavLink>
-          </div>
         </div>
 
         {/* Navigation */}
