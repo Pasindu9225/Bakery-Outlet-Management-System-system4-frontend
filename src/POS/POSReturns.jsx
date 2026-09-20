@@ -62,6 +62,7 @@ export default function POSReturns() {
     // Step 5: Final Confirmation
     const [processedReturn, setProcessedReturn] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [managerVerificationCode, setManagerVerificationCode] = useState('');
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [printReturnData, setPrintReturnData] = useState(null);
 
@@ -410,6 +411,10 @@ export default function POSReturns() {
 
     // Confirm return processing
     const confirmReturn = async () => {
+        if (!managerVerificationCode.trim()) {
+            toast.error("Manager verification code is required to process a return.");
+            return;
+        }
         try {
             const cashierId = localStorage.getItem("userId") || "34000000-0000-0000-0000-000000000000";
 
@@ -438,9 +443,7 @@ export default function POSReturns() {
                 refundType: refundType.toUpperCase(), // "REFUND" or "EXCHANGE"
                 cashierId: cashierId,
                 paymentMethodId: finalPaymentMethodId,
-                totalReturnAmount: returnTotal,
-                totalExchangeAmount: refundType === 'exchange' ? exchangeTotal : 0,
-                netRefundAmount: balanceAmount,
+                verificationCode: managerVerificationCode,
                 returnItems: returnItems.map(item => ({
                     saleItemId: item.id,
                     qty: item.returnQuantity,
@@ -457,6 +460,7 @@ export default function POSReturns() {
             const data = await posService.processItemReturn(requestBody);
 
             setShowConfirmModal(false);
+            setManagerVerificationCode('');
             setShowSuccessModal(true);
             setCurrentStep(5);
             toast.success('Return processed successfully!');
@@ -1298,11 +1302,24 @@ export default function POSReturns() {
                                         )}
                                     </div>
                                 </div>
+
+                                <div>
+                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                        Manager Verification Code
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={managerVerificationCode}
+                                        onChange={(e) => setManagerVerificationCode(e.target.value)}
+                                        placeholder="Enter manager code to authorize this return"
+                                        className="w-full px-4 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                    />
+                                </div>
                             </div>
 
                             <div className="flex gap-3">
                                 <button
-                                    onClick={() => setShowConfirmModal(false)}
+                                    onClick={() => { setShowConfirmModal(false); setManagerVerificationCode(''); }}
                                     className="flex-1 px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors"
                                 >
                                     Cancel
