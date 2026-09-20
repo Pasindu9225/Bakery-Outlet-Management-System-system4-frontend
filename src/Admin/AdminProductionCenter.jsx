@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Factory, X, Check, Trash2, Edit, Search, Calendar, MapPin } from "lucide-react";
+import { Factory, X, Check, Trash2, Edit, Search, Calendar, MapPin, ClipboardList } from "lucide-react";
+import MpcMenuModal from "./MpcMenuModal.jsx";
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
@@ -12,6 +13,7 @@ export default function AdminProductionCenter() {
     const [showModal, setShowModal] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingCenterId, setEditingCenterId] = useState(null);
+    const [menuMpc, setMenuMpc] = useState(null);
 
     // Search and filter states
     const [searchTerm, setSearchTerm] = useState('');
@@ -21,11 +23,18 @@ export default function AdminProductionCenter() {
     const [outlets, setOutlets] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const getAuthHeaders = () => {
+        const token = localStorage.getItem('authToken');
+        return token ? { Authorization: `Bearer ${token}` } : {};
+    };
+
     const fetchCenters = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/production-center/all`);
-            const formattedData = response.data.map(item => ({
+            const BASE_URL = process.env.REACT_APP_BASE_URL;
+            const headers = getAuthHeaders();
+            const response = await axios.get(`${BASE_URL}/api/v1/admin/production-center/all`, { headers });
+            const formattedData = (response.data || []).map(item => ({
                 id: item.id,
                 name: item.centerName,
                 location: item.location || "",
@@ -34,7 +43,37 @@ export default function AdminProductionCenter() {
                 establishedDate: item.createdAt,
                 status: item.isActive ? "Active" : "Inactive"
             }));
-            setCenters(formattedData);
+
+            try {
+                const outletsRes = await axios.get(`${BASE_URL}/api/v1/admin/outlet/all`, { headers });
+                const rawOutlets = outletsRes.data || [];
+                const formattedOutlets = rawOutlets.map(o => ({
+                    id: o.outletId ?? o.id ?? o.outlet_id,
+                    name: o.name || o.outletName || o.location || `Outlet #${o.outletId ?? o.id}`
+                })).filter(o => o.id !== undefined && o.id !== null);
+                setOutlets(formattedOutlets);
+
+                const mpcPromises = formattedOutlets.map(o => {
+                    return axios.get(`${BASE_URL}/api/v1/admin/outlet/${o.id}/production-centers`, { headers })
+                        .then(res => (res.data || []).map(mpc => ({
+                            id: mpc.id,
+                            name: mpc.name,
+                            location: o.name,
+                            type: 'MPC',
+                            isMpc: true,
+                            outletId: o.id,
+                            establishedDate: mpc.createdAt || new Date().toISOString(),
+                            status: mpc.isActive !== false ? "Active" : "Inactive"
+                        })))
+                        .catch(() => []);
+                });
+                const mpcResults = await Promise.all(mpcPromises);
+                const allMpcs = mpcResults.flat();
+                setCenters([...formattedData, ...allMpcs]);
+            } catch (e) {
+                console.error("Error fetching outlets or MPCs:", e);
+                setCenters(formattedData);
+            }
         } catch (error) {
             console.error("Error fetching production centers:", error);
         } finally {
@@ -44,14 +83,6 @@ export default function AdminProductionCenter() {
 
     useEffect(() => {
         fetchCenters();
-        (async () => {
-            try {
-                const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/all`);
-                setOutlets(res.data || []);
-            } catch (e) {
-                console.error("Failed to fetch outlets:", e);
-            }
-        })();
     }, []);
 
     const [formData, setFormData] = useState({
@@ -66,6 +97,14 @@ export default function AdminProductionCenter() {
     const [errors, setErrors] = useState({});
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
+    const [toastType, setToastType] = useState('success');
+
+    const triggerToast = (message, type = 'success') => {
+        setToastMessage(message);
+        setToastType(type);
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -88,15 +127,21 @@ export default function AdminProductionCenter() {
             newErrors.name = 'Production Center name is required';
         } else {
             const nameExists = centers.some(c =>
-                c.name === formData.name && c.id !== editingCenterId
+                c.name.toLowerCase() === formData.name.trim().toLowerCase() && c.id !== editingCenterId
             );
             if (nameExists) {
                 newErrors.name = 'Production Center name already exists';
             }
         }
 
-        if (!formData.location.trim()) {
+        if (formData.type !== 'MPC' && !formData.location.trim()) {
             newErrors.location = 'Location is required';
+        }
+
+        if (formData.type === 'MPC') {
+            if (!formData.outletId || isNaN(Number(formData.outletId))) {
+                newErrors.outletId = 'Assign to Outlet is required for MPC';
+            }
         }
 
         if (!formData.establishedDate) {
@@ -108,50 +153,76 @@ export default function AdminProductionCenter() {
     };
 
     const handleSubmit = async () => {
-        if (validateForm()) {
-            const BASE_URL = process.env.REACT_APP_BASE_URL;
+        if (!validateForm()) return;
+        const BASE_URL = process.env.REACT_APP_BASE_URL;
+        const headers = getAuthHeaders();
 
-            const payload = {
-                productionCenterName: formData.name,
-                location: formData.location,
-                type: formData.type,
-                outletId: formData.outletId ? Number(formData.outletId) : null,
-                establishedDate: formData.establishedDate,
-                isActive: formData.status === 'Active'
-            };
-
+        if (formData.type === 'MPC') {
+            const numericOutletId = Number(formData.outletId);
             if (isEditMode) {
                 try {
-                    await axios.put(`${BASE_URL}/api/v1/admin/production-center/${editingCenterId}`, payload);
-
-                    setToastMessage('Production Center updated successfully.');
-                    setShowToast(true);
+                    await axios.put(`${BASE_URL}/api/v1/admin/outlet-production-center/${editingCenterId}`, {
+                        name: formData.name
+                    }, { headers });
+                    triggerToast('Mini Production Center updated successfully.', 'success');
                     setShowModal(false);
                     resetForm();
                     fetchCenters();
-                    setTimeout(() => setShowToast(false), 3000);
                 } catch (error) {
-                    console.error("Error updating production center:", error);
-                    setToastMessage('Failed to update production center.');
-                    setShowToast(true);
-                    setTimeout(() => setShowToast(false), 3000);
+                    console.error("Error updating MPC:", error);
+                    const msg = error.response?.data?.message || 'Failed to update Mini Production Center.';
+                    triggerToast(msg, 'error');
                 }
             } else {
                 try {
-                    await axios.post(`${BASE_URL}/api/v1/admin/production-center/create`, payload);
-
-                    setToastMessage('Production Center created successfully.');
-                    setShowToast(true);
+                    await axios.post(`${BASE_URL}/api/v1/admin/outlet/${numericOutletId}/production-centers`, {
+                        name: formData.name
+                    }, { headers });
+                    triggerToast('Mini Production Center created successfully.', 'success');
                     setShowModal(false);
                     resetForm();
                     fetchCenters();
-                    setTimeout(() => setShowToast(false), 3000);
                 } catch (error) {
-                    console.error("Error creating production center:", error);
-                    setToastMessage('Failed to create production center.');
-                    setShowToast(true);
-                    setTimeout(() => setShowToast(false), 3000);
+                    console.error("Error creating MPC:", error);
+                    const msg = error.response?.data?.message || 'Failed to create Mini Production Center.';
+                    triggerToast(msg, 'error');
                 }
+            }
+            return;
+        }
+
+        const payload = {
+            productionCenterName: formData.name,
+            location: formData.location,
+            type: formData.type,
+            outletId: formData.outletId ? Number(formData.outletId) : null,
+            establishedDate: formData.establishedDate,
+            isActive: formData.status === 'Active'
+        };
+
+        if (isEditMode) {
+            try {
+                await axios.put(`${BASE_URL}/api/v1/admin/production-center/${editingCenterId}`, payload, { headers });
+                triggerToast('Production Center updated successfully.', 'success');
+                setShowModal(false);
+                resetForm();
+                fetchCenters();
+            } catch (error) {
+                console.error("Error updating production center:", error);
+                const msg = error.response?.data?.message || 'Failed to update production center.';
+                triggerToast(msg, 'error');
+            }
+        } else {
+            try {
+                await axios.post(`${BASE_URL}/api/v1/admin/production-center/create`, payload, { headers });
+                triggerToast('Production Center created successfully.', 'success');
+                setShowModal(false);
+                resetForm();
+                fetchCenters();
+            } catch (error) {
+                console.error("Error creating production center:", error);
+                const msg = error.response?.data?.message || 'Failed to create production center.';
+                triggerToast(msg, 'error');
             }
         }
     };
@@ -164,7 +235,7 @@ export default function AdminProductionCenter() {
             location: center.location,
             type: center.type || 'BAKERY',
             outletId: center.outletId || '',
-            establishedDate: center.establishedDate,
+            establishedDate: center.establishedDate ? center.establishedDate.split('T')[0] : '',
             status: center.status
         });
         setShowModal(true);
@@ -196,19 +267,25 @@ export default function AdminProductionCenter() {
         resetForm();
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (center) => {
+        const centerId = typeof center === 'object' ? center.id : center;
+        const isMpc = typeof center === 'object' ? (center.type === 'MPC' || center.isMpc) : false;
+
         if (window.confirm('Are you sure you want to delete this Production Center?')) {
+            const BASE_URL = process.env.REACT_APP_BASE_URL;
+            const headers = getAuthHeaders();
             try {
-                await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/production-center/${id}`);
-                setToastMessage('Production Center deleted successfully.');
-                setShowToast(true);
+                if (isMpc) {
+                    await axios.delete(`${BASE_URL}/api/v1/admin/outlet-production-center/${centerId}`, { headers });
+                } else {
+                    await axios.delete(`${BASE_URL}/api/v1/admin/production-center/${centerId}`, { headers });
+                }
+                triggerToast('Production Center deleted successfully.', 'success');
                 fetchCenters();
-                setTimeout(() => setShowToast(false), 3000);
             } catch (error) {
                 console.error("Error deleting production center:", error);
-                setToastMessage('Failed to delete production center.');
-                setShowToast(true);
-                setTimeout(() => setShowToast(false), 3000);
+                const msg = error.response?.data?.message || 'Failed to delete production center.';
+                triggerToast(msg, 'error');
             }
         }
     };
@@ -332,9 +409,11 @@ export default function AdminProductionCenter() {
                                                 </td>
                                                 <td className="py-4">
                                                     <span className={center.type === 'KITCHEN'
-                                                        ? 'inline-block px-2 py-1 text-xs rounded bg-orange-100 text-orange-800'
-                                                        : 'inline-block px-2 py-1 text-xs rounded bg-amber-100 text-amber-800'}>
-                                                        {center.type}
+                                                        ? 'inline-block px-2 py-1 text-xs rounded bg-orange-100 text-orange-800 font-medium'
+                                                        : center.type === 'MPC'
+                                                        ? 'inline-block px-2 py-1 text-xs rounded bg-blue-100 text-blue-800 font-medium'
+                                                        : 'inline-block px-2 py-1 text-xs rounded bg-amber-100 text-amber-800 font-medium'}>
+                                                        {center.type === 'MPC' ? 'Mini Production Center (MPC)' : center.type}
                                                     </span>
                                                 </td>
                                                 <td className="py-4">
@@ -352,6 +431,15 @@ export default function AdminProductionCenter() {
                                                 </td>
                                                 <td className="py-4">
                                                     <div className="flex items-center justify-center gap-2">
+                                                        {center.type === 'MPC' && (
+                                                            <button
+                                                                onClick={() => setMenuMpc(center)}
+                                                                className="p-2 text-[#199D26] hover:bg-[#E8F5EA] rounded-lg transition-colors"
+                                                                title="MPC Menu"
+                                                            >
+                                                                <ClipboardList size={16} />
+                                                            </button>
+                                                        )}
                                                         <button
                                                             onClick={() => handleEdit(center)}
                                                             className="p-2 text-[#0F50AA] hover:bg-[#EBF8FF] rounded-lg transition-colors"
@@ -360,7 +448,7 @@ export default function AdminProductionCenter() {
                                                             <Edit size={16} />
                                                         </button>
                                                         <button
-                                                            onClick={() => handleDelete(center.id)}
+                                                            onClick={() => handleDelete(center)}
                                                             className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors"
                                                             title="Delete Production Center"
                                                         >
@@ -435,26 +523,28 @@ export default function AdminProductionCenter() {
                                     )}
                                 </div>
 
-                                <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                        Location <span className="text-[#EF4444]">*</span>
-                                    </label>
-                                    <div className="relative">
-                                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
-                                        <input
-                                            type="text"
-                                            name="location"
-                                            value={formData.location}
-                                            onChange={handleChange}
-                                            placeholder="Enter location"
-                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.location ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
-                                                }`}
-                                        />
+                                {formData.type !== 'MPC' && (
+                                    <div>
+                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                            Location <span className="text-[#EF4444]">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                                            <input
+                                                type="text"
+                                                name="location"
+                                                value={formData.location}
+                                                onChange={handleChange}
+                                                placeholder="Enter location"
+                                                className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.location ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                                    }`}
+                                            />
+                                        </div>
+                                        {errors.location && (
+                                            <p className="text-[#EF4444] text-[12px] mt-1">{errors.location}</p>
+                                        )}
                                     </div>
-                                    {errors.location && (
-                                        <p className="text-[#EF4444] text-[12px] mt-1">{errors.location}</p>
-                                    )}
-                                </div>
+                                )}
 
                                 <div>
                                     <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
@@ -482,16 +572,19 @@ export default function AdminProductionCenter() {
                                             name="outletId"
                                             value={formData.outletId}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                            className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.outletId ? 'border-[#EF4444]' : 'border-[#E4E6EA]'}`}
                                             required
                                         >
                                             <option value="">— Select Outlet —</option>
                                             {outlets.map(o => (
                                                 <option key={o.id} value={o.id}>
-                                                    {o.outletName || o.name || `Outlet #${o.id}`}
+                                                    {o.name}
                                                 </option>
                                             ))}
                                         </select>
+                                        {errors.outletId && (
+                                            <p className="text-[#EF4444] text-[12px] mt-1">{errors.outletId}</p>
+                                        )}
                                     </div>
                                 )}
 
@@ -552,11 +645,17 @@ export default function AdminProductionCenter() {
                 </div>
             )}
 
+            {menuMpc && <MpcMenuModal mpc={menuMpc} onClose={() => setMenuMpc(null)} />}
+
             {showToast && (
                 <div className="fixed top-4 right-4 z-[10000] animate-fade-in">
-                    <div className="bg-white border-l-4 border-[#51CC5D] rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
-                        <div className="flex-shrink-0 w-8 h-8 bg-[#51CC5D] bg-opacity-10 rounded-full flex items-center justify-center">
-                            <Check className="w-5 h-5 text-[#199D26]" />
+                    <div className={`bg-white border-l-4 ${toastType === 'error' ? 'border-[#EF4444]' : 'border-[#51CC5D]'} rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]`}>
+                        <div className={`flex-shrink-0 w-8 h-8 ${toastType === 'error' ? 'bg-[#FEE2E2]' : 'bg-[#51CC5D] bg-opacity-10'} rounded-full flex items-center justify-center`}>
+                            {toastType === 'error' ? (
+                                <X className="w-5 h-5 text-[#EF4444]" />
+                            ) : (
+                                <Check className="w-5 h-5 text-[#199D26]" />
+                            )}
                         </div>
                         <p className="text-[14px] text-[#383E49] font-[500]">{toastMessage}</p>
                     </div>
