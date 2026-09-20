@@ -3,17 +3,11 @@ import {
   Package,
   Clock,
   CheckCircle2,
-  XCircle,
   Plus,
   Send,
   RefreshCw,
-  ShoppingBasket,
-  FileText,
   Layers,
-  Search,
   Trash2,
-  CheckCircle,
-  AlertCircle
 } from "lucide-react";
 import MPCWorkerSideBar from "../component/MPCWorkerSideBar";
 import toast, { Toaster } from "react-hot-toast";
@@ -25,10 +19,8 @@ const BASE_URL = getApiBaseUrl();
 function statusBadge(status) {
   const map = {
     PENDING: "bg-yellow-100 text-yellow-800",
-    PENDING_MANAGER: "bg-orange-100 text-orange-800",
-    APPROVED_MANAGER: "bg-purple-100 text-purple-800",
-    ISSUED: "bg-blue-100 text-blue-800",
-    RECEIVED: "bg-green-100 text-green-800",
+    PENDING_ADMIN: "bg-yellow-100 text-yellow-800",
+    APPROVED: "bg-green-100 text-green-800",
     COMPLETED: "bg-green-100 text-green-800",
     CANCELLED: "bg-red-100 text-red-800",
   };
@@ -49,133 +41,72 @@ export default function MPCWorkerDashboard() {
   const [me, setMe] = useState(null);
   const token = localStorage.getItem("authToken");
 
-  // Dynamic KOT Recipes loaded from real products & BOM database
-  const [kotRecipes, setKotRecipes] = useState([]);
+  // KOT-enabled products, for the "which dish" dropdown on the request form
+  const [kotProducts, setKotProducts] = useState([]);
 
-  // State for KOT Material Request
-  const [selectedPlanItems, setSelectedPlanItems] = useState([]);
+  // Request form state
+  const [selectedPlanItems, setSelectedPlanItems] = useState([{ productId: "", plates: 10 }]);
   const [requestNotes, setRequestNotes] = useState("");
   const [submittingRequest, setSubmittingRequest] = useState(false);
+  const [previewLines, setPreviewLines] = useState([]);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
-  // Deliveries & History state
+  // Requests history state
   const [materialRequests, setMaterialRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(false);
-  const [acceptingId, setAcceptingId] = useState(null);
 
-  // Store Inventory state
-  const [mpcStoreInventory, setMpcStoreInventory] = useState([]);
+  // MPC store state (real data: stock + BOM-predicted plates)
+  const [store, setStore] = useState({ items: [], dishes: [] });
+  const [loadingStore, setLoadingStore] = useState(false);
 
   // KOTs state
   const [kots, setKots] = useState([]);
   const [loadingKots, setLoadingKots] = useState(false);
-  const [updatingKot, setUpdatingKot] = useState({});
 
-  // Fetch real products & BOMs from DB (Filter only KOT enabled items)
+  const authHeaders = { Authorization: `Bearer ${token}` };
+
+  // Fetch current user
   useEffect(() => {
-    async function loadProductsAndBoms() {
-      try {
-        const [prodRes, bomRes] = await Promise.all([
-          fetch(`${BASE_URL}/api/v1/admin/product/all`, { headers: { Authorization: `Bearer ${token}` } }),
-          fetch(`${BASE_URL}/api/v1/admin/bom/all`, { headers: { Authorization: `Bearer ${token}` } }),
-        ]);
-
-        const products = prodRes.ok ? await prodRes.json() : [];
-        const boms = bomRes.ok ? await bomRes.json() : [];
-
-        if (Array.isArray(products) && products.length > 0) {
-          // Filter products where isKotEnabled is true
-          let kotProducts = products.filter(
-            (p) => p.isKotEnabled === true || String(p.isKotEnabled).toLowerCase() === "true"
-          );
-
-          // If no items have isKotEnabled set to true yet, show active products
-          if (kotProducts.length === 0) {
-            kotProducts = products.filter((p) => p.isActive !== false);
-          }
-
-          const mapped = kotProducts.map((p) => {
-            const bomEntry = Array.isArray(boms)
-              ? boms.find((b) => (b.parentProduct?.id || b.parentProductId) === p.id)
-              : null;
-            let items = [];
-            const rawChildItems = bomEntry?.childItems || bomEntry?.items;
-            if (Array.isArray(rawChildItems) && rawChildItems.length > 0) {
-              items = rawChildItems.map((bi) => ({
-                rawMaterialId: bi.id || bi.childItemId,
-                materialName: bi.name || bi.childItemName || bi.materialName || "Raw Material",
-                qtyPerUnit: Number(bi.qty || bi.quantity || 0),
-                unit: bi.unit || "kg",
-              }));
-            }
-
-            return {
-              id: p.id,
-              name: p.productName,
-              code: p.productCode || `PROD-${p.id}`,
-              category: p.categoryName || "General",
-              isKotEnabled: Boolean(p.isKotEnabled),
-              bom: items,
-            };
-          });
-
-          setKotRecipes(mapped);
-          if (mapped.length > 0) {
-            setSelectedPlanItems([{ recipeId: mapped[0].id, plannedQty: 10 }]);
-          }
-        }
-      } catch (err) {
-        console.error("Failed to load products/BOMs:", err);
-      }
-    }
-
-    if (token) {
-      loadProductsAndBoms();
-    }
-  }, [token]);
-
-  // Fetch current user & me info
-  useEffect(() => {
-    fetch(`${BASE_URL}/bmsauth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    fetch(`${BASE_URL}/bmsauth/me`, { headers: authHeaders })
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data) setMe(data);
-      })
+      .then((data) => setMe(data || null))
       .catch(() => setMe(null));
   }, [token]);
 
-  // Fetch KOTs
+  // Fetch KOT-enabled products for the request form's dropdown
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${BASE_URL}/api/v1/admin/product/all`, { headers: authHeaders })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((products) => {
+        const list = Array.isArray(products) ? products : [];
+        const kotOnly = list.filter((p) => p.isKotEnabled === true || p.kotEnabled === true);
+        setKotProducts((kotOnly.length > 0 ? kotOnly : list).map((p) => ({
+          id: p.id,
+          name: p.productName || p.name || `Product ${p.id}`,
+          code: p.productCode || p.code || `PROD-${p.id}`,
+        })));
+      })
+      .catch(() => setKotProducts([]));
+  }, [token]);
+
   const fetchKots = useCallback(async () => {
     setLoadingKots(true);
     try {
-      const res = await fetch(`${BASE_URL}/api/v1/worker/kots`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setKots(data);
-      }
-    } catch (err) {
-      console.error(err);
+      const res = await fetch(`${BASE_URL}/api/v1/worker/kots`, { headers: authHeaders });
+      setKots(res.ok ? await res.json() : []);
+    } catch {
+      setKots([]);
     } finally {
       setLoadingKots(false);
     }
   }, [token]);
 
-  // Fetch Material Requests
   const fetchMaterialRequests = useCallback(async () => {
     setLoadingRequests(true);
     try {
-      const res = await fetch(`${BASE_URL}/api/v1/worker/mpc-material-requests`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setMaterialRequests(data);
-      } else {
-        setMaterialRequests([]);
-      }
+      const res = await fetch(`${BASE_URL}/api/v1/worker/mpc-material-requests`, { headers: authHeaders });
+      setMaterialRequests(res.ok ? await res.json() : []);
     } catch {
       setMaterialRequests([]);
     } finally {
@@ -183,41 +114,51 @@ export default function MPCWorkerDashboard() {
     }
   }, [token]);
 
+  const fetchStore = useCallback(async () => {
+    setLoadingStore(true);
+    try {
+      const res = await fetch(`${BASE_URL}/api/v1/worker/mpc-store`, { headers: authHeaders });
+      setStore(res.ok ? await res.json() : { items: [], dishes: [] });
+    } catch {
+      setStore({ items: [], dishes: [] });
+    } finally {
+      setLoadingStore(false);
+    }
+  }, [token]);
+
   useEffect(() => {
     fetchKots();
     fetchMaterialRequests();
-  }, [fetchKots, fetchMaterialRequests]);
+    fetchStore();
+  }, [fetchKots, fetchMaterialRequests, fetchStore]);
 
-  // Dynamic BOM Aggregation Calculation
-  const calculateTotalBOMRequirements = () => {
-    const totals = {};
-    selectedPlanItems.forEach((planItem) => {
-      const recipe = kotRecipes.find((r) => r.id === Number(planItem.recipeId));
-      if (!recipe) return;
-      const targetQty = Number(planItem.plannedQty || 0);
+  // Ask the backend how much raw material the current dish selection actually needs (real BOM
+  // traversal, including semi-finished components) — recomputed whenever the selection changes.
+  useEffect(() => {
+    const products = selectedPlanItems.filter((i) => i.productId && Number(i.plates) > 0);
+    if (products.length === 0 || !token) {
+      setPreviewLines([]);
+      return;
+    }
+    const controller = new AbortController();
+    setPreviewLoading(true);
+    fetch(`${BASE_URL}/api/v1/worker/mpc-material-requests/preview`, {
+      method: "POST",
+      headers: { ...authHeaders, "Content-Type": "application/json" },
+      signal: controller.signal,
+      body: JSON.stringify({
+        products: products.map((p) => ({ productId: Number(p.productId), plates: Number(p.plates) })),
+      }),
+    })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((lines) => setPreviewLines(Array.isArray(lines) ? lines : []))
+      .catch(() => {})
+      .finally(() => setPreviewLoading(false));
+    return () => controller.abort();
+  }, [JSON.stringify(selectedPlanItems), token]);
 
-      recipe.bom.forEach((ingredient) => {
-        const requiredAmount = ingredient.qtyPerUnit * targetQty;
-        if (!totals[ingredient.rawMaterialId]) {
-          totals[ingredient.rawMaterialId] = {
-            rawMaterialId: ingredient.rawMaterialId,
-            materialName: ingredient.materialName,
-            totalQty: 0,
-            unit: ingredient.unit,
-          };
-        }
-        totals[ingredient.rawMaterialId].totalQty += requiredAmount;
-      });
-    });
-
-    return Object.values(totals);
-  };
-
-  const calculatedBOM = calculateTotalBOMRequirements();
-
-  // Add Item to Request Form
   const addPlanItem = () => {
-    setSelectedPlanItems((prev) => [...prev, { recipeId: kotRecipes[0]?.id || 1, plannedQty: 10 }]);
+    setSelectedPlanItems((prev) => [...prev, { productId: kotProducts[0]?.id || "", plates: 10 }]);
   };
 
   const removePlanItem = (idx) => {
@@ -225,45 +166,31 @@ export default function MPCWorkerDashboard() {
   };
 
   const updatePlanItem = (idx, field, value) => {
-    setSelectedPlanItems((prev) =>
-      prev.map((item, i) => (i === idx ? { ...item, [field]: value } : item))
-    );
+    setSelectedPlanItems((prev) => prev.map((item, i) => (i === idx ? { ...item, [field]: value } : item)));
   };
 
-  // Submit Material Request for Manager Approval
   const handleSubmitMaterialRequest = async () => {
-    if (calculatedBOM.length === 0) {
-      toast.error("Please add at least one KOT item to calculate materials.");
+    const products = selectedPlanItems.filter((i) => i.productId && Number(i.plates) > 0);
+    if (products.length === 0) {
+      toast.error("Select at least one KOT dish and a quantity.");
       return;
     }
 
     setSubmittingRequest(true);
     try {
-      const payload = {
-        outletId: me?.outletId || me?.assignedOutletId || null,
-        mpcId: me?.mpcId || me?.assignedMpcId || me?.productionCenterId || null,
-        notes: requestNotes,
-        items: calculatedBOM.map((mat) => ({
-          rawMaterialId: mat.rawMaterialId,
-          rawMaterialName: mat.materialName,
-          requestedQty: Number(mat.totalQty.toFixed(2)),
-          unitOfMeasure: mat.unit,
-        })),
-      };
-
       const res = await fetch(`${BASE_URL}/api/v1/worker/mpc-material-requests`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          notes: requestNotes,
+          products: products.map((p) => ({ productId: Number(p.productId), plates: Number(p.plates) })),
+        }),
       });
 
       if (res.ok) {
         await fetchMaterialRequests();
-        toast.success("Material request submitted for Manager approval!");
-        setSelectedPlanItems(kotRecipes.length > 0 ? [{ recipeId: kotRecipes[0].id, plannedQty: 10 }] : []);
+        toast.success("Material request submitted for Admin approval!");
+        setSelectedPlanItems([{ productId: kotProducts[0]?.id || "", plates: 10 }]);
         setRequestNotes("");
         setActiveTab("deliveries");
       } else {
@@ -271,71 +198,10 @@ export default function MPCWorkerDashboard() {
         toast.error(errData.message || "Failed to submit material request.");
       }
     } catch (err) {
-      console.error(err);
       toast.error("Failed to submit material request: " + err.message);
     } finally {
       setSubmittingRequest(false);
     }
-  };
-
-  // Accept Materials from Storekeeper
-  const handleAcceptMaterials = async (req) => {
-    setAcceptingId(req.id);
-    try {
-      // Update MPC Store Inventory with accepted items
-      setMpcStoreInventory((prev) => {
-        const updated = [...prev];
-        (req.items || []).forEach((item) => {
-          const qty = Number(item.issuedQty ?? item.requestedQty);
-          const existing = updated.find((inv) => inv.rawMaterialId === item.rawMaterialId);
-          if (existing) {
-            existing.quantity = Number((existing.quantity + qty).toFixed(2));
-          } else {
-            updated.push({
-              rawMaterialId: item.rawMaterialId,
-              materialName: item.rawMaterialName,
-              quantity: qty,
-              unit: item.unitOfMeasure,
-            });
-          }
-        });
-        return updated;
-      });
-
-      // Also dispatch event to update global POS shared inventory state
-      const event = new CustomEvent("mpc_stock_updated", {
-        detail: {
-          items: req.items,
-        },
-      });
-      window.dispatchEvent(event);
-
-      // Update status in list
-      setMaterialRequests((prev) =>
-        prev.map((r) => (r.id === req.id ? { ...r, status: "RECEIVED" } : r))
-      );
-
-      toast.success("Materials accepted into MPC Store Inventory!");
-    } catch (err) {
-      toast.error("Failed to accept materials: " + err.message);
-    } finally {
-      setAcceptingId(null);
-    }
-  };
-
-  // Calculate potential servings from current store stock
-  const calculatePotentialYield = (recipe) => {
-    let maxServings = Infinity;
-    recipe.bom.forEach((ingredient) => {
-      const storeItem = mpcStoreInventory.find((inv) => inv.rawMaterialId === ingredient.rawMaterialId);
-      if (!storeItem || storeItem.quantity <= 0) {
-        maxServings = 0;
-      } else {
-        const possible = Math.floor(storeItem.quantity / ingredient.qtyPerUnit);
-        if (possible < maxServings) maxServings = possible;
-      }
-    });
-    return maxServings === Infinity ? 0 : maxServings;
   };
 
   return (
@@ -345,7 +211,6 @@ export default function MPCWorkerDashboard() {
         sidebarOpen={sidebarOpen}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        issuedCount={materialRequests.filter((r) => r.status === "ISSUED").length}
         pendingKotCount={kots.filter((k) => k.status === "PENDING").length}
       />
 
@@ -367,53 +232,52 @@ export default function MPCWorkerDashboard() {
             <div className="space-y-6">
               <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
                 <h3 className="text-[18px] font-[600] text-[#383E49] mb-1">
-                  Production Plan: Select KOT Items
+                  Request Materials: Select KOT Items
                 </h3>
                 <p className="text-[13px] text-[#667085] mb-4">
-                  Select KOT items (e.g. Milk Tea, Plain Tea) to auto-calculate raw material requirements using Bill of Materials (BOM).
+                  Select dishes on this MPC's menu (e.g. Milk Tea, Plain Tea) — raw material
+                  requirements are computed from the Bill of Materials automatically.
                 </p>
 
-                {/* KOT Items Form */}
                 <div className="space-y-3 mb-6">
-                  {selectedPlanItems.map((item, idx) => {
-                    return (
-                      <div key={idx} className="flex flex-wrap items-center gap-3 p-3 bg-[#F8F9FA] border border-[#E4E6EA] rounded-lg">
-                        <div className="flex-1 min-w-[200px]">
-                          <label className="block text-[12px] font-[500] text-[#383E49] mb-1">KOT Product</label>
-                          <select
-                            value={item.recipeId}
-                            onChange={(e) => updatePlanItem(idx, "recipeId", e.target.value)}
-                            className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md text-[13px] bg-white focus:ring-2 focus:ring-[#0F50AA]"
-                          >
-                            {kotRecipes.map((r) => (
-                              <option key={r.id} value={r.id}>
-                                {r.name} ({r.code})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="w-32">
-                          <label className="block text-[12px] font-[500] text-[#383E49] mb-1">Target Qty</label>
-                          <input
-                            type="number"
-                            min="1"
-                            value={item.plannedQty}
-                            onChange={(e) => updatePlanItem(idx, "plannedQty", e.target.value)}
-                            className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md text-[13px] bg-white focus:ring-2 focus:ring-[#0F50AA]"
-                          />
-                        </div>
-                        {selectedPlanItems.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removePlanItem(idx)}
-                            className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors mt-5"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        )}
+                  {selectedPlanItems.map((item, idx) => (
+                    <div key={idx} className="flex flex-wrap items-center gap-3 p-3 bg-[#F8F9FA] border border-[#E4E6EA] rounded-lg">
+                      <div className="flex-1 min-w-[200px]">
+                        <label className="block text-[12px] font-[500] text-[#383E49] mb-1">KOT Product</label>
+                        <select
+                          value={item.productId}
+                          onChange={(e) => updatePlanItem(idx, "productId", e.target.value)}
+                          className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md text-[13px] bg-white focus:ring-2 focus:ring-[#0F50AA]"
+                        >
+                          <option value="">-- Choose a product --</option>
+                          {kotProducts.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} ({p.code})
+                            </option>
+                          ))}
+                        </select>
                       </div>
-                    );
-                  })}
+                      <div className="w-32">
+                        <label className="block text-[12px] font-[500] text-[#383E49] mb-1">Plates</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.plates}
+                          onChange={(e) => updatePlanItem(idx, "plates", e.target.value)}
+                          className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md text-[13px] bg-white focus:ring-2 focus:ring-[#0F50AA]"
+                        />
+                      </div>
+                      {selectedPlanItems.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removePlanItem(idx)}
+                          className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors mt-5"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
 
                   <button
                     type="button"
@@ -424,26 +288,31 @@ export default function MPCWorkerDashboard() {
                   </button>
                 </div>
 
-                {/* Auto-Calculated BOM Summary */}
                 <div className="border border-[#0F50AA] bg-[#EBF8FF] rounded-lg p-5 mb-6">
                   <h4 className="text-[15px] font-[600] text-[#383E49] mb-3 flex items-center gap-2">
                     <Layers size={16} className="text-[#0F50AA]" />
-                    Auto-Calculated BOM Material Requirements
+                    Raw Materials This Will Request
+                    {previewLoading && <RefreshCw size={14} className="animate-spin text-[#0F50AA]" />}
                   </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {calculatedBOM.map((mat) => (
-                      <div key={mat.rawMaterialId} className="bg-white border border-[#E4E6EA] rounded-lg p-3">
-                        <p className="text-[12px] text-[#667085]">Raw Material</p>
-                        <p className="text-[14px] font-[600] text-[#383E49]">{mat.materialName}</p>
-                        <p className="text-[16px] font-[700] text-[#0F50AA] mt-1">
-                          {mat.totalQty.toFixed(2)} {mat.unit}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
+                  {previewLines.length === 0 ? (
+                    <p className="text-[13px] text-[#667085]">
+                      Choose a product on this MPC's menu to see the materials it needs.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                      {previewLines.map((mat) => (
+                        <div key={mat.materialKey} className="bg-white border border-[#E4E6EA] rounded-lg p-3">
+                          <p className="text-[12px] text-[#667085]">Raw Material</p>
+                          <p className="text-[14px] font-[600] text-[#383E49]">{mat.rawMaterialName}</p>
+                          <p className="text-[16px] font-[700] text-[#0F50AA] mt-1">
+                            {Number(mat.qty).toFixed(2)} {mat.unitOfMeasure}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Notes & Submit */}
                 <div className="space-y-4">
                   <div>
                     <label className="block text-[13px] font-[500] text-[#383E49] mb-1">
@@ -453,7 +322,7 @@ export default function MPCWorkerDashboard() {
                       rows={2}
                       value={requestNotes}
                       onChange={(e) => setRequestNotes(e.target.value)}
-                      placeholder="Special instructions for Manager & Storekeeper..."
+                      placeholder="Special instructions for Admin..."
                       className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md text-[13px] focus:ring-2 focus:ring-[#0F50AA]"
                     />
                   </div>
@@ -469,19 +338,19 @@ export default function MPCWorkerDashboard() {
                     ) : (
                       <Send size={16} />
                     )}
-                    Submit Material Request to Manager
+                    Submit Material Request to Admin
                   </button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB 2: Material Deliveries & Acceptance */}
+          {/* TAB 2: Material Request History */}
           {activeTab === "deliveries" && (
             <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[18px] font-[600] text-[#383E49]">
-                  Material Requests & Storekeeper Deliveries
+                  Material Requests
                 </h3>
                 <button
                   onClick={fetchMaterialRequests}
@@ -508,33 +377,21 @@ export default function MPCWorkerDashboard() {
                             {statusBadge(req.status)}
                           </div>
                           <p className="text-[12px] text-[#667085] mt-1">
-                            MPC: {req.mpcName} | Outlet: {req.outletName} | Created: {new Date(req.createdAt).toLocaleString()}
+                            MPC: {req.mpcName} | Outlet: {req.outletName} | Created: {req.createdAt ? new Date(req.createdAt).toLocaleString() : "-"}
                           </p>
+                          {req.status === "APPROVED" && (
+                            <p className="text-[12px] text-[#199D26] mt-1 flex items-center gap-1">
+                              <CheckCircle2 size={13} /> Delivered to your MPC store
+                            </p>
+                          )}
                         </div>
-
-                        {req.status === "ISSUED" && (
-                          <button
-                            onClick={() => handleAcceptMaterials(req)}
-                            disabled={acceptingId === req.id}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-[#199D26] text-white text-[13px] font-[500] rounded-lg hover:bg-[#157A1E] transition-colors disabled:opacity-60"
-                          >
-                            {acceptingId === req.id ? (
-                              <RefreshCw size={14} className="animate-spin" />
-                            ) : (
-                              <CheckCircle2 size={15} />
-                            )}
-                            Confirm &amp; Accept Materials
-                          </button>
-                        )}
                       </div>
 
-                      {/* Items table */}
                       <table className="w-full text-[13px]">
                         <thead>
                           <tr className="border-b border-[#E4E6EA] text-left text-[#667085]">
                             <th className="py-2">Raw Material</th>
                             <th className="py-2 text-center">Requested Qty</th>
-                            <th className="py-2 text-center">Issued Qty</th>
                             <th className="py-2 text-center">Unit</th>
                           </tr>
                         </thead>
@@ -542,8 +399,7 @@ export default function MPCWorkerDashboard() {
                           {(req.items || []).map((item, idx) => (
                             <tr key={idx} className="border-b border-[#E4E6EA] last:border-0">
                               <td className="py-2 font-[500] text-[#383E49]">{item.rawMaterialName}</td>
-                              <td className="py-2 text-center">{item.requestedQty}</td>
-                              <td className="py-2 text-center font-[600] text-[#0F50AA]">{item.issuedQty ?? item.requestedQty}</td>
+                              <td className="py-2 text-center font-[600] text-[#0F50AA]">{item.requestedQty}</td>
                               <td className="py-2 text-center text-[#667085]">{item.unitOfMeasure}</td>
                             </tr>
                           ))}
@@ -556,60 +412,70 @@ export default function MPCWorkerDashboard() {
             </div>
           )}
 
-          {/* TAB 3: MPC Store Inventory */}
+          {/* TAB 3: MPC Store Inventory (real data) */}
           {activeTab === "storeInventory" && (
             <div className="space-y-6">
-              {/* Raw Materials Inventory */}
               <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
-                <h3 className="text-[18px] font-[600] text-[#383E49] mb-4">
-                  MPC Raw Material Stock Level
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  {mpcStoreInventory.map((item) => (
-                    <div key={item.rawMaterialId} className="border border-[#E4E6EA] rounded-lg p-4 bg-[#F8F9FA]">
-                      <p className="text-[12px] text-[#667085]">Raw Material</p>
-                      <p className="text-[15px] font-[600] text-[#383E49] mb-1">{item.materialName}</p>
-                      <p className="text-[20px] font-[700] text-[#199D26]">
-                        {item.quantity} <span className="text-[13px] font-[400] text-[#667085]">{item.unit}</span>
-                      </p>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-[18px] font-[600] text-[#383E49]">
+                    MPC Raw Material Stock Level
+                  </h3>
+                  <button
+                    onClick={fetchStore}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 border border-[#E4E6EA] text-[#667085] text-[13px] rounded-lg hover:bg-[#F8F9FA]"
+                  >
+                    <RefreshCw size={14} className={loadingStore ? "animate-spin" : ""} />
+                    Refresh
+                  </button>
                 </div>
+                {store.items.length === 0 ? (
+                  <p className="text-[13px] text-[#667085]">No stock yet — approved material requests arrive here automatically.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    {store.items.map((item) => (
+                      <div key={item.materialKey} className="border border-[#E4E6EA] rounded-lg p-4 bg-[#F8F9FA]">
+                        <p className="text-[12px] text-[#667085]">Raw Material</p>
+                        <p className="text-[15px] font-[600] text-[#383E49] mb-1">{item.rawMaterialName}</p>
+                        <p className="text-[20px] font-[700] text-[#199D26]">
+                          {item.qty} <span className="text-[13px] font-[400] text-[#667085]">{item.unitOfMeasure}</span>
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Potential Yield Calculator */}
               <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
                 <h3 className="text-[18px] font-[600] text-[#383E49] mb-1">
-                  Potential KOT Product Yield (Shared Ingredient Pool)
+                  Potential KOT Product Yield
                 </h3>
                 <p className="text-[13px] text-[#667085] mb-4">
-                  Calculated based on current raw material inventory at this Mini Production Center.
+                  Calculated from this MPC's current raw material stock and the Bill of Materials.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  {kotRecipes.map((recipe) => {
-                    const potential = calculatePotentialYield(recipe);
-                    return (
-                      <div key={recipe.id} className="border border-[#0F50AA] bg-[#EBF8FF] rounded-lg p-5">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-[16px] font-[600] text-[#383E49]">{recipe.name}</h4>
-                          <span className="text-[11px] font-[500] px-2 py-0.5 rounded bg-[#0F50AA] text-white">
-                            {recipe.code}
-                          </span>
-                        </div>
-                        <p className="text-[12px] text-[#667085] mb-3">
-                          Recipe: {recipe.bom.map((b) => `${b.qtyPerUnit}${b.unit} ${b.materialName}`).join(", ")}
-                        </p>
-                        <div className="pt-2 border-t border-[#D0E2FF]">
-                          <span className="text-[12px] text-[#667085]">Max Available Capacity:</span>
-                          <p className="text-[22px] font-[700] text-[#0F50AA]">
-                            {potential} <span className="text-[13px] font-[400] text-[#383E49]">cups / portions</span>
-                          </p>
-                        </div>
+                {store.dishes.length === 0 ? (
+                  <p className="text-[13px] text-[#667085]">
+                    No dishes assigned to this MPC's menu yet — ask Admin to set it up.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    {store.dishes.map((dish) => (
+                      <div key={dish.productId} className="border border-[#0F50AA] bg-[#EBF8FF] rounded-lg p-5">
+                        <h4 className="text-[16px] font-[600] text-[#383E49] mb-2">{dish.productName}</h4>
+                        {dish.problem ? (
+                          <p className="text-[12px] text-[#EF4444]">{dish.problem}</p>
+                        ) : (
+                          <div className="pt-2 border-t border-[#D0E2FF]">
+                            <span className="text-[12px] text-[#667085]">Max Available Capacity:</span>
+                            <p className="text-[22px] font-[700] text-[#0F50AA]">
+                              {dish.plates} <span className="text-[13px] font-[400] text-[#383E49]">plates</span>
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    );
-                  })}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}

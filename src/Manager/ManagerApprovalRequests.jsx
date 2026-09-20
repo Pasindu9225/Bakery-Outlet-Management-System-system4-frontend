@@ -23,7 +23,6 @@ import {
   Archive,
   Send,
   Warehouse,
-  Layers,
 } from "lucide-react";
 
 import ManagerNavBar from "../component/ManagerNavBar.jsx";
@@ -64,10 +63,6 @@ export default function ManagerApprovalRequests() {
   const [loadingOutletReturns, setLoadingOutletReturns] = useState(true);
   const [outletReturnsError, setOutletReturnsError] = useState(null);
 
-  // MPC Material Requests state
-  const [mpcRequests, setMpcRequests] = useState([]);
-  const [loadingMpcRequests, setLoadingMpcRequests] = useState(true);
-  const [mpcRequestsError, setMpcRequestsError] = useState(null);
   // Fetch Return Materials
   useEffect(() => {
     const fetchReturnRequests = async () => {
@@ -361,43 +356,6 @@ export default function ManagerApprovalRequests() {
     return () => clearInterval(interval);
   }, [activeTab]);
 
-  // Fetch MPC Material Requests
-  useEffect(() => {
-    const fetchMpcRequests = async () => {
-      try {
-        setLoadingMpcRequests(true);
-        setMpcRequestsError(null);
-        const baseUrl = getApiBaseUrl();
-        const res = await fetch(`${baseUrl}/api/v1/manager/mpc-material-requests`);
-        if (res.ok) {
-          const data = await res.json();
-          const mapped = (data || []).map(item => ({
-            id: item.id,
-            requestId: item.requestCode || `MPC-REQ-${item.id}`,
-            type: "MPC Material Request",
-            requestDate: item.createdAt || new Date().toISOString(),
-            supplierName: `MPC: ${item.mpcName || "Outlet Kitchen"} (Outlet: ${item.outletName || "Branch Outlet"})`,
-            totalItems: (item.items || []).length,
-            status: item.status === "PENDING_MANAGER" ? "Pending" : item.status === "APPROVED_MANAGER" ? "Approved" : item.status || "Pending",
-            requestedBy: item.requestedByName || "MPC Worker",
-            priority: "High",
-            items: item.items || [],
-            createdAt: item.createdAt || new Date().toISOString(),
-          }));
-          setMpcRequests(mapped);
-        } else {
-          setMpcRequests([]);
-        }
-      } catch (err) {
-        setMpcRequestsError(err.message);
-      } finally {
-        setLoadingMpcRequests(false);
-      }
-    };
-
-    fetchMpcRequests();
-  }, []);
-
   // Get current data based on active tab
   const getCurrentData = () => {
     switch (activeTab) {
@@ -424,12 +382,6 @@ export default function ManagerApprovalRequests() {
           data: outletReturns,
           loading: loadingOutletReturns,
           error: outletReturnsError,
-        };
-      case "mpcMaterialRequests":
-        return {
-          data: mpcRequests,
-          loading: loadingMpcRequests,
-          error: mpcRequestsError,
         };
       default:
         return { data: [], loading: false, error: null };
@@ -545,10 +497,6 @@ export default function ManagerApprovalRequests() {
         setShowDetailsModal(false);
         setProcessingAction(null);
         return;
-      } else if (activeTab === "mpcMaterialRequests") {
-        const actionPath = action === "approve" ? "approve" : "reject";
-        endpoint = `${getApiBaseUrl()}/api/v1/manager/mpc-material-requests/${requestId}/${actionPath}`;
-        methodOverride = "POST";
       }
 
       const method =
@@ -584,12 +532,6 @@ export default function ManagerApprovalRequests() {
         setStockAdjustments((prev) =>
           prev.map((adj) =>
             adj.id === requestId ? { ...adj, status: updateStatus } : adj
-          )
-        );
-      } else if (activeTab === "mpcMaterialRequests") {
-        setMpcRequests((prev) =>
-          prev.map((req) =>
-            req.id === requestId ? { ...req, status: updateStatus } : req
           )
         );
       }
@@ -730,17 +672,6 @@ export default function ManagerApprovalRequests() {
                 <Warehouse size={16} />
                 Outlet Returns
               </button>
-              <button
-                onClick={() => setActiveTab("mpcMaterialRequests")}
-                className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-[14px] font-[500] border-b-2 transition-colors ${
-                  activeTab === "mpcMaterialRequests"
-                    ? "border-[#0F50AA] text-[#0F50AA] bg-[#EBF8FF]"
-                    : "border-transparent text-[#667085] hover:text-[#383E49]"
-                }`}
-              >
-                <Layers size={16} />
-                MPC Material Requests
-              </button>
             </div>
           </div>
 
@@ -788,7 +719,6 @@ export default function ManagerApprovalRequests() {
                 {activeTab === "stockAdjustments" &&
                   "Stock Adjustment Requests"}
                 {activeTab === "outletReturns" && "POS Outlet Return Requests"}
-                {activeTab === "mpcMaterialRequests" && "MPC Material Requests"}
               </h3>
               <span className="text-[12px] text-[#667085] mt-2 sm:mt-0">
                 Showing {filteredData.length} requests
@@ -1566,62 +1496,6 @@ export default function ManagerApprovalRequests() {
                 </div>
               )}
 
-              {/* MPC Material Request Details */}
-              {activeTab === "mpcMaterialRequests" && (
-                <div>
-                  <div className="mb-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Layers size={20} className="text-[#0F50AA]" />
-                      <h4 className="text-[16px] font-[600] text-[#383E49]">
-                        MPC Material Request Details
-                      </h4>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-[#EBF8FF] rounded-lg">
-                      <div>
-                        <span className="text-[12px] font-[500] text-[#667085] uppercase">Source & Outlet</span>
-                        <p className="text-[14px] font-[600] text-[#383E49]">{selectedRequest.supplierName}</p>
-                      </div>
-                      <div>
-                        <span className="text-[12px] font-[500] text-[#667085] uppercase">Total Items</span>
-                        <p className="text-[14px] font-[600] text-[#0F50AA]">{selectedRequest.totalItems} Items</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="border border-[#E4E6EA] rounded-lg overflow-hidden">
-                    <table className="w-full">
-                      <thead className="bg-[#F8F9FA]">
-                        <tr>
-                          <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">Material Name</th>
-                          <th className="text-center py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">Requested Qty</th>
-                          <th className="text-center py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">Issued Qty</th>
-                          <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">Unit</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#E4E6EA]">
-                        {(selectedRequest.items || []).map((item, index) => (
-                          <tr key={index} className="hover:bg-[#F8F9FA]">
-                            <td className="py-3 px-4">
-                              <p className="text-[14px] font-[500] text-[#383E49]">{item.rawMaterialName || item.name || "Raw Material"}</p>
-                            </td>
-                            <td className="py-3 px-4 text-center">
-                              <p className="text-[14px] font-[600] text-[#383E49]">{item.requestedQty} {item.unitOfMeasure}</p>
-                            </td>
-                            <td className="py-3 px-4 text-center">
-                              <p className="text-[14px] font-[600] text-[#199D26]">{item.issuedQty != null ? item.issuedQty : item.requestedQty} {item.unitOfMeasure}</p>
-                            </td>
-                            <td className="py-3 px-4">
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-[#FFF4E6] text-[#F4A100]">
-                                {item.unitOfMeasure || "unit"}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Modal Footer */}

@@ -53,6 +53,7 @@ import AdminPromoCodes from "./Admin/AdminPromoCodes";
 import AdminDiscountRules from "./Admin/AdminDiscountRules";
 import AdminVerificationCodes from "./Admin/AdminVerificationCodes";
 import AdminStockEntry from "./Admin/AdminStockEntry";
+import AdminMpcRequests from "./Admin/AdminMpcRequests";
 
 import BakeryProductionRequests from "./BakeryWorker/BakeryProductionRequests";
 import BakeryGetIngredients from "./BakeryWorker/BakeryGetIngredients";
@@ -656,6 +657,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["1"]}>
               <AdminStockEntry />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/adminMpcRequests"
+          element={
+            <ProtectedRoute allowedRoles={["1"]}>
+              <AdminMpcRequests />
             </ProtectedRoute>
           }
         />

@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   CreditCard,
   UserCircle2,
+  Layers,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { performLogout, getRoleName } from "../utils/auth";
@@ -71,6 +72,12 @@ export default function AdminSidebar({ sidebarOpen }) {
       icon: Package,
       path: "/adminStockEntry",
       color: "text-teal-600",
+    },
+    {
+      name: "MPC Material Requests",
+      icon: Layers,
+      path: "/adminMpcRequests",
+      color: "text-[#0F50AA]",
     },
   ];
 
