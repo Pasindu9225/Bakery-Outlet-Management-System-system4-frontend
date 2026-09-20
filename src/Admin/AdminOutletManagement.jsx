@@ -20,13 +20,18 @@ export default function AdminOutletManagement() {
     const [mpcs, setMpcs] = useState([]); // {id?, name, isActive, _new?: bool}
     const [newMpcName, setNewMpcName] = useState("");
 
+    const getAuthHeaders = () => {
+        const token = localStorage.getItem('authToken');
+        return token ? { Authorization: `Bearer ${token}` } : {};
+    };
+
     const fetchOutlets = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/all`);
-            // Assuming the API returns fields close to what we need, but we map status and fields to match our table
-            const formattedData = response.data.map(item => ({
-                id: item.outletId,
-                name: item.name,
+            const headers = getAuthHeaders();
+            const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/all`, { headers });
+            const formattedData = (response.data || []).map(item => ({
+                id: item.outletId ?? item.id ?? item.outlet_id,
+                name: item.name || item.outletName || "",
                 location: item.location || "",
                 mainBranch: item.mainBranch || "",
                 address: item.address || "",
@@ -132,9 +137,11 @@ export default function AdminOutletManagement() {
         }
 
         try {
+            const headers = getAuthHeaders();
             const res = await axios.post(
                 `${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/${editingOutletId}/production-centers`,
-                { name: trimmed, isActive: true }
+                { name: trimmed, isActive: true },
+                { headers }
             );
             setMpcs(prev => [...prev, { id: res.data.id, name: res.data.name, isActive: res.data.isActive }]);
             setNewMpcName("");
@@ -153,9 +160,11 @@ export default function AdminOutletManagement() {
         const m = mpcs[idx];
         if (m.id) {
             try {
+                const headers = getAuthHeaders();
                 const res = await axios.put(
                     `${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet-production-center/${m.id}`,
-                    { name: m.name, isActive: !m.isActive }
+                    { name: m.name, isActive: !m.isActive },
+                    { headers }
                 );
                 setMpcs(prev => prev.map((x, i) => i === idx ? { ...x, isActive: res.data.isActive } : x));
             } catch (e) {
@@ -170,8 +179,10 @@ export default function AdminOutletManagement() {
         const m = mpcs[idx];
         if (m.id) {
             try {
+                const headers = getAuthHeaders();
                 await axios.delete(
-                    `${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet-production-center/${m.id}`
+                    `${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet-production-center/${m.id}`,
+                    { headers }
                 );
             } catch (e) {
                 console.error("Failed to remove MPC", e);
@@ -183,6 +194,7 @@ export default function AdminOutletManagement() {
 
     const handleSubmit = async () => {
         if (validateForm()) {
+            const headers = getAuthHeaders();
             if (isEditMode) {
                 try {
                     const payload = {
@@ -193,7 +205,7 @@ export default function AdminOutletManagement() {
                         status: formData.status === 'Active'
                     };
 
-                    await axios.put(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/${editingOutletId}`, payload);
+                    await axios.put(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/${editingOutletId}`, payload, { headers });
 
                     setToastMessage('Outlet updated successfully.');
                     setShowToast(true);
@@ -220,9 +232,10 @@ export default function AdminOutletManagement() {
 
                     const createRes = await axios.post(
                         `${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/create`,
-                        payload
+                        payload,
+                        { headers }
                     );
-                    const newOutletId = createRes.data?.outletId;
+                    const newOutletId = createRes.data?.outletId ?? createRes.data?.id;
 
                     // Create any staged MPCs
                     if (newOutletId && mpcs.length > 0) {
@@ -231,7 +244,8 @@ export default function AdminOutletManagement() {
                             try {
                                 await axios.post(
                                     `${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/${newOutletId}/production-centers`,
-                                    { name: m.name, isActive: m.isActive }
+                                    { name: m.name, isActive: m.isActive },
+                                    { headers }
                                 );
                             } catch (e) {
                                 failures.push(m.name);
@@ -259,11 +273,6 @@ export default function AdminOutletManagement() {
                 }
                 return;
             }
-
-            setShowToast(true);
-            setShowModal(false);
-            resetForm();
-            setTimeout(() => setShowToast(false), 3000);
         }
     };
 
@@ -278,10 +287,12 @@ export default function AdminOutletManagement() {
             status: outlet.status
         });
         try {
+            const headers = getAuthHeaders();
             const res = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/${outlet.id}/production-centers`
+                `${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/${outlet.id}/production-centers`,
+                { headers }
             );
-            setMpcs(res.data.map(m => ({ id: m.id, name: m.name, isActive: m.isActive })));
+            setMpcs((res.data || []).map(m => ({ id: m.id, name: m.name, isActive: m.isActive })));
         } catch (e) {
             console.error("Failed to load MPCs", e);
             setMpcs([]);
@@ -319,7 +330,8 @@ export default function AdminOutletManagement() {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this outlet?')) {
             try {
-                await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/${id}`);
+                const headers = getAuthHeaders();
+                await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/${id}`, { headers });
                 setToastMessage('Outlet deleted successfully.');
                 setShowToast(true);
                 fetchOutlets();
