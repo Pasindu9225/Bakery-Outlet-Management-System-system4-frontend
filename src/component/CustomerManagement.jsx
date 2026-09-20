@@ -22,9 +22,13 @@ import ManagerNavBar from "./ManagerNavBar.jsx";
 import ManagerSidebar from "./ManagerSidebar.jsx";
 import POSNavBar from "./POSNavBar.jsx";
 import POSSidebar from "./POSSidebar.jsx";
+import AdminNavBar from "./AdminNavBar.jsx";
+import AdminSidebar from "./AdminSidebar.jsx";
 
 export default function CustomerManagement() {
-  const isManager = window.location.pathname.includes("/manager");
+  const path = window.location.pathname.toLowerCase();
+  const isAdmin = path.includes("/admincustomers");
+  const isManager = path.includes("/manager");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection] = useState("Customer Management");
 
@@ -190,14 +194,22 @@ export default function CustomerManagement() {
 
   return (
     <div className="flex bg-[#F0F1F3] h-screen overflow-hidden relative">
-      {isManager ? (
+      {isAdmin ? (
+        <AdminSidebar sidebarOpen={sidebarOpen} />
+      ) : isManager ? (
         <ManagerSidebar sidebarOpen={sidebarOpen} />
       ) : (
         <POSSidebar sidebarOpen={sidebarOpen} />
       )}
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        {isManager ? (
+        {isAdmin ? (
+          <AdminNavBar
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+            activeSection={activeSection}
+          />
+        ) : isManager ? (
           <ManagerNavBar
             sidebarOpen={sidebarOpen}
             setSidebarOpen={setSidebarOpen}
