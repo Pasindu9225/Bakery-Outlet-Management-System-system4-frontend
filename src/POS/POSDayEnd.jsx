@@ -4,6 +4,7 @@ import {
     CreditCard,
     Calculator,
     AlertTriangle,
+    AlertCircle,
     CheckCircle,
     Package,
     TrendingUp,

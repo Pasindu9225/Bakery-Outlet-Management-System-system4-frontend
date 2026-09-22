@@ -199,14 +199,9 @@ export default function POSGoodsEntry() {
   const fetchProductList = async () => {
     try {
       const token = localStorage.getItem("authToken");
-      let res = await fetch(`${process.env.REACT_APP_BASE_URL}/api/products`, {
+      const res = await fetch(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/product/all`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) {
-        res = await fetch(`${process.env.REACT_APP_BASE_URL}/api/manager/products`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      }
       if (res.ok) {
         const data = await res.json();
         setProductList(Array.isArray(data) ? data : data.content || []);
