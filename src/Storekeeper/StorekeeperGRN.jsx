@@ -282,7 +282,7 @@ export default function StorekeeperGRN() {
           invoicePrice: actualCost,
           actualCost: actualCost,
           batchNo: defaultBatchNo,
-          expiryDate: rm.expireDate || "",
+          expiryDate: "",
           accepted: true,
           variance: requiredQty - (receivedQty || 0),
           actualTotal: actualTotal,
@@ -379,6 +379,15 @@ export default function StorekeeperGRN() {
 
         if (invPrice !== actPrice) {
           toast.error(`Invoice Price (Rs.${invPrice}) does not match Actual Price (Rs.${actPrice}) for "${item.materialName}". They must match to complete GRN.`);
+          return;
+        }
+
+        if (!item.expiryDate) {
+          toast.error(`Enter the expiry date for "${item.materialName}".`);
+          return;
+        }
+        if (item.expiryDate < new Date().toLocaleDateString("en-CA")) {
+          toast.error(`"${item.materialName}" is already expired (${item.expiryDate}). Expired stock cannot be received.`);
           return;
         }
       }
@@ -1133,6 +1142,8 @@ export default function StorekeeperGRN() {
                                 <td className="py-4 px-2">
                                   <input
                                     type="date"
+                                    required
+                                    min={new Date().toLocaleDateString("en-CA")}
                                     value={item.expiryDate}
                                     onChange={(e) =>
                                       updateGRNItem(
