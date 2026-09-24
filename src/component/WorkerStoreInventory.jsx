@@ -13,6 +13,8 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Loader from "../component/Loader.jsx";
+import ExpiryTag, { isExpired as isPastExpiry } from "./ExpiryTag.jsx";
+import ReportWastageModal from "./ReportWastageModal.jsx";
 
 export default function WorkerStoreInventory({ moduleTitle = "Production Center Store" }) {
   const [items, setItems] = useState([]);
@@ -20,6 +22,7 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
+  const [reportItem, setReportItem] = useState(null);
 
   const fetchInventory = async () => {
     try {
@@ -252,12 +255,13 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
                   <th className="py-3.5 px-4 text-center">System Qty</th>
                   <th className="py-3.5 px-4 text-center">Physical Stock</th>
                   <th className="py-3.5 px-4">Brand / Type</th>
+                  <th className="py-3.5 px-4"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E4E6EA] text-[13px]">
                 {filteredItems.map((item, idx) => {
                   const cat = getItemCategory(item);
-                  const isExpired = item.isExpired || (item.expiryDate && new Date(item.expiryDate) < new Date());
+                  const isExpired = item.isExpired || isPastExpiry(item.expiryDate);
                   return (
                     <tr
                       key={idx}
@@ -273,6 +277,12 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
                           {cat === "SEMI_FINISHED" && <Layers size={16} className="text-purple-600" />}
                           {cat === "FINISHED_PRODUCT" && <Package size={16} className="text-amber-600" />}
                           <span>{item.name}</span>
+                          {item.expiryDate && !isExpired && <ExpiryTag expiryDate={item.expiryDate} warnDays={1} />}
+                          {Number(item.expiredQty) > 0 && (
+                            <span className="text-[11px] font-[600] text-red-600" title="Expired stock is hidden here and sent to the Admin for review">
+                              +{Number(item.expiredQty)} expired
+                            </span>
+                          )}
                           {isExpired && (
                             <span className="px-2 py-0.5 rounded text-[10px] font-[700] bg-red-100 text-red-700 border border-red-300 uppercase tracking-wider">
                               EXPIRED
@@ -312,6 +322,22 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
                           ? item.brandName
                           : item.genericMaterialName || "N/A"}
                       </td>
+                      <td className="py-3.5 px-4 text-right">
+                        {item.stockRef && Number(item.physicalQty) > 0 && (
+                          <button
+                            onClick={() => setReportItem({
+                              stage: "MINI_STORE", locationType: "MINI_STORE", locationId: item.miniStoreId, locationName: moduleTitle,
+                              itemType: cat === "RAW_MATERIAL" ? "RAW_MATERIAL" : cat === "FINISHED_PRODUCT" ? "FINISHED" : "SEMI_FINISHED",
+                              itemId: item.rawMaterialId || item.productId, itemName: item.name,
+                              uom: item.unitOfMeasure || item.unit, expiryDate: item.expiryDate || null,
+                              stockRef: item.stockRef, available: item.physicalQty,
+                            })}
+                            className="px-3 py-1 text-[12px] font-[600] text-red-600 border border-red-200 rounded-lg hover:bg-red-50 whitespace-nowrap"
+                          >
+                            Report wastage
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   );
                 })}
@@ -319,6 +345,16 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
             </table>
           </div>
         )}
+      {reportItem && (
+        <ReportWastageModal
+          item={reportItem}
+          onClose={() => setReportItem(null)}
+          onDone={(entry) => {
+            setReportItem(null);
+            toast.success(`${entry?.entryNo || "Wastage"} sent to the Admin for review.`);
+          }}
+        />
+      )}
       </div>
     </div>
   );
