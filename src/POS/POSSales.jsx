@@ -31,6 +31,7 @@ import POSNavBar from "../component/POSNavBar.jsx";
 import POSSidebar from "../component/POSSidebar.jsx";
 import Loader from "../component/Loader.jsx";
 import ExpiryTag, { expiryStatus, isExpired } from "../component/ExpiryTag.jsx";
+import ReportWastageModal from "../component/ReportWastageModal.jsx";
 import posService from "../services/posService";
 
 import managerService from "../services/managerService";
@@ -513,6 +514,15 @@ export default function POSSales() {
     };
 
     // Add product to cart
+    const [reportItem, setReportItem] = useState(null);
+    const openWastageReport = (product) => setReportItem({
+        stage: "POS", locationType: "OUTLET",
+        locationId: Number(localStorage.getItem("outletId")) || null,
+        itemType: "FINISHED", itemId: product.id, itemName: product.name,
+        expiryDate: product.expiryDate, stockRef: `day_production_items:${product.dayProductionItemId}`,
+        available: product.stock,
+    });
+
     const addToCart = async (product, quantity = 1) => {
         if (isExpired(product.expiryDate)) {
             toast.error(`${product.name} expired on ${product.expiryDate} and cannot be sold.`);
@@ -1137,6 +1147,14 @@ export default function POSSales() {
                                                         <p className="text-[10px] text-[#667085]">Current QTY: {product.currentQty}</p>
                                                     </div>
                                                 </div>
+                                                {product.dayProductionItemId && product.stock > 0 && !product.isMpcDish && (
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); openWastageReport(product); }}
+                                                        className="mt-1 w-full text-[11px] text-red-600 hover:underline"
+                                                    >
+                                                        Report wastage
+                                                    </button>
+                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -1173,6 +1191,14 @@ export default function POSSales() {
                                                     <p className="text-[10px] text-[#667085]">Current QTY: {product.currentQty}</p>
                                                 </div>
                                             </div>
+                                            {product.dayProductionItemId && product.stock > 0 && !product.isMpcDish && (
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); openWastageReport(product); }}
+                                                    className="mt-1 w-full text-[11px] text-red-600 hover:underline"
+                                                >
+                                                    Report wastage
+                                                </button>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -2506,6 +2532,16 @@ export default function POSSales() {
                         </form>
                     </div>
                 </div>
+            )}
+            {reportItem && (
+                <ReportWastageModal
+                    item={reportItem}
+                    onClose={() => setReportItem(null)}
+                    onDone={(entry) => {
+                        setReportItem(null);
+                        toast.success(`${entry?.entryNo || "Wastage"} sent to the Admin for review.`);
+                    }}
+                />
             )}
         </div>
     );
