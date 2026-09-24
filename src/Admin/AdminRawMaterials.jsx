@@ -831,21 +831,27 @@ export default function AdminRawMaterials() {
     const filteredMaterials = getFilteredMaterials();
 
     const handleExportExcel = () => {
-        const rows = filteredMaterials.map(m => ({
-            "Material Code": m.code,
-            "Name": m.name,
-            "Generic Material": m.genericMaterialName,
-            "Category": m.category,
-            "Brand": m.brand,
-            "Unit of Measure": m.unit,
-            "Unit Cost (Rs.)": m.unitCost,
-            "Current Stock": m.currentStock,
-            "Min Stock Level": m.minStockLevel,
-            "Max Stock Level": m.maxstoplevel,
-            "Supplier": m.supplierName,
-            "VAT Included": m.vatIncluded ? "Yes" : "No",
-            "Status": m.status,
-        }));
+        const rows = filteredMaterials.map(m => {
+            // The table shows the linked generic material's name here, not the raw m.name field -
+            // many rows never had m.name filled in properly, only the generic material link.
+            const genericObj = generics.find(g => g.id === m.genericId);
+            const displayName = genericObj ? (genericObj.name || genericObj.genericMaterialName) : (m.genericMaterialName || m.name);
+            return {
+                "Material Code": m.code,
+                "Name": displayName,
+                "Generic Material": m.genericMaterialName,
+                "Category": m.category,
+                "Brand": m.brand,
+                "Unit of Measure": m.unit,
+                "Unit Cost (Rs.)": m.unitCost,
+                "Current Stock": m.currentStock,
+                "Min Stock Level": m.minStockLevel,
+                "Max Stock Level": m.maxstoplevel,
+                "Supplier": m.supplierName,
+                "VAT Included": m.vatIncluded ? "Yes" : "No",
+                "Status": m.status,
+            };
+        });
         exportToExcel(rows, `Raw_Materials_${new Date().toISOString().slice(0, 10)}`, "Raw Materials");
     };
 
