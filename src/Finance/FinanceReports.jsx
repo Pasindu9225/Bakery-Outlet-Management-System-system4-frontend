@@ -182,7 +182,8 @@ function normaliseRow(raw, idx) {
         discounts: toNumber(raw.discounts),
         returns: toNumber(raw.returns),
         net: toNumber(raw.net),
-        qty: raw.qty != null ? toNumber(raw.qty) : null,
+        // exactQty keeps fractions (e.g. 0.4 kg of wasted flour) that the whole-number qty drops
+        qty: raw.exactQty != null ? toNumber(raw.exactQty) : raw.qty != null ? toNumber(raw.qty) : null,
         unit: raw.unit || "",
         costPerUnit: toNumber(raw.costPerUnit),
         totalCost: toNumber(raw.totalCost),
