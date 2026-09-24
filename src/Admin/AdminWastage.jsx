@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
+  CalendarClock,
   Check,
   CheckCircle2,
   ClipboardList,
@@ -17,6 +18,7 @@ import {
 import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
 import Loader from "../component/Loader.jsx";
+import ExpiryTag from "../component/ExpiryTag.jsx";
 import axiosInstance from "../services/api";
 
 const STAGE_LABELS = {
@@ -92,6 +94,12 @@ export default function AdminWastage() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
+  const [watchRows, setWatchRows] = useState([]);
+  const [watchDays, setWatchDays] = useState(3);
+  const [watchAll, setWatchAll] = useState(false);
+  const [watchLoading, setWatchLoading] = useState(false);
+  const [checking, setChecking] = useState(false);
+
   const [confirmEntry, setConfirmEntry] = useState(null);
   const [dismissEntry, setDismissEntry] = useState(null);
 
@@ -140,6 +148,38 @@ export default function AdminWastage() {
       .catch(() => setReasons([]));
   }, []);
 
+  const loadWatch = useCallback(async () => {
+    setWatchLoading(true);
+    try {
+      const res = await axiosInstance.get("/api/v1/wastage/admin/expiry-watch", {
+        params: { days: watchDays, includeOk: watchAll },
+      });
+      setWatchRows(res.data || []);
+    } catch (err) {
+      notify(err.message || "Failed to load expiry watch", "error");
+    } finally {
+      setWatchLoading(false);
+    }
+  }, [watchDays, watchAll]);
+
+  useEffect(() => {
+    if (tab === "expiry") loadWatch();
+  }, [tab, loadWatch]);
+
+  const runExpiryCheck = async () => {
+    setChecking(true);
+    try {
+      const res = await axiosInstance.post("/api/v1/wastage/admin/expiry-check");
+      const created = res.data?.created ?? 0;
+      notify(created ? `${created} expired item${created === 1 ? "" : "s"} sent to Pending Review.` : "No new expired stock found.");
+      await Promise.all([refresh(), loadWatch()]);
+    } catch (err) {
+      notify(err.message || "Expiry check failed", "error");
+    } finally {
+      setChecking(false);
+    }
+  };
+
   const matches = useCallback(
     (e) => {
       if (stageFilter && e.stage !== stageFilter) return false;
@@ -153,6 +193,8 @@ export default function AdminWastage() {
   );
 
   const pendingRows = useMemo(() => pending.filter(matches), [pending, matches]);
+  const watchVisible = useMemo(() => watchRows.filter(matches), [watchRows, matches]);
+  const expiredCount = useMemo(() => watchRows.filter((r) => r.status === "EXPIRED").length, [watchRows]);
   const historyRows = useMemo(() => history.filter(matches), [history, matches]);
   const historyTotal = useMemo(
     () => historyRows.reduce((sum, e) => sum + (Number(e.actualValue) || 0), 0),
@@ -180,6 +222,7 @@ export default function AdminWastage() {
 
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
+    { id: "expiry", label: "Expiry Watch", icon: CalendarClock },
     { id: "pending", label: "Pending Review", icon: ClipboardList, count: summary?.pendingCount },
     { id: "history", label: "History", icon: History },
   ];
@@ -252,6 +295,32 @@ export default function AdminWastage() {
                       <option key={k} value={k}>{v}</option>
                     ))}
                   </select>
+                  {tab === "expiry" && (
+                    <>
+                      <select
+                        value={watchDays}
+                        onChange={(e) => setWatchDays(Number(e.target.value))}
+                        className="px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px] bg-white"
+                        title="Warn this many days before expiry"
+                      >
+                        {[1, 3, 7, 14].map((d) => (
+                          <option key={d} value={d}>Warn {d} day{d === 1 ? "" : "s"} ahead</option>
+                        ))}
+                      </select>
+                      <label className="flex items-center gap-2 text-[14px] text-[#344054] px-2">
+                        <input type="checkbox" checked={watchAll} onChange={(e) => setWatchAll(e.target.checked)} />
+                        Show all dated stock
+                      </label>
+                      <button
+                        onClick={runExpiryCheck}
+                        disabled={checking}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-[14px] font-[600] disabled:opacity-50 whitespace-nowrap"
+                        title="Send every expired item to Pending Review now (this also runs automatically every night)"
+                      >
+                        {checking ? <Loader variant="inline" /> : <><AlertTriangle size={16} /> Send expired to review</>}
+                      </button>
+                    </>
+                  )}
                   {tab === "history" && (
                     <>
                       <select
@@ -276,6 +345,21 @@ export default function AdminWastage() {
                     </>
                   )}
                 </div>
+              )}
+
+              {tab === "expiry" && (
+                <>
+                  <p className="text-[13px] text-[#667085] mb-3">
+                    {watchLoading ? "Checking stock..." : (
+                      <>
+                        {watchRows.length} item{watchRows.length === 1 ? "" : "s"} shown
+                        {expiredCount > 0 && <> · <span className="text-red-600 font-[600]">{expiredCount} expired</span></>}
+                        {" "}· expired stock is sent to Pending Review automatically every night.
+                      </>
+                    )}
+                  </p>
+                  <ExpiryTable rows={watchVisible} />
+                </>
               )}
 
               {tab === "pending" && (
@@ -382,6 +466,54 @@ function Overview({ summary, pending, onOpenPending }) {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+function ExpiryTable({ rows }) {
+  if (rows.length === 0) {
+    return (
+      <div className="bg-white rounded-xl border border-[#E4E6EA] p-10 text-center text-[14px] text-[#667085]">
+        No stock is expired or close to expiry.
+      </div>
+    );
+  }
+  return (
+    <div className="bg-white rounded-xl border border-[#E4E6EA] shadow-sm overflow-x-auto">
+      <table className="w-full min-w-[900px]">
+        <thead>
+          <tr className="border-b border-[#E4E6EA] bg-[#F9FAFB]">
+            {["Item", "Where", "Batch", "Qty", "Expiry", "", "Wastage entry"].map((h, i) => (
+              <th key={i} className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.stockRef} className={`border-b border-[#F0F1F3] ${r.status === "EXPIRED" ? "bg-red-50/40" : ""}`}>
+              <td className="py-3 px-4 text-[14px] font-[500] text-[#1D2939]">{r.itemName}</td>
+              <td className="py-3 px-4">
+                <p className="text-[13px] text-[#344054]">{stageLabel(r.stage)}</p>
+                {locationOf(r) && <p className="text-[12px] text-[#98A2B3]">{locationOf(r)}</p>}
+              </td>
+              <td className="py-3 px-4 text-[13px] text-[#667085]">{r.batchRef || "—"}</td>
+              <td className="py-3 px-4 text-[14px] text-[#344054] whitespace-nowrap">{qty(r.qty, r.uom)}</td>
+              <td className="py-3 px-4 text-[13px] text-[#344054] whitespace-nowrap">{r.expiryDate}</td>
+              <td className="py-3 px-4"><ExpiryTag expiryDate={r.expiryDate} /></td>
+              <td className="py-3 px-4 text-[13px]">
+                {r.wastageEntryNo ? (
+                  <span className="flex items-center gap-2">
+                    <span className="text-[#344054]">{r.wastageEntryNo}</span>
+                    <StatusBadge status={r.wastageStatus} />
+                  </span>
+                ) : (
+                  <span className="text-[#98A2B3]">{r.status === "EXPIRED" ? "Not yet raised" : "—"}</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
