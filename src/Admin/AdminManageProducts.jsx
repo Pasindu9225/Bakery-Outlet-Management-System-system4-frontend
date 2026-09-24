@@ -1,10 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Package, Search, Edit, Trash2, X, Check, Plus, Tag, DollarSign, FileText, Building2, Calendar } from "lucide-react";
 import toast from "react-hot-toast";
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
 import rawMaterialService from "../services/rawMaterialService";
+
+// Suggests the next code in the same series as whatever's typed so far, e.g. typing "MD" against
+// existing codes MDK03/MFK09/SFB001/TR007 matches MDK03 (the only one starting with "MD") and
+// suggests MDK04 - same letters, next number. Typing "TR" matches TR007 and suggests TR008. Picks
+// the highest-numbered code in a matching series (not just the last one in the list) so it's right
+// even if the backend doesn't return items in creation order.
+function suggestNextCode(existingCodes, typedPrefix = '') {
+    const prefix = (typedPrefix || '').toUpperCase();
+    let best = null;
+    for (const raw of existingCodes || []) {
+        if (!raw) continue;
+        const code = String(raw);
+        if (!code.toUpperCase().startsWith(prefix)) continue;
+        const match = /^(.*?)(\d+)$/.exec(code);
+        if (!match) continue;
+        const [, base, digits] = match;
+        const num = Number(digits);
+        if (!best || num > best.num) {
+            best = { base, digits, num };
+        }
+    }
+    if (!best) return '';
+    const nextNumber = String(best.num + 1).padStart(best.digits.length, '0');
+    return `${best.base}${nextNumber}`;
+}
 
 export default function AdminManageProducts() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -168,6 +193,14 @@ export default function AdminManageProducts() {
         isKotEnabled: false,
         shelfLifeDays: ''
     });
+
+    const suggestedProductCode = useMemo(
+        () => suggestNextCode(products.map((p) => p.code), formData.code),
+        [products, formData.code]
+    );
+    const showProductCodeGhost = !isEditMode && suggestedProductCode
+        && suggestedProductCode.toUpperCase().startsWith(formData.code.toUpperCase())
+        && suggestedProductCode.length > formData.code.length;
 
     const [errors, setErrors] = useState({});
     const [showToast, setShowToast] = useState(false);
@@ -1412,16 +1445,30 @@ export default function AdminManageProducts() {
                                             Product Code <span className="text-[#EF4444]">*</span>
                                         </label>
                                         <div className="relative">
-                                            <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                                            <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085] z-10" />
                                             <input
                                                 type="text"
                                                 name="code"
                                                 value={formData.code}
                                                 onChange={handleChange}
-                                                placeholder="Enter product code (e.g., P-001)"
-                                                className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.code ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                                onKeyDown={(e) => {
+                                                    if ((e.key === 'Tab' || e.key === 'ArrowRight') && !isEditMode
+                                                        && suggestedProductCode && suggestedProductCode.length > formData.code.length
+                                                        && e.currentTarget.selectionStart === formData.code.length) {
+                                                        e.preventDefault();
+                                                        setFormData((prev) => ({ ...prev, code: suggestedProductCode }));
+                                                    }
+                                                }}
+                                                placeholder={showProductCodeGhost ? '' : "Enter product code (e.g., P-001)"}
+                                                className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] bg-transparent relative z-10 focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.code ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
                                                     }`}
                                             />
+                                            {showProductCodeGhost && (
+                                                <div className="absolute inset-0 flex items-center pl-10 pr-4 py-2.5 text-[14px] pointer-events-none whitespace-pre">
+                                                    <span className="invisible">{formData.code}</span>
+                                                    <span className="text-[#98A2B3]">{suggestedProductCode.slice(formData.code.length)}</span>
+                                                </div>
+                                            )}
                                         </div>
                                         {errors.code && (
                                             <p className="text-[#EF4444] text-[12px] mt-1">{errors.code}</p>

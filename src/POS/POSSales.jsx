@@ -780,9 +780,17 @@ export default function POSSales() {
 
             if (shouldPrint || hasKotItems) {
                 setPrintData(printPayload);
+                // A fixed delay isn't enough once there's a full invoice AND KOT slips to lay out -
+                // on a slower render the print snapshot could be taken before the KOT section (which
+                // comes after the invoice in the DOM) has actually painted. Wait for React to commit,
+                // then wait a full paint cycle (double rAF) before printing, so nothing gets cut off.
                 setTimeout(() => {
-                    window.print();
-                    setPrintData(null);
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            window.print();
+                            setPrintData(null);
+                        });
+                    });
                 }, 150);
             }
 

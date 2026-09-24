@@ -196,6 +196,12 @@ export default function POSTableBilling() {
     const [tableOrders, setTableOrders] = useState({});
     const [currentOrder, setCurrentOrder] = useState([]);
 
+    // Cart: items picked from the product grid sit here first, client-side only - nothing is sent
+    // to the backend until they're moved into the table's current order.
+    const [cart, setCart] = useState([]);
+    const [highlightedCartId, setHighlightedCartId] = useState(null);
+    const [movingCartToOrder, setMovingCartToOrder] = useState(false);
+
     // Payment States
     const [showBillModal, setShowBillModal] = useState(false);
     const [amountReceived, setAmountReceived] = useState('');
@@ -319,6 +325,7 @@ export default function POSTableBilling() {
     useEffect(() => {
         fetchTableDetails();
         fetchTodayItems();
+        setCart([]); // the cart is per-table; switching tables shouldn't carry it over
     }, [selectedTable]);
 
     // Filter products
@@ -354,10 +361,63 @@ export default function POSTableBilling() {
         };
         
         handleOrderItemOrder(itemToOrder);
-        
+
         // Visual feedback
         setHighlightedItemId(product.id);
         setTimeout(() => setHighlightedItemId(null), 1000);
+    };
+
+    // Add a product to the cart (client-side only - not sent to the backend yet).
+    const addToCart = (product, quantity = 1) => {
+        if (!selectedTable) {
+            toast.error('Please select a table first');
+            return;
+        }
+
+        setCart(prev => {
+            const existing = prev.find(i => i.id === product.id);
+            if (existing) {
+                return prev.map(i => i.id === product.id ? { ...i, qty: i.qty + quantity } : i);
+            }
+            return [...prev, { ...product, qty: quantity, instructions: '' }];
+        });
+
+        setHighlightedCartId(product.id);
+        setTimeout(() => setHighlightedCartId(null), 1000);
+    };
+
+    const updateCartQuantity = (productId, newQuantity) => {
+        if (newQuantity <= 0) {
+            setCart(prev => prev.filter(i => i.id !== productId));
+            return;
+        }
+        setCart(prev => prev.map(i => i.id === productId ? { ...i, qty: newQuantity } : i));
+    };
+
+    const removeCartItem = (productId) => {
+        setCart(prev => prev.filter(i => i.id !== productId));
+    };
+
+    // Move everything in the cart into the table's actual order - this is the point items are
+    // persisted to the backend (handleOrderItemOrder, unchanged - still the same manual
+    // production-center + "Send to Kitchen" flow as before for KOT-enabled items).
+    const moveCartToOrder = async () => {
+        if (cart.length === 0) {
+            toast.error('Cart is empty');
+            return;
+        }
+        setMovingCartToOrder(true);
+        try {
+            for (const item of cart) {
+                await handleOrderItemOrder({
+                    ...item,
+                    unitPrice: item.price,
+                });
+            }
+            setCart([]);
+        } finally {
+            setMovingCartToOrder(false);
+        }
     };
 
     // Update order item quantity
@@ -854,11 +914,11 @@ export default function POSTableBilling() {
                                                                 <p className="text-[14px] font-[600] text-[#0F50AA]">Rs. {product.price}</p>
                                                             </div>
                                                             <button
-                                                                onClick={() => addToOrder(product)}
+                                                                onClick={() => addToCart(product)}
                                                                 className="w-full px-3 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors text-[12px] font-[500] flex items-center justify-center gap-2"
                                                             >
                                                                 <Plus size={14} />
-                                                                Add to Order
+                                                                Add to Cart
                                                             </button>
                                                         </div>
                                                     ))}
@@ -870,6 +930,98 @@ export default function POSTableBilling() {
                                                     )}
                                                 </div>
                                             )}
+                                        </div>
+                                    )}
+
+                                    {/* Cart: picked items land here first; nothing is sent to the
+                                        backend until "Add to Order" is pressed. */}
+                                    {selectedTable && (
+                                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA]">
+                                            <div className="p-4 border-b border-[#E4E6EA] flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                                                <h3 className="text-[16px] font-[600] text-[#383E49] flex items-center gap-2">
+                                                    <ShoppingCart size={18} />
+                                                    Cart
+                                                </h3>
+                                                <button
+                                                    onClick={moveCartToOrder}
+                                                    disabled={cart.length === 0 || movingCartToOrder}
+                                                    className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors text-[13px] font-[500] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                                >
+                                                    <Utensils size={14} />
+                                                    {movingCartToOrder ? 'Adding to Order...' : 'Add to Order'}
+                                                </button>
+                                            </div>
+
+                                            <div className="px-2">
+                                                {cart.length > 0 ? (
+                                                    <div className="overflow-x-auto">
+                                                        <table className="w-full">
+                                                            <thead className="bg-[#F8F9FA]">
+                                                                <tr>
+                                                                    <th className="text-left px-4 py-3 text-[12px] font-[600] text-[#383E49]">Item</th>
+                                                                    <th className="text-center px-4 py-3 text-[12px] font-[600] text-[#383E49]">Qty</th>
+                                                                    <th className="text-right px-4 py-3 text-[12px] font-[600] text-[#383E49]">Unit Price</th>
+                                                                    <th className="text-right px-4 py-3 text-[12px] font-[600] text-[#383E49]">Total</th>
+                                                                    <th className="text-center px-4 py-3 text-[12px] font-[600] text-[#383E49]">Actions</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {cart.map((item) => (
+                                                                    <tr key={item.id} className={`border-b border-[#E4E6EA] transition-all ${highlightedCartId === item.id ? 'pulse-item bg-[#0F50AA]/5' : 'hover:bg-[#F8F9FA]'}`}>
+                                                                        <td className="px-4 py-3">
+                                                                            <div>
+                                                                                <p className="text-[14px] font-[500] text-[#383E49]">{item.name}</p>
+                                                                                <p className="text-[12px] text-[#667085]">{item.code}</p>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="px-4 py-3">
+                                                                            <div className="flex items-center justify-center gap-1">
+                                                                                <button
+                                                                                    onClick={() => updateCartQuantity(item.id, item.qty - 1)}
+                                                                                    className="w-6 h-6 flex items-center justify-center border border-[#E4E6EA] rounded text-[#667085] hover:bg-[#F8F9FA]"
+                                                                                >
+                                                                                    <Minus size={12} />
+                                                                                </button>
+                                                                                <span className="w-8 text-center text-[14px] font-[500] text-[#383E49]">
+                                                                                    {item.qty}
+                                                                                </span>
+                                                                                <button
+                                                                                    onClick={() => updateCartQuantity(item.id, item.qty + 1)}
+                                                                                    className="w-6 h-6 flex items-center justify-center border border-[#E4E6EA] rounded text-[#667085] hover:bg-[#F8F9FA]"
+                                                                                >
+                                                                                    <Plus size={12} />
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="px-4 py-3 text-right">
+                                                                            <span className="text-[14px] font-[500] text-[#383E49]">Rs. {item.price}</span>
+                                                                        </td>
+                                                                        <td className="px-4 py-3 text-right">
+                                                                            <span className="text-[14px] font-[600] text-[#0F50AA]">Rs. {(item.price * item.qty).toFixed(2)}</span>
+                                                                        </td>
+                                                                        <td className="px-4 py-3">
+                                                                            <div className="flex items-center justify-center">
+                                                                                <button
+                                                                                    onClick={() => removeCartItem(item.id)}
+                                                                                    className="p-1 text-[#EF4444] hover:bg-[#EF4444]/10 rounded transition-colors"
+                                                                                >
+                                                                                    <Trash2 size={16} />
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center py-8">
+                                                        <ShoppingCart size={40} className="text-[#E4E6EA] mx-auto mb-2" />
+                                                        <p className="text-[13px] text-[#667085]">Cart is empty</p>
+                                                        <p className="text-[12px] text-[#667085] mt-1">Click a product above to add it here</p>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     )}
 
