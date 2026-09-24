@@ -13,6 +13,8 @@ import { NavLink } from "react-router-dom";
 import ManagerNavBar from "../component/ManagerNavBar.jsx";
 import ManagerSidebar from "../component/ManagerSidebar.jsx";
 import Loader from "../component/Loader.jsx";
+import ExpiryTag from "../component/ExpiryTag.jsx";
+import ReportWastageModal from "../component/ReportWastageModal.jsx";
 
 export default function ManagerActualProduction() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -33,6 +35,7 @@ export default function ManagerActualProduction() {
   const [selectedOutlet, setSelectedOutlet] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notification, setNotification] = useState(null);
+  const [reportItem, setReportItem] = useState(null);
 
   const fetchInventory = async () => {
     try {
@@ -243,6 +246,7 @@ export default function ManagerActualProduction() {
                       <tr>
                         <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Product</th>
                         <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase text-center">Available Quantity</th>
+                        <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Lots &amp; Expiry</th>
                         <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase text-center">Last Updated</th>
                         <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase text-right">Actions</th>
                       </tr>
@@ -250,7 +254,7 @@ export default function ManagerActualProduction() {
                     <tbody className="divide-y divide-[#E4E6EA]">
                       {filteredInventory.length === 0 ? (
                         <tr>
-                          <td colSpan="4" className="py-8 text-center text-[#667085] text-[14px]">
+                          <td colSpan="5" className="py-8 text-center text-[#667085] text-[14px]">
                             No items in actual production pool.
                           </td>
                         </tr>
@@ -267,6 +271,35 @@ export default function ManagerActualProduction() {
                             </td>
                             <td className="py-4 px-4 text-center">
                               <span className="text-[14px] font-[600] text-[#383E49]">{item.availableQuantity}</span>
+                            </td>
+                            <td className="py-4 px-4">
+                              {item.lots && item.lots.length > 0 ? (
+                                <div className="flex flex-col gap-1.5">
+                                  {item.lots.slice(0, 3).map((lot) => (
+                                    <div key={lot.id} className="flex items-center gap-2 text-[12px] text-[#344054]">
+                                      <span className="font-[600] w-8 text-right">{lot.availableQty}</span>
+                                      <ExpiryTag expiryDate={lot.expiryDate} warnDays={1} />
+                                      <button
+                                        onClick={() => setReportItem({
+                                          stage: "ACTUAL_PRODUCTION", locationType: "PRODUCTION_CENTER", locationName: "Actual Production",
+                                          itemType: "FINISHED", itemId: item.productId, itemName: item.productName,
+                                          batchRef: `Lot ${lot.id}`, expiryDate: lot.expiryDate,
+                                          stockRef: `actual_production_lot:${lot.id}`, available: lot.availableQty,
+                                        })}
+                                        className="text-[11px] font-[600] text-red-600 hover:underline"
+                                      >
+                                        Report
+                                      </button>
+                                    </div>
+                                  ))}
+                                  {item.lots.length > 3 && <span className="text-[11px] text-[#98A2B3]">+{item.lots.length - 3} more lots</span>}
+                                  {item.expiredQuantity > 0 && (
+                                    <span className="text-[11px] font-[600] text-red-600">{item.expiredQuantity} expired - cannot be sent to stores</span>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-[12px] text-[#98A2B3]">No dated lots</span>
+                              )}
                             </td>
                             <td className="py-4 px-4 text-center">
                               <span className="text-[13px] text-[#667085]">
@@ -460,6 +493,18 @@ export default function ManagerActualProduction() {
         </div>
       )}
       
+      {reportItem && (
+        <ReportWastageModal
+          item={reportItem}
+          onClose={() => setReportItem(null)}
+          onDone={(entry) => {
+            setReportItem(null);
+            setNotification({ type: "success", message: `${entry?.entryNo || "Wastage"} sent to the Admin for review.` });
+            setTimeout(() => setNotification(null), 3000);
+          }}
+        />
+      )}
+
       {sidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-[9998] md:hidden"

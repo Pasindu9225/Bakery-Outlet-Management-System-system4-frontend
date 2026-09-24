@@ -25,6 +25,8 @@ import {
 import StorekeeperNavBar from "../component/StorekeeperNavBar.jsx";
 import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
 import { formatQuantity } from "../utils/quantityFormatter";
+import ExpiryTag, { daysUntil } from "../component/ExpiryTag.jsx";
+import ReportWastageModal from "../component/ReportWastageModal.jsx";
 
 export default function StorekeeperViewStore() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -72,6 +74,8 @@ export default function StorekeeperViewStore() {
 
   // Inventory data (fetched from backend)
   const [inventory, setInventory] = useState([]);
+  const [reportItem, setReportItem] = useState(null);
+  const [reportMsg, setReportMsg] = useState("");
 
   // Fetch inventory from backend and map to UI shape
   useEffect(() => {
@@ -89,9 +93,6 @@ export default function StorekeeperViewStore() {
         // Map backend materials to existing UI structure
         const today = new Date();
         const todayISO = today.toISOString().slice(0, 10);
-        const defaultExpiry = new Date();
-        defaultExpiry.setDate(defaultExpiry.getDate() + 365);
-        const defaultExpiryISO = defaultExpiry.toISOString().slice(0, 10);
 
         const mapped = (Array.isArray(data) ? data : []).map((item) => ({
           id: item.id,
@@ -100,7 +101,7 @@ export default function StorekeeperViewStore() {
           brand: item.brand || "N/A",
           unit: item.unit || "unit",
           // Map new backend fields to existing UI expectations
-          expiryDate: item.expireDate || defaultExpiryISO,
+          expiryDate: item.expireDate || null,
           purchasePrice:
             typeof item.unitCost === "number"
               ? item.unitCost
@@ -109,6 +110,7 @@ export default function StorekeeperViewStore() {
           batches:
             item.batches && item.batches.length > 0
               ? item.batches.map((b, idx) => ({
+                  id: b.id,
                   batchNo: b.batchNo || `${item.code}-B${idx + 1}`,
                   supplier: b.supplier || "-",
                   purchasePrice:
@@ -121,7 +123,7 @@ export default function StorekeeperViewStore() {
                   issuedQuantity: b.issuedQuantity ?? 0,
                   balance: b.balance ?? b.quantity ?? 0,
                   expiryDate:
-                    b.expiryDate || item.expireDate || defaultExpiryISO,
+                    b.expiryDate || item.expireDate || null,
                   receiveDate: b.receiveDate || todayISO,
                   minQty: item.minQty ?? 0,
                 }))
@@ -146,7 +148,7 @@ export default function StorekeeperViewStore() {
                       typeof item.totalQuantity === "number"
                         ? item.totalQuantity
                         : parseFloat(item.totalQuantity) || 0,
-                    expiryDate: item.expireDate || defaultExpiryISO,
+                    expiryDate: item.expireDate || null,
                     receiveDate: todayISO,
                     minQty: item.minQty ?? 0,
                   },
@@ -193,20 +195,14 @@ export default function StorekeeperViewStore() {
   // Remove demo transactions; we'll show live batch details in the BIN card
 
   // Helper functions
-  const calculateDaysToExpiry = (expiryDate) => {
-    const today = new Date();
-    const expiry = new Date(expiryDate);
-    const timeDiff = expiry.getTime() - today.getTime();
-    return Math.ceil(timeDiff / (1000 * 3600 * 24));
-  };
-
   const isExpired = (expiryDate) => {
-    return new Date(expiryDate) < new Date();
+    const left = daysUntil(expiryDate);
+    return left !== null && left < 0;
   };
 
   const isNearExpiry = (expiryDate, days) => {
-    const daysToExpiry = calculateDaysToExpiry(expiryDate);
-    return daysToExpiry <= days && daysToExpiry > 0;
+    const left = daysUntil(expiryDate);
+    return left !== null && left >= 0 && left <= days;
   };
 
   const isBelowMinimum = (totalQty, minQty) => {
@@ -898,6 +894,7 @@ export default function StorekeeperViewStore() {
                         <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
                           Min Qty
                         </th>
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase"></th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#E4E6EA]">
@@ -930,12 +927,31 @@ export default function StorekeeperViewStore() {
                               : "-"}
                           </td>
                           <td className="py-3 px-4 text-[14px] text-[#383E49]">
-                            {b.expiryDate
-                              ? new Date(b.expiryDate).toLocaleDateString()
-                              : "-"}
+                            <div className="flex flex-col items-start gap-1">
+                              <span>{b.expiryDate ? new Date(b.expiryDate).toLocaleDateString() : "-"}</span>
+                              <ExpiryTag expiryDate={b.expiryDate} warnDays={expiryDays} />
+                            </div>
                           </td>
                           <td className="py-3 px-4 text-[14px] text-[#383E49]">
                             {b.minQty ?? 0}
+                          </td>
+                          <td className="py-3 px-4">
+                            {b.id && Number(b.balance ?? b.quantity ?? 0) > 0 && (
+                              <button
+                                onClick={() => {
+                                  const product = inventory.find((it) => it.id === selectedProduct);
+                                  setReportItem({
+                                    stage: "MAIN_STORE", locationType: "WAREHOUSE", locationName: "Main Store",
+                                    itemType: "RAW_MATERIAL", itemId: b.id, itemName: product?.name,
+                                    uom: product?.unit, batchRef: b.batchNo, expiryDate: b.expiryDate,
+                                    stockRef: `raw_materials:${b.id}`, available: b.balance ?? b.quantity,
+                                  });
+                                }}
+                                className="px-3 py-1 text-[12px] font-[600] text-red-600 border border-red-200 rounded-lg hover:bg-red-50 whitespace-nowrap"
+                              >
+                                Report wastage
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -964,6 +980,22 @@ export default function StorekeeperViewStore() {
           className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
+      )}
+      {reportItem && (
+        <ReportWastageModal
+          item={reportItem}
+          onClose={() => setReportItem(null)}
+          onDone={(entry) => {
+            setReportItem(null);
+            setReportMsg(`${entry?.entryNo || "Wastage"} sent to the Admin for review.`);
+            setTimeout(() => setReportMsg(""), 4000);
+          }}
+        />
+      )}
+      {reportMsg && (
+        <div className="fixed top-6 right-6 z-[100001] bg-white border-l-4 border-green-500 rounded-xl shadow-2xl p-4 text-[13px] text-[#344054]">
+          {reportMsg}
+        </div>
       )}
     </div>
   );

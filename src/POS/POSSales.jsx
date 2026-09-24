@@ -30,6 +30,7 @@ import { extractNicDetails } from "../utils/nicParser";
 import POSNavBar from "../component/POSNavBar.jsx";
 import POSSidebar from "../component/POSSidebar.jsx";
 import Loader from "../component/Loader.jsx";
+import ExpiryTag, { expiryStatus, isExpired } from "../component/ExpiryTag.jsx";
 import posService from "../services/posService";
 
 import managerService from "../services/managerService";
@@ -162,7 +163,8 @@ export default function POSSales() {
                 stock: item.currentQty,
                 category: item.categoryName,
                 fastMoving: item.isFastMoving,
-                kotBased: item.isKotEnabled || false
+                kotBased: item.isKotEnabled || false,
+                expiryDate: item.expiryDate || null
             }));
             setProducts(mappedData);
 
@@ -512,6 +514,10 @@ export default function POSSales() {
 
     // Add product to cart
     const addToCart = async (product, quantity = 1) => {
+        if (isExpired(product.expiryDate)) {
+            toast.error(`${product.name} expired on ${product.expiryDate} and cannot be sold.`);
+            return;
+        }
         if (product.stock < quantity) {
             setInsufficientItem(product.name);
             setShowInsufficientStock(true);
@@ -1121,6 +1127,9 @@ export default function POSSales() {
                                                     <div className="flex-1">
                                                         <p className="text-[14px] font-[500] text-[#383E49]">{product.name}</p>
                                                         <p className="text-[12px] text-[#667085]">{product.code}</p>
+                                                        {["EXPIRED", "EXPIRING"].includes(expiryStatus(product.expiryDate, 1)) && (
+                                                            <ExpiryTag expiryDate={product.expiryDate} warnDays={1} />
+                                                        )}
                                                         <p className="text-[14px] font-[600] text-[#0F50AA]">Rs. {product.price}</p>
                                                     </div>
                                                     <div className="text-right">
@@ -1154,6 +1163,9 @@ export default function POSSales() {
                                                 )}
                                             </div>
                                             <p className="text-[12px] text-[#667085] mb-1">{product.code}</p>
+                                            {["EXPIRED", "EXPIRING"].includes(expiryStatus(product.expiryDate, 1)) && (
+                                                <div className="mb-1"><ExpiryTag expiryDate={product.expiryDate} warnDays={1} /></div>
+                                            )}
                                             <div className="flex border-t border-[#E4E6EA] mt-2 pt-2 justify-between items-center">
                                                 <p className="text-[16px] font-[600] text-[#0F50AA]">Rs. {product.price}</p>
                                                 <div className="text-right">
