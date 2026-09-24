@@ -17,6 +17,7 @@ import {
   Percent,
   ShieldCheck,
   CreditCard,
+  Trash2,
   UserCircle2,
   Layers,
 } from "lucide-react";
@@ -48,6 +49,12 @@ export default function AdminSidebar({ sidebarOpen }) {
       icon: FileBarChart,
       path: "/adminGenerateReports",
       color: "text-orange-600",
+    },
+    {
+      name: "Wastage",
+      icon: Trash2,
+      path: "/adminWastage",
+      color: "text-red-600",
     },
     {
       name: "Customer Ledgers",
