@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Package, Search, Plus, Edit, Trash2, X, Check, AlertTriangle, Archive, Calendar } from "lucide-react";
+import { Package, Search, Plus, Edit, Trash2, X, Check, AlertTriangle, Archive, Calendar, Download } from "lucide-react";
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
 import rawMaterialService from "../services/rawMaterialService";
 import axiosInstance from "../services/api";
+import { exportToExcel } from "../utils/exportToExcel";
 
 // Suggests the next code in the same series as whatever's typed so far, e.g. typing "MD" against
 // existing codes MDK03/MFK09/SFB001/TR007 matches MDK03 (the only one starting with "MD") and
@@ -828,6 +829,26 @@ export default function AdminRawMaterials() {
     };
 
     const filteredMaterials = getFilteredMaterials();
+
+    const handleExportExcel = () => {
+        const rows = filteredMaterials.map(m => ({
+            "Material Code": m.code,
+            "Name": m.name,
+            "Generic Material": m.genericMaterialName,
+            "Category": m.category,
+            "Brand": m.brand,
+            "Unit of Measure": m.unit,
+            "Unit Cost (Rs.)": m.unitCost,
+            "Current Stock": m.currentStock,
+            "Min Stock Level": m.minStockLevel,
+            "Max Stock Level": m.maxstoplevel,
+            "Supplier": m.supplierName,
+            "VAT Included": m.vatIncluded ? "Yes" : "No",
+            "Status": m.status,
+        }));
+        exportToExcel(rows, `Raw_Materials_${new Date().toISOString().slice(0, 10)}`, "Raw Materials");
+    };
+
     const uniqueCategories = [...new Set(materials.map(m => m.category))];
     const uniquebrands = [...new Set(materials.map(m => m.brand))];
 
@@ -859,13 +880,22 @@ export default function AdminRawMaterials() {
                     <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
                             <h3 className="text-[18px] font-[600] text-[#383E49]">Material List</h3>
-                            <button
-                                onClick={handleCreateNew}
-                                className="flex items-center gap-2 bg-[#0F50AA] hover:bg-[#1366D9] text-white px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors mt-2 sm:mt-0"
-                            >
-                                <Plus className="w-5 h-5" />
-                                Add New Material
-                            </button>
+                            <div className="flex items-center gap-2 mt-2 sm:mt-0">
+                                <button
+                                    onClick={handleExportExcel}
+                                    className="flex items-center gap-2 border border-[#E4E6EA] hover:bg-[#F8F9FA] text-[#383E49] px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors"
+                                >
+                                    <Download className="w-5 h-5" />
+                                    Export to Excel
+                                </button>
+                                <button
+                                    onClick={handleCreateNew}
+                                    className="flex items-center gap-2 bg-[#0F50AA] hover:bg-[#1366D9] text-white px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors"
+                                >
+                                    <Plus className="w-5 h-5" />
+                                    Add New Material
+                                </button>
+                            </div>
                         </div>
 
                         {/* Search and Filter Controls */}
