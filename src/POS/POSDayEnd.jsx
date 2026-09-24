@@ -126,6 +126,7 @@ export default function POSDayEnd() {
                         physicalQty: '',
                         carryForwardQty: 0,
                         wastageQty: 0,
+                        wastageReason: 'UNSOLD',
                         action: null
                     }));
                     
@@ -145,24 +146,35 @@ export default function POSDayEnd() {
 
 
 
-    const handleProductQtyChange = (productId, physicalQty) => {
+    // Physical = what was counted on the shelf. Wastage = the part of it that can't be sold
+    // tomorrow. Carry forward = physical - wastage. Any gap between system and physical is
+    // missing stock, which is shown separately and not recorded as wastage.
+    const updateStockRow = (productId, changes) => {
         setProductData(prev =>
             prev.map(item => {
-                if (item.productId === productId) {
-                    const parsedPhysical = physicalQty === '' ? '' : (parseInt(physicalQty) || 0);
-                    const systemVal = item.systemQty || 0;
-                    const carryForward = parsedPhysical === '' ? 0 : parsedPhysical;
-                    const wastage = parsedPhysical === '' ? 0 : Math.max(0, systemVal - parsedPhysical);
-                    return { 
-                        ...item, 
-                        physicalQty, 
-                        carryForwardQty: carryForward,
-                        wastageQty: wastage
-                    };
-                }
-                return item;
+                if (item.productId !== productId) return item;
+                const next = { ...item, ...changes };
+                const physical = next.physicalQty === '' ? 0 : Math.max(0, parseInt(next.physicalQty) || 0);
+                const wastage = Math.max(0, parseInt(next.wastageQty) || 0);
+                return {
+                    ...next,
+                    carryForwardQty: Math.max(0, physical - wastage)
+                };
             })
         );
+    };
+
+    const handleProductQtyChange = (productId, physicalQty) => updateStockRow(productId, { physicalQty });
+    const handleWastageChange = (productId, wastageQty) => updateStockRow(productId, { wastageQty });
+    const handleWastageReasonChange = (productId, wastageReason) => updateStockRow(productId, { wastageReason });
+
+    const stockRowError = (item) => {
+        if (item.physicalQty === '') return null;
+        const physical = parseInt(item.physicalQty) || 0;
+        const wastage = parseInt(item.wastageQty) || 0;
+        if (physical < 0 || wastage < 0) return 'Quantities cannot be negative';
+        if (wastage > physical) return 'Wastage cannot be more than the counted quantity';
+        return null;
     };
 
     const canProceedToNextStep = () => {
@@ -174,7 +186,9 @@ export default function POSDayEnd() {
                 const countedCash = parseFloat(dayEndData.cashCounted) || 0;
                 return dayEndData.cashCounted && dayEndData.cardCounted && dayEndData.uberPickmeCounted && countedCash >= openingFloat;
             case 3:
-                return productData.length > 0 ? productData.every(item => item.physicalQty !== '') : true;
+                return productData.length > 0
+                    ? productData.every(item => item.physicalQty !== '' && !stockRowError(item))
+                    : true;
             case 4:
                 return true;
             case 5:
@@ -222,7 +236,8 @@ export default function POSDayEnd() {
                         systemQty: item.systemQty || 0,
                         physicalQty: parseInt(item.physicalQty) || 0,
                         carryForwardQty: item.carryForwardQty || 0,
-                        wastageQty: item.wastageQty || 0
+                        wastageQty: parseInt(item.wastageQty) || 0,
+                        wastageReason: item.wastageReason || 'UNSOLD'
                     }))
                 };
 
@@ -721,13 +736,18 @@ export default function POSDayEnd() {
                                     <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Product</th>
                                     <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">System Qty</th>
                                     <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Physical Qty</th>
-                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Carry Forward</th>
                                     <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Wastage</th>
+                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Wastage Reason</th>
+                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Carry Forward</th>
+                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Missing</th>
                                     <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Unit</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {productData.map((item) => (
+                                {productData.map((item) => {
+                                    const rowError = stockRowError(item);
+                                    const missing = item.physicalQty === '' ? 0 : Math.max(0, (item.systemQty || 0) - (parseInt(item.physicalQty) || 0));
+                                    return (
                                     <tr key={item.productId} className="border-b border-[#F0F1F3]">
                                         <td className="py-3 px-4 text-[14px] text-[#383E49] font-[500]">{item.productName}</td>
                                         <td className="py-3 px-4 text-[14px] text-[#667085]">{item.systemQty}</td>
@@ -740,18 +760,48 @@ export default function POSDayEnd() {
                                                 placeholder="0"
                                             />
                                         </td>
+                                        <td className="py-3 px-4">
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={item.wastageQty}
+                                                disabled={item.physicalQty === ''}
+                                                onChange={(e) => handleWastageChange(item.productId, e.target.value)}
+                                                className={`w-20 px-2 py-1 border rounded focus:ring-1 focus:ring-[#0F50AA] text-[14px] disabled:bg-[#F8F9FA] ${rowError ? 'border-red-500' : 'border-[#E4E6EA]'}`}
+                                                placeholder="0"
+                                            />
+                                            {rowError && <p className="text-[11px] text-red-600 mt-1 max-w-[160px]">{rowError}</p>}
+                                        </td>
+                                        <td className="py-3 px-4">
+                                            {(parseInt(item.wastageQty) || 0) > 0 ? (
+                                                <select
+                                                    value={item.wastageReason || 'UNSOLD'}
+                                                    onChange={(e) => handleWastageReasonChange(item.productId, e.target.value)}
+                                                    className="px-2 py-1 border border-[#E4E6EA] rounded text-[13px] focus:ring-1 focus:ring-[#0F50AA]"
+                                                >
+                                                    <option value="UNSOLD">Unsold at day end</option>
+                                                    <option value="EXPIRED">Expired</option>
+                                                    <option value="DAMAGED">Damaged</option>
+                                                    <option value="QUALITY_REJECT">Quality reject</option>
+                                                </select>
+                                            ) : (
+                                                <span className="text-[13px] text-[#98A2B3]">-</span>
+                                            )}
+                                        </td>
                                         <td className="py-3 px-4 text-[14px] text-green-600 font-[600]">
                                             {item.carryForwardQty}
                                         </td>
-                                        <td className="py-3 px-4 text-[14px] text-red-600 font-[600]">
-                                            {item.wastageQty}
+                                        <td className={`py-3 px-4 text-[14px] font-[600] ${missing > 0 ? 'text-amber-600' : 'text-[#98A2B3]'}`}
+                                            title="System quantity minus counted quantity. Not recorded as wastage.">
+                                            {missing}
                                         </td>
                                         <td className="py-3 px-4 text-[14px] text-[#667085]">{item.unit}</td>
                                     </tr>
-                                ))}
+                                    );
+                                })}
                                 {productData.length === 0 && (
                                     <tr>
-                                        <td colSpan="5" className="py-6 text-center text-[#667085] text-[14px]">No products in today's inventory.</td>
+                                        <td colSpan="8" className="py-6 text-center text-[#667085] text-[14px]">No products in today's inventory.</td>
                                     </tr>
                                 )}
                             </tbody>
