@@ -22,7 +22,7 @@ function ConfirmDialog({ message, title, confirmText, cancelText, danger, onClos
   }, [danger, onClose]);
 
   return (
-    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-backdrop" onClick={() => onClose(false)}>
+    <div className="fixed inset-0 z-[2147483000] flex items-center justify-center p-4 bg-backdrop" onClick={() => onClose(false)}>
       <div
         role="dialog"
         aria-modal="true"

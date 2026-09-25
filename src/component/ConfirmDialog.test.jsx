@@ -29,3 +29,12 @@ test("Escape cancels", async () => {
   await act(async () => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" })));
   await expect(p).resolves.toBe(false);
 });
+
+test("sits above every other layer (app modals go up to z-index 99999999)", async () => {
+  const { p } = await open("Sure?");
+  const overlay = document.querySelector('[role="dialog"]').parentElement;
+  const z = Number((overlay.className.match(/z-\[(\d+)\]/) || [])[1]);
+  expect(z).toBeGreaterThan(99999999);
+  await act(async () => button("Cancel").click());
+  await p;
+});

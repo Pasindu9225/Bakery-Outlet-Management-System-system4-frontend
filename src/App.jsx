@@ -207,7 +207,7 @@ function App() {
 
   return (
     <>
-      <Toaster toastOptions={toastOptions} position="top-right" reverseOrder={false} />
+      <Toaster toastOptions={toastOptions} containerStyle={{ zIndex: 2147483647 }} position="top-right" reverseOrder={false} />
       <BrowserRouter>
         <Routes>
           {/* Module-Specific Login Portals */}
