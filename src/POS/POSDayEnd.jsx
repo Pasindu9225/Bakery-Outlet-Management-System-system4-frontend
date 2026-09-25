@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ButtonHint from "../component/ButtonHint.jsx";
 import {
     DollarSign,
     CreditCard,
@@ -195,6 +196,28 @@ export default function POSDayEnd() {
                 return dayEndData.finalConfirmation && cashierPin;
             default:
                 return false;
+        }
+    };
+
+    // What the cashier still has to do before Next / Confirm can be pressed (shown under the button).
+    const nextStepHint = () => {
+        switch (currentStep) {
+            case 1:
+                if (!dayEndData.shiftConfirmed) return 'Tick the confirmation box first.';
+                return 'Press "Validate Open Transactions" first.';
+            case 2: {
+                const openingFloat = dayEndSummary?.openingFloat || 0;
+                if (!dayEndData.cashCounted || !dayEndData.cardCounted || !dayEndData.uberPickmeCounted)
+                    return 'Enter the counted cash, card and Uber/PickMe totals.';
+                return `Counted cash must be at least the opening float (Rs. ${Number(openingFloat).toLocaleString()}).`;
+            }
+            case 3:
+                return 'Enter the physical count for every product and fix any row marked in red.';
+            case 5:
+                if (!dayEndData.finalConfirmation) return 'Tick the final confirmation box.';
+                return 'Enter your code to finish.';
+            default:
+                return '';
         }
     };
 
@@ -473,6 +496,7 @@ export default function POSDayEnd() {
                     >
                         Validate Open Transactions
                     </button>
+                    <ButtonHint show={!dayEndData.shiftConfirmed}>Tick the confirmation box above first.</ButtonHint>
                     {dayEndSummary?.pendingWaiterItemsCount > 0 && (
                         <div className="mt-3 flex items-center gap-2 text-error bg-error/10 p-3 rounded-lg border border-error/30">
                             <AlertCircle size={20} className="flex-shrink-0" />
@@ -1048,6 +1072,7 @@ export default function POSDayEnd() {
                         <Lock size={20} />
                         {activeTab === 'finish-shift' ? 'Confirm & Close Shift' : 'Confirm Day-End & Lock'}
                     </button>
+                    <ButtonHint show={!canProceedToNextStep()}>{nextStepHint()}</ButtonHint>
                 </div>
             </div>
 
@@ -1220,6 +1245,7 @@ export default function POSDayEnd() {
                             </div>
 
                             {currentStep < 5 && (
+                                <div className="flex flex-col items-end">
                                 <button
                                     onClick={handleNextStep}
                                     disabled={!canProceedToNextStep()}
@@ -1227,6 +1253,8 @@ export default function POSDayEnd() {
                                 >
                                     Next
                                 </button>
+                                <ButtonHint show={!canProceedToNextStep()} className="text-right">{nextStepHint()}</ButtonHint>
+                                </div>
                             )}
                         </div>
                     </div>

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import ButtonHint from "../component/ButtonHint.jsx";
 import {
     Search,
     Filter,
@@ -241,6 +242,17 @@ export default function POSSpecialOrders() {
 
 
     // Validate form
+    // First thing still missing before the order can be submitted (shown under the button).
+    const formHint = () => {
+        if (customerDetails.name.trim() === '') return 'Enter the customer name.';
+        if (customerDetails.contactNumber.trim() === '') return 'Enter the contact number.';
+        if (selectedProducts.length === 0) return 'Add at least one product.';
+        if (deliveryDateTime === '') return 'Choose the pickup / delivery date and time.';
+        if (advanceAmount === '' || advanceAmountNum < 0) return 'Enter the advance amount (0 if none).';
+        if (advanceAmountNum > totalAmount) return 'The advance cannot be more than the order total.';
+        return 'Get manager approval for the advance first.';
+    };
+
     const isFormValid = () => {
         const isManagerRequired = advanceAmountNum > 0;
         return (
@@ -580,14 +592,10 @@ export default function POSSpecialOrders() {
                                 {/* Order Header Information - Only for Create View */}
                                 {currentView === 'create' && (
                                     <div className="bg-surface rounded-lg shadow-sm border border-line p-4 xl:mb-6 mb-0">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             <div>
                                                 <p className="text-[12px] text-fg-secondary mb-1">Cashier Name</p>
                                                 <p className="text-[14px] font-[500] text-fg">{orderInfo.cashierName}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-[12px] text-fg-secondary mb-1">Cashier ID</p>
-                                                <p className="text-[14px] font-[500] text-fg">{orderInfo.cashierId}</p>
                                             </div>
                                             <div>
                                                 <p className="text-[12px] text-fg-secondary mb-1">Date</p>
@@ -802,7 +810,7 @@ export default function POSSpecialOrders() {
                                                                 <div className="flex items-center gap-2">
                                                                     <button
                                                                         onClick={() => updateProductQuantity(product.id, product.quantity - 1)}
-                                                                        className="w-8 h-8 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
+                                                                        className="w-10 h-10 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                     >
                                                                         <Minus size={14} />
                                                                     </button>
@@ -815,7 +823,7 @@ export default function POSSpecialOrders() {
                                                                     />
                                                                     <button
                                                                         onClick={() => updateProductQuantity(product.id, product.quantity + 1)}
-                                                                        className="w-8 h-8 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
+                                                                        className="w-10 h-10 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                     >
                                                                         <Plus size={14} />
                                                                     </button>
@@ -1073,6 +1081,7 @@ export default function POSSpecialOrders() {
                                                     )}
                                                     {isLoading ? 'Submitting...' : 'Submit Credit Order'}
                                                 </button>
+                                                <ButtonHint show={!isLoading && !isFormValid()}>{formHint()}</ButtonHint>
 
                                                 <button
                                                     onClick={resetForm}

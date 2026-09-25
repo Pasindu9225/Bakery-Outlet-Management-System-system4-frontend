@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import CashQuickButtons from "../component/CashQuickButtons.jsx";
+import { confirmDialog } from "../component/ConfirmDialog";
 import {
     Search,
     Filter,
@@ -743,14 +745,10 @@ export default function POSTableBilling() {
 
                                 {/* Cashier Information */}
                                 <div className="bg-surface rounded-lg shadow-sm border border-line p-4 xl:mb-6 mb-0">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                         <div>
                                             <p className="text-[12px] text-fg-secondary mb-1">Cashier Name</p>
                                             <p className="text-[14px] font-[500] text-fg">{cashierInfo.name}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[12px] text-fg-secondary mb-1">Cashier ID</p>
-                                            <p className="text-[14px] font-[500] text-fg">{cashierInfo.id}</p>
                                         </div>
                                         <div>
                                             <p className="text-[12px] text-fg-secondary mb-1">Date</p>
@@ -978,18 +976,18 @@ export default function POSTableBilling() {
                                                                             <div className="flex items-center justify-center gap-1">
                                                                                 <button
                                                                                     onClick={() => updateCartQuantity(item.id, item.qty - 1)}
-                                                                                    className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
+                                                                                    className="w-10 h-10 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                                 >
-                                                                                    <Minus size={12} />
+                                                                                    <Minus size={16} />
                                                                                 </button>
                                                                                 <span className="w-8 text-center text-[14px] font-[500] text-fg">
                                                                                     {item.qty}
                                                                                 </span>
                                                                                 <button
                                                                                     onClick={() => updateCartQuantity(item.id, item.qty + 1)}
-                                                                                    className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
+                                                                                    className="w-10 h-10 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                                 >
-                                                                                    <Plus size={12} />
+                                                                                    <Plus size={16} />
                                                                                 </button>
                                                                             </div>
                                                                         </td>
@@ -1203,7 +1201,13 @@ export default function POSTableBilling() {
                                                     </button>
 
                                                     <button
-                                                        onClick={() => setCurrentOrder([])}
+                                                        onClick={async () => {
+                                                            if (currentOrder.length === 0) return;
+                                                            const ok = await confirmDialog(
+                                                                `Remove all ${currentOrder.length} item${currentOrder.length === 1 ? "" : "s"} from this table's order?`,
+                                                                { title: "Clear this order?", confirmText: "Clear order", danger: true });
+                                                            if (ok) setCurrentOrder([]);
+                                                        }}
                                                         className="w-full px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors text-[14px] font-[500] flex items-center justify-center gap-2"
                                                     >
                                                         <RotateCcw size={16} />
@@ -1494,6 +1498,7 @@ export default function POSTableBilling() {
                                                 <>
                                                     <div>
                                                         <label className="block text-[14px] font-[500] text-fg mb-2">Amount Received</label>
+                                                        <CashQuickButtons total={Number(totalPayable.toFixed(2))} selected={amountReceived} onPick={setAmountReceived} />
                                                         <div className="relative">
                                                             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary">Rs.</span>
                                                             <input

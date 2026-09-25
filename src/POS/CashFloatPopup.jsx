@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ButtonHint from "../component/ButtonHint.jsx";
 import toast from "react-hot-toast";
 import { DollarSign, User } from 'lucide-react';
 import axios from 'axios';
@@ -154,6 +155,7 @@ const CashFloatPopup = ({ isOpen, onConfirm, cashierInfo }) => {
               'Confirm Opening Balance'
             )}
           </button>
+          <ButtonHint show={!isSubmitting && !(parseFloat(openingBalance) > 0)}>Enter the cash in the drawer to start.</ButtonHint>
 
           {/* Info Note */}
           <div className="mt-4 p-3 bg-subtle rounded-lg border border-info/30">

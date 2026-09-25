@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import ButtonHint from "../component/ButtonHint.jsx";
 import toast from "react-hot-toast";
 import {
     Search,
@@ -229,6 +230,16 @@ export default function POSReturnToStore() {
     const totalReturnQuantity = selectedItemsData.reduce((sum, item) => sum + item.returnQty, 0);
 
     // Validate form
+    // First thing still missing before Submit Return can be pressed (shown under the button).
+    const formHint = () => {
+        if (!selectedOutletId) return 'Select an outlet first.';
+        const selectedItems = getSelectedItems();
+        if (selectedItems.length === 0) return 'Tick at least one item to return.';
+        if (selectedItems.some(item => !(item.returnQty > 0) || item.returnQty > item.availableQty))
+            return 'Each ticked item needs a return quantity (up to what is available).';
+        return 'Choose a reason for each ticked item.';
+    };
+
     const isFormValid = () => {
         if (!selectedOutletId) return false;
 
@@ -665,6 +676,7 @@ export default function POSReturnToStore() {
                                                     <Send size={16} />
                                                     Submit Return
                                                 </button>
+                                                <ButtonHint show={!isFormValid()}>{formHint()}</ButtonHint>
 
                                                 <button
                                                     onClick={resetForm}

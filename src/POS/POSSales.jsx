@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import ButtonHint from "../component/ButtonHint.jsx";
 import { confirmDialog } from "../component/ConfirmDialog";
 import {
     ShoppingCart,
@@ -14,6 +15,7 @@ import {
     User,
     Calculator,
     Receipt,
+    Printer,
     X,
     AlertTriangle,
     Zap,
@@ -31,6 +33,7 @@ import { extractNicDetails } from "../utils/nicParser";
 import POSNavBar from "../component/POSNavBar.jsx";
 import POSSidebar from "../component/POSSidebar.jsx";
 import Loader from "../component/Loader.jsx";
+import CashQuickButtons from "../component/CashQuickButtons.jsx";
 import ExpiryTag, { expiryStatus, isExpired } from "../component/ExpiryTag.jsx";
 import ReportWastageModal from "../component/ReportWastageModal.jsx";
 import posService from "../services/posService";
@@ -1435,9 +1438,9 @@ export default function POSSales() {
                                                                             }
                                                                         }
                                                                     }}
-                                                                    className="w-full py-3 bg-plum-solid text-on-brand rounded-lg hover:bg-plum-solid disabled:opacity-50 disabled:cursor-not-allowed font-[500] flex justify-center items-center gap-2"
+                                                                    className="w-full py-3 border border-line-strong bg-surface text-fg rounded-lg hover:bg-hover disabled:opacity-50 disabled:cursor-not-allowed font-[500] flex justify-center items-center gap-2"
                                                                 >
-                                                                    Complete Sale
+                                                                    Pay without Receipt
                                                                 </button>
                                                                 <button
                                                                     disabled={selectedWaiterItemIds.length === 0}
@@ -1488,9 +1491,9 @@ export default function POSSales() {
                                                                             }
                                                                         }
                                                                     }}
-                                                                    className="w-full py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed font-[500] flex justify-center items-center gap-2"
+                                                                    className="w-full py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed font-[600] flex justify-center items-center gap-2"
                                                                 >
-                                                                    Print Invoice
+                                                                    Pay &amp; Print Receipt
                                                                 </button>
 
                                                             </div>
@@ -1515,7 +1518,12 @@ export default function POSSales() {
                                 </h2>
                                 {cart.length > 0 && (
                                     <button
-                                        onClick={clearCart}
+                                        onClick={async () => {
+                                            const n = cart.reduce((sum, item) => sum + item.quantity, 0);
+                                            const ok = await confirmDialog(`Remove all ${n} item${n === 1 ? "" : "s"} from the cart?`,
+                                                { title: "Clear the cart?", confirmText: "Clear cart", danger: true });
+                                            if (ok) clearCart();
+                                        }}
                                         className="text-[12px] text-error hover:underline"
                                     >
                                         Clear All
@@ -1533,7 +1541,7 @@ export default function POSSales() {
                                             value={promoCode}
                                             onChange={(e) => setPromoCode(e.target.value)}
                                             placeholder="Enter code"
-                                            className="flex-1 px-3 py-2 border border-line rounded-lg text-[14px]"
+                                            className="flex-1 min-w-0 px-3 py-2 border border-line rounded-lg text-[14px]"
                                         />
                                         <button
                                             onClick={verifyPromo}
@@ -1590,23 +1598,25 @@ export default function POSSales() {
                                                     </button>
                                                 </div>
 
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-2">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <div className="flex items-center gap-1">
                                                         <button
                                                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                                            className="p-1 text-fg-secondary hover:bg-surface rounded"
+                                                            aria-label={`One less ${item.name}`}
+                                                            className="w-9 h-9 xl:w-10 xl:h-10 flex items-center justify-center border border-line text-fg-secondary hover:bg-hover rounded-lg"
                                                         >
                                                             <Minus size={16} />
                                                         </button>
-                                                        <span className="w-12 text-center text-[14px] font-[500]">{item.quantity}</span>
+                                                        <span className="w-8 text-center text-[14px] font-[600]">{item.quantity}</span>
                                                         <button
                                                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                                            className="p-1 text-fg-secondary hover:bg-surface rounded"
+                                                            aria-label={`One more ${item.name}`}
+                                                            className="w-9 h-9 xl:w-10 xl:h-10 flex items-center justify-center border border-line text-fg-secondary hover:bg-hover rounded-lg"
                                                         >
                                                             <Plus size={16} />
                                                         </button>
                                                     </div>
-                                                    <p className="text-[16px] font-[600] text-fg">Rs. {(item.price * item.quantity).toLocaleString()}</p>
+                                                    <p className="text-[16px] font-[600] text-fg whitespace-nowrap">Rs. {(item.price * item.quantity).toLocaleString()}</p>
                                                 </div>
 
                                                 {/* Special Instructions Input */}
@@ -1836,6 +1846,7 @@ export default function POSSales() {
                                                 {paymentMethod === 'cash' && !isFreeMeal && (
                                                     <div className="mb-6">
                                                         <label className="block text-[14px] font-[500] text-fg mb-2">Cash Received *</label>
+                                                        <CashQuickButtons total={total} selected={cashReceived} onPick={setCashReceived} />
                                                         <input
                                                             ref={cashInputRef}
                                                             type="number"
@@ -1846,7 +1857,7 @@ export default function POSSales() {
                                                                 if (e.key === 'Enter') {
                                                                     e.preventDefault();
                                                                     if (parseFloat(cashReceived) >= total) {
-                                                                        processPayment(true); // prints invoice, like pressing "Print Invoice"
+                                                                        processPayment(true); // prints invoice, like pressing "Pay & Print Receipt"
                                                                     } else {
                                                                         toast.error('Enter valid cash amount');
                                                                     }
@@ -2157,20 +2168,23 @@ export default function POSSales() {
                                         <button
                                             onClick={() => processPayment(false)}
                                             disabled={!paymentMethod || (isFreeMeal && freeMealReason.trim().length < 10)}
-                                            className="flex-1 px-4 py-3 bg-plum-solid text-on-brand rounded-lg hover:bg-plum-solid transition-colors disabled:bg-line disabled:text-fg-secondary flex items-center justify-center gap-2 font-[500]"
+                                            className="flex-1 px-4 py-3 border border-line-strong bg-surface text-fg rounded-lg hover:bg-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-[500]"
                                         >
                                             <Receipt size={16} />
-                                            Complete Sale
+                                            Pay without Receipt
                                         </button>
                                         <button
                                             onClick={() => processPayment(true)}
                                             disabled={!paymentMethod || (isFreeMeal && freeMealReason.trim().length < 10)}
-                                            className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:bg-line disabled:text-fg-secondary flex items-center justify-center gap-2 font-[500]"
+                                            className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:bg-line disabled:text-fg-secondary flex items-center justify-center gap-2 font-[600] text-[16px]"
                                         >
-                                            <Receipt size={16} />
-                                            Print Invoice
+                                            <Printer size={18} />
+                                            Pay &amp; Print Receipt
                                         </button>
                                     </div>
+                                    <ButtonHint show={isFreeMeal && freeMealReason.trim().length < 10}>
+                                        Enter the free-meal reason (at least 10 characters) to finish.
+                                    </ButtonHint>
 
                                 </div>
                             </div>

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import ButtonHint from "../component/ButtonHint.jsx";
 import {
     RotateCcw,
     Search,
@@ -369,6 +370,22 @@ export default function POSReturns() {
     };
 
     // Step validation
+    // What is still missing on this step (shown under a greyed-out Next / Process Return).
+    const stepHint = () => {
+        switch (currentStep) {
+            case 1: return 'Find the original sale first.';
+            case 2:
+                if (returnItems.length === 0) return 'Choose at least one item to return.';
+                if (!returnReason) return 'Choose a return reason.';
+                return 'Describe the reason in at least 10 characters.';
+            case 3: return 'Choose refund or exchange.';
+            case 4:
+                if (refundType === 'exchange' && exchangeItems.length === 0) return 'Add the item(s) given in exchange.';
+                return 'Choose a payment method.';
+            default: return '';
+        }
+    };
+
     const isStepValid = () => {
         switch (currentStep) {
             case 1:
@@ -589,6 +606,7 @@ export default function POSReturns() {
                                                 <Search size={16} />
                                                 Search Transaction
                                             </button>
+                                            <ButtonHint show={!receiptId.trim()}>Type or scan the transaction ID first.</ButtonHint>
                                         </div>
 
 
@@ -1233,6 +1251,9 @@ export default function POSReturns() {
                             </div>
 
                             {/* Right side buttons */}
+                            {!isStepValid() && currentStep > 1 && currentStep <= 4 && (
+                                <ButtonHint show className="mr-3 self-center">{stepHint()}</ButtonHint>
+                            )}
                             {currentStep < 4 && (
                                 <button
                                     onClick={goToNextStep}

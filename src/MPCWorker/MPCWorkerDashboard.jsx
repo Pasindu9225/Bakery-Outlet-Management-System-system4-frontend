@@ -37,7 +37,7 @@ function statusBadge(status) {
 
 export default function MPCWorkerDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("requestMaterials"); // 'requestMaterials', 'deliveries', 'storeInventory', 'kots'
+  const [activeTab, setActiveTab] = useState("kots"); // opens on the live order queue (the urgent work); 'requestMaterials', 'deliveries', 'storeInventory', 'kots'
   const [me, setMe] = useState(null);
   const token = localStorage.getItem("authToken");
 
@@ -45,7 +45,7 @@ export default function MPCWorkerDashboard() {
   const [kotProducts, setKotProducts] = useState([]);
 
   // Request form state
-  const [selectedPlanItems, setSelectedPlanItems] = useState([{ productId: "", plates: 10 }]);
+  const [selectedPlanItems, setSelectedPlanItems] = useState([{ productId: "", plates: 1 }]);
   const [requestNotes, setRequestNotes] = useState("");
   const [submittingRequest, setSubmittingRequest] = useState(false);
   const [previewLines, setPreviewLines] = useState([]);
@@ -158,7 +158,7 @@ export default function MPCWorkerDashboard() {
   }, [JSON.stringify(selectedPlanItems), token]);
 
   const addPlanItem = () => {
-    setSelectedPlanItems((prev) => [...prev, { productId: kotProducts[0]?.id || "", plates: 10 }]);
+    setSelectedPlanItems((prev) => [...prev, { productId: kotProducts[0]?.id || "", plates: 1 }]);
   };
 
   const removePlanItem = (idx) => {
@@ -190,7 +190,7 @@ export default function MPCWorkerDashboard() {
       if (res.ok) {
         await fetchMaterialRequests();
         toast.success("Material request submitted for Admin approval!");
-        setSelectedPlanItems([{ productId: kotProducts[0]?.id || "", plates: 10 }]);
+        setSelectedPlanItems([{ productId: kotProducts[0]?.id || "", plates: 1 }]);
         setRequestNotes("");
         setActiveTab("deliveries");
       } else {
@@ -435,9 +435,13 @@ export default function MPCWorkerDashboard() {
                       <div key={item.materialKey} className="border border-line rounded-lg p-4 bg-subtle">
                         <p className="text-[12px] text-fg-secondary">Raw Material</p>
                         <p className="text-[15px] font-[600] text-fg mb-1">{item.rawMaterialName}</p>
-                        <p className="text-[20px] font-[700] text-success">
+                        {/* nothing left must not look "good": muted number + an Out of stock label */}
+                        <p className={`text-[20px] font-[700] ${Number(item.qty) > 0 ? "text-success" : "text-fg-muted"}`}>
                           {item.qty} <span className="text-[13px] font-[400] text-fg-secondary">{item.unitOfMeasure}</span>
                         </p>
+                        {!(Number(item.qty) > 0) && (
+                          <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-error/10 text-error text-[12px] font-[600]">Out of stock</span>
+                        )}
                       </div>
                     ))}
                   </div>
