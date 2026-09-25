@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useTheme } from "../context/ThemeContext";
-import { themeColor } from "../utils/themeColors";
+import { themeColor, categoryToken } from "../utils/themeColors";
 import {
   RefreshCw,
   ChevronDown,
@@ -71,7 +71,7 @@ const GRANULARITY_OPTIONS = [
 ];
 
 // Colour per category (design tokens, so they follow the light/dark theme).
-// Categories that don't appear here fall back to the neutral secondary text colour.
+// Other categories get a stable colour picked from their name (see categoryToken).
 const CATEGORY_COLORS = {
   "Poultry & Meat": "brand-fg",
   "Vegetables & Fruits": "success",
@@ -83,7 +83,7 @@ const CATEGORY_COLORS = {
   "Spices & Herbs": "chart-pink",
   "Uncategorized": "fg-muted",
 };
-const categoryColor = (label, alpha) => themeColor(CATEGORY_COLORS[label] || "fg-secondary", alpha);
+const categoryColor = (label, alpha) => themeColor(categoryToken(label, CATEGORY_COLORS), alpha);
 
 const ALL_SUPPLIERS = { id: null, label: "All Suppliers" };
 const ALL_CATEGORIES = { value: null, label: "All Categories" };
@@ -340,26 +340,30 @@ function CategoryDonut({ data, onSliceClick }) {
 
   const centerTextPlugin = {
     id: "centerText",
-    beforeDraw: (chart) => {
-      const { ctx, width, height } = chart;
-      ctx.restore();
+    // Drawn after the ring, centred in the hole (the chart area, not the whole canvas, which includes the legend).
+    afterDatasetsDraw: (chart) => {
+      const { ctx, height } = chart;
+      const { left, right, top, bottom } = chart.chartArea;
+      const cx = (left + right) / 2;
+      const cy = (top + bottom) / 2;
+      ctx.save();
       const fontSize = (height / 150).toFixed(2);
       ctx.font = `bold ${fontSize}em sans-serif`;
       ctx.textBaseline = "middle";
       ctx.fillStyle = themeColor("fg");
 
       const text = total >= 1000 ? `Rs. ${(total / 1000).toFixed(1)}k` : `Rs. ${total}`;
-      const textX = Math.round((width - ctx.measureText(text).width) / 2);
-      const textY = height / 2 - 5;
+      const textX = Math.round(cx - ctx.measureText(text).width / 2);
+      const textY = cy - 5;
       ctx.fillText(text, textX, textY);
 
       ctx.font = `${(height / 350).toFixed(2)}em sans-serif`;
       ctx.fillStyle = themeColor("fg-secondary");
       const subtext = "Total Spend";
-      const subtextX = Math.round((width - ctx.measureText(subtext).width) / 2);
-      const subtextY = height / 2 + 15;
+      const subtextX = Math.round(cx - ctx.measureText(subtext).width / 2);
+      const subtextY = cy + 15;
       ctx.fillText(subtext, subtextX, subtextY);
-      ctx.save();
+      ctx.restore();
     },
   };
 
@@ -385,6 +389,7 @@ function CategoryDonut({ data, onSliceClick }) {
                 return {
                   text: `${label} (${percentage}%)`,
                   fillStyle: data.datasets[0].backgroundColor[i],
+                  fontColor: themeColor("fg-secondary"),
                   hidden: false,
                   index: i,
                   pointStyle: 'rectRounded'
