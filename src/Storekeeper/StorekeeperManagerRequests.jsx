@@ -687,7 +687,7 @@ export default function StorekeeperManagerRequests() {
 
   const handlePrint = (centerName) => {
     if (!selectedRequest) {
-      alert("No request selected for printing");
+      toast.error("No request selected for printing");
       return;
     }
 
@@ -1102,12 +1102,12 @@ export default function StorekeeperManagerRequests() {
     return (
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-[18px] font-[600] text-[#383E49]">
+          <h3 className="text-[18px] font-[600] text-fg">
             {centerName} Materials
           </h3>
           <button
             onClick={() => handlePrint(centerName)}
-            className="flex items-center justify-center gap-2 px-4 py-2 text-[14px] font-[500] text-[#0F50AA] bg-[#EBF8FF] hover:bg-[#DBEAFE] rounded-md transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-2 text-[14px] font-[500] text-brand-fg bg-hover hover:bg-line rounded-md transition-colors"
           >
             <Printer size={16} />
             Print
@@ -1116,77 +1116,77 @@ export default function StorekeeperManagerRequests() {
 
         {/* Products Table */}
         {products.length > 0 && (
-          <div className="overflow-x-auto border border-[#E4E6EA] rounded-lg mb-4">
-            <div className="bg-[#F8F9FA] px-4 py-3 border-b border-[#E4E6EA]">
-              <h4 className="text-[16px] font-[600] text-[#383E49]">
+          <div className="overflow-x-auto border border-line rounded-lg mb-4">
+            <div className="bg-subtle px-4 py-3 border-b border-line">
+              <h4 className="text-[16px] font-[600] text-fg">
                 {centerName} Products
               </h4>
             </div>
             <table className="w-full">
-              <thead className="bg-[#F8F9FA]">
+              <thead className="bg-subtle">
                 <tr>
-                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                     Product ID
                   </th>
-                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                     Product Name
                   </th>
-                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                     Planned Quantity
                   </th>
-                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                     Production Center
                   </th>
                   {activeTab?.toLowerCase() === "store" && (
                     <>
-                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                         Unit Cost
                       </th>
-                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                         Total Cost
                       </th>
-                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                         Expiry Date
                       </th>
-                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                         Store Available QTY
                       </th>
-                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                         Issued QTY
                       </th>
                     </>
                   )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E4E6EA]">
+              <tbody className="divide-y divide-line">
                 {sortedProducts.map((product) => (
-                  <tr key={product.productId} className="hover:bg-[#F8F9FA]">
-                    <td className="py-3 px-4 text-[14px] text-[#383E49] font-[500]">
+                  <tr key={product.productId} className="hover:bg-subtle">
+                    <td className="py-3 px-4 text-[14px] text-fg font-[500]">
                       {product.productId}
                     </td>
-                    <td className="py-3 px-4 text-[14px] text-[#383E49] font-[500]">
+                    <td className="py-3 px-4 text-[14px] text-fg font-[500]">
                       {product.parentProductName
                         ? `${product.parentProductName} -> ${product.productName}`
                         : product.productName}
                     </td>
-                    <td className="py-3 px-4 text-[14px] text-[#383E49] font-[600]">
+                    <td className="py-3 px-4 text-[14px] text-fg font-[600]">
                       {product.plannedQuantity} {product.unit || "pcs"}
                     </td>
-                    <td className="py-3 px-4 text-[14px] text-[#0F50AA] font-[500]">
+                    <td className="py-3 px-4 text-[14px] text-brand-fg font-[500]">
                       {product.productionCenter}
                     </td>
                     {activeTab?.toLowerCase() === "store" && (
                       <>
-                        <td className="py-3 px-4 text-[14px] text-[#383E49]">
+                        <td className="py-3 px-4 text-[14px] text-fg">
                           Rs. {Number(product.unitCost || 0).toFixed(2)}
                         </td>
-                        <td className="py-3 px-4 text-[14px] text-[#199D26] font-[700]">
+                        <td className="py-3 px-4 text-[14px] text-success font-[700]">
                           Rs. {Number(product.totalCost || 0).toFixed(2)}
                         </td>
-                        <td className="py-3 px-4 text-[14px] text-[#383E49]">
+                        <td className="py-3 px-4 text-[14px] text-fg">
                           {product.expireDate || product.expiryDate || "N/A"}
                         </td>
-                        <td className="py-3 px-4 text-[14px] text-[#383E49] font-[600]">
+                        <td className="py-3 px-4 text-[14px] text-fg font-[600]">
                           {product.currentStock ?? 0}
                         </td>
                         <td className="py-3 px-4">
@@ -1198,7 +1198,7 @@ export default function StorekeeperManagerRequests() {
                                 ms.miniStoreName?.toLowerCase().includes("pos")
                               )?.availableQty ?? 0
                             }
-                            className="w-20 p-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] text-center"
+                            className="w-20 p-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] text-center"
                             placeholder="0"
                           />
                         </td>
@@ -1213,52 +1213,52 @@ export default function StorekeeperManagerRequests() {
 
         {/* Raw Materials Table */}
         {rawMaterials.length > 0 && (
-          <div className="overflow-x-auto border border-[#E4E6EA] rounded-lg mb-4">
-            <div className="bg-[#F8F9FA] px-4 py-3 border-b border-[#E4E6EA]">
-              <h4 className="text-[16px] font-[600] text-[#383E49]">
+          <div className="overflow-x-auto border border-line rounded-lg mb-4">
+            <div className="bg-subtle px-4 py-3 border-b border-line">
+              <h4 className="text-[16px] font-[600] text-fg">
                 {centerName} Raw Materials
               </h4>
             </div>
             <table className="w-full">
-              <thead className="bg-[#F8F9FA]">
+              <thead className="bg-subtle">
                 <tr>
-                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                     Material ID
                   </th>
-                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                     Material Name
                   </th>
-                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                     Available Quantity
                   </th>
-                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                     Requested Quantity
                   </th>
-                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                     Mini Store Quantity
                   </th>
-                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                  <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                     Issued QTY
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E4E6EA]">
+              <tbody className="divide-y divide-line">
                 {rawMaterials.map((material) => (
                   <React.Fragment key={material.childItemId}>
-                    <tr className="hover:bg-[#F8F9FA]">
-                      <td className="py-3 px-4 text-[14px] text-[#383E49] font-[500]">
+                    <tr className="hover:bg-subtle">
+                      <td className="py-3 px-4 text-[14px] text-fg font-[500]">
                         {material.childItemId}
                       </td>
-                      <td className="py-3 px-4 text-[14px] text-[#383E49] font-[500]">
+                      <td className="py-3 px-4 text-[14px] text-fg font-[500]">
                         {material.childName}
                       </td>
-                      <td className="py-3 px-4 text-[14px] text-[#383E49] font-[600]">
+                      <td className="py-3 px-4 text-[14px] text-fg font-[600]">
                         {(Number(material.currentStock ?? 0)).toFixed(2)} {material.unit}
                       </td>
-                      <td className="py-3 px-4 text-[14px] text-[#383E49] font-[600]">
+                      <td className="py-3 px-4 text-[14px] text-fg font-[600]">
                         {material.quantity} {material.unit}
                       </td>
-                      <td className="py-3 px-4 text-[14px] text-[#383E49] font-[600]">
+                      <td className="py-3 px-4 text-[14px] text-fg font-[600]">
                         {getMiniStoreQuantityForCenter(material, centerName)} {material.unit}
                       </td>
                       <td className="py-3 px-4">
@@ -1273,7 +1273,7 @@ export default function StorekeeperManagerRequests() {
                               [material.childItemId]: e.target.value,
                             }))
                           }
-                          className="w-20 p-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] text-center"
+                          className="w-20 p-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] text-center"
                           placeholder="0"
                         />
                       </td>
@@ -1286,12 +1286,12 @@ export default function StorekeeperManagerRequests() {
         )}
 
         {/* Total Summary */}
-        <div className="bg-[#F8F9FA] p-4 rounded-lg">
+        <div className="bg-subtle p-4 rounded-lg">
           <div className="flex justify-between items-center">
-            <span className="text-[16px] font-[600] text-[#383E49]">
+            <span className="text-[16px] font-[600] text-fg">
               {centerName} Total Cost:
             </span>
-            <span className="text-[18px] font-[700] text-[#199D26]">
+            <span className="text-[18px] font-[700] text-success">
               Rs.
               {(
                 rawMaterials.length > 0
@@ -1312,19 +1312,19 @@ export default function StorekeeperManagerRequests() {
               return (
                 <div
                   key={product.productId}
-                  className="border border-[#E4E6EA] rounded-lg overflow-hidden"
+                  className="border border-line rounded-lg overflow-hidden"
                 >
-                  <div className="bg-[#F8F9FA] px-4 py-3 border-b border-[#E4E6EA]">
+                  <div className="bg-subtle px-4 py-3 border-b border-line">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-[16px] font-[600] text-[#383E49]">
+                      <h4 className="text-[16px] font-[600] text-fg">
                         📋 {getNodeLabel(product)}
                       </h4>
-                      <span className="text-[14px] font-[600] text-[#0F50AA]">
+                      <span className="text-[14px] font-[600] text-brand-fg">
                         Target: {product.plannedQuantity} pcs
                       </span>
                     </div>
                   </div>
-                  <div className="p-4 bg-white">
+                  <div className="p-4 bg-surface">
                     <TreeNode node={product} level={0} />
                   </div>
                 </div>
@@ -1348,8 +1348,8 @@ export default function StorekeeperManagerRequests() {
     };
 
     const getColor = () => {
-      if (node.childType === "raw_material") return "text-[#199D26]";
-      return "text-[#0F50AA]";
+      if (node.childType === "raw_material") return "text-success";
+      return "text-brand-fg";
     };
 
     const nodeQuantity = node.quantity || node.plannedQuantity || 0;
@@ -1359,19 +1359,19 @@ export default function StorekeeperManagerRequests() {
     return (
       <div className="relative">
         <div
-          className={`flex items-center gap-2 py-2 hover:bg-[#F8F9FA] border-l-2 ${level > 0 ? "border-[#E4E6EA]" : "border-transparent"
+          className={`flex items-center gap-2 py-2 hover:bg-subtle border-l-2 ${level > 0 ? "border-line" : "border-transparent"
             }`}
           style={{ paddingLeft: `${level * 20}px` }}
         >
           {hasChildren && (
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="p-1 hover:bg-[#E4E6EA] rounded"
+              className="p-1 hover:bg-line rounded"
             >
               {isExpanded ? (
-                <ChevronDown size={16} className="text-[#667085]" />
+                <ChevronDown size={16} className="text-fg-secondary" />
               ) : (
-                <ChevronRight size={16} className="text-[#667085]" />
+                <ChevronRight size={16} className="text-fg-secondary" />
               )}
             </button>
           )}
@@ -1384,18 +1384,18 @@ export default function StorekeeperManagerRequests() {
               {nodeName}
             </span>
             {node.productionCenter && (
-              <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-[500] bg-[#EBF8FF] text-[#0F50AA]">
+              <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-[500] bg-hover text-brand-fg">
                 {node.productionCenter}
               </span>
             )}
           </div>
 
           <div className="flex gap-4 text-[13px] mr-4">
-            <span className="font-[600] text-[#383E49]">
+            <span className="font-[600] text-fg">
               {nodeQuantity} {nodeUnit}
             </span>
             {node.totalCost && (
-              <span className="font-[600] text-[#199D26] min-w-[100px] text-right">
+              <span className="font-[600] text-success min-w-[100px] text-right">
                 Rs. {Number(node.totalCost).toFixed(2)}
               </span>
             )}
@@ -1431,15 +1431,15 @@ export default function StorekeeperManagerRequests() {
     };
 
     const getBackgroundColor = () => {
-      if (level === 0) return "bg-[#F8F9FA]";
-      if (level === 1) return "bg-[#F0F4FF]";
-      return "bg-[#E8F2FF]";
+      if (level === 0) return "bg-subtle";
+      if (level === 1) return "bg-subtle";
+      return "bg-hover";
     };
 
     const getBorderColor = () => {
-      if (level === 0) return "border-[#E4E6EA]";
-      if (level === 1) return "border-[#D1E7FF]";
-      return "border-[#B8D4FF]";
+      if (level === 0) return "border-line";
+      if (level === 1) return "border-brand/20";
+      return "border-brand/20";
     };
 
     return (
@@ -1452,12 +1452,12 @@ export default function StorekeeperManagerRequests() {
             {hasChildren && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="p-1 hover:bg-[#E4E6EA] rounded"
+                className="p-1 hover:bg-line rounded"
               >
                 {isExpanded ? (
-                  <ChevronDown size={14} className="text-[#667085]" />
+                  <ChevronDown size={14} className="text-fg-secondary" />
                 ) : (
-                  <ChevronRight size={14} className="text-[#667085]" />
+                  <ChevronRight size={14} className="text-fg-secondary" />
                 )}
               </button>
             )}
@@ -1466,14 +1466,14 @@ export default function StorekeeperManagerRequests() {
             <span className="text-[14px]">{getIcon()}</span>
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="text-[14px] font-[500] text-[#383E49]">
+                <span className="text-[14px] font-[500] text-fg">
                   {material.childName}
                 </span>
-                <span className="text-[12px] text-[#667085]">
+                <span className="text-[12px] text-fg-secondary">
                   ({material.childItemId})
                 </span>
                 {material.productionCenter && (
-                  <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-[500] bg-[#EBF8FF] text-[#0F50AA]">
+                  <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-[500] bg-hover text-brand-fg">
                     {material.productionCenter}
                   </span>
                 )}
@@ -1484,7 +1484,7 @@ export default function StorekeeperManagerRequests() {
                 <div className="flex items-center gap-3 mt-0.5">
                   <button
                     onClick={() => setShowBatchInfo(!showBatchInfo)}
-                    className="text-[11px] text-[#0F50AA] hover:underline font-[500]"
+                    className="text-[11px] text-brand-fg hover:underline font-[500]"
                   >
                     {showBatchInfo ? "Hide Details" : "Show Availability & Batches"}
                   </button>
@@ -1493,11 +1493,11 @@ export default function StorekeeperManagerRequests() {
             </div>
           </div>
           <div className="flex items-center gap-4 text-[13px]">
-            <span className="font-[600] text-[#383E49]">
+            <span className="font-[600] text-fg">
               {material.quantity} {material.unit}
             </span>
             {material.totalCost > 0 && (
-              <span className="font-[600] text-[#199D26]">
+              <span className="font-[600] text-success">
                 Rs. {Number(material.totalCost).toFixed(2)}
               </span>
             )}
@@ -1506,14 +1506,14 @@ export default function StorekeeperManagerRequests() {
 
         {/* Added: Expanded Details Section */}
         {showBatchInfo && material.childType === "raw_material" && (
-          <div className="ml-8 p-3 bg-white border border-[#E4E6EA] rounded-lg shadow-sm space-y-3" style={{ marginLeft: `${(level * 16) + 24}px` }}>
+          <div className="ml-8 p-3 bg-surface border border-line rounded-lg shadow-sm space-y-3" style={{ marginLeft: `${(level * 16) + 24}px` }}>
             {/* Mini Store Availability */}
             {material.miniStoreAvailability && material.miniStoreAvailability.some(ms => ms.availableQty > 0) && (
               <div>
-                <p className="text-[11px] font-[700] text-[#667085] uppercase mb-1">Local Store Availability:</p>
+                <p className="text-[11px] font-[700] text-fg-secondary uppercase mb-1">Local Store Availability:</p>
                 <div className="flex flex-wrap gap-2">
                   {material.miniStoreAvailability.filter(ms => ms.availableQty > 0).map((ms, idx) => (
-                    <span key={idx} className="text-[11px] bg-[#F0FDF4] text-[#166534] border border-[#DCFCE7] px-2 py-0.5 rounded-full">
+                    <span key={idx} className="text-[11px] bg-hover text-success border border-line px-2 py-0.5 rounded-full">
                       {ms.miniStoreName}: {ms.availableQty}
                     </span>
                   ))}
@@ -1524,17 +1524,17 @@ export default function StorekeeperManagerRequests() {
             {/* Batch Info */}
             {material.batches && material.batches.length > 0 && (
               <div>
-                <p className="text-[11px] font-[700] text-[#667085] uppercase mb-1">Batches:</p>
+                <p className="text-[11px] font-[700] text-fg-secondary uppercase mb-1">Batches:</p>
                 <div className="space-y-1">
                   {material.batches.map((batch, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-[11px] p-1.5 bg-[#F8F9FA] rounded border border-[#E4E6EA]">
+                    <div key={idx} className="flex items-center justify-between text-[11px] p-1.5 bg-subtle rounded border border-line">
                       <div className="flex items-center gap-3">
                         <span className="font-[600]">BN: {batch.batchNo || "N/A"}</span>
-                        <span className="text-[#667085]">|</span>
-                        <span>Stock: <span className="font-[600] text-[#383E49]">{batch.currentStock}</span></span>
+                        <span className="text-fg-secondary">|</span>
+                        <span>Stock: <span className="font-[600] text-fg">{batch.currentStock}</span></span>
                       </div>
                       {batch.expireDate && (
-                        <span className="text-red-600 font-[500]">Exp: {new Date(batch.expireDate).toLocaleDateString()}</span>
+                        <span className="text-error font-[500]">Exp: {new Date(batch.expireDate).toLocaleDateString()}</span>
                       )}
                     </div>
                   ))}
@@ -1543,7 +1543,7 @@ export default function StorekeeperManagerRequests() {
             )}
 
             {(!material.batches || material.batches.length === 0) && (!material.miniStoreAvailability || !material.miniStoreAvailability.some(ms => ms.availableQty > 0)) && (
-              <p className="text-[11px] text-[#667085] italic">No detailed availability or batch info available</p>
+              <p className="text-[11px] text-fg-secondary italic">No detailed availability or batch info available</p>
             )}
           </div>
         )}
@@ -1565,7 +1565,7 @@ export default function StorekeeperManagerRequests() {
   };
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <StorekeeperSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -1579,22 +1579,22 @@ export default function StorekeeperManagerRequests() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+            <h1 className="text-[20px] font-[600] text-fg mb-1">
               Manager Requests
             </h1>
-            <p className="text-[14px] text-[#667085]">
+            <p className="text-[14px] text-fg-secondary">
               Process ingredient issuance and material transfer requests from
               managers
             </p>
           </div>
 
           {/* Search and Filter Controls */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 mb-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-4 mb-6">
             <div className="flex flex-col sm:flex-row gap-4">
               {/* Search Bar */}
               <div className="flex-1 relative">
                 <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
                   size={16}
                 />
                 <input
@@ -1602,20 +1602,20 @@ export default function StorekeeperManagerRequests() {
                   placeholder="Search by Request ID, Manager Name, or Type..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent text-[14px]"
+                  className="w-full pl-10 pr-4 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent text-[14px]"
                 />
               </div>
 
               {/* Status Filter */}
               <div className="relative">
                 <Filter
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
                   size={16}
                 />
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="pl-10 pr-8 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent text-[14px] bg-white min-w-[120px]"
+                  className="pl-10 pr-8 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent text-[14px] bg-surface min-w-[120px]"
                 >
                   <option value="All">All Status</option>
                   <option value="Pending">Pending</option>
@@ -1626,13 +1626,13 @@ export default function StorekeeperManagerRequests() {
           </div>
 
           {/* Requests Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-              <h3 className="text-[18px] font-[600] text-[#383E49]">
+              <h3 className="text-[18px] font-[600] text-fg">
                 Manager Requests List
               </h3>
               <div className="flex items-center gap-2 mt-2 sm:mt-0">
-                <span className="text-[12px] text-[#667085]">
+                <span className="text-[12px] text-fg-secondary">
                   Showing {filteredRequests.length} of {managerRequests.length}{" "}
                   requests
                 </span>
@@ -1641,11 +1641,11 @@ export default function StorekeeperManagerRequests() {
 
             {filteredRequests.length === 0 ? (
               <div className="text-center py-12">
-                <FileText size={48} className="mx-auto text-[#667085] mb-4" />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <FileText size={48} className="mx-auto text-fg-secondary mb-4" />
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   No requests found
                 </p>
-                <p className="text-[14px] text-[#667085]">
+                <p className="text-[14px] text-fg-secondary">
                   {searchTerm || filterStatus !== "All"
                     ? "Try adjusting your search or filter criteria"
                     : "Manager requests will appear here when submitted"}
@@ -1655,26 +1655,26 @@ export default function StorekeeperManagerRequests() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E4E6EA]">
-                      <th className="text-left py-3 text-[14px] font-[500] text-[#383E49]">
+                    <tr className="border-b border-line">
+                      <th className="text-left py-3 text-[14px] font-[500] text-fg">
                         Request Details
                       </th>
-                      <th className="text-left py-3 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-3 text-[14px] font-[500] text-fg">
                         Request Type
                       </th>
-                      <th className="text-left py-3 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-3 text-[14px] font-[500] text-fg">
                         Request Date
                       </th>
-                      <th className="text-left py-3 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-3 text-[14px] font-[500] text-fg">
                         Time
                       </th>
-                      {/* <th className="text-left py-3 text-[14px] font-[500] text-[#383E49]">
+                      {/* <th className="text-left py-3 text-[14px] font-[500] text-fg">
                         Priority
                       </th> */}
-                      <th className="text-left py-3 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-3 text-[14px] font-[500] text-fg">
                         Status
                       </th>
-                      <th className="text-center py-3 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-center py-3 text-[14px] font-[500] text-fg">
                         Action
                       </th>
                     </tr>
@@ -1683,35 +1683,35 @@ export default function StorekeeperManagerRequests() {
                     {filteredRequests.map((request) => (
                       <tr
                         key={request.id}
-                        className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                        className="border-b border-line hover:bg-subtle"
                       >
                         <td className="py-3">
                           <div>
-                            <p className="text-[14px] font-[500] text-[#383E49]">
+                            <p className="text-[14px] font-[500] text-fg">
                               {request.planName || request.description || "Production Plan"}
                             </p>
-                            <p className="text-[12px] text-[#667085]">
+                            <p className="text-[12px] text-fg-secondary">
                               Plan ID: {request.planId || request.id}
                             </p>
                           </div>
                         </td>
                         <td className="py-3">
-                          <p className="text-[14px] font-[500] text-[#383E49]">
+                          <p className="text-[14px] font-[500] text-fg">
                             {request.requestType}
                           </p>
-                          <p className="text-[12px] text-[#667085]">
+                          <p className="text-[12px] text-fg-secondary">
                             {request.createdBy || "Manager"}
                           </p>
                         </td>
                         <td className="py-3">
                           <div className="flex items-center gap-2">
                             <div>
-                              <p className="text-[14px] font-[500] text-[#383E49]">
+                              <p className="text-[14px] font-[500] text-fg">
                                 {new Date(
                                   request.productionDate || request.requestDate
                                 ).toLocaleDateString()}
                               </p>
-                              <p className="text-[12px] text-[#667085]">
+                              <p className="text-[12px] text-fg-secondary">
                                 Cost: Rs.{" "}
                                 {Number(
                                   request.totalEstimatedCost || 0
@@ -1721,7 +1721,7 @@ export default function StorekeeperManagerRequests() {
                           </div>
                         </td>
                         <td className="py-3">
-                          <p className="text-[14px] font-[500] text-[#383E49]">
+                          <p className="text-[14px] font-[500] text-fg">
                             {request.createdAt &&
                               request.createdAt.includes("T")
                               ? request.createdAt.split("T")[1].split(".")[0]
@@ -1734,10 +1734,10 @@ export default function StorekeeperManagerRequests() {
                         <td className="py-3">
                           <span
                             className={`text-[12px] px-3 py-1 rounded-full font-[500] flex items-center gap-1 w-fit ${request.status === "Pending"
-                              ? "bg-[#FFF4E6] text-[#F4A100]"
+                              ? "bg-hover text-warning"
                               : request.status === "Issued"
-                                ? "bg-[#DDFFE0] text-[#199D26]"
-                                : "bg-[#EBF8FF] text-[#0F50AA]"
+                                ? "bg-hover text-success"
+                                : "bg-hover text-brand-fg"
                               }`}
                           >
                             {request.status === "Pending" && (
@@ -1752,7 +1752,7 @@ export default function StorekeeperManagerRequests() {
                         <td className="py-3 text-center">
                           <button
                             onClick={() => handleViewDetails(request)}
-                            className="inline-flex items-center gap-2 px-3 py-2 bg-[#0F50AA] text-white text-[12px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors"
+                            className="inline-flex items-center gap-2 px-3 py-2 bg-brand text-on-brand text-[12px] font-[500] rounded-lg hover:bg-brand-hover transition-colors"
                           >
                             <Eye size={14} />
                             View
@@ -1771,18 +1771,18 @@ export default function StorekeeperManagerRequests() {
       {/* Request Details Modal */}
       {/* Request Details Modal */}
       {showDetailsModal && selectedRequest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+            <div className="flex items-center justify-between p-6 border-b border-line">
               <div>
-                <h2 className="text-[20px] font-[600] text-[#383E49]">
+                <h2 className="text-[20px] font-[600] text-fg">
                   {selectedRequest.planName || selectedRequest.description || "Production Plan Details"}
                 </h2>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   Plan ID: {selectedRequest.planId || selectedRequest.id}
                 </p>
-                <p className="text-[12px] text-[#667085] mt-1">
+                <p className="text-[12px] text-fg-secondary mt-1">
                   Created by: {selectedRequest.createdBy || "Manager"} | Total
                   Cost: Rs.{" "}
                   {Number(selectedRequest.totalEstimatedCost || 0).toFixed(2)}
@@ -1790,21 +1790,21 @@ export default function StorekeeperManagerRequests() {
               </div>
               <button
                 onClick={() => setShowDetailsModal(false)}
-                className="p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >
-                <X size={20} className="text-[#667085]" />
+                <X size={20} className="text-fg-secondary" />
               </button>
             </div>
 
             {/* Modal Body */}
             <div className="p-6">
               {/* Production Plan Info */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-[#F8F9FA] rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-subtle rounded-lg">
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Production Date
                   </p>
-                  <p className="text-[14px] font-[600] text-[#383E49]">
+                  <p className="text-[14px] font-[600] text-fg">
                     {new Date(
                       selectedRequest.productionDate ||
                       selectedRequest.requestDate
@@ -1812,27 +1812,27 @@ export default function StorekeeperManagerRequests() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Created By
                   </p>
-                  <p className="text-[14px] font-[600] text-[#383E49]">
+                  <p className="text-[14px] font-[600] text-fg">
                     {selectedRequest.createdBy || "Manager"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Total Estimated Cost
                   </p>
-                  <p className="text-[14px] font-[600] text-[#199D26]">
+                  <p className="text-[14px] font-[600] text-success">
                     Rs.{" "}
                     {Number(selectedRequest.totalEstimatedCost || 0).toFixed(2)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Status
                   </p>
-                  <p className="text-[14px] font-[600] text-[#0F50AA]">
+                  <p className="text-[14px] font-[600] text-brand-fg">
                     {selectedRequest.status}
                   </p>
                 </div>
@@ -1840,11 +1840,11 @@ export default function StorekeeperManagerRequests() {
 
               {/* Added: Remarks Section */}
               {/* {selectedRequest.remarks && (
-                <div className="mb-6 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
-                  <p className="text-[12px] font-[700] text-amber-800 uppercase mb-1 flex items-center gap-2">
+                <div className="mb-6 p-4 bg-warning/10 border-l-4 border-warning/30 rounded-r-lg">
+                  <p className="text-[12px] font-[700] text-warning uppercase mb-1 flex items-center gap-2">
                     <FileText size={16} /> Remarks/Notes
                   </p>
-                  <p className="text-[14px] text-amber-900 italic leading-relaxed">
+                  <p className="text-[14px] text-warning italic leading-relaxed">
                     "{selectedRequest.remarks}"
                   </p>
                 </div>
@@ -1853,15 +1853,15 @@ export default function StorekeeperManagerRequests() {
               {/* Tabs Section */}
               <div className="mb-6">
                 {/* Tab Headers */}
-                <div className="border-b border-[#E4E6EA] mb-6">
+                <div className="border-b border-line mb-6">
                   <div className="flex gap-2 overflow-x-auto">
                     {productionCenters.map((center) => (
                       <button
                         key={center.id}
                         onClick={() => setActiveTab(center.centerName)}
                         className={`px-4 py-3 text-[12px] font-[500] border-b-2 transition-colors whitespace-nowrap ${activeTab === center.centerName
-                          ? "border-[#0F50AA] text-[#0F50AA] bg-[#EBF8FF]"
-                          : "border-transparent text-[#667085] hover:text-[#383E49] hover:bg-[#F8F9FA]"
+                          ? "border-brand-fg text-brand-fg bg-hover"
+                          : "border-transparent text-fg-secondary hover:text-fg hover:bg-subtle"
                           }`}
                       >
                         {center.centerName}
@@ -1881,18 +1881,18 @@ export default function StorekeeperManagerRequests() {
 
               {/* Production Flow Structure - NEW SECTION */}
               <div className="mb-6">
-                <div className="bg-[#F8F9FA] px-4 py-3 border-b border-[#E4E6EA] rounded-t-lg">
-                  <h4 className="text-[16px] font-[600] text-[#383E49]">
+                <div className="bg-subtle px-4 py-3 border-b border-line rounded-t-lg">
+                  <h4 className="text-[16px] font-[600] text-fg">
                     📋 Production Flow Structure -{" "}
                     {getCenterNameFromTab(activeTab)}
                   </h4>
-                  <p className="text-[12px] text-[#667085] mt-1">
+                  <p className="text-[12px] text-fg-secondary mt-1">
                     Detailed breakdown of products and semi-products for{" "}
                     {getCenterNameFromTab(activeTab)}
                   </p>
                 </div>
 
-                <div className="border border-[#E4E6EA] rounded-b-lg p-4">
+                <div className="border border-line rounded-b-lg p-4">
                   {(() => {
                     const currentCenter = getCenterNameFromTab(activeTab);
 
@@ -1929,30 +1929,30 @@ export default function StorekeeperManagerRequests() {
                         {sortedCenterProducts.map((product) => (
                           <div
                             key={product.productId}
-                            className="border border-[#E4E6EA] rounded-lg overflow-hidden"
+                            className="border border-line rounded-lg overflow-hidden"
                           >
-                            <div className="bg-[#F8F9FA] px-4 py-3 border-b border-[#E4E6EA]">
+                            <div className="bg-subtle px-4 py-3 border-b border-line">
                               <div className="flex items-center justify-between">
                                 <div className="flex flex-col">
-                                  <h5 className="text-[16px] font-[600] text-[#383E49]">
+                                  <h5 className="text-[16px] font-[600] text-fg">
                                     📋 {product.productName}
                                   </h5>
-                                  <span className="text-[11px] text-[#667085] font-[500]">
+                                  <span className="text-[11px] text-fg-secondary font-[500]">
                                     Category: {product.category || "General"} | ID: {product.productId}
                                   </span>
                                 </div>
-                                <span className="text-[14px] font-[600] text-[#0F50AA]">
+                                <span className="text-[14px] font-[600] text-brand-fg">
                                   Target: {product.plannedQuantity}{" "}
                                   {product.unit}
                                 </span>
                               </div>
                             </div>
-                            <div className="p-4 bg-white">
+                            <div className="p-4 bg-surface">
                               {/* Required Semi Products */}
                               {product.requiredSemiProducts &&
                                 product.requiredSemiProducts.length > 0 && (
                                   <div className="mb-4">
-                                    <h6 className="text-[14px] font-[600] text-[#383E49] mb-2">
+                                    <h6 className="text-[14px] font-[600] text-fg mb-2">
                                       Required Semi Products:
                                     </h6>
                                     <div className="space-y-2">
@@ -1960,12 +1960,12 @@ export default function StorekeeperManagerRequests() {
                                         (semiProduct, index) => (
                                           <div
                                             key={index}
-                                            className="flex items-center gap-4 p-2 bg-[#F8F9FA] rounded"
+                                            className="flex items-center gap-4 p-2 bg-subtle rounded"
                                           >
-                                            <span className="text-[14px] font-[500] text-[#383E49]">
+                                            <span className="text-[14px] font-[500] text-fg">
                                               🎯 {semiProduct.semiProductName}
                                             </span>
-                                            <span className="text-[14px] font-[600] text-[#0F50AA]">
+                                            <span className="text-[14px] font-[600] text-brand-fg">
                                               {semiProduct.quantityUsed}{" "}
                                               {semiProduct.unit}
                                             </span>
@@ -1983,30 +1983,30 @@ export default function StorekeeperManagerRequests() {
                         {sortedCenterConsolidatedProducts.map((semiProduct) => (
                           <div
                             key={semiProduct.semiProductId}
-                            className="border border-[#E4E6EA] rounded-lg overflow-hidden"
+                            className="border border-line rounded-lg overflow-hidden"
                           >
-                            <div className="bg-[#F8F9FA] px-4 py-3 border-b border-[#E4E6EA]">
+                            <div className="bg-subtle px-4 py-3 border-b border-line">
                               <div className="flex items-center justify-between">
                                 <div className="flex flex-col">
-                                  <h5 className="text-[16px] font-[600] text-[#383E49]">
+                                  <h5 className="text-[16px] font-[600] text-fg">
                                     🎯 {semiProduct.semiProductName}
                                   </h5>
-                                  <span className="text-[11px] text-[#667085] font-[500]">
+                                  <span className="text-[11px] text-fg-secondary font-[500]">
                                     Category: {semiProduct.category || "General"} | ID: {semiProduct.semiProductId}
                                   </span>
                                 </div>
-                                <span className="text-[14px] font-[600] text-[#0F50AA]">
+                                <span className="text-[14px] font-[600] text-brand-fg">
                                   Total Required: {semiProduct.totalRequiredQty}{" "}
                                   {semiProduct.unit}
                                 </span>
                               </div>
                             </div>
-                            <div className="p-4 bg-white">
+                            <div className="p-4 bg-surface">
                               {/* Usage Breakdown */}
                               {semiProduct.usageBreakdown &&
                                 semiProduct.usageBreakdown.length > 0 && (
                                   <div className="mb-4">
-                                    <h6 className="text-[14px] font-[600] text-[#383E49] mb-2">
+                                    <h6 className="text-[14px] font-[600] text-fg mb-2">
                                       Usage Breakdown:
                                     </h6>
                                     <div className="space-y-1">
@@ -2014,7 +2014,7 @@ export default function StorekeeperManagerRequests() {
                                         (usage, index) => (
                                           <div
                                             key={index}
-                                            className="text-[13px] text-[#667085]"
+                                            className="text-[13px] text-fg-secondary"
                                           >
                                             Used for: {usage.usedFor} -{" "}
                                             {usage.quantityUsed} {usage.unit}
@@ -2029,7 +2029,7 @@ export default function StorekeeperManagerRequests() {
                               {semiProduct.children &&
                                 semiProduct.children.length > 0 && (
                                   <div>
-                                    <h6 className="text-[14px] font-[600] text-[#383E49] mb-2">
+                                    <h6 className="text-[14px] font-[600] text-fg mb-2">
                                       Raw Materials:
                                     </h6>
                                     <div className="space-y-2">
@@ -2051,7 +2051,7 @@ export default function StorekeeperManagerRequests() {
 
                         {centerProducts.length === 0 &&
                           centerConsolidatedProducts.length === 0 && (
-                            <div className="text-center py-8 text-[#667085]">
+                            <div className="text-center py-8 text-fg-secondary">
                               No products or materials found for {currentCenter}
                             </div>
                           )}
@@ -2063,9 +2063,9 @@ export default function StorekeeperManagerRequests() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 p-6 border-t border-[#E4E6EA]">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 p-6 border-t border-line">
               {/* FIFO Info */}
-              <div className="flex items-center gap-2 text-[14px] text-[#667085]">
+              <div className="flex items-center gap-2 text-[14px] text-fg-secondary">
                 <AlertCircle size={16} />
                 <span className="text-sm">
                   Materials will be issued based on FIFO (First In, First Out)
@@ -2077,17 +2077,17 @@ export default function StorekeeperManagerRequests() {
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <button
                   onClick={() => setShowDetailsModal(false)}
-                  className="px-4 py-2 text-[14px] font-[500] text-[#667085] bg-white border border-[#E4E6EA] hover:bg-[#F8F9FA] rounded-md transition-colors"
+                  className="px-4 py-2 text-[14px] font-[500] text-fg-secondary bg-surface border border-line hover:bg-subtle rounded-md transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleIssueMaterials}
                   disabled={selectedRequest?.status === "Issued" || selectedRequest?.rawStatus === "IN_PROGRESS"}
-                  className={`flex items-center justify-center gap-2 px-4 py-2 text-[14px] font-[500] text-white rounded-md transition-colors ${
+                  className={`flex items-center justify-center gap-2 px-4 py-2 text-[14px] font-[500] text-on-brand rounded-md transition-colors ${
                     selectedRequest?.status === "Issued" || selectedRequest?.rawStatus === "IN_PROGRESS"
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-[#0F50AA] hover:bg-[#0D4694]"
+                      ? "bg-neutral-solid cursor-not-allowed"
+                      : "bg-brand hover:bg-brand-hover"
                   }`}
                 >
                   <Save size={16} />
@@ -2104,7 +2104,7 @@ export default function StorekeeperManagerRequests() {
       {/* Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

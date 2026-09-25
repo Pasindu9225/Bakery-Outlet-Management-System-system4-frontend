@@ -170,18 +170,18 @@ export default function Loader({ variant = "section", text = "Baking delicious d
 
       {/* Loading message */}
       <div className="flex flex-col items-center">
-        <span className="text-gray-700 font-semibold tracking-wide text-sm anim-pulse-text">
+        <span className="text-fg font-semibold tracking-wide text-sm anim-pulse-text">
           {text}
         </span>
-        <span className="text-xs text-gray-400 mt-1">Please wait a moment</span>
+        <span className="text-xs text-fg-muted mt-1">Please wait a moment</span>
       </div>
     </div>
   );
 
   if (variant === "fullScreen") {
     return (
-      <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-white/70 backdrop-blur-md transition-all duration-300">
-        <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 transform scale-100 animate-fade-in">
+      <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-surface/70 backdrop-blur-md transition-all duration-300">
+        <div className="bg-elevated rounded-2xl shadow-2xl border border-line p-8 transform scale-100 animate-fade-in">
           {loaderContent}
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { confirmDialog } from "../component/ConfirmDialog";
 import {
   UserPlus,
   Eye,
@@ -567,7 +568,7 @@ export default function AdminCreateUser() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
+    if (await confirmDialog("Are you sure you want to delete this user?", { confirmText: "Delete", danger: true })) {
       try {
         setDeleteLoading(id);
 
@@ -656,7 +657,7 @@ export default function AdminCreateUser() {
   const uniqueRoles = [...new Set([...standardRoles, ...users.map((user) => user.role)])].sort();
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       {/* Sidebar */}
       <AdminSidebar sidebarOpen={sidebarOpen} />
 
@@ -671,23 +672,23 @@ export default function AdminCreateUser() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
           {/* Page Header */}
           <div className="mb-6">
-            <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+            <h1 className="text-[20px] font-[600] text-fg mb-1">
               User Management
             </h1>
-            <p className="text-[14px] leading-[20px] font-[400] text-[#667085]">
+            <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
               Create new users and assign roles
             </p>
           </div>
 
           {/* User List Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-              <h3 className="text-[18px] font-[600] text-[#383E49]">
+              <h3 className="text-[18px] font-[600] text-fg">
                 User List
               </h3>
               <button
                 onClick={handleCreateNew}
-                className="flex items-center gap-2 bg-[#0F50AA] hover:bg-[#1366D9] text-white px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors mt-2 sm:mt-0"
+                className="flex items-center gap-2 bg-brand hover:bg-brand-hover text-on-brand px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors mt-2 sm:mt-0"
               >
                 <UserPlus className="w-5 h-5" />
                 Create New User
@@ -699,7 +700,7 @@ export default function AdminCreateUser() {
               {/* Search Bar */}
               <div className="flex-1 relative">
                 <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
                   size={16}
                 />
                 <input
@@ -708,7 +709,7 @@ export default function AdminCreateUser() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   autoComplete="off"
-                  className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                  className="w-full pl-10 pr-4 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                 />
               </div>
 
@@ -717,7 +718,7 @@ export default function AdminCreateUser() {
                 <select
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value)}
-                  className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                  className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                 >
                   <option value="All">All Roles</option>
                   {uniqueRoles.map((role) => (
@@ -729,7 +730,7 @@ export default function AdminCreateUser() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                  className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                 >
                   <option value="All">All Status</option>
                   <option value="Active">Active</option>
@@ -742,23 +743,23 @@ export default function AdminCreateUser() {
             {loading ? (
               <div className="text-center py-12">
                 <Loader2
-                  className="mx-auto text-[#0F50AA] mb-4 animate-spin"
+                  className="mx-auto text-brand-fg mb-4 animate-spin"
                   size={48}
                 />
-                <p className="text-[16px] font-[500] text-[#383E49]">
+                <p className="text-[16px] font-[500] text-fg">
                   Loading users...
                 </p>
               </div>
             ) : fetchError ? (
               <div className="text-center py-12">
-                <User size={48} className="mx-auto text-[#EF4444] mb-4" />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <User size={48} className="mx-auto text-error mb-4" />
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   Error loading users
                 </p>
-                <p className="text-[14px] text-[#667085] mb-4">{fetchError}</p>
+                <p className="text-[14px] text-fg-secondary mb-4">{fetchError}</p>
                 <button
                   onClick={fetchUsers}
-                  className="px-4 py-2 bg-[#0F50AA] hover:bg-[#1366D9] text-white rounded-md text-[14px] font-[500] transition-colors"
+                  className="px-4 py-2 bg-brand hover:bg-brand-hover text-on-brand rounded-md text-[14px] font-[500] transition-colors"
                 >
                   Retry
                 </button>
@@ -767,61 +768,61 @@ export default function AdminCreateUser() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E4E6EA]">
-                      <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                    <tr className="border-b border-line">
+                      <th className="text-left py-4 text-[14px] font-[500] text-fg">
                         Full Name
                       </th>
-                      <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-4 text-[14px] font-[500] text-fg">
                         Username
                       </th>
-                      <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-4 text-[14px] font-[500] text-fg">
                         Email
                       </th>
-                      <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-4 text-[14px] font-[500] text-fg">
                         Contact
                       </th>
-                      <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-4 text-[14px] font-[500] text-fg">
                         Role
                       </th>
-                      <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-4 text-[14px] font-[500] text-fg">
                         Status
                       </th>
-                      <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-4 text-[14px] font-[500] text-fg">
                         Waiter ID
                       </th>
-                      <th className="text-center py-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-center py-4 text-[14px] font-[500] text-fg">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E4E6EA]">
+                  <tbody className="divide-y divide-line">
                     {filteredUsers.map((user) => (
                       <tr
                         key={user.id}
-                        className="hover:bg-[#F8F9FA] transition-colors"
+                        className="hover:bg-subtle transition-colors"
                       >
                         <td className="py-4">
-                          <p className="text-[14px] font-[600] text-[#383E49]">
+                          <p className="text-[14px] font-[600] text-fg">
                             {user.fullName}
                           </p>
                         </td>
                         <td className="py-4">
-                          <p className="text-[14px] text-[#48505E]">
+                          <p className="text-[14px] text-fg">
                             {user.username}
                           </p>
                         </td>
                         <td className="py-4">
-                          <p className="text-[14px] text-[#48505E]">
+                          <p className="text-[14px] text-fg">
                             {user.email}
                           </p>
                         </td>
                         <td className="py-4">
-                          <p className="text-[14px] text-[#48505E]">
+                          <p className="text-[14px] text-fg">
                             {user.contactNumber || "-"}
                           </p>
                         </td>
                         <td className="py-4">
-                          <p className="text-[14px] font-[500] text-[#383E49]">
+                          <p className="text-[14px] font-[500] text-fg">
                             {user.role}
                           </p>
                         </td>
@@ -829,15 +830,15 @@ export default function AdminCreateUser() {
                           <span
                             className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-[500] ${
                               user.status === "Active"
-                                ? "bg-[#DDFFE0] text-[#199D26]"
-                                : "bg-[#FEE2E2] text-[#EF4444]"
+                                ? "bg-hover text-success"
+                                : "bg-hover text-error"
                             }`}
                           >
                             {user.status}
                           </span>
                         </td>
                         <td className="py-4">
-                          <p className="text-[14px] text-[#48505E]">
+                          <p className="text-[14px] text-fg">
                             {user.waiterId || "-"}
                           </p>
                         </td>
@@ -846,7 +847,7 @@ export default function AdminCreateUser() {
                             <button
                               onClick={() => handleEdit(user)}
                               disabled={deleteLoading === user.id}
-                              className="p-2 text-[#0F50AA] hover:bg-[#EBF8FF] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="p-2 text-brand-fg hover:bg-hover rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               title="Edit User"
                             >
                               <Edit size={16} />
@@ -854,7 +855,7 @@ export default function AdminCreateUser() {
                             <button
                               onClick={() => handleDelete(user.id)}
                               disabled={deleteLoading === user.id}
-                              className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="p-2 text-error hover:bg-hover rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               title="Delete User"
                             >
                               {deleteLoading === user.id ? (
@@ -872,11 +873,11 @@ export default function AdminCreateUser() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <User size={48} className="mx-auto text-[#667085] mb-4" />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <User size={48} className="mx-auto text-fg-secondary mb-4" />
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   No users found
                 </p>
-                <p className="text-[14px] text-[#667085]">
+                <p className="text-[14px] text-fg-secondary">
                   {searchTerm || roleFilter !== "All" || statusFilter !== "All"
                     ? "Try adjusting your search criteria"
                     : "Click 'Create New User' to add your first user"}
@@ -889,15 +890,15 @@ export default function AdminCreateUser() {
 
       {/* Modal Overlay */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+            <div className="flex items-center justify-between p-6 border-b border-line">
               <div>
-                <h2 className="text-[20px] leading-[30px] font-[600] text-[#383E49]">
+                <h2 className="text-[20px] leading-[30px] font-[600] text-fg">
                   {isEditMode ? "Edit User" : "Create New User"}
                 </h2>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   {isEditMode
                     ? "Update user information and permissions"
                     : "Fill in the details to create a new user account"}
@@ -905,7 +906,7 @@ export default function AdminCreateUser() {
               </div>
               <button
                 onClick={handleCancel}
-                className="p-2 text-[#667085] hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -916,11 +917,11 @@ export default function AdminCreateUser() {
               <div className="space-y-4">
                 {/* Full Name */}
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                    Full Name <span className="text-[#EF4444]">*</span>
+                  <label className="block text-[14px] font-[500] text-fg mb-1">
+                    Full Name <span className="text-error">*</span>
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                     <input
                       type="text"
                       name="fullName"
@@ -928,15 +929,15 @@ export default function AdminCreateUser() {
                       onChange={handleChange}
                       placeholder="Enter full name"
                       autoComplete="off"
-                      className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${
+                      className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${
                         errors.fullName
-                          ? "border-[#EF4444]"
-                          : "border-[#E4E6EA]"
+                          ? "border-error"
+                          : "border-line"
                       }`}
                     />
                   </div>
                   {errors.fullName && (
-                    <p className="text-[#EF4444] text-[12px] mt-1">
+                    <p className="text-error text-[12px] mt-1">
                       {errors.fullName}
                     </p>
                   )}
@@ -945,11 +946,11 @@ export default function AdminCreateUser() {
                 {/* Username - Hidden for Waiters */}
                 {formData.role !== "Waiter" && (
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                    Username <span className="text-[#EF4444]">*</span>
+                  <label className="block text-[14px] font-[500] text-fg mb-1">
+                    Username <span className="text-error">*</span>
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                     <input
                       type="text"
                       name="username"
@@ -957,15 +958,15 @@ export default function AdminCreateUser() {
                       onChange={handleChange}
                       placeholder="Enter username"
                       autoComplete="off"
-                      className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${
+                      className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${
                         errors.username
-                          ? "border-[#EF4444]"
-                          : "border-[#E4E6EA]"
+                          ? "border-error"
+                          : "border-line"
                       }`}
                     />
                   </div>
                   {errors.username && (
-                    <p className="text-[#EF4444] text-[12px] mt-1">
+                    <p className="text-error text-[12px] mt-1">
                       {errors.username}
                     </p>
                   )}
@@ -974,11 +975,11 @@ export default function AdminCreateUser() {
 
                 {/* Email */}
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                    Email Address <span className="text-[#EF4444]">*</span>
+                  <label className="block text-[14px] font-[500] text-fg mb-1">
+                    Email Address <span className="text-error">*</span>
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                     <input
                       type="email"
                       name="email"
@@ -986,13 +987,13 @@ export default function AdminCreateUser() {
                       onChange={handleChange}
                       placeholder="Enter email address"
                       autoComplete="off"
-                      className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${
-                        errors.email ? "border-[#EF4444]" : "border-[#E4E6EA]"
+                      className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${
+                        errors.email ? "border-error" : "border-line"
                       }`}
                     />
                   </div>
                   {errors.email && (
-                    <p className="text-[#EF4444] text-[12px] mt-1">
+                    <p className="text-error text-[12px] mt-1">
                       {errors.email}
                     </p>
                   )}
@@ -1000,11 +1001,11 @@ export default function AdminCreateUser() {
 
                 {/* Contact Number */}
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                  <label className="block text-[14px] font-[500] text-fg mb-1">
                     Contact Number
                   </label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                     <input
                       type="tel"
                       name="contactNumber"
@@ -1012,7 +1013,7 @@ export default function AdminCreateUser() {
                       onChange={handleChange}
                       placeholder="Enter contact number"
                       autoComplete="off"
-                      className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                      className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                     />
                   </div>
                 </div>
@@ -1020,18 +1021,18 @@ export default function AdminCreateUser() {
                 {/* Password - Hidden for Waiters */}
                 {formData.role !== "Waiter" && (
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                  <label className="block text-[14px] font-[500] text-fg mb-1">
                     Password{" "}
-                    {!isEditMode && <span className="text-[#EF4444]">*</span>}
+                    {!isEditMode && <span className="text-error">*</span>}
                     {isEditMode && (
-                      <span className="text-[#667085] text-[12px] font-[400]">
+                      <span className="text-fg-secondary text-[12px] font-[400]">
                         {" "}
                         (Leave blank to keep current)
                       </span>
                     )}
                   </label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                     <input
                       type={showPassword ? "text" : "password"}
                       name="password"
@@ -1043,16 +1044,16 @@ export default function AdminCreateUser() {
                           ? "Enter new password (optional)"
                           : "Enter password"
                       }
-                      className={`w-full pl-10 pr-12 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${
+                      className={`w-full pl-10 pr-12 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${
                         errors.password
-                          ? "border-[#EF4444]"
-                          : "border-[#E4E6EA]"
+                          ? "border-error"
+                          : "border-line"
                       }`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085] hover:text-[#383E49]"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-fg-secondary hover:text-fg"
                     >
                       {showPassword ? (
                         <EyeOff className="w-5 h-5" />
@@ -1062,7 +1063,7 @@ export default function AdminCreateUser() {
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="text-[#EF4444] text-[12px] mt-1">
+                    <p className="text-error text-[12px] mt-1">
                       {errors.password}
                     </p>
                   )}
@@ -1072,26 +1073,26 @@ export default function AdminCreateUser() {
                 {/* Waiter ID - Only for Waiters */}
                 {formData.role === "Waiter" && (
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                    Waiter ID <span className="text-[#EF4444]">*</span>
+                  <label className="block text-[14px] font-[500] text-fg mb-1">
+                    Waiter ID <span className="text-error">*</span>
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                     <input
                       type="text"
                       name="waiterId"
                       value={formData.waiterId}
                       onChange={handleChange}
                       placeholder="Enter waiter ID (e.g. W001)"
-                      className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${
+                      className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${
                         errors.waiterId
-                          ? "border-[#EF4444]"
-                          : "border-[#E4E6EA]"
+                          ? "border-error"
+                          : "border-line"
                       }`}
                     />
                   </div>
                   {errors.waiterId && (
-                    <p className="text-[#EF4444] text-[12px] mt-1">
+                    <p className="text-error text-[12px] mt-1">
                       {errors.waiterId}
                     </p>
                   )}
@@ -1100,8 +1101,8 @@ export default function AdminCreateUser() {
 
                 {/* Role */}
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                    Role <span className="text-[#EF4444]">*</span>
+                  <label className="block text-[14px] font-[500] text-fg mb-1">
+                    Role <span className="text-error">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -1137,17 +1138,17 @@ export default function AdminCreateUser() {
                           }
                         }
                       }}
-                      className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${
-                        errors.role ? "border-[#EF4444]" : "border-[#E4E6EA]"
+                      className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${
+                        errors.role ? "border-error" : "border-line"
                       }`}
                     />
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1 pointer-events-none text-[#667085]">
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1 pointer-events-none text-fg-secondary">
                       <Search size={16} />
                     </div>
 
                     {/* Dropdown Options */}
                     {roleDropdownOpen && (
-                      <div className="absolute z-[10000] w-full mt-1 bg-white border border-[#E4E6EA] rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      <div className="absolute z-[10000] w-full mt-1 bg-elevated border border-line rounded-md shadow-lg max-h-60 overflow-y-auto">
                         {roles.filter(role => 
                           role.toLowerCase().includes(roleSearchInput.toLowerCase())
                         ).length > 0 ? (
@@ -1174,16 +1175,16 @@ export default function AdminCreateUser() {
                                   mpcId: "",
                                 }));
                               }}
-                              className={`px-4 py-2.5 text-[14px] text-[#383E49] hover:bg-[#F0F1F3] cursor-pointer flex items-center justify-between ${
-                                formData.role === role ? "bg-[#EBF8FF] font-[500]" : ""
+                              className={`px-4 py-2.5 text-[14px] text-fg hover:bg-app cursor-pointer flex items-center justify-between ${
+                                formData.role === role ? "bg-hover font-[500]" : ""
                               }`}
                             >
                               <span>{role}</span>
-                              {formData.role === role && <Check size={16} className="text-[#0F50AA]" />}
+                              {formData.role === role && <Check size={16} className="text-brand-fg" />}
                             </div>
                           ))
                         ) : (
-                          <div className="px-4 py-2.5 text-[14px] text-[#667085] italic">
+                          <div className="px-4 py-2.5 text-[14px] text-fg-secondary italic">
                             No matching roles found
                           </div>
                         )}
@@ -1191,7 +1192,7 @@ export default function AdminCreateUser() {
                     )}
                   </div>
                   {errors.role && (
-                    <p className="text-[#EF4444] text-[12px] mt-1">
+                    <p className="text-error text-[12px] mt-1">
                       {errors.role}
                     </p>
                   )}
@@ -1200,14 +1201,14 @@ export default function AdminCreateUser() {
                 {/* Outlet — for POS Cashier, MPC Worker, and Waiter */}
                 {(formData.role === "POS Cashier" || formData.role === "MPC Worker" || formData.role === "Waiter") && (
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Outlet <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-fg mb-1">
+                      Outlet <span className="text-error">*</span>
                     </label>
                     <select
                       name="outletId"
                       value={formData.outletId || ""}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-line-strong rounded-md"
                     >
                       <option value="">Select an outlet…</option>
                       {outlets.map(o => (
@@ -1216,63 +1217,63 @@ export default function AdminCreateUser() {
                         </option>
                       ))}
                     </select>
-                    {errors.outletId && <p className="text-red-500 text-sm mt-1">{errors.outletId}</p>}
+                    {errors.outletId && <p className="text-error text-sm mt-1">{errors.outletId}</p>}
                   </div>
                 )}
 
                 {/* Production Center (Bakery) */}
                 {formData.role === 'Bakery Worker' && (
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Production Center (Bakery) <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-fg mb-1">
+                      Production Center (Bakery) <span className="text-error">*</span>
                     </label>
                     <select
                       name="productionCenterId"
                       value={formData.productionCenterId || ""}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-line-strong rounded-md"
                     >
                       <option value="">Select a bakery center…</option>
                       {bakeryCenters.map(pc => (
                         <option key={pc.id} value={pc.id}>{pc.centerName}</option>
                       ))}
                     </select>
-                    {errors.productionCenterId && <p className="text-red-500 text-sm mt-1">{errors.productionCenterId}</p>}
+                    {errors.productionCenterId && <p className="text-error text-sm mt-1">{errors.productionCenterId}</p>}
                   </div>
                 )}
 
                 {/* Production Center (Kitchen) */}
                 {formData.role === 'Kitchen Worker' && (
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Production Center (Kitchen) <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-fg mb-1">
+                      Production Center (Kitchen) <span className="text-error">*</span>
                     </label>
                     <select
                       name="productionCenterId"
                       value={formData.productionCenterId || ""}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-line-strong rounded-md"
                     >
                       <option value="">Select a kitchen center…</option>
                       {kitchenCenters.map(pc => (
                         <option key={pc.id} value={pc.id}>{pc.centerName}</option>
                       ))}
                     </select>
-                    {errors.productionCenterId && <p className="text-red-500 text-sm mt-1">{errors.productionCenterId}</p>}
+                    {errors.productionCenterId && <p className="text-error text-sm mt-1">{errors.productionCenterId}</p>}
                   </div>
                 )}
 
                 {/* Mini Production Center (MPC) */}
                 {formData.role === 'MPC Worker' && (
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Mini Production Center <span className="text-red-500">*</span>
+                    <label className="block text-sm font-medium text-fg mb-1">
+                      Mini Production Center <span className="text-error">*</span>
                     </label>
                     <select
                       name="mpcId"
                       value={formData.mpcId || ""}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-line-strong rounded-md"
                       disabled={!formData.outletId}
                     >
                       <option value="">{formData.outletId ? 'Select an MPC…' : 'Pick an outlet first'}</option>
@@ -1280,20 +1281,20 @@ export default function AdminCreateUser() {
                         <option key={m.id} value={m.id}>{m.name}</option>
                       ))}
                     </select>
-                    {errors.mpcId && <p className="text-red-500 text-sm mt-1">{errors.mpcId}</p>}
+                    {errors.mpcId && <p className="text-error text-sm mt-1">{errors.mpcId}</p>}
                   </div>
                 )}
 
                 {/* Status */}
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                  <label className="block text-[14px] font-[500] text-fg mb-1">
                     Status
                   </label>
                   <select
                     name="status"
                     value={formData.status}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                    className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                   >
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
@@ -1302,12 +1303,12 @@ export default function AdminCreateUser() {
               </div>
 
               {/* Modal Footer */}
-              <div className="flex gap-3 mt-6 pt-6 border-t border-[#E4E6EA]">
+              <div className="flex gap-3 mt-6 pt-6 border-t border-line">
                 <button
                   type="button"
                   onClick={handleCancel}
                   disabled={submitLoading}
-                  className="flex-1 px-4 py-2.5 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] font-[500] hover:bg-[#F8F9FA] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2.5 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
@@ -1315,7 +1316,7 @@ export default function AdminCreateUser() {
                   type="button"
                   onClick={handleSubmit}
                   disabled={submitLoading}
-                  className="flex-1 px-4 py-2.5 bg-[#0F50AA] hover:bg-[#1366D9] text-white rounded-md text-[14px] font-[500] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2.5 bg-brand hover:bg-brand-hover text-on-brand rounded-md text-[14px] font-[500] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitLoading ? (
                     <>
@@ -1338,20 +1339,20 @@ export default function AdminCreateUser() {
       {showToast && (
         <div className="fixed top-4 right-4 z-[10000] animate-fade-in">
           {toastType === "error" ? (
-            <div className="bg-white border-l-4 border-[#EF4444] rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
-              <div className="flex-shrink-0 w-8 h-8 bg-red-50 rounded-full flex items-center justify-center">
-                <X className="w-5 h-5 text-[#EF4444]" />
+            <div className="bg-surface border-l-4 border-error rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
+              <div className="flex-shrink-0 w-8 h-8 bg-error/10 rounded-full flex items-center justify-center">
+                <X className="w-5 h-5 text-error" />
               </div>
-              <p className="text-[14px] text-[#383E49] font-[500]">
+              <p className="text-[14px] text-fg font-[500]">
                 {toastMessage}
               </p>
             </div>
           ) : (
-            <div className="bg-white border-l-4 border-[#51CC5D] rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
-              <div className="flex-shrink-0 w-8 h-8 bg-[#51CC5D] bg-opacity-10 rounded-full flex items-center justify-center">
-                <Check className="w-5 h-5 text-[#199D26]" />
+            <div className="bg-surface border-l-4 border-success rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
+              <div className="flex-shrink-0 w-8 h-8 bg-success-solid bg-opacity-10 rounded-full flex items-center justify-center">
+                <Check className="w-5 h-5 text-success" />
               </div>
-              <p className="text-[14px] text-[#383E49] font-[500]">
+              <p className="text-[14px] text-fg font-[500]">
                 {toastMessage}
               </p>
             </div>
@@ -1361,7 +1362,7 @@ export default function AdminCreateUser() {
 
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

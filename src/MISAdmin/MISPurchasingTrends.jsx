@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useTheme } from "../context/ThemeContext";
+import { themeColor } from "../utils/themeColors";
 import {
   RefreshCw,
   ChevronDown,
@@ -68,19 +70,20 @@ const GRANULARITY_OPTIONS = [
   { code: "YEARLY", label: "Yearly" },
 ];
 
-// Friendly colour palette for the donut. Categories that don't appear here
-// fall back to the neutral "#667085" used by the table chip styling.
+// Colour per category (design tokens, so they follow the light/dark theme).
+// Categories that don't appear here fall back to the neutral secondary text colour.
 const CATEGORY_COLORS = {
-  "Poultry & Meat": "#0F50AA",
-  "Vegetables & Fruits": "#199D26",
-  "Dairy": "#1E88E5",
-  "Grains & Flour": "#F4A100",
-  "Oils & Fats": "#F97316",
-  "Bakery Inputs": "#8B5CF6",
-  "Beverages": "#06B6D4",
-  "Spices & Herbs": "#EC4899",
-  "Uncategorized": "#94A3B8",
+  "Poultry & Meat": "brand-fg",
+  "Vegetables & Fruits": "success",
+  "Dairy": "info",
+  "Grains & Flour": "warning",
+  "Oils & Fats": "chart-orange",
+  "Bakery Inputs": "violet",
+  "Beverages": "chart-cyan",
+  "Spices & Herbs": "chart-pink",
+  "Uncategorized": "fg-muted",
 };
+const categoryColor = (label, alpha) => themeColor(CATEGORY_COLORS[label] || "fg-secondary", alpha);
 
 const ALL_SUPPLIERS = { id: null, label: "All Suppliers" };
 const ALL_CATEGORIES = { value: null, label: "All Categories" };
@@ -99,38 +102,38 @@ const formatNumber = (n) => (typeof n === "number" ? n.toLocaleString() : "0");
 
 function DrillDownModal({ title, rows, onClose }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col">
-        <div className="p-5 border-b border-[#E4E6EA] flex items-center justify-between flex-shrink-0">
+    <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
+      <div className="bg-elevated rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col">
+        <div className="p-5 border-b border-line flex items-center justify-between flex-shrink-0">
           <div>
-            <h3 className="text-[17px] font-[600] text-[#383E49]">{title}</h3>
-            <p className="text-[12px] text-[#667085] mt-0.5">{rows.length} record{rows.length !== 1 ? "s" : ""} found</p>
+            <h3 className="text-[17px] font-[600] text-fg">{title}</h3>
+            <p className="text-[12px] text-fg-secondary mt-0.5">{rows.length} record{rows.length !== 1 ? "s" : ""} found</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-[#F0F1F3] rounded-lg transition-colors">
-            <X size={18} className="text-[#667085]" />
+          <button onClick={onClose} className="p-2 hover:bg-app rounded-lg transition-colors">
+            <X size={18} className="text-fg-secondary" />
           </button>
         </div>
         <div className="overflow-y-auto flex-1">
           <table className="w-full">
-            <thead className="sticky top-0 bg-[#F8F9FA]">
-              <tr className="border-b border-[#E4E6EA]">
+            <thead className="sticky top-0 bg-subtle">
+              <tr className="border-b border-line">
                 {["PO Number", "Date", "Supplier", "Product", "Qty", "Unit Cost", "Total", "Status"].map((h) => (
-                  <th key={h} className="text-left py-3 px-4 text-[12px] font-[500] text-[#667085]">{h}</th>
+                  <th key={h} className="text-left py-3 px-4 text-[12px] font-[500] text-fg-secondary">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {rows.map((r, i) => (
-                <tr key={`${r.poNo}-${r.product}-${i}`} className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]">
-                  <td className="py-3 px-4 text-[12px] font-[500] text-[#0F50AA]">{r.poNo}</td>
-                  <td className="py-3 px-4 text-[12px] text-[#383E49]">{r.poDate || "—"}</td>
-                  <td className="py-3 px-4 text-[12px] text-[#383E49]">{r.supplier}</td>
-                  <td className="py-3 px-4 text-[12px] font-[500] text-[#383E49]">{r.product}</td>
-                  <td className="py-3 px-4 text-[12px] text-[#383E49]">{Number(r.qty || 0)} {r.unit || ""}</td>
-                  <td className="py-3 px-4 text-[12px] text-[#383E49]">{formatMoney(r.unitCost)}</td>
-                  <td className="py-3 px-4 text-[12px] font-[600] text-[#383E49]">{formatMoney(r.totalCost)}</td>
+                <tr key={`${r.poNo}-${r.product}-${i}`} className="border-b border-line hover:bg-subtle">
+                  <td className="py-3 px-4 text-[12px] font-[500] text-brand-fg">{r.poNo}</td>
+                  <td className="py-3 px-4 text-[12px] text-fg">{r.poDate || "—"}</td>
+                  <td className="py-3 px-4 text-[12px] text-fg">{r.supplier}</td>
+                  <td className="py-3 px-4 text-[12px] font-[500] text-fg">{r.product}</td>
+                  <td className="py-3 px-4 text-[12px] text-fg">{Number(r.qty || 0)} {r.unit || ""}</td>
+                  <td className="py-3 px-4 text-[12px] text-fg">{formatMoney(r.unitCost)}</td>
+                  <td className="py-3 px-4 text-[12px] font-[600] text-fg">{formatMoney(r.totalCost)}</td>
                   <td className="py-3 px-4">
-                    <span className={`text-[11px] font-[500] px-2.5 py-1 rounded-full ${r.status === "Received" ? "text-[#199D26] bg-[#F0FDF4]" : r.status === "Cancelled" ? "text-[#A12230] bg-[#FDECEE]" : "text-[#F4A100] bg-[#FFFBEB]"}`}>
+                    <span className={`text-[11px] font-[500] px-2.5 py-1 rounded-full ${r.status === "Received" ? "text-success bg-hover" : r.status === "Cancelled" ? "text-error bg-hover" : "text-warning bg-hover"}`}>
                       {r.status}
                     </span>
                   </td>
@@ -139,8 +142,8 @@ function DrillDownModal({ title, rows, onClose }) {
             </tbody>
           </table>
         </div>
-        <div className="p-4 border-t border-[#E4E6EA] flex justify-end">
-          <button onClick={onClose} className="px-4 py-2 border border-[#E4E6EA] text-[#667085] text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA]">Close</button>
+        <div className="p-4 border-t border-line flex justify-end">
+          <button onClick={onClose} className="px-4 py-2 border border-line text-fg-secondary text-[13px] font-[500] rounded-lg hover:bg-subtle">Close</button>
         </div>
       </div>
     </div>
@@ -150,7 +153,7 @@ function DrillDownModal({ title, rows, onClose }) {
 
 function DualLineChart({ data, onPointClick }) {
   if (!data || data.length === 0) {
-    return <div className="h-[240px] flex items-center justify-center text-[#667085] text-[13px]">No trend data</div>;
+    return <div className="h-[240px] flex items-center justify-center text-fg-secondary text-[13px]">No trend data</div>;
   }
 
   const chartData = {
@@ -159,29 +162,29 @@ function DualLineChart({ data, onPointClick }) {
       {
         label: "This Year",
         data: data.map((d) => Number(d.thisYear || 0)),
-        borderColor: "#0F50AA",
+        borderColor: themeColor("brand-fg"),
         backgroundColor: (context) => {
           const ctx = context.chart.ctx;
           const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-          gradient.addColorStop(0, "rgba(15, 80, 170, 0.15)");
-          gradient.addColorStop(1, "rgba(15, 80, 170, 0)");
+          gradient.addColorStop(0, themeColor("brand-fg", 0.15));
+          gradient.addColorStop(1, themeColor("brand-fg", 0));
           return gradient;
         },
         fill: true,
         tension: 0.4,
-        pointBackgroundColor: "#fff",
-        pointBorderColor: "#0F50AA",
+        pointBackgroundColor: themeColor("surface"),
+        pointBorderColor: themeColor("brand-fg"),
         pointBorderWidth: 2,
         pointRadius: 4,
         pointHoverRadius: 6,
-        pointHoverBackgroundColor: "#0F50AA",
-        pointHoverBorderColor: "#fff",
+        pointHoverBackgroundColor: themeColor("brand-fg"),
+        pointHoverBorderColor: themeColor("surface"),
         pointHoverBorderWidth: 2,
       },
       {
         label: "Last Year",
         data: data.map((d) => Number(d.lastYear || 0)),
-        borderColor: "#94A3B8",
+        borderColor: themeColor("fg-muted"),
         borderDash: [5, 5],
         backgroundColor: "transparent",
         fill: false,
@@ -203,11 +206,15 @@ function DualLineChart({ data, onPointClick }) {
           usePointStyle: true,
           padding: 20,
           font: { size: 11, family: "'Inter', sans-serif" },
-          color: "#667085",
+          color: themeColor("fg-secondary"),
         },
       },
       tooltip: {
-        backgroundColor: "#1E293B",
+        backgroundColor: themeColor("elevated"),
+        titleColor: themeColor("fg"),
+        bodyColor: themeColor("fg-secondary"),
+        borderColor: themeColor("border"),
+        borderWidth: 1,
         padding: 12,
         titleFont: { size: 13, weight: "600" },
         bodyFont: { size: 12 },
@@ -221,13 +228,13 @@ function DualLineChart({ data, onPointClick }) {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { font: { size: 11 }, color: "#667085" },
+        ticks: { font: { size: 11 }, color: themeColor("fg-secondary") },
       },
       y: {
-        grid: { color: "#F1F3F5", drawBorder: false },
+        grid: { color: themeColor("border"), drawBorder: false },
         ticks: {
           font: { size: 11 },
-          color: "#667085",
+          color: themeColor("fg-secondary"),
           callback: (value) => (value >= 1000 ? `Rs. ${value / 1000}k` : `Rs. ${value}`),
         },
       },
@@ -250,7 +257,7 @@ function DualLineChart({ data, onPointClick }) {
 
 function GroupedBarChart({ data }) {
   if (!data || data.length === 0) {
-    return <div className="h-[240px] flex items-center justify-center text-[#667085] text-[13px]">No trend data</div>;
+    return <div className="h-[240px] flex items-center justify-center text-fg-secondary text-[13px]">No trend data</div>;
   }
 
   const chartData = {
@@ -259,13 +266,13 @@ function GroupedBarChart({ data }) {
       {
         label: "This Year",
         data: data.map((d) => Number(d.thisYear || 0)),
-        backgroundColor: "#0F50AA",
+        backgroundColor: themeColor("brand-fg"),
         borderRadius: 4,
       },
       {
         label: "Last Year",
         data: data.map((d) => Number(d.lastYear || 0)),
-        backgroundColor: "#94A3B8",
+        backgroundColor: themeColor("fg-muted"),
         borderRadius: 4,
       },
     ],
@@ -282,11 +289,15 @@ function GroupedBarChart({ data }) {
           usePointStyle: true,
           padding: 20,
           font: { size: 11 },
-          color: "#667085",
+          color: themeColor("fg-secondary"),
         },
       },
       tooltip: {
-        backgroundColor: "#1E293B",
+        backgroundColor: themeColor("elevated"),
+        titleColor: themeColor("fg"),
+        bodyColor: themeColor("fg-secondary"),
+        borderColor: themeColor("border"),
+        borderWidth: 1,
         padding: 12,
         callbacks: {
           label: (context) => `${context.dataset.label}: ${formatMoney(context.raw)}`,
@@ -296,7 +307,7 @@ function GroupedBarChart({ data }) {
     scales: {
       x: { grid: { display: false } },
       y: {
-        grid: { color: "#F1F3F5", drawBorder: false },
+        grid: { color: themeColor("border"), drawBorder: false },
         ticks: {
           callback: (value) => (value >= 1000 ? `Rs. ${value / 1000}k` : `Rs. ${value}`),
         },
@@ -335,7 +346,7 @@ function CategoryDonut({ data, onSliceClick }) {
       const fontSize = (height / 150).toFixed(2);
       ctx.font = `bold ${fontSize}em sans-serif`;
       ctx.textBaseline = "middle";
-      ctx.fillStyle = "#383E49";
+      ctx.fillStyle = themeColor("fg");
 
       const text = total >= 1000 ? `Rs. ${(total / 1000).toFixed(1)}k` : `Rs. ${total}`;
       const textX = Math.round((width - ctx.measureText(text).width) / 2);
@@ -343,7 +354,7 @@ function CategoryDonut({ data, onSliceClick }) {
       ctx.fillText(text, textX, textY);
 
       ctx.font = `${(height / 350).toFixed(2)}em sans-serif`;
-      ctx.fillStyle = "#667085";
+      ctx.fillStyle = themeColor("fg-secondary");
       const subtext = "Total Spend";
       const subtextX = Math.round((width - ctx.measureText(subtext).width) / 2);
       const subtextY = height / 2 + 15;
@@ -364,7 +375,7 @@ function CategoryDonut({ data, onSliceClick }) {
           usePointStyle: true,
           padding: 15,
           font: { size: 11 },
-          color: "#667085",
+          color: themeColor("fg-secondary"),
           generateLabels: (chart) => {
             const data = chart.data;
             if (data.labels.length && data.datasets.length) {
@@ -385,7 +396,11 @@ function CategoryDonut({ data, onSliceClick }) {
         },
       },
       tooltip: {
-        backgroundColor: "#1E293B",
+        backgroundColor: themeColor("elevated"),
+        titleColor: themeColor("fg"),
+        bodyColor: themeColor("fg-secondary"),
+        borderColor: themeColor("border"),
+        borderWidth: 1,
         padding: 12,
         callbacks: {
           label: (context) => `${context.label}: ${formatMoney(context.raw)}`,
@@ -409,6 +424,7 @@ function CategoryDonut({ data, onSliceClick }) {
 
 
 export default function MISPurchasingTrends() {
+  const { theme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const activeSection = "Purchasing Trends";
 
@@ -541,9 +557,9 @@ export default function MISPurchasingTrends() {
     return list.map((c) => ({
       label: c.label,
       value: Number(c.value || 0),
-      color: CATEGORY_COLORS[c.label] || "#667085",
+      color: categoryColor(c.label),
     }));
-  }, [dashboard]);
+  }, [dashboard, theme]);
 
   const handleClearFilters = () => {
     setStartDate("");
@@ -643,8 +659,8 @@ export default function MISPurchasingTrends() {
   };
 
   const SortIcon = ({ col }) => {
-    if (sortCol !== col) return <ArrowUpDown size={12} className="text-[#C8CDD5]" />;
-    return sortDir === "asc" ? <ArrowUp size={12} className="text-[#0F50AA]" /> : <ArrowDown size={12} className="text-[#0F50AA]" />;
+    if (sortCol !== col) return <ArrowUpDown size={12} className="text-fg-muted" />;
+    return sortDir === "asc" ? <ArrowUp size={12} className="text-brand-fg" /> : <ArrowDown size={12} className="text-brand-fg" />;
   };
 
   // ── Summary card values ──
@@ -663,19 +679,19 @@ export default function MISPurchasingTrends() {
   const Dropdown = ({ open, setOpen, value, options, onChange, icon: Icon, optionKey = "label" }) => (
     <div className="relative">
       <button onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] bg-white hover:bg-[#F8F9FA] transition-colors w-full min-w-[148px]">
-        {Icon && <Icon size={13} className="text-[#667085] flex-shrink-0" />}
+        className="flex items-center gap-2 px-3 py-2.5 border border-line rounded-lg text-[13px] text-fg bg-surface hover:bg-subtle transition-colors w-full min-w-[148px]">
+        {Icon && <Icon size={13} className="text-fg-secondary flex-shrink-0" />}
         <span className="flex-1 text-left truncate">{value?.[optionKey] ?? value}</span>
-        <ChevronDown size={13} className="text-[#667085] flex-shrink-0" />
+        <ChevronDown size={13} className="text-fg-secondary flex-shrink-0" />
       </button>
       {open && (
-        <div className="absolute top-full mt-1 left-0 bg-white border border-[#E4E6EA] rounded-lg shadow-lg z-50 min-w-full max-h-60 overflow-y-auto">
+        <div className="absolute top-full mt-1 left-0 bg-elevated border border-line rounded-lg shadow-lg z-50 min-w-full max-h-60 overflow-y-auto">
           {options.map((o, idx) => {
             const label = o?.[optionKey] ?? o;
             const selected = (value?.[optionKey] ?? value) === label;
             return (
               <button key={`${label}-${idx}`} onClick={() => { onChange(o); setOpen(false); }}
-                className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-[#F8F9FA] transition-colors first:rounded-t-lg last:rounded-b-lg ${selected ? "text-[#0F50AA] font-[500] bg-[#F0F1F3]" : "text-[#383E49]"}`}>
+                className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-subtle transition-colors first:rounded-t-lg last:rounded-b-lg ${selected ? "text-brand-fg font-[500] bg-app" : "text-fg"}`}>
                 {label}
               </button>
             );
@@ -686,7 +702,7 @@ export default function MISPurchasingTrends() {
   );
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <MISAdminSideBar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -697,33 +713,33 @@ export default function MISPurchasingTrends() {
           {/* ── Page Header ── */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
             <div>
-              <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">Purchasing Trends</h1>
-              <p className="text-[14px] text-[#667085]">Analyze purchasing patterns, costs, and supplier performance over time</p>
+              <h1 className="text-[20px] font-[600] text-fg mb-1">Purchasing Trends</h1>
+              <p className="text-[14px] text-fg-secondary">Analyze purchasing patterns, costs, and supplier performance over time</p>
             </div>
             <div className="flex items-center gap-2 mt-3 sm:mt-0">
               <button onClick={fetchDashboard}
-                className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] bg-white text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors">
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-line text-fg-secondary bg-surface text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors">
                 <RefreshCw size={15} /> Refresh
               </button>
               <button
                 onClick={handleExportPDF}
-                className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] bg-white text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors">
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-line text-fg-secondary bg-surface text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors">
                 <FileText size={15} /> PDF
               </button>
               <button
                 onClick={handleExportExcel}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0F50AA] text-white text-[13px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors">
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover transition-colors">
                 <FileSpreadsheet size={15} /> Excel
               </button>
             </div>
           </div>
 
           {pageError && (
-            <div className="mb-5 p-4 rounded-lg border border-[#F4C7CB] bg-[#FDECEE] text-[#A12230] text-[13px] flex items-start gap-3">
+            <div className="mb-5 p-4 rounded-lg border border-error/30 bg-hover text-error text-[13px] flex items-start gap-3">
               <AlertTriangle size={18} className="mt-0.5 flex-shrink-0" />
               <div className="flex-1">
                 <p className="font-[600] mb-0.5">Failed to load purchasing trends</p>
-                <p className="text-[12px] text-[#A12230]/90">{pageError}</p>
+                <p className="text-[12px] text-error/90">{pageError}</p>
               </div>
               <button onClick={fetchDashboard}
                 className="text-[12px] font-[500] underline hover:no-underline">
@@ -733,26 +749,26 @@ export default function MISPurchasingTrends() {
           )}
 
           {/* ── Filter Panel ── */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 mb-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-4 mb-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
 
               {/* Start Date */}
               <div className="lg:col-span-2">
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={13} />
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                   <input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
                     max={new Date().toISOString().slice(0, 10)}
-                    className="w-full pl-9 pr-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]" />
+                    className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg" />
                 </div>
               </div>
 
               {/* End Date */}
               <div className="lg:col-span-2">
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={13} />
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                   <input type="date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
                     max={new Date().toISOString().slice(0, 10)}
-                    className="w-full pl-9 pr-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]" />
+                    className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg" />
                 </div>
               </div>
 
@@ -795,7 +811,7 @@ export default function MISPurchasingTrends() {
                 || outlet?.id != null || searchTerm) && (
               <div className="mt-3 flex justify-end">
                 <button onClick={handleClearFilters}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-[500] text-[#667085] hover:text-[#0F50AA] transition-colors">
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-[500] text-fg-secondary hover:text-brand-fg transition-colors">
                   <RefreshCw size={12} /> Clear filters
                 </button>
               </div>
@@ -803,7 +819,7 @@ export default function MISPurchasingTrends() {
           </div>
 
           {dashboard?.dataLimitation && (
-            <div className="mb-5 p-3 rounded-lg border border-[#FFEBC2] bg-[#FFF8E5] text-[#7C5A00] text-[12px] flex items-start gap-2">
+            <div className="mb-5 p-3 rounded-lg border border-warning/30 bg-hover text-warning text-[12px] flex items-start gap-2">
               <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" />
               <span>{dashboard.dataLimitationReason
                 || "Some filters cannot be applied to the current data set; results may be wider than the selected scope."}</span>
@@ -817,15 +833,15 @@ export default function MISPurchasingTrends() {
               {/* ── Summary Cards ── */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
                 {[
-                  { label: "Total Purchase Orders", value: formatNumber(Number(totalPOs)), icon: <ShoppingCart size={20} />, color: "bg-blue-500", hoverColor: "hover:bg-blue-600", iconBg: "bg-blue-400/30" },
-                  { label: "Total Spend", value: formatMoney(totalSpend), icon: <Banknote size={20} />, color: "bg-indigo-500", hoverColor: "hover:bg-indigo-600", iconBg: "bg-indigo-400/30" },
-                  { label: "Avg. Order Value", value: formatMoney(avgOrderValue), icon: <TrendingUp size={20} />, color: "bg-cyan-500", hoverColor: "hover:bg-cyan-600", iconBg: "bg-cyan-400/30" },
-                  { label: "Pending POs", value: formatNumber(Number(pendingPOs)), icon: <Package size={20} />, color: "bg-sky-500", hoverColor: "hover:bg-sky-600", iconBg: "bg-sky-400/30" },
+                  { label: "Total Purchase Orders", value: formatNumber(Number(totalPOs)), icon: <ShoppingCart size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
+                  { label: "Total Spend", value: formatMoney(totalSpend), icon: <Banknote size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
+                  { label: "Avg. Order Value", value: formatMoney(avgOrderValue), icon: <TrendingUp size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+                  { label: "Pending POs", value: formatNumber(Number(pendingPOs)), icon: <Package size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
                 ].map((card, i) => (
-                  <div key={i} className={`${card.color} ${card.hoverColor} rounded-lg p-5 text-white shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer`}>
+                  <div key={i} className={`${card.color} ${card.hoverColor} rounded-lg p-5 text-on-brand shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer`}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-[13px] font-medium text-white/80 mb-2">{card.label}</p>
+                        <p className="text-[13px] font-medium text-on-brand/80 mb-2">{card.label}</p>
                         <h2 className="text-[26px] font-bold leading-none">{card.value}</h2>
                       </div>
                       <div className={`${card.iconBg} w-12 h-12 rounded-lg flex items-center justify-center backdrop-blur-sm`}>
@@ -840,14 +856,14 @@ export default function MISPurchasingTrends() {
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 mb-6">
 
                 {/* Line Chart – Trend Comparison */}
-                <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-5">
+                <div className="lg:col-span-2 bg-surface rounded-lg shadow-sm border border-line p-5">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="text-[15px] font-[600] text-[#383E49]">Purchase Spend Trend</h3>
-                      <p className="text-[12px] text-[#667085]">{granularity.label} comparison – This Year vs Last Year</p>
+                      <h3 className="text-[15px] font-[600] text-fg">Purchase Spend Trend</h3>
+                      <p className="text-[12px] text-fg-secondary">{granularity.label} comparison – This Year vs Last Year</p>
                     </div>
                   </div>
-                  <DualLineChart
+                  <DualLineChart key={theme}
                     data={trend}
                     onPointClick={(d) => setDrillDown({
                       title: `Purchases – ${d.label}`,
@@ -857,15 +873,15 @@ export default function MISPurchasingTrends() {
                 </div>
 
                 {/* Donut – Category Breakdown */}
-                <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-5">
+                <div className="lg:col-span-2 bg-surface rounded-lg shadow-sm border border-line p-5">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="text-[15px] font-[600] text-[#383E49]">Spend by Category</h3>
-                      <p className="text-[12px] text-[#667085]">Distribution of purchase value</p>
+                      <h3 className="text-[15px] font-[600] text-fg">Spend by Category</h3>
+                      <p className="text-[12px] text-fg-secondary">Distribution of purchase value</p>
                     </div>
                   </div>
                   {categoryData.length > 0 ? (
-                    <CategoryDonut
+                    <CategoryDonut key={theme}
                       data={categoryData}
                       onSliceClick={(sl) => setDrillDown({
                         title: `Category – ${sl.label}`,
@@ -873,7 +889,7 @@ export default function MISPurchasingTrends() {
                       })}
                     />
                   ) : (
-                    <div className="h-32 flex items-center justify-center text-[#667085] text-[13px]">No data</div>
+                    <div className="h-32 flex items-center justify-center text-fg-secondary text-[13px]">No data</div>
                   )}
                 </div>
               </div>
@@ -882,21 +898,21 @@ export default function MISPurchasingTrends() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
 
                 {/* Grouped Bar Chart */}
-                <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-5">
+                <div className="bg-surface rounded-lg shadow-sm border border-line p-5">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="text-[15px] font-[600] text-[#383E49]">Purchase Volume Comparison</h3>
-                      <p className="text-[12px] text-[#667085]">This Year (blue) vs Last Year (gray)</p>
+                      <h3 className="text-[15px] font-[600] text-fg">Purchase Volume Comparison</h3>
+                      <p className="text-[12px] text-fg-secondary">This Year (blue) vs Last Year (gray)</p>
                     </div>
                   </div>
-                  <GroupedBarChart data={trend} />
+                  <GroupedBarChart key={theme} data={trend} />
                 </div>
 
                 {/* Supplier Spend Ranking */}
-                <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-5">
-                  <h3 className="text-[15px] font-[600] text-[#383E49] mb-4">Top Suppliers by Spend</h3>
+                <div className="bg-surface rounded-lg shadow-sm border border-line p-5">
+                  <h3 className="text-[15px] font-[600] text-fg mb-4">Top Suppliers by Spend</h3>
                   {top5Suppliers.length === 0 ? (
-                    <p className="text-[13px] text-[#667085]">No data</p>
+                    <p className="text-[13px] text-fg-secondary">No data</p>
                   ) : (
                     <div className="space-y-3">
                       {top5Suppliers.map((s, i) => {
@@ -910,13 +926,13 @@ export default function MISPurchasingTrends() {
                             })}>
                             <div className="flex items-center justify-between mb-1">
                               <div className="flex items-center gap-2">
-                                <span className="w-5 h-5 rounded-full bg-[#0F50AA] text-white text-[10px] flex items-center justify-center font-[600]">{i + 1}</span>
-                                <span className="text-[13px] font-[500] text-[#383E49] group-hover:text-[#0F50AA] transition-colors">{s.supplierName}</span>
+                                <span className="w-5 h-5 rounded-full bg-brand text-on-brand text-[10px] flex items-center justify-center font-[600]">{i + 1}</span>
+                                <span className="text-[13px] font-[500] text-fg group-hover:text-brand-fg transition-colors">{s.supplierName}</span>
                               </div>
-                              <span className="text-[12px] font-[600] text-[#383E49]">{formatMoney(val)}</span>
+                              <span className="text-[12px] font-[600] text-fg">{formatMoney(val)}</span>
                             </div>
-                            <div className="w-full bg-[#E4E6EA] rounded-full h-2">
-                              <div className="h-2 rounded-full bg-[#0F50AA] transition-all duration-500" style={{ width: `${pct}%` }} />
+                            <div className="w-full bg-line rounded-full h-2">
+                              <div className="h-2 rounded-full bg-brand transition-all duration-500" style={{ width: `${pct}%` }} />
                             </div>
                           </div>
                         );
@@ -927,27 +943,27 @@ export default function MISPurchasingTrends() {
               </div>
 
               {/* ── Detailed PO Table ── */}
-              <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+              <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
                   <div>
-                    <h3 className="text-[18px] font-[600] text-[#383E49]">Purchase Order Records</h3>
-                    <p className="text-[12px] text-[#667085] mt-0.5">
+                    <h3 className="text-[18px] font-[600] text-fg">Purchase Order Records</h3>
+                    <p className="text-[12px] text-fg-secondary mt-0.5">
                       Showing {paginated.length} of {sorted.length} records
                       {records.length >= RECORDS_THRESHOLD && (
-                        <span className="ml-1 text-[#7C5A00]">(showing latest {records.length}; refine filters for older POs)</span>
+                        <span className="ml-1 text-warning">(showing latest {records.length}; refine filters for older POs)</span>
                       )}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={15} />
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={15} />
                       <input type="text" placeholder="Search PO, product or supplier..."
-                        className="pl-9 pr-4 py-2 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent w-56"
+                        className="pl-9 pr-4 py-2 border border-line rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent w-56"
                         value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }} />
                     </div>
                     <button
                       onClick={handleExportPDF}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 border border-[#E4E6EA] text-[#667085] text-[12px] font-[500] rounded-lg hover:bg-[#F8F9FA]">
+                      className="inline-flex items-center gap-1.5 px-3 py-2 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle">
                       <Printer size={13} /> Print
                     </button>
                   </div>
@@ -956,7 +972,7 @@ export default function MISPurchasingTrends() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-[#E4E6EA] bg-[#F8F9FA]">
+                      <tr className="border-b border-line bg-subtle">
                         {[
                           { key: "poNo", label: "PO Number" },
                           { key: "poDate", label: "Date" },
@@ -970,7 +986,7 @@ export default function MISPurchasingTrends() {
                         ].map((col) => (
                           <th key={col.key}
                             onClick={() => !col.noSort && handleSort(col.key)}
-                            className={`text-left py-3.5 px-4 text-[12px] font-[500] text-[#667085] ${col.noSort ? "" : "cursor-pointer hover:text-[#383E49]"}`}>
+                            className={`text-left py-3.5 px-4 text-[12px] font-[500] text-fg-secondary ${col.noSort ? "" : "cursor-pointer hover:text-fg"}`}>
                             <div className="flex items-center gap-1">
                               {col.label}
                               {!col.noSort && <SortIcon col={col.key} />}
@@ -983,63 +999,63 @@ export default function MISPurchasingTrends() {
                       {paginated.length === 0 ? (
                         <tr>
                           <td colSpan={9} className="py-16 text-center">
-                            <ShoppingCart size={40} className="mx-auto text-[#C8CDD5] mb-3" />
-                            <p className="text-[14px] font-[500] text-[#383E49]">No purchase orders found</p>
-                            <p className="text-[12px] text-[#667085]">Try adjusting your filters</p>
+                            <ShoppingCart size={40} className="mx-auto text-fg-muted mb-3" />
+                            <p className="text-[14px] font-[500] text-fg">No purchase orders found</p>
+                            <p className="text-[12px] text-fg-secondary">Try adjusting your filters</p>
                           </td>
                         </tr>
                       ) : paginated.map((r, i) => (
-                        <tr key={`${r.poNo}-${r.product}-${i}`} className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA] transition-colors">
+                        <tr key={`${r.poNo}-${r.product}-${i}`} className="border-b border-line hover:bg-subtle transition-colors">
 
                           {/* PO Number */}
                           <td className="py-4 px-4">
                             <div className="flex items-center gap-2">
-                              <p className="text-[13px] font-[500] text-[#0F50AA]">{r.poNo}</p>
+                              <p className="text-[13px] font-[500] text-brand-fg">{r.poNo}</p>
                             </div>
-                            <p className="text-[10px] text-[#667085] flex items-center gap-1 mt-0.5">
+                            <p className="text-[10px] text-fg-secondary flex items-center gap-1 mt-0.5">
                               <Truck size={9} /> {r.grnNo && r.grnNo !== "—" ? r.grnNo : "GRN Pending"}
                             </p>
                           </td>
 
                           {/* Date */}
-                          <td className="py-4 px-4 text-[13px] text-[#383E49]">{r.poDate || "—"}</td>
+                          <td className="py-4 px-4 text-[13px] text-fg">{r.poDate || "—"}</td>
 
                           {/* Supplier */}
                           <td className="py-4 px-4">
                             <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 bg-[#EEF3FB] rounded-md flex items-center justify-center text-[#0F50AA] font-[700] text-[11px] flex-shrink-0">
+                              <div className="w-7 h-7 bg-hover rounded-md flex items-center justify-center text-brand-fg font-[700] text-[11px] flex-shrink-0">
                                 {(r.supplier || "?").charAt(0)}
                               </div>
-                              <span className="text-[12px] font-[500] text-[#383E49]">{r.supplier || "—"}</span>
+                              <span className="text-[12px] font-[500] text-fg">{r.supplier || "—"}</span>
                             </div>
                           </td>
 
                           {/* Category */}
                           <td className="py-4 px-4">
                             <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full"
-                              style={{ color: CATEGORY_COLORS[r.category] || "#667085", backgroundColor: (CATEGORY_COLORS[r.category] || "#667085") + "18" }}>
+                              style={{ color: categoryColor(r.category), backgroundColor: categoryColor(r.category, 0.1) }}>
                               {r.category || "Uncategorized"}
                             </span>
                           </td>
 
                           {/* Product */}
-                          <td className="py-4 px-4 text-[13px] font-[500] text-[#383E49]">{r.product || "—"}</td>
+                          <td className="py-4 px-4 text-[13px] font-[500] text-fg">{r.product || "—"}</td>
 
                           {/* Qty */}
                           <td className="py-4 px-4">
-                            <span className="text-[14px] font-[600] text-[#383E49]">{Number(r.qty || 0)}</span>
-                            <span className="text-[11px] text-[#667085] ml-1">{r.unit || ""}</span>
+                            <span className="text-[14px] font-[600] text-fg">{Number(r.qty || 0)}</span>
+                            <span className="text-[11px] text-fg-secondary ml-1">{r.unit || ""}</span>
                           </td>
 
                           {/* Total Cost */}
                           <td className="py-4 px-4">
-                            <p className="text-[14px] font-[700] text-[#383E49]">{formatMoney(r.totalCost)}</p>
-                            <p className="text-[11px] text-[#667085] mt-0.5">{formatMoney(r.unitCost)}/{r.unit || "u"}</p>
+                            <p className="text-[14px] font-[700] text-fg">{formatMoney(r.totalCost)}</p>
+                            <p className="text-[11px] text-fg-secondary mt-0.5">{formatMoney(r.unitCost)}/{r.unit || "u"}</p>
                           </td>
 
                           {/* Status */}
                           <td className="py-4 px-4">
-                            <span className={`text-[12px] font-[500] px-3 py-1 rounded-full ${r.status === "Received" ? "text-[#199D26] bg-[#F0FDF4]" : r.status === "Cancelled" ? "text-[#A12230] bg-[#FDECEE]" : "text-[#F4A100] bg-[#FFFBEB]"}`}>
+                            <span className={`text-[12px] font-[500] px-3 py-1 rounded-full ${r.status === "Received" ? "text-success bg-hover" : r.status === "Cancelled" ? "text-error bg-hover" : "text-warning bg-hover"}`}>
                               {r.status}
                             </span>
                           </td>
@@ -1048,7 +1064,7 @@ export default function MISPurchasingTrends() {
                           <td className="py-4 px-4">
                             <button
                               onClick={() => setDrillDown({ title: `PO Details – ${r.poNo}`, rows: [r] })}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#F0F1F3] text-[#667085] text-[12px] font-[500] rounded-lg hover:bg-[#E4E6EA] transition-colors">
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-app text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-line transition-colors">
                               <Eye size={12} /> View
                             </button>
                           </td>
@@ -1060,24 +1076,24 @@ export default function MISPurchasingTrends() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between mt-5 pt-4 border-t border-[#E4E6EA]">
-                    <p className="text-[12px] text-[#667085]">
+                  <div className="flex items-center justify-between mt-5 pt-4 border-t border-line">
+                    <p className="text-[12px] text-fg-secondary">
                       Page {page} of {totalPages} · {sorted.length} records
                     </p>
                     <div className="flex items-center gap-2">
                       <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                        className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                        <ChevronLeft size={15} className="text-[#667085]" />
+                        className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        <ChevronLeft size={15} className="text-fg-secondary" />
                       </button>
                       {Array.from({ length: totalPages }, (_, i) => i + 1).slice(0, 7).map((p) => (
                         <button key={p} onClick={() => setPage(p)}
-                          className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-[#0F50AA] text-white" : "text-[#667085] hover:bg-[#F0F1F3]"}`}>
+                          className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-brand text-on-brand" : "text-fg-secondary hover:bg-app"}`}>
                           {p}
                         </button>
                       ))}
                       <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                        className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                        <ChevronRight size={15} className="text-[#667085]" />
+                        className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        <ChevronRight size={15} className="text-fg-secondary" />
                       </button>
                     </div>
                   </div>
@@ -1095,7 +1111,7 @@ export default function MISPurchasingTrends() {
 
       {/* Mobile Overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
     </div>
   );

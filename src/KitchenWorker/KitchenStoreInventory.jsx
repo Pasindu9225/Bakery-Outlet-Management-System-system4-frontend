@@ -7,7 +7,7 @@ export default function KitchenStoreInventory() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <KitchenWorkerSideBar sidebarOpen={sidebarOpen} />
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <KitchenWorkerNavBar

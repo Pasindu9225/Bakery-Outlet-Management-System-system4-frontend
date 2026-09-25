@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import notificationService from "../services/notificationService";
+import ThemeToggle from "./ThemeToggle";
 
 export default function FinanceNavBar({
   sidebarOpen,
@@ -87,34 +88,34 @@ export default function FinanceNavBar({
   const getNotificationIcon = (type) => {
     switch (type) {
       case "warning":
-        return <AlertTriangle size={16} className="text-[#F4A100]" />;
+        return <AlertTriangle size={16} className="text-warning" />;
       case "success":
-        return <CheckCircle size={16} className="text-[#51CC5D]" />;
+        return <CheckCircle size={16} className="text-success" />;
       case "critical":
-        return <AlertTriangle size={16} className="text-[#EF4444]" />;
+        return <AlertTriangle size={16} className="text-error" />;
       default:
-        return <Info size={16} className="text-[#667085]" />;
+        return <Info size={16} className="text-fg-secondary" />;
     }
   };
 
   return (
     <>
-      <header className="bg-white shadow-lg border-b border-[#E4E6EA] px-4 sm:px-6 lg:px-8 py-4 flex-shrink-0 z-10 relative">
+      <header className="bg-surface shadow-lg border-b border-line px-4 sm:px-6 lg:px-8 py-4 flex-shrink-0 z-10 relative">
         <div className="flex items-center justify-between">
           {/* Left: Hamburger + Title */}
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="md:hidden p-2 rounded-lg text-[#667085] hover:bg-[#F0F1F3]"
+              className="md:hidden p-2 rounded-lg text-fg-secondary hover:bg-app"
             >
               <Menu size={20} />
             </button>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-[24px] leading-[36px] font-[600] font-inter text-[#383E49]">
+                <h1 className="text-[24px] leading-[36px] font-[600] font-inter text-fg">
                   {activeSection}
                 </h1>
-                <div className="px-3 py-1 bg-[#0F50AA] text-white rounded-full text-[12px] font-[500]">
+                <div className="px-3 py-1 bg-brand text-on-brand rounded-full text-[12px] font-[500]">
                   FINANCE
                 </div>
               </div>
@@ -126,25 +127,27 @@ export default function FinanceNavBar({
             {/* Search */}
             <div className="hidden sm:flex relative">
               <Search
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
                 size={16}
               />
               <input
                 type="text"
                 placeholder="Search suppliers, invoices..."
-                className="pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent"
+                className="pl-10 pr-4 py-2 border border-line rounded-lg text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent"
               />
             </div>
+
+            <ThemeToggle />
 
             {/* Notifications */}
             <div className="relative">
               <button
                 onClick={() => setNotificationOpen(!notificationOpen)}
-                className="relative p-2 text-[#667085] hover:bg-[#F0F1F3] rounded-lg"
+                className="relative p-2 text-fg-secondary hover:bg-app rounded-lg"
               >
                 <Bell size={20} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#EF4444] text-white text-[10px] rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-error-solid text-on-brand text-[10px] rounded-full flex items-center justify-center">
                     {unreadCount}
                   </span>
                 )}
@@ -152,21 +155,21 @@ export default function FinanceNavBar({
 
               {/* Notification Dropdown */}
               {notificationOpen && (
-                <div className="absolute right-0 top-12 w-80 bg-white rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.25)] border border-[#E4E6EA] z-50">
-                  <div className="p-4 border-b border-[#E4E6EA] flex items-center justify-between">
-                    <h3 className="text-[16px] font-[600] text-[#383E49]">
+                <div className="absolute right-0 top-12 w-80 bg-elevated rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.25)] border border-line z-50">
+                  <div className="p-4 border-b border-line flex items-center justify-between">
+                    <h3 className="text-[16px] font-[600] text-fg">
                       Finance Notifications
                     </h3>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={markAllAsRead}
-                        className="text-[12px] text-[#0F50AA] hover:underline"
+                        className="text-[12px] text-brand-fg hover:underline"
                       >
                         Mark all read
                       </button>
                       <button
                         onClick={() => setNotificationOpen(false)}
-                        className="p-1 hover:bg-[#F0F1F3] rounded"
+                        className="p-1 hover:bg-app rounded"
                       >
                         <X size={16} />
                       </button>
@@ -175,7 +178,7 @@ export default function FinanceNavBar({
 
                   <div className="max-h-96 overflow-y-auto">
                     {notifications.length === 0 ? (
-                      <div className="p-4 text-center text-[#667085]">
+                      <div className="p-4 text-center text-fg-secondary">
                         <Bell size={24} className="mx-auto mb-2 opacity-50" />
                         <p>No notifications</p>
                       </div>
@@ -183,8 +186,8 @@ export default function FinanceNavBar({
                       notifications.map((notification) => (
                         <div
                           key={notification.id}
-                          className={`p-4 border-b border-[#E4E6EA] hover:bg-[#F8F9FA] cursor-pointer group ${
-                            !notification.isRead ? "bg-blue-50" : ""
+                          className={`p-4 border-b border-line hover:bg-subtle cursor-pointer group ${
+                            !notification.isRead ? "bg-brand/10" : ""
                           }`}
                           onClick={() => markAsRead(notification.id)}
                         >
@@ -194,17 +197,17 @@ export default function FinanceNavBar({
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <h4 className="text-[14px] font-[500] text-[#383E49]">
+                                <h4 className="text-[14px] font-[500] text-fg">
                                   {notification.title}
                                 </h4>
                                 {!notification.isRead && (
-                                  <div className="w-2 h-2 bg-[#0F50AA] rounded-full"></div>
+                                  <div className="w-2 h-2 bg-brand rounded-full"></div>
                                 )}
                               </div>
-                              <p className="text-[12px] text-[#667085] mb-1">
+                              <p className="text-[12px] text-fg-secondary mb-1">
                                 {notification.message}
                               </p>
-                              <span className="text-[10px] text-[#667085]">
+                              <span className="text-[10px] text-fg-secondary">
                                 {notification.timeAgo}
                               </span>
                             </div>
@@ -213,7 +216,7 @@ export default function FinanceNavBar({
                                 e.stopPropagation();
                                 deleteNotification(notification.id);
                               }}
-                              className="p-1 hover:bg-[#F0F1F3] rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="p-1 hover:bg-app rounded opacity-0 group-hover:opacity-100 transition-opacity"
                             >
                               <X size={12} />
                             </button>
@@ -228,14 +231,14 @@ export default function FinanceNavBar({
 
             {/* Current Date/Time */}
             <div className="hidden md:block text-right">
-              <p className="text-[12px] text-[#667085]">
+              <p className="text-[12px] text-fg-secondary">
                 {currentTime.toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "short",
                   day: "numeric",
                 })}
               </p>
-              <p className="text-[10px] text-[#667085] font-[600]">
+              <p className="text-[10px] text-fg-secondary font-[600]">
                 {currentTime.toLocaleTimeString("en-US", {
                   hour: "2-digit",
                   minute: "2-digit",

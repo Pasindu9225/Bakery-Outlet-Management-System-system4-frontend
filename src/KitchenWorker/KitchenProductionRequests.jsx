@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Search,
@@ -26,27 +27,27 @@ import Loader from "../component/Loader.jsx";
 const STATUS_META = {
   PENDING: {
     label: "Pending",
-    color: "text-[#667085] bg-[#F0F1F3]",
+    color: "text-fg-secondary bg-app",
     icon: <Clock size={14} />,
   },
   SUBMITTED: {
     label: "Pending",
-    color: "text-[#667085] bg-[#F0F1F3]",
+    color: "text-fg-secondary bg-app",
     icon: <Clock size={14} />,
   },
   APPROVED: {
     label: "Approved",
-    color: "text-[#667085] bg-[#F1F9F1]",
-    icon: <CheckCircle size={14} className="text-[#199D26]" />,
+    color: "text-fg-secondary bg-hover",
+    icon: <CheckCircle size={14} className="text-success" />,
   },
   IN_PROGRESS: {
     label: "In Progress",
-    color: "text-[#1366D9] bg-[#F0F8FF]",
+    color: "text-brand-fg bg-subtle",
     icon: <PlayCircle size={14} />,
   },
   COMPLETED: {
     label: "Completed",
-    color: "text-[#199D26] bg-[#F0FDF4]",
+    color: "text-success bg-hover",
     icon: <CheckCircle size={14} />,
   },
 };
@@ -64,33 +65,33 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
   const pct = progressPercent(request.producedQty, request.totalQty);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
+      <div className="bg-elevated rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Modal Header */}
-        <div className="p-6 border-b border-[#E4E6EA] flex items-start justify-between">
+        <div className="p-6 border-b border-line flex items-start justify-between">
           <div>
-            <h3 className="text-[20px] font-[600] text-[#383E49]">Task Details</h3>
-            <p className="text-[13px] text-[#667085] mt-1">ID: {request.id}</p>
+            <h3 className="text-[20px] font-[600] text-fg">Task Details</h3>
+            <p className="text-[13px] text-fg-secondary mt-1">ID: {request.id}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-[#F0F1F3] rounded-lg transition-colors"
+            className="p-2 hover:bg-app rounded-lg transition-colors"
           >
-            <X size={20} className="text-[#667085]" />
+            <X size={20} className="text-fg-secondary" />
           </button>
         </div>
 
         <div className="p-6 space-y-6">
           {/* Summary Card */}
-          <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E4E6EA]">
+          <div className="bg-subtle rounded-xl p-5 border border-line">
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <p className="text-[11px] text-[#667085] mb-1">Request Name</p>
-                <p className="text-[14px] font-[600] text-[#383E49]">{request.requestName}</p>
+                <p className="text-[11px] text-fg-secondary mb-1">Request Name</p>
+                <p className="text-[14px] font-[600] text-fg">{request.requestName}</p>
               </div>
               <div>
-                <p className="text-[11px] text-[#667085] mb-1">Requested Date</p>
-                <p className="text-[14px] font-[500] text-[#383E49]">
+                <p className="text-[11px] text-fg-secondary mb-1">Requested Date</p>
+                <p className="text-[14px] font-[500] text-fg">
                   {new Date(request.requestDate).toLocaleDateString("en-US", {
                     day: "numeric",
                     month: "short",
@@ -99,7 +100,7 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
                 </p>
               </div>
               <div>
-                <p className="text-[11px] text-[#667085] mb-1">Status</p>
+                <p className="text-[11px] text-fg-secondary mb-1">Status</p>
                 <span
                   className={`inline-flex items-center gap-1.5 text-[12px] font-[500] px-3 py-1 rounded-full ${meta.color}`}
                 >
@@ -108,23 +109,23 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
                 </span>
               </div>
               <div>
-                <p className="text-[11px] text-[#667085] mb-1">Created By</p>
-                <p className="text-[14px] font-[500] text-[#383E49]">{request.createdBy || "Manager"}</p>
+                <p className="text-[11px] text-fg-secondary mb-1">Created By</p>
+                <p className="text-[14px] font-[500] text-fg">{request.createdBy || "Manager"}</p>
               </div>
             </div>
 
             {/* Progress */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[12px] text-[#667085]">Overall Progress</span>
-                <span className="text-[13px] font-[600] text-[#383E49]">
+                <span className="text-[12px] text-fg-secondary">Overall Progress</span>
+                <span className="text-[13px] font-[600] text-fg">
                   {request.producedQty} / {request.totalQty} ({pct}%)
                 </span>
               </div>
-              <div className="w-full bg-[#E4E6EA] rounded-full h-3 overflow-hidden">
+              <div className="w-full bg-line rounded-full h-3 overflow-hidden">
                 <div
                   className={`h-3 rounded-full transition-all duration-500 ${
-                    pct === 100 ? "bg-[#199D26]" : pct > 0 ? "bg-[#0F50AA]" : "bg-[#E4E6EA]"
+                    pct === 100 ? "bg-success-solid" : pct > 0 ? "bg-brand" : "bg-line"
                   }`}
                   style={{ width: `${pct}%` }}
                 />
@@ -134,16 +135,16 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
 
           {/* Products Table */}
           <div>
-            <h4 className="text-[16px] font-[600] text-[#383E49] mb-3">Products</h4>
-            <div className="border border-[#E4E6EA] rounded-xl overflow-hidden">
+            <h4 className="text-[16px] font-[600] text-fg mb-3">Products</h4>
+            <div className="border border-line rounded-xl overflow-hidden">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-[#F8F9FA] border-b border-[#E4E6EA]">
-                    <th className="text-left py-3 px-4 text-[13px] font-[500] text-[#383E49]">Product</th>
-                    <th className="text-left py-3 px-4 text-[13px] font-[500] text-[#383E49]">Category</th>
-                    <th className="text-center py-3 px-4 text-[13px] font-[500] text-[#383E49]">Required</th>
-                    <th className="text-center py-3 px-4 text-[13px] font-[500] text-[#383E49]">Prepared</th>
-                    <th className="text-center py-3 px-4 text-[13px] font-[500] text-[#383E49]">Remaining</th>
+                  <tr className="bg-subtle border-b border-line">
+                    <th className="text-left py-3 px-4 text-[13px] font-[500] text-fg">Product</th>
+                    <th className="text-left py-3 px-4 text-[13px] font-[500] text-fg">Category</th>
+                    <th className="text-center py-3 px-4 text-[13px] font-[500] text-fg">Required</th>
+                    <th className="text-center py-3 px-4 text-[13px] font-[500] text-fg">Prepared</th>
+                    <th className="text-center py-3 px-4 text-[13px] font-[500] text-fg">Remaining</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -152,18 +153,18 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
                     const hasChildren = product.children && product.children.length > 0;
                     return (
                       <React.Fragment key={i}>
-                        <tr className="border-b border-[#E4E6EA] last:border-0 hover:bg-[#F8F9FA]">
+                        <tr className="border-b border-line last:border-0 hover:bg-subtle">
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-2">
-                              <div className="p-1.5 bg-amber-100 rounded-lg">
-                                <ChefHat size={14} className="text-amber-600" />
+                              <div className="p-1.5 bg-warning/10 rounded-lg">
+                                <ChefHat size={14} className="text-warning" />
                               </div>
                               <div>
-                                <span className="text-[13px] font-[600] text-[#383E49]">
+                                <span className="text-[13px] font-[600] text-fg">
                                   {product.name}
                                 </span>
                                 {product.isBlocked && (
-                                  <span className="ml-2 px-2 py-0.5 text-[10px] font-[600] bg-red-50 text-red-600 border border-red-200 rounded-md">
+                                  <span className="ml-2 px-2 py-0.5 text-[10px] font-[600] bg-error/10 text-error border border-error/30 rounded-md">
                                     Blocked ({product.uncompletedChildCount} sub-assemblies pending)
                                   </span>
                                 )}
@@ -171,31 +172,31 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
                             </div>
                           </td>
                           <td className="py-3 px-4">
-                            <span className="text-[11px] text-[#667085] bg-[#F0F1F3] px-2 py-0.5 rounded-full">
+                            <span className="text-[11px] text-fg-secondary bg-app px-2 py-0.5 rounded-full">
                               {product.category || "Kitchen"}
                             </span>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <span className="text-[13px] font-[600] text-[#383E49]">
+                            <span className="text-[13px] font-[600] text-fg">
                               {product.quantity}
                             </span>
-                            <span className="text-[11px] text-[#667085] ml-1">{product.unit}</span>
+                            <span className="text-[11px] text-fg-secondary ml-1">{product.unit}</span>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <span className="text-[13px] font-[600] text-[#199D26]">
+                            <span className="text-[13px] font-[600] text-success">
                               {product.produced}
                             </span>
-                            <span className="text-[11px] text-[#667085] ml-1">{product.unit}</span>
+                            <span className="text-[11px] text-fg-secondary ml-1">{product.unit}</span>
                           </td>
                           <td className="py-3 px-4 text-center">
                             <span
                               className={`text-[13px] font-[600] ${
-                                remaining === 0 ? "text-[#199D26]" : "text-[#F4A100]"
+                                remaining === 0 ? "text-success" : "text-warning"
                               }`}
                             >
                               {remaining}
                             </span>
-                            <span className="text-[11px] text-[#667085] ml-1">{product.unit}</span>
+                            <span className="text-[11px] text-fg-secondary ml-1">{product.unit}</span>
                           </td>
                         </tr>
 
@@ -204,38 +205,38 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
                           product.children.map((child, cIdx) => {
                             const childRemaining = Math.max(0, child.quantity - child.produced);
                             return (
-                              <tr key={`kchild-${i}-${cIdx}`} className="bg-amber-50/40 border-b border-[#E4E6EA]">
+                              <tr key={`kchild-${i}-${cIdx}`} className="bg-warning/10 border-b border-line">
                                 <td className="py-2.5 px-4 pl-10" colSpan={2}>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-[#667085]">↳</span>
-                                    <span className="text-[12px] font-[500] text-amber-900">
+                                    <span className="text-fg-secondary">↳</span>
+                                    <span className="text-[12px] font-[500] text-warning">
                                       {child.name}
                                     </span>
-                                    <span className="px-2 py-0.5 rounded text-[10px] font-[600] bg-amber-100 text-amber-800">
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-[600] bg-warning/10 text-warning">
                                       {child.productionCenterName || "Kitchen Center"}
                                     </span>
                                     {child.miniStoreFulfilled || (child.reservedFromMiniStore && child.reservedFromMiniStore > 0) ? (
-                                      <span className="px-2 py-0.5 rounded text-[10px] font-[600] bg-blue-100 text-blue-800 border border-blue-200">
+                                      <span className="px-2 py-0.5 rounded text-[10px] font-[600] bg-brand/10 text-brand-fg border border-brand/20">
                                         📦 In Mini Store ({child.reservedFromMiniStore} {child.unit} reserved)
                                       </span>
                                     ) : child.isCompleted ? (
-                                      <span className="px-2 py-0.5 rounded text-[10px] font-[600] bg-emerald-100 text-emerald-700">
+                                      <span className="px-2 py-0.5 rounded text-[10px] font-[600] bg-success/10 text-success">
                                         ✅ Prepared
                                       </span>
                                     ) : (
-                                      <span className="px-2 py-0.5 rounded text-[10px] font-[600] bg-purple-100 text-purple-700">
+                                      <span className="px-2 py-0.5 rounded text-[10px] font-[600] bg-plum/10 text-plum">
                                         ⏳ In Progress
                                       </span>
                                     )}
                                   </div>
                                 </td>
-                                <td className="py-2.5 px-4 text-center text-[12px] text-[#667085]">
+                                <td className="py-2.5 px-4 text-center text-[12px] text-fg-secondary">
                                   {child.quantity} {child.unit || "pcs"}
                                 </td>
-                                <td className="py-2.5 px-4 text-center text-[12px] font-[600] text-emerald-600">
+                                <td className="py-2.5 px-4 text-center text-[12px] font-[600] text-success">
                                   {child.produced} {child.unit || "pcs"}
                                 </td>
-                                <td className="py-2.5 px-4 text-center text-[12px] text-[#667085]">
+                                <td className="py-2.5 px-4 text-center text-[12px] text-fg-secondary">
                                   {childRemaining} {child.unit || "pcs"}
                                 </td>
                               </tr>
@@ -251,8 +252,8 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
 
           {/* Action Buttons */}
           {request.ingredientsConfirmed === false && (
-            <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-[13px] flex items-center gap-2">
-              <AlertTriangle size={16} className="text-amber-600 shrink-0" />
+            <div className="mb-3 p-3 bg-warning/10 border border-warning/30 rounded-lg text-warning text-[13px] flex items-center gap-2">
+              <AlertTriangle size={16} className="text-warning shrink-0" />
               <span>
                 <strong>Ingredients Not Accepted:</strong> You must confirm receipt of issued ingredients in the <strong>"Get Ingredients"</strong> tab before starting or processing this task.
               </span>
@@ -263,7 +264,7 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
               <button
                 onClick={() => {
                   if (request.ingredientsConfirmed === false) {
-                    alert("Please confirm receipt of required ingredients in 'Get Ingredients' tab first!");
+                    toast.error("Please confirm receipt of required ingredients in 'Get Ingredients' tab first!");
                     return;
                   }
                   if (request.status?.toUpperCase() !== "IN_PROGRESS") {
@@ -272,7 +273,7 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
                   onClose();
                   navigate(`/kitchenPartialProduction?id=${request.id}`);
                 }}
-                className={`flex items-center gap-2 px-5 py-2.5 bg-[#1366D9] text-white text-[13px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors ${
+                className={`flex items-center gap-2 px-5 py-2.5 bg-brand text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover transition-colors ${
                   request.ingredientsConfirmed === false ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
@@ -284,14 +285,14 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
               <>
                 <button
                   onClick={() => { onUpdateStatus(request.id, "PENDING"); onClose(); }}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-[#F4A100] text-white text-[13px] font-[500] rounded-lg hover:bg-[#0F50AA] transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-warning-solid text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover transition-colors"
                 >
                   <PauseCircle size={16} />
                   Pause
                 </button>
                 <button
                   onClick={() => { onUpdateStatus(request.id, "COMPLETED"); onClose(); }}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-[#199D26] text-white text-[13px] font-[500] rounded-lg hover:bg-[#157A1E] transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-success-solid text-on-brand text-[13px] font-[500] rounded-lg hover:bg-success-solid transition-colors"
                 >
                   <CheckCircle size={16} />
                   Mark as Completed
@@ -299,14 +300,14 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
               </>
             )}
             {request.status?.toUpperCase() === "COMPLETED" && (
-              <div className="flex items-center gap-2 px-5 py-2.5 bg-[#F0FDF4] text-[#199D26] text-[13px] font-[500] rounded-lg border border-[#BBF7D0]">
+              <div className="flex items-center gap-2 px-5 py-2.5 bg-hover text-success text-[13px] font-[500] rounded-lg border border-success/30">
                 <CheckCircle size={16} />
                 Task Completed
               </div>
             )}
             <button
               onClick={onClose}
-              className="flex items-center gap-2 px-5 py-2.5 border border-[#E4E6EA] text-[#667085] text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors ml-auto"
+              className="flex items-center gap-2 px-5 py-2.5 border border-line text-fg-secondary text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors ml-auto"
             >
               Close
             </button>
@@ -491,7 +492,7 @@ export default function KitchenProductionRequests() {
   ];
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <KitchenWorkerSideBar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -505,16 +506,16 @@ export default function KitchenProductionRequests() {
           {/* Page Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
             <div>
-              <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+              <h1 className="text-[20px] font-[600] text-fg mb-1">
                 Kitchen Production Requests
               </h1>
-              <p className="text-[14px] text-[#667085]">
+              <p className="text-[14px] text-fg-secondary">
                 Assigned production tasks by Manager / POS (KOT-based)
               </p>
             </div>
             <button
               onClick={fetchRequests}
-              className="mt-3 sm:mt-0 inline-flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] bg-white text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+              className="mt-3 sm:mt-0 inline-flex items-center gap-2 px-4 py-2.5 border border-line text-fg-secondary bg-surface text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors"
             >
               <RefreshCw size={15} />
               Refresh
@@ -528,36 +529,36 @@ export default function KitchenProductionRequests() {
                 label: "Total Requests",
                 value: stats.total,
                 icon: <ClipboardList size={20} />,
-                color: "bg-blue-500",
-                hoverColor: "hover:bg-blue-600",
-                iconBg: "bg-blue-400/30",
+                color: "bg-brand",
+                hoverColor: "hover:bg-brand-hover",
+                iconBg: "bg-brand/30",
                 filterValue: "ALL",
               },
               {
                 label: "Pending",
                 value: stats.pending,
                 icon: <Clock size={20} />,
-                color: "bg-amber-500",
-                hoverColor: "hover:bg-amber-600",
-                iconBg: "bg-amber-400/30",
+                color: "bg-warning-solid",
+                hoverColor: "hover:bg-warning-solid",
+                iconBg: "bg-warning/30",
                 filterValue: "PENDING",
               },
               {
                 label: "In Progress",
                 value: stats.inProgress,
                 icon: <PlayCircle size={20} />,
-                color: "bg-orange-500",
-                hoverColor: "hover:bg-orange-600",
-                iconBg: "bg-orange-400/30",
+                color: "bg-warning-solid",
+                hoverColor: "hover:bg-warning-solid",
+                iconBg: "bg-warning/30",
                 filterValue: "IN_PROGRESS",
               },
               {
                 label: "Completed",
                 value: stats.completed,
                 icon: <CheckCircle size={20} />,
-                color: "bg-green-500",
-                hoverColor: "hover:bg-green-600",
-                iconBg: "bg-green-400/30",
+                color: "bg-success-solid",
+                hoverColor: "hover:bg-success-solid",
+                iconBg: "bg-success/30",
                 filterValue: "COMPLETED",
               },
             ].map((card, i) => (
@@ -569,19 +570,19 @@ export default function KitchenProductionRequests() {
                   ${card.hoverColor}
                   rounded-lg
                   p-5
-                  text-white
+                  text-on-brand
                   shadow-sm
                   transition-all
                   duration-300
                   hover:shadow-lg
                   hover:-translate-y-1
                   cursor-pointer
-                  ${statusFilter === card.filterValue ? "ring-4 ring-white/30 scale-105" : ""}
+                  ${statusFilter === card.filterValue ? "ring-4 ring-line/30 scale-105" : ""}
                 `}
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[13px] font-medium text-white/80 mb-2">{card.label}</p>
+                    <p className="text-[13px] font-medium text-on-brand/80 mb-2">{card.label}</p>
                     <h2 className="text-[30px] font-bold leading-none">{card.value}</h2>
                   </div>
                   <div className={`${card.iconBg} w-12 h-12 rounded-lg flex items-center justify-center backdrop-blur-sm`}>
@@ -593,15 +594,15 @@ export default function KitchenProductionRequests() {
           </div>
 
           {/* Search & Filter Bar */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 mb-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-4 mb-6">
             <div className="flex flex-col sm:flex-row gap-3">
               {/* Search */}
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={18} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={18} />
                 <input
                   type="text"
                   placeholder="Search by task name, product, or ID..."
-                  className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-lg text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2.5 border border-line rounded-lg text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -611,22 +612,22 @@ export default function KitchenProductionRequests() {
               <div className="relative">
                 <button
                   onClick={() => { setStatusDropdownOpen(!statusDropdownOpen); setDateDropdownOpen(false); }}
-                  className="flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] bg-white hover:bg-[#F8F9FA] transition-colors min-w-[150px]"
+                  className="flex items-center gap-2 px-4 py-2.5 border border-line rounded-lg text-[13px] text-fg bg-surface hover:bg-subtle transition-colors min-w-[150px]"
                 >
-                  <Filter size={15} className="text-[#667085]" />
+                  <Filter size={15} className="text-fg-secondary" />
                   <span className="flex-1 text-left">
                     {STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label}
                   </span>
-                  <ChevronDown size={14} className="text-[#667085]" />
+                  <ChevronDown size={14} className="text-fg-secondary" />
                 </button>
                 {statusDropdownOpen && (
-                  <div className="absolute top-full mt-1 left-0 bg-white border border-[#E4E6EA] rounded-lg shadow-lg z-50 min-w-[150px]">
+                  <div className="absolute top-full mt-1 left-0 bg-elevated border border-line rounded-lg shadow-lg z-50 min-w-[150px]">
                     {STATUS_OPTIONS.map((opt) => (
                       <button
                         key={opt.value}
                         onClick={() => { setStatusFilter(opt.value); setStatusDropdownOpen(false); }}
-                        className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-[#F8F9FA] transition-colors first:rounded-t-lg last:rounded-b-lg ${
-                          statusFilter === opt.value ? "text-[#0F50AA] font-[500] bg-[#F0F1F3]" : "text-[#383E49]"
+                        className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-subtle transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                          statusFilter === opt.value ? "text-brand-fg font-[500] bg-app" : "text-fg"
                         }`}
                       >
                         {opt.label}
@@ -640,22 +641,22 @@ export default function KitchenProductionRequests() {
               <div className="relative">
                 <button
                   onClick={() => { setDateDropdownOpen(!dateDropdownOpen); setStatusDropdownOpen(false); }}
-                  className="flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] bg-white hover:bg-[#F8F9FA] transition-colors min-w-[130px]"
+                  className="flex items-center gap-2 px-4 py-2.5 border border-line rounded-lg text-[13px] text-fg bg-surface hover:bg-subtle transition-colors min-w-[130px]"
                 >
-                  <Calendar size={15} className="text-[#667085]" />
+                  <Calendar size={15} className="text-fg-secondary" />
                   <span className="flex-1 text-left">
                     {DATE_OPTIONS.find((o) => o.value === dateFilter)?.label}
                   </span>
-                  <ChevronDown size={14} className="text-[#667085]" />
+                  <ChevronDown size={14} className="text-fg-secondary" />
                 </button>
                 {dateDropdownOpen && (
-                  <div className="absolute top-full mt-1 left-0 bg-white border border-[#E4E6EA] rounded-lg shadow-lg z-50 min-w-[130px]">
+                  <div className="absolute top-full mt-1 left-0 bg-elevated border border-line rounded-lg shadow-lg z-50 min-w-[130px]">
                     {DATE_OPTIONS.map((opt) => (
                       <button
                         key={opt.value}
                         onClick={() => { setDateFilter(opt.value); setDateDropdownOpen(false); }}
-                        className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-[#F8F9FA] transition-colors first:rounded-t-lg last:rounded-b-lg ${
-                          dateFilter === opt.value ? "text-[#0F50AA] font-[500] bg-[#F0F1F3]" : "text-[#383E49]"
+                        className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-subtle transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                          dateFilter === opt.value ? "text-brand-fg font-[500] bg-app" : "text-fg"
                         }`}
                       >
                         {opt.label}
@@ -668,7 +669,7 @@ export default function KitchenProductionRequests() {
               {/* Clear Filters */}
               <button
                 onClick={() => { setSearchTerm(""); setStatusFilter("ALL"); setDateFilter("ALL"); }}
-                className="flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors text-[13px]"
+                className="flex items-center gap-2 px-4 py-2.5 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors text-[13px]"
               >
                 <RefreshCw size={14} />
                 Clear
@@ -677,12 +678,12 @@ export default function KitchenProductionRequests() {
           </div>
 
           {/* Requests Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-[18px] font-[600] text-[#383E49]">
+              <h3 className="text-[18px] font-[600] text-fg">
                 Assigned Production Tasks
               </h3>
-              <span className="text-[12px] text-[#667085]">
+              <span className="text-[12px] text-fg-secondary">
                 Showing {filteredRequests.length} of {requests.length} tasks
               </span>
             </div>
@@ -693,12 +694,12 @@ export default function KitchenProductionRequests() {
             ) : error ? (
               /* Error State */
               <div className="text-center py-16">
-                <AlertTriangle size={40} className="mx-auto text-[#EF4444] mb-4" />
-                <p className="text-[15px] font-[500] text-[#383E49] mb-1">Error loading requests</p>
-                <p className="text-[13px] text-[#667085] mb-4">{error}</p>
+                <AlertTriangle size={40} className="mx-auto text-error mb-4" />
+                <p className="text-[15px] font-[500] text-fg mb-1">Error loading requests</p>
+                <p className="text-[13px] text-fg-secondary mb-4">{error}</p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0C4A8A] transition-colors text-[13px]"
+                  className="px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors text-[13px]"
                 >
                   Try Again
                 </button>
@@ -706,9 +707,9 @@ export default function KitchenProductionRequests() {
             ) : filteredRequests.length === 0 ? (
               /* Empty State */
               <div className="text-center py-16">
-                <ClipboardList size={40} className="mx-auto text-[#667085] mb-4" />
-                <p className="text-[15px] font-[500] text-[#383E49] mb-1">No tasks found</p>
-                <p className="text-[13px] text-[#667085]">
+                <ClipboardList size={40} className="mx-auto text-fg-secondary mb-4" />
+                <p className="text-[15px] font-[500] text-fg mb-1">No tasks found</p>
+                <p className="text-[13px] text-fg-secondary">
                   {searchTerm || statusFilter !== "ALL" || dateFilter !== "ALL"
                     ? "Try adjusting your search or filters"
                     : "No kitchen production requests have been assigned yet"}
@@ -719,13 +720,13 @@ export default function KitchenProductionRequests() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E4E6EA]">
-                      <th className="text-left py-3.5 px-2 text-[13px] font-[500] text-[#667085]">Request Date</th>
-                      <th className="text-left py-3.5 px-2 text-[13px] font-[500] text-[#667085]">Task Name & Code</th>
-                      <th className="text-left py-3.5 px-2 text-[13px] font-[500] text-[#667085]">Products</th>
-                      <th className="text-left py-3.5 px-2 text-[13px] font-[500] text-[#667085]">Progress</th>
-                      <th className="text-left py-3.5 px-2 text-[13px] font-[500] text-[#667085]">Status</th>
-                      <th className="text-center py-3.5 px-2 text-[13px] font-[500] text-[#667085]">Actions</th>
+                    <tr className="border-b border-line">
+                      <th className="text-left py-3.5 px-2 text-[13px] font-[500] text-fg-secondary">Request Date</th>
+                      <th className="text-left py-3.5 px-2 text-[13px] font-[500] text-fg-secondary">Task Name & Code</th>
+                      <th className="text-left py-3.5 px-2 text-[13px] font-[500] text-fg-secondary">Products</th>
+                      <th className="text-left py-3.5 px-2 text-[13px] font-[500] text-fg-secondary">Progress</th>
+                      <th className="text-left py-3.5 px-2 text-[13px] font-[500] text-fg-secondary">Status</th>
+                      <th className="text-center py-3.5 px-2 text-[13px] font-[500] text-fg-secondary">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -735,19 +736,19 @@ export default function KitchenProductionRequests() {
                       return (
                         <tr
                           key={request.id}
-                          className="border-b border-[#E4E6EA] hover:bg-[#F0F1F3] transition-colors cursor-pointer"
+                          className="border-b border-line hover:bg-app transition-colors cursor-pointer"
                           onClick={() => { setSelectedRequest(request); setShowModal(true); }}
                         >
                           {/* Date */}
                           <td className="py-4 px-2">
-                            <p className="text-[13px] font-[500] text-[#383E49]">
+                            <p className="text-[13px] font-[500] text-fg">
                               {new Date(request.requestDate).toLocaleDateString("en-US", {
                                 day: "numeric",
                                 month: "short",
                                 year: "numeric",
                               })}
                             </p>
-                            <p className="text-[11px] text-[#667085] mt-0.5">
+                            <p className="text-[11px] text-fg-secondary mt-0.5">
                               {new Date(request.requestDate).toLocaleTimeString("en-US", {
                                 hour: "2-digit",
                                 minute: "2-digit",
@@ -757,10 +758,10 @@ export default function KitchenProductionRequests() {
 
                           {/* Task Name & ID */}
                           <td className="py-4 px-2">
-                            <p className="text-[13px] font-[600] text-[#383E49]">
+                            <p className="text-[13px] font-[600] text-fg">
                               {request.requestName}
                             </p>
-                            <p className="text-[11px] text-[#667085] mt-0.5 flex items-center gap-1">
+                            <p className="text-[11px] text-fg-secondary mt-0.5 flex items-center gap-1">
                               <Hash size={10} />
                               {request.id}
                             </p>
@@ -770,8 +771,8 @@ export default function KitchenProductionRequests() {
                           <td className="py-4 px-2">
                             <div className="space-y-1">
                               {request.products.slice(0, 2).map((p, i) => (
-                                <p key={i} className="text-[12px] text-[#383E49] flex items-center gap-1">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></span>
+                                <p key={i} className="text-[12px] text-fg flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-warning-solid flex-shrink-0"></span>
                                   {p.name} –{" "}
                                   <span className="font-[600]">
                                     {p.quantity} {p.unit}
@@ -779,7 +780,7 @@ export default function KitchenProductionRequests() {
                                 </p>
                               ))}
                               {request.products.length > 2 && (
-                                <p className="text-[11px] text-[#667085]">
+                                <p className="text-[11px] text-fg-secondary">
                                   +{request.products.length - 2} more
                                 </p>
                               )}
@@ -789,19 +790,19 @@ export default function KitchenProductionRequests() {
                           {/* Progress Bar */}
                           <td className="py-4 px-2 min-w-[140px]">
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-[11px] text-[#667085]">
+                              <span className="text-[11px] text-fg-secondary">
                                 {request.producedQty}/{request.totalQty}
                               </span>
-                              <span className="text-[11px] font-[600] text-[#383E49]">{pct}%</span>
+                              <span className="text-[11px] font-[600] text-fg">{pct}%</span>
                             </div>
-                            <div className="w-full bg-[#E4E6EA] rounded-full h-2 overflow-hidden">
+                            <div className="w-full bg-line rounded-full h-2 overflow-hidden">
                               <div
                                 className={`h-2 rounded-full transition-all duration-300 ${
                                   pct === 100
-                                    ? "bg-[#199D26]"
+                                    ? "bg-success-solid"
                                     : pct > 0
-                                    ? "bg-[#0F50AA]"
-                                    : "bg-[#E4E6EA]"
+                                    ? "bg-brand"
+                                    : "bg-line"
                                 }`}
                                 style={{ width: `${pct}%` }}
                               />
@@ -827,7 +828,7 @@ export default function KitchenProductionRequests() {
                               {/* View */}
                               <button
                                 onClick={() => { setSelectedRequest(request); setShowModal(true); }}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F0F1F3] text-[#667085] text-[12px] font-[500] rounded-lg hover:bg-[#E4E6EA] transition-colors"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-app text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-line transition-colors"
                               >
                                 <Eye size={13} />
                                 View
@@ -842,7 +843,7 @@ export default function KitchenProductionRequests() {
                                     }
                                     navigate(`/kitchenPartialProduction?id=${request.id}`);
                                   }}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#1366D9] text-white text-[12px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand text-on-brand text-[12px] font-[500] rounded-lg hover:bg-brand-hover transition-colors"
                                 >
                                   <PlayCircle size={13} />
                                   {request.status?.toUpperCase() === "IN_PROGRESS" && request.producedQty > 0 ? "Process" : "Start"}
@@ -853,7 +854,7 @@ export default function KitchenProductionRequests() {
                               {request.status?.toUpperCase() !== "COMPLETED" && (
                                 <button
                                   onClick={() => handleUpdateStatus(request.id, "COMPLETED")}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#199D26] text-white text-[12px] font-[500] rounded-lg hover:bg-[#157A1E] transition-colors"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-success-solid text-on-brand text-[12px] font-[500] rounded-lg hover:bg-success-solid transition-colors"
                                 >
                                   <CheckCircle size={13} />
                                   Complete
@@ -884,7 +885,7 @@ export default function KitchenProductionRequests() {
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+import { confirmDialog } from "../component/ConfirmDialog";
 import {
     Package,
     ArrowLeftRight,
@@ -86,7 +88,7 @@ export default function ManagerInformationBase() {
     };
 
     const handleApprovePO = async (poId) => {
-        if (!window.confirm(`Are you sure you want to approve Purchase Order PO-${poId}? This will automatically generate a Goods Received Note for the Storekeeper.`)) {
+        if (!await confirmDialog(`Are you sure you want to approve Purchase Order PO-${poId}? This will automatically generate a Goods Received Note for the Storekeeper.`, { confirmText: "Approve" })) {
             return;
         }
         
@@ -100,20 +102,20 @@ export default function ManagerInformationBase() {
             });
 
             if (response.ok) {
-                alert(`Purchase Order PO-${poId} has been successfully approved!`);
+                toast.success(`Purchase Order PO-${poId} has been successfully approved!`);
                 fetchAllData(); // Refresh to show it as APPROVED and populate the GRNs tab
             } else {
                 const errorData = await response.json();
-                alert(`Error approving PO: ${errorData.message || 'Unknown error'}`);
+                toast.error(`Error approving PO: ${errorData.message || 'Unknown error'}`);
             }
         } catch (err) {
             console.error("Failed to approve PO:", err);
-            alert("Network error: Failed to connect to backend");
+            toast.error("Network error: Failed to connect to backend");
         }
     };
 
     const renderTabs = () => (
-        <div className="flex border-b border-[#E4E6EA] mb-6 overflow-x-auto hide-scrollbar">
+        <div className="flex border-b border-line mb-6 overflow-x-auto hide-scrollbar">
             {[
                 { id: "purchases", label: "Purchases (POs)", icon: <FileText size={18} /> },
                 { id: "grns", label: "Goods Received (GRNs)", icon: <Package size={18} /> },
@@ -125,8 +127,8 @@ export default function ManagerInformationBase() {
                     onClick={() => { setActiveTab(tab.id); setSearchQuery(""); }}
                     className={`flex items-center gap-2 px-6 py-3 border-b-2 transition-colors whitespace-nowrap ${
                         activeTab === tab.id
-                            ? "border-[#0F50AA] text-[#0F50AA] font-semibold"
-                            : "border-transparent text-[#667085] hover:text-[#383E49]"
+                            ? "border-brand-fg text-brand-fg font-semibold"
+                            : "border-transparent text-fg-secondary hover:text-fg"
                     }`}
                 >
                     {tab.icon}
@@ -145,7 +147,7 @@ export default function ManagerInformationBase() {
 
         if (error) {
             return (
-                <div className="flex items-center justify-center p-8 bg-red-50 text-red-600 rounded-lg">
+                <div className="flex items-center justify-center p-8 bg-error/10 text-error rounded-lg">
                     <AlertCircle className="mr-2" />
                     <span>{error}</span>
                 </div>
@@ -156,9 +158,9 @@ export default function ManagerInformationBase() {
             case "purchases":
                 const filteredPOs = getFilteredData(purchaseOrders, ["poId", "supplierName", "status"]);
                 return (
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] overflow-hidden">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line overflow-hidden">
                         <table className="w-full text-left text-[14px]">
-                            <thead className="bg-[#F8F9FA] text-[#667085] font-[500] border-b border-[#E4E6EA]">
+                            <thead className="bg-subtle text-fg-secondary font-[500] border-b border-line">
                                 <tr>
                                     <th className="p-4">PO ID</th>
                                     <th className="p-4">Delivery Date</th>
@@ -169,22 +171,22 @@ export default function ManagerInformationBase() {
                                     <th className="p-4 text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#E4E6EA]">
+                            <tbody className="divide-y divide-line">
                                 {filteredPOs.length === 0 ? (
-                                    <tr><td colSpan="6" className="p-8 text-center text-[#667085]">No purchase orders found.</td></tr>
+                                    <tr><td colSpan="6" className="p-8 text-center text-fg-secondary">No purchase orders found.</td></tr>
                                 ) : (
                                     filteredPOs.map((po, index) => (
-                                        <tr key={index} className="hover:bg-[#F8F9FA]">
-                                            <td className="p-4 font-semibold text-[#383E49]">PO-{po.poId}</td>
-                                            <td className="p-4 text-[#667085]">{po.estimatedDeliveryDate}</td>
-                                            <td className="p-4 text-[#383E49]">{po.supplierName}</td>
-                                            <td className="p-4 text-[#667085]">{po.numberOfItems}</td>
-                                            <td className="p-4 text-[#383E49]">Rs. {po.totalCost?.toFixed(2)}</td>
+                                        <tr key={index} className="hover:bg-subtle">
+                                            <td className="p-4 font-semibold text-fg">PO-{po.poId}</td>
+                                            <td className="p-4 text-fg-secondary">{po.estimatedDeliveryDate}</td>
+                                            <td className="p-4 text-fg">{po.supplierName}</td>
+                                            <td className="p-4 text-fg-secondary">{po.numberOfItems}</td>
+                                            <td className="p-4 text-fg">Rs. {po.totalCost?.toFixed(2)}</td>
                                             <td className="p-4">
                                                 <span className={`px-2 py-1 rounded-full text-[12px] font-medium ${
-                                                    po.status?.toUpperCase() === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                                                    po.status?.toUpperCase().includes('PENDING') ? 'bg-orange-100 text-orange-700' :
-                                                    'bg-gray-100 text-gray-700'
+                                                    po.status?.toUpperCase() === 'APPROVED' ? 'bg-success/10 text-success' :
+                                                    po.status?.toUpperCase().includes('PENDING') ? 'bg-warning/10 text-warning' :
+                                                    'bg-hover text-fg'
                                                 }`}>
                                                     {po.status}
                                                 </span>
@@ -193,7 +195,7 @@ export default function ManagerInformationBase() {
                                                 {po.status?.toUpperCase().includes('PENDING') && (
                                                     <button
                                                         onClick={() => handleApprovePO(po.poId)}
-                                                        className="px-3 py-1 bg-[#0F50AA] text-white text-[13px] font-medium rounded-lg hover:bg-[#0A3D80] transition-colors shadow-sm"
+                                                        className="px-3 py-1 bg-brand text-on-brand text-[13px] font-medium rounded-lg hover:bg-brand-hover transition-colors shadow-sm"
                                                     >
                                                         Approve
                                                     </button>
@@ -209,9 +211,9 @@ export default function ManagerInformationBase() {
             case "grns":
                 const filteredGRNs = getFilteredData(grns, ["grnId", "supplierName", "poReference", "grnStatus"]);
                 return (
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] overflow-hidden">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line overflow-hidden">
                         <table className="w-full text-left text-[14px]">
-                            <thead className="bg-[#F8F9FA] text-[#667085] font-[500] border-b border-[#E4E6EA]">
+                            <thead className="bg-subtle text-fg-secondary font-[500] border-b border-line">
                                 <tr>
                                     <th className="p-4">GRN ID</th>
                                     <th className="p-4">Received Date</th>
@@ -221,21 +223,21 @@ export default function ManagerInformationBase() {
                                     <th className="p-4">Status</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#E4E6EA]">
+                            <tbody className="divide-y divide-line">
                                 {filteredGRNs.length === 0 ? (
-                                    <tr><td colSpan="6" className="p-8 text-center text-[#667085]">No GRNs found.</td></tr>
+                                    <tr><td colSpan="6" className="p-8 text-center text-fg-secondary">No GRNs found.</td></tr>
                                 ) : (
                                     filteredGRNs.map((grn, index) => (
-                                        <tr key={index} className="hover:bg-[#F8F9FA]">
-                                            <td className="p-4 font-semibold text-[#383E49]">GRN-{grn.grnId}</td>
-                                            <td className="p-4 text-[#667085]">{new Date(grn.receivedDate).toLocaleDateString()}</td>
-                                            <td className="p-4 text-[#0F50AA]">PO-{grn.poId}</td>
-                                            <td className="p-4 text-[#383E49]">{grn.supplierName}</td>
-                                            <td className="p-4 text-[#383E49]">Rs. {grn.total?.toFixed(2)}</td>
+                                        <tr key={index} className="hover:bg-subtle">
+                                            <td className="p-4 font-semibold text-fg">GRN-{grn.grnId}</td>
+                                            <td className="p-4 text-fg-secondary">{new Date(grn.receivedDate).toLocaleDateString()}</td>
+                                            <td className="p-4 text-brand-fg">PO-{grn.poId}</td>
+                                            <td className="p-4 text-fg">{grn.supplierName}</td>
+                                            <td className="p-4 text-fg">Rs. {grn.total?.toFixed(2)}</td>
                                             <td className="p-4">
                                                 <span className={`px-2 py-1 rounded-full text-[12px] font-medium ${
-                                                    grn.grnStatus === 'COMPLETED' ? 'bg-blue-100 text-blue-700' :
-                                                    'bg-gray-100 text-gray-700'
+                                                    grn.grnStatus === 'COMPLETED' ? 'bg-brand/10 text-brand-fg' :
+                                                    'bg-hover text-fg'
                                                 }`}>
                                                     {grn.grnStatus}
                                                 </span>
@@ -250,9 +252,9 @@ export default function ManagerInformationBase() {
             case "returns":
                 const filteredReturns = getFilteredData(returns, ["returnId", "supplierName", "status"]);
                 return (
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] overflow-hidden">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line overflow-hidden">
                         <table className="w-full text-left text-[14px]">
-                            <thead className="bg-[#F8F9FA] text-[#667085] font-[500] border-b border-[#E4E6EA]">
+                            <thead className="bg-subtle text-fg-secondary font-[500] border-b border-line">
                                 <tr>
                                     <th className="p-4">Return ID</th>
                                     <th className="p-4">Return Date</th>
@@ -261,18 +263,18 @@ export default function ManagerInformationBase() {
                                     <th className="p-4">Status</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#E4E6EA]">
+                            <tbody className="divide-y divide-line">
                                 {filteredReturns.length === 0 ? (
-                                    <tr><td colSpan="5" className="p-8 text-center text-[#667085]">No returns found.</td></tr>
+                                    <tr><td colSpan="5" className="p-8 text-center text-fg-secondary">No returns found.</td></tr>
                                 ) : (
                                     filteredReturns.map((rtn, index) => (
-                                        <tr key={index} className="hover:bg-[#F8F9FA]">
-                                            <td className="p-4 font-semibold text-[#383E49]">RET-{rtn.returnId}</td>
-                                            <td className="p-4 text-[#667085]">{new Date(rtn.returnDate).toLocaleDateString()}</td>
-                                            <td className="p-4 text-[#383E49]">{rtn.supplierName}</td>
-                                            <td className="p-4 text-[#383E49]">Rs. {rtn.totalCost?.toFixed(2)}</td>
+                                        <tr key={index} className="hover:bg-subtle">
+                                            <td className="p-4 font-semibold text-fg">RET-{rtn.returnId}</td>
+                                            <td className="p-4 text-fg-secondary">{new Date(rtn.returnDate).toLocaleDateString()}</td>
+                                            <td className="p-4 text-fg">{rtn.supplierName}</td>
+                                            <td className="p-4 text-fg">Rs. {rtn.totalCost?.toFixed(2)}</td>
                                             <td className="p-4">
-                                                <span className={`px-2 py-1 rounded-full text-[12px] font-medium bg-gray-100 text-gray-700`}>
+                                                <span className={`px-2 py-1 rounded-full text-[12px] font-medium bg-hover text-fg`}>
                                                     {rtn.status || "COMPLETED"}
                                                 </span>
                                             </td>
@@ -286,9 +288,9 @@ export default function ManagerInformationBase() {
             case "stock":
                 const filteredStock = getFilteredData(stock, ["name", "category"]);
                 return (
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] overflow-hidden">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line overflow-hidden">
                         <table className="w-full text-left text-[14px]">
-                            <thead className="bg-[#F8F9FA] text-[#667085] font-[500] border-b border-[#E4E6EA]">
+                            <thead className="bg-subtle text-fg-secondary font-[500] border-b border-line">
                                 <tr>
                                     <th className="p-4">Material Name</th>
                                     <th className="p-4">Category</th>
@@ -296,17 +298,17 @@ export default function ManagerInformationBase() {
                                     <th className="p-4 text-right">Total Current Stock</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#E4E6EA]">
+                            <tbody className="divide-y divide-line">
                                 {filteredStock.length === 0 ? (
-                                    <tr><td colSpan="4" className="p-8 text-center text-[#667085]">No stock information found.</td></tr>
+                                    <tr><td colSpan="4" className="p-8 text-center text-fg-secondary">No stock information found.</td></tr>
                                 ) : (
                                     filteredStock.map((item, index) => (
-                                        <tr key={index} className="hover:bg-[#F8F9FA]">
-                                            <td className="p-4 font-semibold text-[#383E49]">{item.name || item.genericMaterialName}</td>
-                                            <td className="p-4 text-[#667085] capitalize">{item.category}</td>
-                                            <td className="p-4 text-[#667085]">{item.unitOfMeasure}</td>
+                                        <tr key={index} className="hover:bg-subtle">
+                                            <td className="p-4 font-semibold text-fg">{item.name || item.genericMaterialName}</td>
+                                            <td className="p-4 text-fg-secondary capitalize">{item.category}</td>
+                                            <td className="p-4 text-fg-secondary">{item.unitOfMeasure}</td>
                                             <td className="p-4 text-right">
-                                                <span className={`font-semibold ${item.totalStock <= 0 ? 'text-red-500' : 'text-[#383E49]'}`}>
+                                                <span className={`font-semibold ${item.totalStock <= 0 ? 'text-error' : 'text-fg'}`}>
                                                     {item.totalStock !== undefined && item.totalStock !== null ? item.totalStock : '0'}
                                                 </span>
                                             </td>
@@ -323,7 +325,7 @@ export default function ManagerInformationBase() {
     };
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             <ManagerSidebar sidebarOpen={sidebarOpen} />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -338,24 +340,24 @@ export default function ManagerInformationBase() {
                         
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
                             <div>
-                                <h1 className="text-2xl font-bold text-[#383E49]">Store Information Base</h1>
-                                <p className="text-[#667085] mt-1">Oversight and tracking of all storekeeper activities</p>
+                                <h1 className="text-2xl font-bold text-fg">Store Information Base</h1>
+                                <p className="text-fg-secondary mt-1">Oversight and tracking of all storekeeper activities</p>
                             </div>
 
                             <div className="flex items-center gap-3 w-full sm:w-auto">
                                 <div className="relative flex-1 sm:w-64">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-muted" size={18} />
                                     <input
                                         type="text"
                                         placeholder={`Search ${activeTab}...`}
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent"
+                                        className="w-full pl-10 pr-4 py-2 border border-line-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent"
                                     />
                                 </div>
                                 <button 
                                     onClick={fetchAllData}
-                                    className="p-2 bg-white border border-[#E4E6EA] rounded-lg shadow-sm hover:bg-gray-50 text-[#667085] transition-colors"
+                                    className="p-2 bg-surface border border-line rounded-lg shadow-sm hover:bg-subtle text-fg-secondary transition-colors"
                                     title="Refresh Data"
                                 >
                                     <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
@@ -372,7 +374,7 @@ export default function ManagerInformationBase() {
             
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

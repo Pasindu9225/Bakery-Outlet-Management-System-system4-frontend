@@ -51,7 +51,7 @@ const REPORT_CATEGORIES = [
         id: "payments",
         label: "Payment & Outstanding",
         icon: <Banknote size={16} />,
-        color: "bg-blue-500",
+        color: "bg-brand",
         endpoint: "payments",
         reports: [
             { label: "Daily Payment Summary",   type: "Daily",   period: "Daily" },
@@ -64,7 +64,7 @@ const REPORT_CATEGORIES = [
         id: "sales",
         label: "Sales Reports",
         icon: <TrendingUp size={16} />,
-        color: "bg-indigo-500",
+        color: "bg-plum-solid",
         endpoint: "sales",
         reports: [
             { label: "Sales by Product",        type: "byProduct" },
@@ -76,7 +76,7 @@ const REPORT_CATEGORIES = [
         id: "production",
         label: "Production Cost & Wastage",
         icon: <Package size={16} />,
-        color: "bg-cyan-500",
+        color: "bg-info-solid",
         endpoint: "wastage",
         reports: [
             { label: "Raw Material Costs",  type: "rawMaterialCosts" },
@@ -89,7 +89,7 @@ const REPORT_CATEGORIES = [
         id: "profitability",
         label: "Gross Profitability",
         icon: <BarChart2 size={16} />,
-        color: "bg-sky-500",
+        color: "bg-info-solid",
         endpoint: "profitability",
         reports: [
             { label: "Profit by Product",  type: "byProduct" },
@@ -102,7 +102,7 @@ const REPORT_CATEGORIES = [
         id: "staff",
         label: "Staff Meal Analysis",
         icon: <Users size={16} />,
-        color: "bg-violet-500",
+        color: "bg-plum-solid",
         endpoint: "staff-meals",
         reports: [
             { label: "Free Meal Issuance",   type: "" },
@@ -113,7 +113,7 @@ const REPORT_CATEGORIES = [
         id: "stock",
         label: "Stock Movement",
         icon: <Layers size={16} />,
-        color: "bg-teal-500",
+        color: "bg-success-solid",
         endpoint: "stock-movement",
         reports: [
             { label: "Stock Inflow/Outflow", type: "inflow" },
@@ -125,7 +125,7 @@ const REPORT_CATEGORIES = [
         id: "purchase",
         label: "Purchase Price Analysis",
         icon: <Truck size={16} />,
-        color: "bg-blue-600",
+        color: "bg-brand",
         endpoint: "purchase-price",
         reports: [
             { label: "Price by Supplier",      type: "bySupplier" },
@@ -137,7 +137,7 @@ const REPORT_CATEGORIES = [
         id: "variance",
         label: "Standard vs Actual Production",
         icon: <Repeat size={16} />,
-        color: "bg-indigo-600",
+        color: "bg-plum-solid",
         endpoint: "variance",
         reports: [
             { label: "Price Variance",       type: "priceVariance" },
@@ -151,9 +151,9 @@ const PERIOD_OPTIONS = ["Daily", "Monthly", "Yearly", "Custom Range"];
 // Outlet list is loaded inside the component from /api/v1/admin/outlet/all.
 
 const STATUS_STYLE = {
-    Overdue: { text: "text-[#EF4444]", bg: "bg-[#FEF2F2]", icon: <AlertTriangle size={11} /> },
-    Pending: { text: "text-[#F4A100]", bg: "bg-[#FFFBEB]", icon: <Clock size={11} /> },
-    Cleared: { text: "text-[#199D26]", bg: "bg-[#F0FDF4]", icon: <CheckCircle size={11} /> },
+    Overdue: { text: "text-error", bg: "bg-subtle", icon: <AlertTriangle size={11} /> },
+    Pending: { text: "text-warning", bg: "bg-hover", icon: <Clock size={11} /> },
+    Cleared: { text: "text-success", bg: "bg-hover", icon: <CheckCircle size={11} /> },
 };
 
 // Coerce backend numeric fields (which may arrive as numbers, strings, or
@@ -193,7 +193,7 @@ function normaliseRow(raw, idx) {
     };
 }
 
-function MiniBarChart({ data, valueKey, labelKey, color = "#0F50AA" }) {
+function MiniBarChart({ data, valueKey, labelKey, color = "rgb(var(--brand-fg))" }) {
     const max = Math.max(...data.map((d) => d[valueKey]), 1);
     return (
         <div className="flex items-end gap-1 h-16">
@@ -207,7 +207,7 @@ function MiniBarChart({ data, valueKey, labelKey, color = "#0F50AA" }) {
                             opacity: 0.7 + (i / data.length) * 0.3,
                         }}
                     />
-                    <span className="text-[9px] text-[#667085] truncate w-full text-center">{d[labelKey]}</span>
+                    <span className="text-[9px] text-fg-secondary truncate w-full text-center">{d[labelKey]}</span>
                 </div>
             ))}
         </div>
@@ -218,19 +218,19 @@ function FilterDropdown({ open, setOpen, value, options, onChange, icon, label, 
     const display = (o) => (getLabel ? getLabel(o) : o);
     return (
         <div className="relative">
-            {label && <label className="block text-[11px] font-[500] text-[#667085] mb-1.5 uppercase tracking-wide">{label}</label>}
+            {label && <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">{label}</label>}
             <button
                 onClick={() => setOpen(!open)}
-                className="flex items-center gap-2 px-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] bg-white hover:bg-[#F8F9FA] transition-colors min-w-[150px] w-full"
+                className="flex items-center gap-2 px-3 py-2.5 border border-line rounded-lg text-[13px] text-fg bg-surface hover:bg-subtle transition-colors min-w-[150px] w-full"
             >
-                {icon && <span className="text-[#667085]">{icon}</span>}
+                {icon && <span className="text-fg-secondary">{icon}</span>}
                 <span className="flex-1 text-left truncate">{display(value)}</span>
-                <ChevronDown size={13} className="text-[#667085]" />
+                <ChevronDown size={13} className="text-fg-secondary" />
             </button>
             {open && (
                 <>
                     <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-                    <div className="absolute top-full mt-1 left-0 bg-white border border-[#E4E6EA] rounded-lg shadow-lg z-50 min-w-full">
+                    <div className="absolute top-full mt-1 left-0 bg-elevated border border-line rounded-lg shadow-lg z-50 min-w-full">
                         {options.map((o) => {
                             const lbl = display(o);
                             const isSelected = display(value) === lbl;
@@ -238,7 +238,7 @@ function FilterDropdown({ open, setOpen, value, options, onChange, icon, label, 
                                 <button
                                     key={lbl}
                                     onClick={() => { onChange(o); setOpen(false); }}
-                                    className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-[#F8F9FA] transition-colors first:rounded-t-lg last:rounded-b-lg ${isSelected ? "text-[#0F50AA] font-[500] bg-[#EEF3FB]" : "text-[#383E49]"}`}
+                                    className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-subtle transition-colors first:rounded-t-lg last:rounded-b-lg ${isSelected ? "text-brand-fg font-[500] bg-hover" : "text-fg"}`}
                                 >
                                     {lbl}
                                 </button>
@@ -256,15 +256,15 @@ function ReportDetailModal({ row, reportType, onClose }) {
     const isSales = reportType && ["Sales by Product", "Sales by Time Interval", "Discounts & Returns"].includes(reportType);
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg">
-                <div className="p-5 border-b border-[#E4E6EA] flex items-center justify-between">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
+            <div className="bg-elevated rounded-xl shadow-2xl w-full max-w-lg">
+                <div className="p-5 border-b border-line flex items-center justify-between">
                     <div>
-                        <h3 className="text-[16px] font-[600] text-[#383E49]">Record Details</h3>
-                        <p className="text-[12px] text-[#667085] mt-0.5">{row.ref || row.product || row.id}</p>
+                        <h3 className="text-[16px] font-[600] text-fg">Record Details</h3>
+                        <p className="text-[12px] text-fg-secondary mt-0.5">{row.ref || row.product || row.id}</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-[#F0F1F3] rounded-lg">
-                        <X size={16} className="text-[#667085]" />
+                    <button onClick={onClose} className="p-2 hover:bg-app rounded-lg">
+                        <X size={16} className="text-fg-secondary" />
                     </button>
                 </div>
                 <div className="p-5 space-y-3">
@@ -276,9 +276,9 @@ function ReportDetailModal({ row, reportType, onClose }) {
                         { label: "Amount Paid", value: `Rs. ${row.paid?.toLocaleString()}` },
                         { label: "Outstanding", value: `Rs. ${row.outstanding?.toLocaleString()}` },
                     ].map(({ label, value }) => (
-                        <div key={label} className="flex items-center justify-between py-2 border-b border-[#F0F1F3] last:border-0">
-                            <p className="text-[12px] text-[#667085]">{label}</p>
-                            <p className="text-[13px] font-[500] text-[#383E49]">{value}</p>
+                        <div key={label} className="flex items-center justify-between py-2 border-b border-line last:border-0">
+                            <p className="text-[12px] text-fg-secondary">{label}</p>
+                            <p className="text-[13px] font-[500] text-fg">{value}</p>
                         </div>
                     ))}
                     {isSales && [
@@ -291,9 +291,9 @@ function ReportDetailModal({ row, reportType, onClose }) {
                         { label: "Returns", value: `Rs. ${row.returns?.toLocaleString()}` },
                         { label: "Net Sales", value: `Rs. ${row.net?.toLocaleString()}` },
                     ].map(({ label, value }) => (
-                        <div key={label} className="flex items-center justify-between py-2 border-b border-[#F0F1F3] last:border-0">
-                            <p className="text-[12px] text-[#667085]">{label}</p>
-                            <p className="text-[13px] font-[500] text-[#383E49]">{value}</p>
+                        <div key={label} className="flex items-center justify-between py-2 border-b border-line last:border-0">
+                            <p className="text-[12px] text-fg-secondary">{label}</p>
+                            <p className="text-[13px] font-[500] text-fg">{value}</p>
                         </div>
                     ))}
                     {!isPayment && !isSales && [
@@ -305,13 +305,13 @@ function ReportDetailModal({ row, reportType, onClose }) {
                         { label: "Total Cost", value: `Rs. ${row.totalCost?.toLocaleString()}` },
                         { label: "Reason", value: row.reason },
                     ].map(({ label, value }) => (
-                        <div key={label} className="flex items-center justify-between py-2 border-b border-[#F0F1F3] last:border-0">
-                            <p className="text-[12px] text-[#667085]">{label}</p>
-                            <p className="text-[13px] font-[500] text-[#383E49]">{value}</p>
+                        <div key={label} className="flex items-center justify-between py-2 border-b border-line last:border-0">
+                            <p className="text-[12px] text-fg-secondary">{label}</p>
+                            <p className="text-[13px] font-[500] text-fg">{value}</p>
                         </div>
                     ))}
                 </div>
-                <div className="p-4 border-t border-[#E4E6EA] flex justify-end gap-2">
+                <div className="p-4 border-t border-line flex justify-end gap-2">
                     <button 
                         onClick={() => {
                             const fields = isPayment ? [
@@ -345,11 +345,11 @@ function ReportDetailModal({ row, reportType, onClose }) {
                                 fileName: `Record_${row.ref || row.id}`
                             });
                         }}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 border border-[#E4E6EA] text-[#667085] text-[12px] font-[500] rounded-lg hover:bg-[#F8F9FA]"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle"
                     >
                         <FileText size={13} /> Export PDF
                     </button>
-                    <button onClick={onClose} className="px-4 py-2 bg-[#0F50AA] text-white text-[12px] font-[500] rounded-lg hover:bg-[#0D4494]">
+                    <button onClick={onClose} className="px-4 py-2 bg-brand text-on-brand text-[12px] font-[500] rounded-lg hover:bg-brand-hover">
                         Close
                     </button>
                 </div>
@@ -360,8 +360,8 @@ function ReportDetailModal({ row, reportType, onClose }) {
 
 function PaymentTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAGE_SIZE }) {
     const SortIcon = ({ col }) => {
-        if (sortCol !== col) return <ArrowUpDown size={12} className="text-[#C8CDD5]" />;
-        return sortDir === "asc" ? <ArrowUp size={12} className="text-[#0F50AA]" /> : <ArrowDown size={12} className="text-[#0F50AA]" />;
+        if (sortCol !== col) return <ArrowUpDown size={12} className="text-fg-muted" />;
+        return sortDir === "asc" ? <ArrowUp size={12} className="text-brand-fg" /> : <ArrowDown size={12} className="text-brand-fg" />;
     };
     const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
     const paginated = data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -371,7 +371,7 @@ function PaymentTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
             <div className="overflow-x-auto">
                 <table className="w-full">
                     <thead>
-                        <tr className="border-b border-[#E4E6EA] bg-[#F8F9FA]">
+                        <tr className="border-b border-line bg-subtle">
                             {[
                                 { key: "date", label: "Date" },
                                 { key: "supplier", label: "Supplier" },
@@ -385,7 +385,7 @@ function PaymentTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
                                 <th
                                     key={col.key}
                                     onClick={() => !col.noSort && onSort(col.key)}
-                                    className={`text-left py-3.5 px-4 text-[12px] font-[500] text-[#667085] whitespace-nowrap ${col.noSort ? "" : "cursor-pointer hover:text-[#383E49]"}`}
+                                    className={`text-left py-3.5 px-4 text-[12px] font-[500] text-fg-secondary whitespace-nowrap ${col.noSort ? "" : "cursor-pointer hover:text-fg"}`}
                                 >
                                     <div className="flex items-center gap-1">{col.label}{!col.noSort && <SortIcon col={col.key} />}</div>
                                 </th>
@@ -395,25 +395,25 @@ function PaymentTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
                     <tbody>
                         {paginated.length === 0 ? (
                             <tr><td colSpan={8} className="py-16 text-center">
-                                <BarChart2 size={36} className="mx-auto text-[#C8CDD5] mb-3" />
-                                <p className="text-[14px] font-[500] text-[#383E49]">No data for selected filters</p>
-                                <p className="text-[12px] text-[#667085]">Try adjusting your report parameters</p>
+                                <BarChart2 size={36} className="mx-auto text-fg-muted mb-3" />
+                                <p className="text-[14px] font-[500] text-fg">No data for selected filters</p>
+                                <p className="text-[12px] text-fg-secondary">Try adjusting your report parameters</p>
                             </td></tr>
                         ) : paginated.map((row) => {
-                            const ss = STATUS_STYLE[row.status] || { text: "text-[#667085]", bg: "bg-[#F0F1F3]", icon: null };
+                            const ss = STATUS_STYLE[row.status] || { text: "text-fg-secondary", bg: "bg-app", icon: null };
                             return (
-                                <tr key={row.id} className={`border-b border-[#E4E6EA] hover:bg-[#F8F9FA] transition-colors ${row.status === "Overdue" ? "bg-red-50/30" : ""}`}>
-                                    <td className="py-3.5 px-4"><p className="text-[13px] font-[500] text-[#383E49] whitespace-nowrap">{row.date}</p></td>
-                                    <td className="py-3.5 px-4"><p className="text-[13px] font-[500] text-[#383E49]">{row.supplier}</p></td>
-                                    <td className="py-3.5 px-4"><p className="text-[12px] text-[#0F50AA] font-[600]">{row.ref}</p></td>
-                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[600] text-[#383E49]">Rs. {row.totalInvoiced.toLocaleString()}</span></td>
-                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[600] text-[#199D26]">Rs. {row.paid.toLocaleString()}</span></td>
-                                    <td className="py-3.5 px-4"><span className={`text-[13px] font-[700] ${row.outstanding > 0 ? "text-[#EF4444]" : "text-[#199D26]"}`}>Rs. {row.outstanding.toLocaleString()}</span></td>
+                                <tr key={row.id} className={`border-b border-line hover:bg-subtle transition-colors ${row.status === "Overdue" ? "bg-error/10" : ""}`}>
+                                    <td className="py-3.5 px-4"><p className="text-[13px] font-[500] text-fg whitespace-nowrap">{row.date}</p></td>
+                                    <td className="py-3.5 px-4"><p className="text-[13px] font-[500] text-fg">{row.supplier}</p></td>
+                                    <td className="py-3.5 px-4"><p className="text-[12px] text-brand-fg font-[600]">{row.ref}</p></td>
+                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[600] text-fg">Rs. {row.totalInvoiced.toLocaleString()}</span></td>
+                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[600] text-success">Rs. {row.paid.toLocaleString()}</span></td>
+                                    <td className="py-3.5 px-4"><span className={`text-[13px] font-[700] ${row.outstanding > 0 ? "text-error" : "text-success"}`}>Rs. {row.outstanding.toLocaleString()}</span></td>
                                     <td className="py-3.5 px-4">
                                         <span className={`inline-flex items-center gap-1 text-[11px] font-[500] px-2.5 py-1 rounded-full ${ss.bg} ${ss.text}`}>{ss.icon}{row.status}</span>
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <button onClick={() => onView(row)} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#EEF3FB] text-[#0F50AA] text-[11px] font-[500] rounded-lg hover:bg-[#0F50AA] hover:text-white transition-colors">
+                                        <button onClick={() => onView(row)} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[11px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors">
                                             <Eye size={12} /> View
                                         </button>
                                     </td>
@@ -424,17 +424,17 @@ function PaymentTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
                 </table>
             </div>
             {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-5 pt-4 border-t border-[#E4E6EA]">
-                    <p className="text-[12px] text-[#667085]">Page {page} of {totalPages} · {data.length} records</p>
+                <div className="flex items-center justify-between mt-5 pt-4 border-t border-line">
+                    <p className="text-[12px] text-fg-secondary">Page {page} of {totalPages} · {data.length} records</p>
                     <div className="flex items-center gap-2">
-                        <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed">
-                            <ChevronLeft size={15} className="text-[#667085]" />
+                        <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
+                            <ChevronLeft size={15} className="text-fg-secondary" />
                         </button>
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                            <button key={p} onClick={() => setPage(p)} className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-[#0F50AA] text-white" : "text-[#667085] hover:bg-[#F0F1F3]"}`}>{p}</button>
+                            <button key={p} onClick={() => setPage(p)} className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-brand text-on-brand" : "text-fg-secondary hover:bg-app"}`}>{p}</button>
                         ))}
-                        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed">
-                            <ChevronRight size={15} className="text-[#667085]" />
+                        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
+                            <ChevronRight size={15} className="text-fg-secondary" />
                         </button>
                     </div>
                 </div>
@@ -445,8 +445,8 @@ function PaymentTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
 
 function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAGE_SIZE }) {
     const SortIcon = ({ col }) => {
-        if (sortCol !== col) return <ArrowUpDown size={12} className="text-[#C8CDD5]" />;
-        return sortDir === "asc" ? <ArrowUp size={12} className="text-[#0F50AA]" /> : <ArrowDown size={12} className="text-[#0F50AA]" />;
+        if (sortCol !== col) return <ArrowUpDown size={12} className="text-fg-muted" />;
+        return sortDir === "asc" ? <ArrowUp size={12} className="text-brand-fg" /> : <ArrowDown size={12} className="text-brand-fg" />;
     };
     const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
     const paginated = data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -456,7 +456,7 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
             <div className="overflow-x-auto">
                 <table className="w-full">
                     <thead>
-                        <tr className="border-b border-[#E4E6EA] bg-[#F8F9FA]">
+                        <tr className="border-b border-line bg-subtle">
                             {[
                                 { key: "date", label: "Date" },
                                 { key: "product", label: "Product" },
@@ -473,7 +473,7 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
                                 <th
                                     key={col.key}
                                     onClick={() => !col.noSort && onSort(col.key)}
-                                    className={`text-left py-3.5 px-4 text-[12px] font-[500] text-[#667085] whitespace-nowrap ${col.noSort ? "" : "cursor-pointer hover:text-[#383E49]"}`}
+                                    className={`text-left py-3.5 px-4 text-[12px] font-[500] text-fg-secondary whitespace-nowrap ${col.noSort ? "" : "cursor-pointer hover:text-fg"}`}
                                 >
                                     <div className="flex items-center gap-1">{col.label}{!col.noSort && <SortIcon col={col.key} />}</div>
                                 </th>
@@ -483,25 +483,25 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
                     <tbody>
                         {paginated.length === 0 ? (
                             <tr><td colSpan={11} className="py-16 text-center">
-                                <TrendingUp size={36} className="mx-auto text-[#C8CDD5] mb-3" />
-                                <p className="text-[14px] font-[500] text-[#383E49]">No sales data found</p>
+                                <TrendingUp size={36} className="mx-auto text-fg-muted mb-3" />
+                                <p className="text-[14px] font-[500] text-fg">No sales data found</p>
                             </td></tr>
                         ) : paginated.map((row) => {
                             const gp = row.net - row.totalCost;
                             return (
-                                <tr key={row.id} className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA] transition-colors">
-                                    <td className="py-3.5 px-4"><p className="text-[13px] text-[#383E49] whitespace-nowrap">{row.date}</p></td>
-                                    <td className="py-3.5 px-4"><p className="text-[13px] font-[600] text-[#383E49]">{row.product}</p></td>
-                                    <td className="py-3.5 px-4"><span className="text-[11px] font-[500] px-2 py-0.5 rounded-full bg-[#EEF3FB] text-[#0F50AA]">{row.category}</span></td>
-                                    <td className="py-3.5 px-4"><p className="text-[12px] text-[#667085]">{row.outlet}</p></td>
-                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-[#383E49]">Rs. {row.sales.toLocaleString()}</span></td>
-                                    <td className="py-3.5 px-4"><span className="text-[12px] text-[#F4A100] font-[600]">{row.discounts > 0 ? `-Rs. ${row.discounts.toLocaleString()}` : "—"}</span></td>
-                                    <td className="py-3.5 px-4"><span className="text-[12px] text-[#EF4444] font-[600]">{row.returns > 0 ? `-Rs. ${row.returns.toLocaleString()}` : "—"}</span></td>
-                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-[#199D26]">Rs. {row.net.toLocaleString()}</span></td>
-                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-[#7C3AED]">Rs. {row.totalCost.toLocaleString()}</span></td>
-                                    <td className="py-3.5 px-4"><span className={`text-[13px] font-[700] ${gp >= 0 ? "text-[#199D26]" : "text-[#EF4444]"}`}>Rs. {gp.toLocaleString()}</span></td>
+                                <tr key={row.id} className="border-b border-line hover:bg-subtle transition-colors">
+                                    <td className="py-3.5 px-4"><p className="text-[13px] text-fg whitespace-nowrap">{row.date}</p></td>
+                                    <td className="py-3.5 px-4"><p className="text-[13px] font-[600] text-fg">{row.product}</p></td>
+                                    <td className="py-3.5 px-4"><span className="text-[11px] font-[500] px-2 py-0.5 rounded-full bg-hover text-brand-fg">{row.category}</span></td>
+                                    <td className="py-3.5 px-4"><p className="text-[12px] text-fg-secondary">{row.outlet}</p></td>
+                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-fg">Rs. {row.sales.toLocaleString()}</span></td>
+                                    <td className="py-3.5 px-4"><span className="text-[12px] text-warning font-[600]">{row.discounts > 0 ? `-Rs. ${row.discounts.toLocaleString()}` : "—"}</span></td>
+                                    <td className="py-3.5 px-4"><span className="text-[12px] text-error font-[600]">{row.returns > 0 ? `-Rs. ${row.returns.toLocaleString()}` : "—"}</span></td>
+                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-success">Rs. {row.net.toLocaleString()}</span></td>
+                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-plum">Rs. {row.totalCost.toLocaleString()}</span></td>
+                                    <td className="py-3.5 px-4"><span className={`text-[13px] font-[700] ${gp >= 0 ? "text-success" : "text-error"}`}>Rs. {gp.toLocaleString()}</span></td>
                                     <td className="py-3.5 px-4">
-                                        <button onClick={() => onView(row)} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#EEF3FB] text-[#0F50AA] text-[11px] font-[500] rounded-lg hover:bg-[#0F50AA] hover:text-white transition-colors">
+                                        <button onClick={() => onView(row)} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[11px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors">
                                             <Eye size={12} /> View
                                         </button>
                                     </td>
@@ -512,17 +512,17 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
                 </table>
             </div>
             {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-5 pt-4 border-t border-[#E4E6EA]">
-                    <p className="text-[12px] text-[#667085]">Page {page} of {totalPages} · {data.length} records</p>
+                <div className="flex items-center justify-between mt-5 pt-4 border-t border-line">
+                    <p className="text-[12px] text-fg-secondary">Page {page} of {totalPages} · {data.length} records</p>
                     <div className="flex items-center gap-2">
-                        <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed">
-                            <ChevronLeft size={15} className="text-[#667085]" />
+                        <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
+                            <ChevronLeft size={15} className="text-fg-secondary" />
                         </button>
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                            <button key={p} onClick={() => setPage(p)} className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-[#0F50AA] text-white" : "text-[#667085] hover:bg-[#F0F1F3]"}`}>{p}</button>
+                            <button key={p} onClick={() => setPage(p)} className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-brand text-on-brand" : "text-fg-secondary hover:bg-app"}`}>{p}</button>
                         ))}
-                        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed">
-                            <ChevronRight size={15} className="text-[#667085]" />
+                        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
+                            <ChevronRight size={15} className="text-fg-secondary" />
                         </button>
                     </div>
                 </div>
@@ -533,18 +533,18 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
 
 function WastageTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAGE_SIZE }) {
     const SortIcon = ({ col }) => {
-        if (sortCol !== col) return <ArrowUpDown size={12} className="text-[#C8CDD5]" />;
-        return sortDir === "asc" ? <ArrowUp size={12} className="text-[#0F50AA]" /> : <ArrowDown size={12} className="text-[#0F50AA]" />;
+        if (sortCol !== col) return <ArrowUpDown size={12} className="text-fg-muted" />;
+        return sortDir === "asc" ? <ArrowUp size={12} className="text-brand-fg" /> : <ArrowDown size={12} className="text-brand-fg" />;
     };
     const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
     const paginated = data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     const REASON_STYLE = {
-        Expired: { text: "text-[#EF4444]", bg: "bg-[#FEF2F2]" },
-        Spoilage: { text: "text-[#F4A100]", bg: "bg-[#FFFBEB]" },
-        Overproduction: { text: "text-[#7C3AED]", bg: "bg-[#F5F3FF]" },
-        "Cooking Loss": { text: "text-[#0F50AA]", bg: "bg-[#EEF3FB]" },
-        Spillage: { text: "text-[#199D26]", bg: "bg-[#F0FDF4]" },
+        Expired: { text: "text-error", bg: "bg-subtle" },
+        Spoilage: { text: "text-warning", bg: "bg-hover" },
+        Overproduction: { text: "text-plum", bg: "bg-subtle" },
+        "Cooking Loss": { text: "text-brand-fg", bg: "bg-hover" },
+        Spillage: { text: "text-success", bg: "bg-hover" },
     };
 
     return (
@@ -552,7 +552,7 @@ function WastageTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
             <div className="overflow-x-auto">
                 <table className="w-full">
                     <thead>
-                        <tr className="border-b border-[#E4E6EA] bg-[#F8F9FA]">
+                        <tr className="border-b border-line bg-subtle">
                             {[
                                 { key: "date", label: "Date" },
                                 { key: "product", label: "Product" },
@@ -567,7 +567,7 @@ function WastageTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
                                 <th
                                     key={col.key}
                                     onClick={() => !col.noSort && onSort(col.key)}
-                                    className={`text-left py-3.5 px-4 text-[12px] font-[500] text-[#667085] whitespace-nowrap ${col.noSort ? "" : "cursor-pointer hover:text-[#383E49]"}`}
+                                    className={`text-left py-3.5 px-4 text-[12px] font-[500] text-fg-secondary whitespace-nowrap ${col.noSort ? "" : "cursor-pointer hover:text-fg"}`}
                                 >
                                     <div className="flex items-center gap-1">{col.label}{!col.noSort && <SortIcon col={col.key} />}</div>
                                 </th>
@@ -577,25 +577,25 @@ function WastageTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
                     <tbody>
                         {paginated.length === 0 ? (
                             <tr><td colSpan={9} className="py-16 text-center">
-                                <Package size={36} className="mx-auto text-[#C8CDD5] mb-3" />
-                                <p className="text-[14px] font-[500] text-[#383E49]">No wastage records found</p>
+                                <Package size={36} className="mx-auto text-fg-muted mb-3" />
+                                <p className="text-[14px] font-[500] text-fg">No wastage records found</p>
                             </td></tr>
                         ) : paginated.map((row) => {
-                            const rs = REASON_STYLE[row.reason] || { text: "text-[#667085]", bg: "bg-[#F0F1F3]" };
+                            const rs = REASON_STYLE[row.reason] || { text: "text-fg-secondary", bg: "bg-app" };
                             return (
-                                <tr key={row.id} className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA] transition-colors">
-                                    <td className="py-3.5 px-4"><p className="text-[13px] text-[#383E49] whitespace-nowrap">{row.date}</p></td>
-                                    <td className="py-3.5 px-4"><p className="text-[13px] font-[600] text-[#383E49]">{row.product}</p></td>
-                                    <td className="py-3.5 px-4"><span className="text-[11px] font-[500] px-2 py-0.5 rounded-full bg-[#EEF3FB] text-[#0F50AA]">{row.category}</span></td>
-                                    <td className="py-3.5 px-4"><p className="text-[12px] text-[#667085]">{row.outlet}</p></td>
-                                    <td className="py-3.5 px-4"><p className="text-[13px] font-[600] text-[#383E49]">{row.qty ?? "—"} {row.unit}</p></td>
-                                    <td className="py-3.5 px-4"><span className="text-[13px] text-[#383E49]">Rs. {row.costPerUnit.toLocaleString()}</span></td>
-                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-[#EF4444]">Rs. {row.totalCost.toLocaleString()}</span></td>
+                                <tr key={row.id} className="border-b border-line hover:bg-subtle transition-colors">
+                                    <td className="py-3.5 px-4"><p className="text-[13px] text-fg whitespace-nowrap">{row.date}</p></td>
+                                    <td className="py-3.5 px-4"><p className="text-[13px] font-[600] text-fg">{row.product}</p></td>
+                                    <td className="py-3.5 px-4"><span className="text-[11px] font-[500] px-2 py-0.5 rounded-full bg-hover text-brand-fg">{row.category}</span></td>
+                                    <td className="py-3.5 px-4"><p className="text-[12px] text-fg-secondary">{row.outlet}</p></td>
+                                    <td className="py-3.5 px-4"><p className="text-[13px] font-[600] text-fg">{row.qty ?? "—"} {row.unit}</p></td>
+                                    <td className="py-3.5 px-4"><span className="text-[13px] text-fg">Rs. {row.costPerUnit.toLocaleString()}</span></td>
+                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-error">Rs. {row.totalCost.toLocaleString()}</span></td>
                                     <td className="py-3.5 px-4">
                                         <span className={`inline-flex items-center text-[11px] font-[500] px-2.5 py-1 rounded-full ${rs.bg} ${rs.text}`}>{row.reason}</span>
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <button onClick={() => onView(row)} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#EEF3FB] text-[#0F50AA] text-[11px] font-[500] rounded-lg hover:bg-[#0F50AA] hover:text-white transition-colors">
+                                        <button onClick={() => onView(row)} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[11px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors">
                                             <Eye size={12} /> View
                                         </button>
                                     </td>
@@ -606,17 +606,17 @@ function WastageTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
                 </table>
             </div>
             {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-5 pt-4 border-t border-[#E4E6EA]">
-                    <p className="text-[12px] text-[#667085]">Page {page} of {totalPages} · {data.length} records</p>
+                <div className="flex items-center justify-between mt-5 pt-4 border-t border-line">
+                    <p className="text-[12px] text-fg-secondary">Page {page} of {totalPages} · {data.length} records</p>
                     <div className="flex items-center gap-2">
-                        <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed">
-                            <ChevronLeft size={15} className="text-[#667085]" />
+                        <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
+                            <ChevronLeft size={15} className="text-fg-secondary" />
                         </button>
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                            <button key={p} onClick={() => setPage(p)} className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-[#0F50AA] text-white" : "text-[#667085] hover:bg-[#F0F1F3]"}`}>{p}</button>
+                            <button key={p} onClick={() => setPage(p)} className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-brand text-on-brand" : "text-fg-secondary hover:bg-app"}`}>{p}</button>
                         ))}
-                        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed">
-                            <ChevronRight size={15} className="text-[#667085]" />
+                        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
+                            <ChevronRight size={15} className="text-fg-secondary" />
                         </button>
                     </div>
                 </div>
@@ -628,12 +628,12 @@ function WastageTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
 function PlaceholderTable({ reportType }) {
     return (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-[#EEF3FB] flex items-center justify-center mb-4">
-                <Activity size={28} className="text-[#0F50AA]" />
+            <div className="w-16 h-16 rounded-2xl bg-hover flex items-center justify-center mb-4">
+                <Activity size={28} className="text-brand-fg" />
             </div>
-            <p className="text-[15px] font-[600] text-[#383E49] mb-1">{reportType}</p>
-            <p className="text-[13px] text-[#667085] max-w-xs">
-                Select filters above and click <span className="font-[600] text-[#0F50AA]">Generate Report</span> to load this report.
+            <p className="text-[15px] font-[600] text-fg mb-1">{reportType}</p>
+            <p className="text-[13px] text-fg-secondary max-w-xs">
+                Select filters above and click <span className="font-[600] text-brand-fg">Generate Report</span> to load this report.
             </p>
         </div>
     );
@@ -642,11 +642,11 @@ function PlaceholderTable({ reportType }) {
 function UnavailableState({ reason, reportType }) {
     return (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-[#FFFBEB] flex items-center justify-center mb-4">
-                <Info size={28} className="text-[#F4A100]" />
+            <div className="w-16 h-16 rounded-2xl bg-hover flex items-center justify-center mb-4">
+                <Info size={28} className="text-warning" />
             </div>
-            <p className="text-[15px] font-[600] text-[#383E49] mb-1">{reportType}</p>
-            <p className="text-[13px] text-[#667085] max-w-md">
+            <p className="text-[15px] font-[600] text-fg mb-1">{reportType}</p>
+            <p className="text-[13px] text-fg-secondary max-w-md">
                 {reason || "No data available — this report needs additional data to be configured first."}
             </p>
         </div>
@@ -895,33 +895,33 @@ export default function FinanceReports() {
             const totalOutstanding = filtered.reduce((s, r) => s + (r.outstanding || 0), 0);
             const overdueCount = filtered.filter((r) => r.status === "Overdue").length;
             return [
-                { label: "Total Invoiced", value: `Rs. ${filtered.reduce((s, r) => s + (r.totalInvoiced || 0), 0).toLocaleString()}`, icon: <Banknote size={20} />, color: "bg-blue-500", hoverColor: "hover:bg-blue-600", iconBg: "bg-blue-400/30" },
-                { label: "Total Paid", value: `Rs. ${totalPaid.toLocaleString()}`, icon: <CheckCircle size={20} />, color: "bg-indigo-500", hoverColor: "hover:bg-indigo-600", iconBg: "bg-indigo-400/30" },
-                { label: "Total Outstanding", value: `Rs. ${totalOutstanding.toLocaleString()}`, icon: <TrendingDown size={20} />, color: "bg-cyan-500", hoverColor: "hover:bg-cyan-600", iconBg: "bg-cyan-400/30" },
-                { label: "Overdue Entries", value: overdueCount, icon: <AlertTriangle size={20} />, color: "bg-sky-500", hoverColor: "hover:bg-sky-600", iconBg: "bg-sky-400/30" },
+                { label: "Total Invoiced", value: `Rs. ${filtered.reduce((s, r) => s + (r.totalInvoiced || 0), 0).toLocaleString()}`, icon: <Banknote size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
+                { label: "Total Paid", value: `Rs. ${totalPaid.toLocaleString()}`, icon: <CheckCircle size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
+                { label: "Total Outstanding", value: `Rs. ${totalOutstanding.toLocaleString()}`, icon: <TrendingDown size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+                { label: "Overdue Entries", value: overdueCount, icon: <AlertTriangle size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
             ];
         }
         if (isSalesReport) {
             return [
-                { label: "Gross Sales", value: `Rs. ${filtered.reduce((s, r) => s + (r.sales || 0), 0).toLocaleString()}`, icon: <TrendingUp size={20} />, color: "bg-blue-500", hoverColor: "hover:bg-blue-600", iconBg: "bg-blue-400/30" },
-                { label: "Net Sales", value: `Rs. ${filtered.reduce((s, r) => s + (r.net || 0), 0).toLocaleString()}`, icon: <Banknote size={20} />, color: "bg-indigo-500", hoverColor: "hover:bg-indigo-600", iconBg: "bg-indigo-400/30" },
-                { label: "Total Discounts", value: `Rs. ${filtered.reduce((s, r) => s + (r.discounts || 0), 0).toLocaleString()}`, icon: <TrendingDown size={20} />, color: "bg-cyan-500", hoverColor: "hover:bg-cyan-600", iconBg: "bg-cyan-400/30" },
-                { label: "Total Returns", value: `Rs. ${filtered.reduce((s, r) => s + (r.returns || 0), 0).toLocaleString()}`, icon: <Repeat size={20} />, color: "bg-sky-500", hoverColor: "hover:bg-sky-600", iconBg: "bg-sky-400/30" },
+                { label: "Gross Sales", value: `Rs. ${filtered.reduce((s, r) => s + (r.sales || 0), 0).toLocaleString()}`, icon: <TrendingUp size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
+                { label: "Net Sales", value: `Rs. ${filtered.reduce((s, r) => s + (r.net || 0), 0).toLocaleString()}`, icon: <Banknote size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
+                { label: "Total Discounts", value: `Rs. ${filtered.reduce((s, r) => s + (r.discounts || 0), 0).toLocaleString()}`, icon: <TrendingDown size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+                { label: "Total Returns", value: `Rs. ${filtered.reduce((s, r) => s + (r.returns || 0), 0).toLocaleString()}`, icon: <Repeat size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
             ];
         }
         if (useWastageShape) {
             return [
-                { label: "Total Cost", value: `Rs. ${filtered.reduce((s, r) => s + (r.totalCost || 0), 0).toLocaleString()}`, icon: <AlertTriangle size={20} />, color: "bg-blue-500", hoverColor: "hover:bg-blue-600", iconBg: "bg-blue-400/30" },
-                { label: "Total Items", value: filtered.length, icon: <Package size={20} />, color: "bg-indigo-500", hoverColor: "hover:bg-indigo-600", iconBg: "bg-indigo-400/30" },
-                { label: "Top Reason", value: filtered.length > 0 ? (filtered[0].reason || "—") : "—", icon: <Clock size={20} />, color: "bg-cyan-500", hoverColor: "hover:bg-cyan-600", iconBg: "bg-cyan-400/30" },
-                { label: "Outlets/Suppliers", value: [...new Set(filtered.map((r) => r.outlet || r.supplier))].filter(Boolean).length, icon: <Layers size={20} />, color: "bg-sky-500", hoverColor: "hover:bg-sky-600", iconBg: "bg-sky-400/30" },
+                { label: "Total Cost", value: `Rs. ${filtered.reduce((s, r) => s + (r.totalCost || 0), 0).toLocaleString()}`, icon: <AlertTriangle size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
+                { label: "Total Items", value: filtered.length, icon: <Package size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
+                { label: "Top Reason", value: filtered.length > 0 ? (filtered[0].reason || "—") : "—", icon: <Clock size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+                { label: "Outlets/Suppliers", value: [...new Set(filtered.map((r) => r.outlet || r.supplier))].filter(Boolean).length, icon: <Layers size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
             ];
         }
         return [
-            { label: "Total Records", value: filtered.length, icon: <BarChart2 size={20} />, color: "bg-blue-500", hoverColor: "hover:bg-blue-600", iconBg: "bg-blue-400/30" },
-            { label: "Date Range", value: period, icon: <Calendar size={20} />, color: "bg-indigo-500", hoverColor: "hover:bg-indigo-600", iconBg: "bg-indigo-400/30" },
-            { label: "Report Type", value: selectedCategory.label.split(" ")[0], icon: <PieChart size={20} />, color: "bg-cyan-500", hoverColor: "hover:bg-cyan-600", iconBg: "bg-cyan-400/30" },
-            { label: "Filters Active", value: [startDate, endDate, outlet !== "All Outlets"].filter(Boolean).length, icon: <Sliders size={20} />, color: "bg-sky-500", hoverColor: "hover:bg-sky-600", iconBg: "bg-sky-400/30" },
+            { label: "Total Records", value: filtered.length, icon: <BarChart2 size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
+            { label: "Date Range", value: period, icon: <Calendar size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
+            { label: "Report Type", value: selectedCategory.label.split(" ")[0], icon: <PieChart size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+            { label: "Filters Active", value: [startDate, endDate, outlet !== "All Outlets"].filter(Boolean).length, icon: <Sliders size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
         ];
     }, [filtered, isPaymentReport, isSalesReport, useWastageShape, period, selectedCategory, outlet, startDate, endDate]);
 
@@ -942,7 +942,7 @@ export default function FinanceReports() {
     const dataUnavailable = !!reportEnvelope?.dataUnavailable;
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             <FinanceSideBar sidebarOpen={sidebarOpen} />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -957,21 +957,21 @@ export default function FinanceReports() {
                     {/* ── Page Header ── */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
                         <div>
-                            <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">Financial Reports</h1>
-                            <p className="text-[14px] text-[#667085]">Generate, analyze, and export comprehensive financial reports</p>
+                            <h1 className="text-[20px] font-[600] text-fg mb-1">Financial Reports</h1>
+                            <p className="text-[14px] text-fg-secondary">Generate, analyze, and export comprehensive financial reports</p>
                         </div>
                         <div className="flex items-center gap-2 mt-3 sm:mt-0">
                             <button 
                                 onClick={handleExportPDF}
                                 disabled={!generated || sorted.length === 0}
-                                className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] bg-white text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors disabled:opacity-50"
+                                className="inline-flex items-center gap-2 px-4 py-2.5 border border-line text-fg-secondary bg-surface text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors disabled:opacity-50"
                             >
                                 <FileText size={15} /> PDF
                             </button>
                             <button 
                                 onClick={handleExportExcel}
                                 disabled={!generated || sorted.length === 0}
-                                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0F50AA] text-white text-[13px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors disabled:opacity-50"
+                                className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50"
                             >
                                 <FileSpreadsheet size={15} /> Excel
                             </button>
@@ -979,7 +979,7 @@ export default function FinanceReports() {
                     </div>
 
                     {pageError && (
-                        <div className="bg-red-50 border border-red-200 text-red-700 text-[13px] rounded-lg px-4 py-3 mb-4">
+                        <div className="bg-error/10 border border-error/30 text-error text-[13px] rounded-lg px-4 py-3 mb-4">
                             {pageError}
                         </div>
                     )}
@@ -997,13 +997,13 @@ export default function FinanceReports() {
                                 }}
                                 className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 text-center
                                     ${selectedCategory.id === cat.id
-                                        ? "border-[#0F50AA] bg-[#EEF3FB] shadow-sm"
-                                        : "border-[#E4E6EA] bg-white hover:border-[#0F50AA]/30 hover:bg-[#F8F9FA]"}`}
+                                        ? "border-brand-fg bg-hover shadow-sm"
+                                        : "border-line bg-surface hover:border-brand-fg/30 hover:bg-subtle"}`}
                             >
-                                <div className={`w-9 h-9 rounded-lg ${cat.color} flex items-center justify-center text-white`}>
+                                <div className={`w-9 h-9 rounded-lg ${cat.color} flex items-center justify-center text-on-brand`}>
                                     {cat.icon}
                                 </div>
-                                <p className={`text-[10px] font-[600] leading-tight ${selectedCategory.id === cat.id ? "text-[#0F50AA]" : "text-[#667085]"}`}>
+                                <p className={`text-[10px] font-[600] leading-tight ${selectedCategory.id === cat.id ? "text-brand-fg" : "text-fg-secondary"}`}>
                                     {cat.label}
                                 </p>
                             </button>
@@ -1011,11 +1011,11 @@ export default function FinanceReports() {
                     </div>
 
                     {/* ── Filter Panel ── */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-[#E4E6EA] p-4 sm:p-5 mb-6">
+                    <div className="bg-surface rounded-2xl shadow-sm border border-line p-4 sm:p-5 mb-6">
                         <div className="flex items-center gap-2 mb-4">
-                            <Sliders size={15} className="text-[#0F50AA]" />
-                            <h3 className="text-[14px] font-[600] text-[#383E49]">Report Parameters</h3>
-                            <span className="ml-auto text-[11px] text-[#667085] bg-[#F8F9FA] px-2 py-0.5 rounded-full border border-[#E4E6EA]">
+                            <Sliders size={15} className="text-brand-fg" />
+                            <h3 className="text-[14px] font-[600] text-fg">Report Parameters</h3>
+                            <span className="ml-auto text-[11px] text-fg-secondary bg-subtle px-2 py-0.5 rounded-full border border-line">
                                 {selectedCategory.label}
                             </span>
                         </div>
@@ -1062,26 +1062,26 @@ export default function FinanceReports() {
 
                             {/* From Date */}
                             <div className="lg:col-span-2">
-                                <label className="block text-[11px] font-[500] text-[#667085] mb-1.5 uppercase tracking-wide">From</label>
+                                <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">From</label>
                                 <div className="relative">
-                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={13} />
+                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                                     <input
                                         type="date" value={startDate}
                                         onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
-                                        className="w-full pl-9 pr-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                        className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                     />
                                 </div>
                             </div>
 
                             {/* To Date */}
                             <div className="lg:col-span-2">
-                                <label className="block text-[11px] font-[500] text-[#667085] mb-1.5 uppercase tracking-wide">To</label>
+                                <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">To</label>
                                 <div className="relative">
-                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={13} />
+                                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                                     <input
                                         type="date" value={endDate}
                                         onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
-                                        className="w-full pl-9 pr-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                        className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                     />
                                 </div>
                             </div>
@@ -1101,13 +1101,13 @@ export default function FinanceReports() {
                                 <button
                                     onClick={handleGenerate}
                                     disabled={loading}
-                                    className="w-full px-3 py-2.5 bg-[#0F50AA] text-white text-[12px] font-[600] rounded-lg hover:bg-[#0D4494] transition-colors disabled:opacity-60"
+                                    className="w-full px-3 py-2.5 bg-brand text-on-brand text-[12px] font-[600] rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-60"
                                 >
                                     {loading ? "Loading…" : "Generate"}
                                 </button>
                                 <button
                                     onClick={handleReset}
-                                    className="w-full flex items-center justify-center gap-1 px-3 py-2 border border-[#E4E6EA] text-[#667085] text-[12px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                    className="w-full flex items-center justify-center gap-1 px-3 py-2 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle transition-colors"
                                 >
                                     <RefreshCw size={11} /> Reset
                                 </button>
@@ -1121,11 +1121,11 @@ export default function FinanceReports() {
                             {summaryCards.map((card, i) => (
                                 <div
                                     key={i}
-                                    className={`${card.color} ${card.hoverColor} rounded-lg p-5 text-white shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer`}
+                                    className={`${card.color} ${card.hoverColor} rounded-lg p-5 text-on-brand shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer`}
                                 >
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-[13px] font-medium text-white/80 mb-2">{card.label}</p>
+                                            <p className="text-[13px] font-medium text-on-brand/80 mb-2">{card.label}</p>
                                             <h2 className="text-[26px] font-bold leading-none">{card.value}</h2>
                                         </div>
                                         <div className={`${card.iconBg} w-12 h-12 rounded-lg flex items-center justify-center backdrop-blur-sm`}>
@@ -1138,13 +1138,13 @@ export default function FinanceReports() {
                     )}
 
                     {/* ── Chart + Table Section ── */}
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
 
                         {/* Header */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
                             <div>
-                                <h3 className="text-[18px] font-[600] text-[#383E49]">{selectedReport.label}</h3>
-                                <p className="text-[12px] text-[#667085] mt-0.5">
+                                <h3 className="text-[18px] font-[600] text-fg">{selectedReport.label}</h3>
+                                <p className="text-[12px] text-fg-secondary mt-0.5">
                                     {!generated
                                         ? "Configure filters above and click Generate"
                                         : dataUnavailable
@@ -1155,11 +1155,11 @@ export default function FinanceReports() {
                             {generated && !dataUnavailable && (
                                 <div className="flex items-center gap-3">
                                     <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={14} />
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={14} />
                                         <input
                                             type="text"
                                             placeholder="Search records..."
-                                            className="pl-9 pr-4 py-2 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent w-52"
+                                            className="pl-9 pr-4 py-2 border border-line rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent w-52"
                                             value={searchTerm}
                                             onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
                                         />
@@ -1170,9 +1170,9 @@ export default function FinanceReports() {
 
                         {/* Mini Chart Row (when generated, data available, and we have rows) */}
                         {generated && !dataUnavailable && chartData.length > 0 && (
-                            <div className="mb-6 p-4 bg-[#F8F9FA] rounded-xl border border-[#E4E6EA]">
-                                <p className="text-[11px] font-[600] text-[#667085] uppercase tracking-wide mb-3">Quick Overview</p>
-                                <MiniBarChart data={chartData} valueKey="value" labelKey="label" color="#0F50AA" />
+                            <div className="mb-6 p-4 bg-subtle rounded-xl border border-line">
+                                <p className="text-[11px] font-[600] text-fg-secondary uppercase tracking-wide mb-3">Quick Overview</p>
+                                <MiniBarChart data={chartData} valueKey="value" labelKey="label" />
                             </div>
                         )}
 
@@ -1181,7 +1181,7 @@ export default function FinanceReports() {
                             <PlaceholderTable reportType={selectedReport.label} />
                         ) : loading ? (
                             <div className="flex items-center justify-center py-28">
-                                <RefreshCw size={38} className="text-[#0F50AA] animate-spin" />
+                                <RefreshCw size={38} className="text-brand-fg animate-spin" />
                             </div>
                         ) : dataUnavailable ? (
                             <UnavailableState
@@ -1228,7 +1228,7 @@ export default function FinanceReports() {
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

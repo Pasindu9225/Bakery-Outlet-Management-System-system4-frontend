@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Skeleton = ({ className, variant = 'text', width, height }) => {
-  const baseClass = "bg-gray-200 dark:bg-gray-700 animate-pulse rounded";
+  const baseClass = "bg-line animate-pulse rounded";
   
   const variants = {
     text: "h-4 w-full mb-2",

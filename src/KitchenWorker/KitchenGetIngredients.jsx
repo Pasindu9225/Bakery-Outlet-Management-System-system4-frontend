@@ -33,22 +33,22 @@ function authHeaders() {
 const STATUS_META = {
   PENDING: {
     label: "Pending",
-    color: "text-[#667085] bg-[#F0F1F3]",
+    color: "text-fg-secondary bg-app",
     icon: <Clock size={12} />,
   },
   ISSUED: {
     label: "Issued",
-    color: "text-[#199D26] bg-[#F0FDF4]",
+    color: "text-success bg-hover",
     icon: <CheckCircle2 size={12} />,
   },
   RECEIVED: {
     label: "Received",
-    color: "text-[#1366D9] bg-[#F0F8FF]",
+    color: "text-brand-fg bg-subtle",
     icon: <CheckCircle size={12} />,
   },
   REJECTED: {
     label: "Rejected",
-    color: "text-[#EF4444] bg-[#FEF2F2]",
+    color: "text-error bg-subtle",
     icon: <XCircle size={12} />,
   },
 };
@@ -58,27 +58,27 @@ const getStatusMeta = (status) =>
 
 function ConfirmReceiptModal({ request, onClose, onConfirm, loading }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
-        <div className="p-5 border-b border-[#E4E6EA] flex items-center justify-between">
+    <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
+      <div className="bg-elevated rounded-xl shadow-2xl w-full max-w-md">
+        <div className="p-5 border-b border-line flex items-center justify-between">
           <div>
-            <h3 className="text-[16px] font-[600] text-[#383E49]">Confirm Receipt</h3>
-            <p className="text-[12px] text-[#667085] mt-0.5">Request #{request.id}</p>
+            <h3 className="text-[16px] font-[600] text-fg">Confirm Receipt</h3>
+            <p className="text-[12px] text-fg-secondary mt-0.5">Request #{request.id}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-[#F0F1F3] rounded-lg transition-colors"
+            className="p-1.5 hover:bg-app rounded-lg transition-colors"
           >
-            <X size={18} className="text-[#667085]" />
+            <X size={18} className="text-fg-secondary" />
           </button>
         </div>
         <div className="p-5">
-          <p className="text-[13px] text-[#383E49] mb-3">
+          <p className="text-[13px] text-fg mb-3">
             Confirm that you have received all issued ingredients for this request?
           </p>
           <div className="space-y-1.5 max-h-40 overflow-y-auto">
             {request.items?.map((item) => (
-              <div key={item.id} className="flex justify-between text-[12px] text-[#667085]">
+              <div key={item.id} className="flex justify-between text-[12px] text-fg-secondary">
                 <span>{item.rawMaterialName}</span>
                 <span className="font-[500]">
                   {item.issuedQty ?? item.requestedQty} {item.unitOfMeasure}
@@ -87,18 +87,18 @@ function ConfirmReceiptModal({ request, onClose, onConfirm, loading }) {
             ))}
           </div>
         </div>
-        <div className="p-5 border-t border-[#E4E6EA] flex gap-3 justify-end">
+        <div className="p-5 border-t border-line flex gap-3 justify-end">
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 border border-[#E4E6EA] text-[#667085] text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+            className="px-4 py-2 border border-line text-fg-secondary text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="px-4 py-2 bg-[#199D26] text-white text-[13px] font-[500] rounded-lg hover:bg-[#157A1E] transition-colors flex items-center gap-2 disabled:opacity-60"
+            className="px-4 py-2 bg-success-solid text-on-brand text-[13px] font-[500] rounded-lg hover:bg-success-solid transition-colors flex items-center gap-2 disabled:opacity-60"
           >
             {loading ? (
               <RefreshCw size={14} className="animate-spin" />
@@ -153,7 +153,7 @@ function NewRequestForm({ rawMaterials, onSubmit, submitting }) {
         {items.map((item, idx) => (
           <div key={idx} className="flex gap-2 items-center">
             <select
-              className="flex-1 px-3 py-2 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+              className="flex-1 px-3 py-2 border border-line rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
               value={item.rawMaterialId}
               onChange={(e) => updateItem(idx, "rawMaterialId", e.target.value)}
             >
@@ -173,13 +173,13 @@ function NewRequestForm({ rawMaterials, onSubmit, submitting }) {
               onChange={(e) =>
                 updateItem(idx, "requestedQty", e.target.value)
               }
-              className="w-24 px-3 py-2 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+              className="w-24 px-3 py-2 border border-line rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
             />
             {items.length > 1 && (
               <button
                 type="button"
                 onClick={() => removeItem(idx)}
-                className="p-2 text-[#EF4444] hover:bg-[#FEF2F2] rounded-lg"
+                className="p-2 text-error hover:bg-subtle rounded-lg"
               >
                 <Trash2 size={14} />
               </button>
@@ -191,26 +191,26 @@ function NewRequestForm({ rawMaterials, onSubmit, submitting }) {
       <button
         type="button"
         onClick={addItem}
-        className="inline-flex items-center gap-1.5 text-[12px] text-[#0F50AA] hover:underline"
+        className="inline-flex items-center gap-1.5 text-[12px] text-brand-fg hover:underline"
       >
         <Plus size={13} /> Add another ingredient
       </button>
 
       <div>
-        <label className="block text-[12px] font-[500] text-[#383E49] mb-1">
-          Notes <span className="text-[#667085]">(optional)</span>
+        <label className="block text-[12px] font-[500] text-fg mb-1">
+          Notes <span className="text-fg-secondary">(optional)</span>
         </label>
         <textarea
           rows={2}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Any special instructions..."
-          className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] resize-none"
+          className="w-full px-3 py-2 border border-line rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg resize-none"
         />
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 text-[#EF4444] text-[12px]">
+        <div className="flex items-center gap-2 text-error text-[12px]">
           <AlertTriangle size={13} /> {error}
         </div>
       )}
@@ -218,7 +218,7 @@ function NewRequestForm({ rawMaterials, onSubmit, submitting }) {
       <button
         type="submit"
         disabled={submitting}
-        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0F50AA] text-white text-[13px] font-[500] rounded-lg hover:bg-[#0D4494] disabled:opacity-60 disabled:cursor-not-allowed"
+        className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {submitting ? (
           <>
@@ -347,7 +347,7 @@ export default function KitchenGetIngredients() {
   );
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <KitchenWorkerSideBar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -361,17 +361,17 @@ export default function KitchenGetIngredients() {
           {/* Page Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
             <div>
-              <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+              <h1 className="text-[20px] font-[600] text-fg mb-1">
                 Get Ingredients
               </h1>
-              <p className="text-[14px] text-[#667085]">
+              <p className="text-[14px] text-fg-secondary">
                 Request raw materials &amp; semi-finished goods for kitchen tasks
               </p>
             </div>
             <div className="flex gap-2 mt-3 sm:mt-0">
               <button
                 onClick={fetchRequests}
-                className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] bg-white text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-line text-fg-secondary bg-surface text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors"
               >
                 <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
                 Refresh
@@ -382,7 +382,7 @@ export default function KitchenGetIngredients() {
                   setSuccessMsg("");
                   setError("");
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0F50AA] text-white text-[13px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover transition-colors"
               >
                 <Plus size={15} />
                 New Request
@@ -392,20 +392,20 @@ export default function KitchenGetIngredients() {
 
           {/* Alerts */}
           {error && (
-            <div className="mb-4 flex items-center gap-2 bg-[#FEF2F2] border border-[#FECACA] rounded-lg p-3 text-[13px] text-[#EF4444]">
+            <div className="mb-4 flex items-center gap-2 bg-subtle border border-error/30 rounded-lg p-3 text-[13px] text-error">
               <AlertTriangle size={14} /> {error}
             </div>
           )}
           {successMsg && (
-            <div className="mb-4 flex items-center gap-2 bg-[#F0FDF4] border border-[#BBF7D0] rounded-lg p-3 text-[13px] text-[#199D26]">
+            <div className="mb-4 flex items-center gap-2 bg-hover border border-success/30 rounded-lg p-3 text-[13px] text-success">
               <CheckCircle2 size={14} /> {successMsg}
             </div>
           )}
 
           {/* New Request Form */}
           {showNewForm && (
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6 mb-5">
-              <h3 className="text-[15px] font-[600] text-[#383E49] mb-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-6 mb-5">
+              <h3 className="text-[15px] font-[600] text-fg mb-4">
                 New Ingredient Request
               </h3>
               <NewRequestForm
@@ -417,20 +417,20 @@ export default function KitchenGetIngredients() {
           )}
 
           {/* Requests List */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
-              <h3 className="text-[16px] font-[600] text-[#383E49]">
+              <h3 className="text-[16px] font-[600] text-fg">
                 My Ingredient Requests
               </h3>
               <div className="relative w-full sm:w-64">
                 <Search
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary"
                   size={15}
                 />
                 <input
                   type="text"
                   placeholder="Search by ID, status, notes..."
-                  className="w-full pl-9 pr-4 py-2 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                  className="w-full pl-9 pr-4 py-2 border border-line rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -441,11 +441,11 @@ export default function KitchenGetIngredients() {
               <Loader variant="section" text="Loading requests..." />
             ) : filteredRequests.length === 0 ? (
               <div className="text-center py-14">
-                <ShoppingBasket size={44} className="mx-auto text-[#C8CDD5] mb-4" />
-                <p className="text-[15px] font-[500] text-[#383E49] mb-1">
+                <ShoppingBasket size={44} className="mx-auto text-fg-muted mb-4" />
+                <p className="text-[15px] font-[500] text-fg mb-1">
                   No ingredient requests yet
                 </p>
-                <p className="text-[13px] text-[#667085]">
+                <p className="text-[13px] text-fg-secondary">
                   Click "New Request" above to request ingredients from the store.
                 </p>
               </div>
@@ -456,18 +456,18 @@ export default function KitchenGetIngredients() {
                   return (
                     <div
                       key={request.id}
-                      className="border border-[#E4E6EA] rounded-lg p-4 hover:bg-[#F8F9FA] transition-colors"
+                      className="border border-line rounded-lg p-4 hover:bg-subtle transition-colors"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-orange-50 rounded-lg">
-                            <Package size={16} className="text-orange-500" />
+                          <div className="p-2 bg-warning/10 rounded-lg">
+                            <Package size={16} className="text-warning" />
                           </div>
                           <div>
-                            <p className="text-[14px] font-[600] text-[#383E49]">
+                            <p className="text-[14px] font-[600] text-fg">
                               Request #{request.id}
                             </p>
-                            <p className="text-[11px] text-[#667085]">
+                            <p className="text-[11px] text-fg-secondary">
                               {request.createdAt
                                 ? new Date(request.createdAt).toLocaleString()
                                 : "—"}
@@ -485,7 +485,7 @@ export default function KitchenGetIngredients() {
                           {request.status === "ISSUED" && (
                             <button
                               onClick={() => setConfirmRequest(request)}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#199D26] text-white text-[12px] font-[500] rounded-lg hover:bg-[#157A1E] transition-colors"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-success-solid text-on-brand text-[12px] font-[500] rounded-lg hover:bg-success-solid transition-colors"
                             >
                               <CheckCircle2 size={13} />
                               Confirm Receipt
@@ -499,17 +499,17 @@ export default function KitchenGetIngredients() {
                         <div className="overflow-x-auto">
                           <table className="w-full text-[12px]">
                             <thead>
-                              <tr className="border-b border-[#E4E6EA]">
-                                <th className="text-left py-2 px-2 font-[500] text-[#667085]">
+                              <tr className="border-b border-line">
+                                <th className="text-left py-2 px-2 font-[500] text-fg-secondary">
                                   Ingredient
                                 </th>
-                                <th className="text-center py-2 px-2 font-[500] text-[#667085]">
+                                <th className="text-center py-2 px-2 font-[500] text-fg-secondary">
                                   Requested
                                 </th>
-                                <th className="text-center py-2 px-2 font-[500] text-[#667085]">
+                                <th className="text-center py-2 px-2 font-[500] text-fg-secondary">
                                   Issued
                                 </th>
-                                <th className="text-center py-2 px-2 font-[500] text-[#667085]">
+                                <th className="text-center py-2 px-2 font-[500] text-fg-secondary">
                                   Unit
                                 </th>
                               </tr>
@@ -518,19 +518,19 @@ export default function KitchenGetIngredients() {
                               {request.items.map((item) => (
                                 <tr
                                   key={item.id}
-                                  className="border-b border-[#E4E6EA] last:border-0"
+                                  className="border-b border-line last:border-0"
                                 >
-                                  <td className="py-2 px-2 text-[#383E49] font-[500]">
+                                  <td className="py-2 px-2 text-fg font-[500]">
                                     {item.rawMaterialName}
                                   </td>
-                                  <td className="py-2 px-2 text-center text-[#383E49]">
+                                  <td className="py-2 px-2 text-center text-fg">
                                     {item.requestedQty}
                                   </td>
-                                  <td className="py-2 px-2 text-center text-[#383E49]">
+                                  <td className="py-2 px-2 text-center text-fg">
                                     {item.issuedQty ?? "—"}
                                   </td>
                                   <td className="py-2 px-2 text-center">
-                                    <span className="text-[#667085] bg-[#F0F1F3] px-1.5 py-0.5 rounded">
+                                    <span className="text-fg-secondary bg-app px-1.5 py-0.5 rounded">
                                       {item.unitOfMeasure}
                                     </span>
                                   </td>
@@ -562,7 +562,7 @@ export default function KitchenGetIngredients() {
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

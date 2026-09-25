@@ -193,7 +193,7 @@ export default function CustomerManagement() {
   );
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden relative">
+    <div className="flex bg-app h-screen overflow-hidden relative">
       {isAdmin ? (
         <AdminSidebar sidebarOpen={sidebarOpen} />
       ) : isManager ? (
@@ -227,11 +227,11 @@ export default function CustomerManagement() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-[20px] font-[600] text-[#383E49] flex items-center gap-2">
-                <Users className="text-[#0F50AA]" size={24} />
+              <h1 className="text-[20px] font-[600] text-fg flex items-center gap-2">
+                <Users className="text-brand-fg" size={24} />
                 Customer Management & Loyalty
               </h1>
-              <p className="text-[14px] text-[#667085]">
+              <p className="text-[14px] text-fg-secondary">
                 Register customers, view their reward points, and track transaction history
               </p>
             </div>
@@ -240,7 +240,7 @@ export default function CustomerManagement() {
                 setFormError("");
                 setModal("register");
               }}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#0F50AA] hover:bg-[#0C438F] text-white rounded-lg font-[500] text-[14px] shadow-sm transition-colors self-start sm:self-auto"
+              className="flex items-center gap-2 px-4 py-2.5 bg-brand hover:bg-brand-hover text-on-brand rounded-lg font-[500] text-[14px] shadow-sm transition-colors self-start sm:self-auto"
             >
               <Plus size={16} />
               Register Customer
@@ -248,13 +248,13 @@ export default function CustomerManagement() {
           </div>
 
           {/* Search Bar */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 mb-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-4 mb-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={18} />
               <input
                 type="text"
                 placeholder="Search by name, phone number, or ID Card (NIC)..."
-                className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-lg text-[14px] outline-none focus:border-[#0F50AA] transition-colors"
+                className="w-full pl-10 pr-4 py-2.5 border border-line rounded-lg text-[14px] outline-none focus:border-brand-fg transition-colors"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -262,70 +262,70 @@ export default function CustomerManagement() {
           </div>
 
           {/* Customer List Card */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] overflow-hidden">
+          <div className="bg-surface rounded-lg shadow-sm border border-line overflow-hidden">
             {loading ? (
               <Loader variant="section" text="Loading customer directory..." />
             ) : filteredCustomers.length === 0 ? (
-              <div className="p-12 text-center text-[#667085] flex flex-col items-center justify-center gap-2">
-                <Users size={48} className="text-[#E4E6EA]" />
-                <p className="text-[16px] font-[500] text-[#383E49]">No customers found</p>
+              <div className="p-12 text-center text-fg-secondary flex flex-col items-center justify-center gap-2">
+                <Users size={48} className="text-fg-muted" />
+                <p className="text-[16px] font-[500] text-fg">No customers found</p>
                 <p className="text-[14px]">Try adjusting your search criteria or register a new customer.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
-                  <thead className="bg-[#F8F9FA] border-b border-[#E4E6EA]">
+                  <thead className="bg-subtle border-b border-line">
                     <tr>
-                      <th className="px-6 py-4 text-[13px] font-[600] text-[#667085]">Customer Name</th>
-                      <th className="px-6 py-4 text-[13px] font-[600] text-[#667085]">ID Card Number</th>
-                      <th className="px-6 py-4 text-[13px] font-[600] text-[#667085]">Birthday</th>
-                      <th className="px-6 py-4 text-[13px] font-[600] text-[#667085]">Phone Number</th>
-                      <th className="px-6 py-4 text-[13px] font-[600] text-[#667085]">Loyalty Points</th>
-                      <th className="px-6 py-4 text-[13px] font-[600] text-[#667085]">Register Date</th>
-                      <th className="px-6 py-4 text-[13px] font-[600] text-[#667085] text-right">Actions</th>
+                      <th className="px-6 py-4 text-[13px] font-[600] text-fg-secondary">Customer Name</th>
+                      <th className="px-6 py-4 text-[13px] font-[600] text-fg-secondary">ID Card Number</th>
+                      <th className="px-6 py-4 text-[13px] font-[600] text-fg-secondary">Birthday</th>
+                      <th className="px-6 py-4 text-[13px] font-[600] text-fg-secondary">Phone Number</th>
+                      <th className="px-6 py-4 text-[13px] font-[600] text-fg-secondary">Loyalty Points</th>
+                      <th className="px-6 py-4 text-[13px] font-[600] text-fg-secondary">Register Date</th>
+                      <th className="px-6 py-4 text-[13px] font-[600] text-fg-secondary text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E4E6EA]">
+                  <tbody className="divide-y divide-line">
                     {filteredCustomers.map((customer) => (
-                      <tr key={customer.id} className="hover:bg-[#F8F9FA] transition-colors">
+                      <tr key={customer.id} className="hover:bg-subtle transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-[#EBF8FF] text-[#0F50AA] flex items-center justify-center font-[600] text-[14px]">
+                            <div className="w-8 h-8 rounded-full bg-hover text-brand-fg flex items-center justify-center font-[600] text-[14px]">
                               {customer.name ? customer.name[0].toUpperCase() : "C"}
                             </div>
-                            <span className="text-[14px] font-[600] text-[#383E49]">{customer.name}</span>
+                            <span className="text-[14px] font-[600] text-fg">{customer.name}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-[14px] font-[500] text-[#383E49] block">
+                          <span className="text-[14px] font-[500] text-fg block">
                             {customer.idCardNumber || "N/A"}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-[14px] text-[#383E49]">
+                        <td className="px-6 py-4 text-[14px] text-fg">
                           {(() => {
                             if (!customer.idCardNumber) return "N/A";
                             const nicInfo = extractNicDetails(customer.idCardNumber);
                             return nicInfo ? (
-                              <span className="font-[600] text-[#111827]">
-                                {nicInfo.birthdate} <span className="text-[11px] text-[#667085] font-[400]">({nicInfo.gender})</span>
+                              <span className="font-[600] text-fg-strong">
+                                {nicInfo.birthdate} <span className="text-[11px] text-fg-secondary font-[400]">({nicInfo.gender})</span>
                               </span>
                             ) : (
-                              <span className="text-red-500 font-[500] text-[13px]">Invalid NIC</span>
+                              <span className="text-error font-[500] text-[13px]">Invalid NIC</span>
                             );
                           })()}
                         </td>
-                        <td className="px-6 py-4 text-[14px] text-[#383E49] font-[500]">
+                        <td className="px-6 py-4 text-[14px] text-fg font-[500]">
                           {customer.contactNumber}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-1">
-                            <Coins size={14} className="text-[#F4A100]" />
-                            <span className="text-[14px] font-[700] text-[#383E49]">
+                            <Coins size={14} className="text-warning" />
+                            <span className="text-[14px] font-[700] text-fg">
                               {customer.loyaltyPoints?.toFixed(3) || "0.000"}
                             </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-[13px] text-[#667085]">
+                        <td className="px-6 py-4 text-[13px] text-fg-secondary">
                           {customer.createdAt
                             ? new Date(customer.createdAt).toLocaleDateString("en-US", {
                                 year: "numeric",
@@ -337,7 +337,7 @@ export default function CustomerManagement() {
                         <td className="px-6 py-4 text-right">
                           <button
                             onClick={() => handleViewHistory(customer)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F0F5FF] hover:bg-[#E1EBFD] text-[#0F50AA] hover:text-[#0C438F] rounded-lg text-[13px] font-[500] transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-subtle hover:bg-hover text-brand-fg hover:text-brand-fg rounded-lg text-[13px] font-[500] transition-colors"
                           >
                             <History size={14} />
                             Points History
@@ -355,11 +355,11 @@ export default function CustomerManagement() {
 
       {/* Registration Modal */}
       {modal === "register" && (
-        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-md shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-[#E4E6EA] bg-[#F8F9FA] flex justify-between items-center">
-              <h3 className="font-[600] text-[16px] text-[#383E49] flex items-center gap-2">
-                <User size={18} className="text-[#0F50AA]" />
+        <div className="fixed inset-0 bg-backdrop z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-xl w-full max-w-md shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-line bg-subtle flex justify-between items-center">
+              <h3 className="font-[600] text-[16px] text-fg flex items-center gap-2">
+                <User size={18} className="text-brand-fg" />
                 {regStep === 1 ? "Register New Customer" : "Verify SMS OTP"}
               </h3>
               <button
@@ -367,7 +367,7 @@ export default function CustomerManagement() {
                   setModal(null);
                   setRegStep(1);
                 }}
-                className="text-[#667085] hover:bg-gray-100 p-1.5 rounded-lg transition-all"
+                className="text-fg-secondary hover:bg-hover p-1.5 rounded-lg transition-all"
               >
                 <X size={20} />
               </button>
@@ -377,70 +377,70 @@ export default function CustomerManagement() {
               <form onSubmit={handleSendOtp}>
                 <div className="p-6 space-y-4">
                   {formError && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-[13px] text-red-600 font-[500]">
+                    <div className="p-3 bg-error/10 border border-error/30 rounded-lg text-[13px] text-error font-[500]">
                       {formError}
                     </div>
                   )}
                   <div>
-                    <label className="block text-[13px] font-[500] text-[#383E49] mb-1.5">
+                    <label className="block text-[13px] font-[500] text-fg mb-1.5">
                       Customer Name *
                     </label>
                     <input
                       type="text"
                       required
                       placeholder="Enter customer full name"
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] outline-none focus:border-[#0F50AA] transition-colors"
+                      className="w-full px-3 py-2 border border-line rounded-lg text-[14px] outline-none focus:border-brand-fg transition-colors"
                       value={regName}
                       onChange={(e) => setRegName(e.target.value)}
                     />
                   </div>
                   <div>
-                    <label className="block text-[13px] font-[500] text-[#383E49] mb-1.5">
+                    <label className="block text-[13px] font-[500] text-fg mb-1.5">
                       Phone Number *
                     </label>
                     <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={16} />
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={16} />
                       <input
                         type="text"
                         required
                         placeholder="e.g. 0771234567"
-                        className="w-full pl-10 pr-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] outline-none focus:border-[#0F50AA] transition-colors"
+                        className="w-full pl-10 pr-3 py-2 border border-line rounded-lg text-[14px] outline-none focus:border-brand-fg transition-colors"
                         value={regPhone}
                         onChange={(e) => setRegPhone(e.target.value)}
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[13px] font-[500] text-[#383E49] mb-1.5">
+                    <label className="block text-[13px] font-[500] text-fg mb-1.5">
                       ID Card Number (NIC) (Optional)
                     </label>
                     <div className="relative">
-                      <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={16} />
+                      <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={16} />
                       <input
                         type="text"
                         placeholder="Enter identity card number"
-                        className="w-full pl-10 pr-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] outline-none focus:border-[#0F50AA] transition-colors"
+                        className="w-full pl-10 pr-3 py-2 border border-line rounded-lg text-[14px] outline-none focus:border-brand-fg transition-colors"
                         value={regIdCard}
                         onChange={(e) => setRegIdCard(e.target.value)}
                       />
                     </div>
                   </div>
                 </div>
-                <div className="p-4 bg-[#F8F9FA] border-t border-[#E4E6EA] flex justify-end gap-2.5">
+                <div className="p-4 bg-subtle border-t border-line flex justify-end gap-2.5">
                   <button
                     type="button"
                     onClick={() => {
                       setModal(null);
                       setRegStep(1);
                     }}
-                    className="px-4 py-2 border border-[#E4E6EA] text-[#667085] hover:bg-white rounded-lg text-[13px] font-[500] transition-colors"
+                    className="px-4 py-2 border border-line text-fg-secondary hover:bg-surface rounded-lg text-[13px] font-[500] transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={sendingOtp}
-                    className="px-5 py-2 bg-[#0F50AA] hover:bg-[#0C438F] text-white rounded-lg text-[13px] font-[500] transition-colors flex items-center gap-2 disabled:opacity-50"
+                    className="px-5 py-2 bg-brand hover:bg-brand-hover text-on-brand rounded-lg text-[13px] font-[500] transition-colors flex items-center gap-2 disabled:opacity-50"
                   >
                     {sendingOtp ? <Loader2 size={16} className="animate-spin" /> : null}
                     Send OTP (SMS)
@@ -451,15 +451,15 @@ export default function CustomerManagement() {
               <form onSubmit={handleVerifyAndRegister}>
                 <div className="p-6 space-y-4">
                   {formError && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-[13px] text-red-600 font-[500]">
+                    <div className="p-3 bg-error/10 border border-error/30 rounded-lg text-[13px] text-error font-[500]">
                       {formError}
                     </div>
                   )}
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-[13px] text-blue-800">
+                  <div className="p-3 bg-brand/10 border border-brand/20 rounded-lg text-[13px] text-brand-fg">
                     A 6-digit OTP code has been sent via Hutch SMS to <span className="font-bold">+94 {regPhone}</span>.
                   </div>
                   <div>
-                    <label className="block text-[13px] font-[500] text-[#383E49] mb-1.5">
+                    <label className="block text-[13px] font-[500] text-fg mb-1.5">
                       Enter 6-Digit OTP Code *
                     </label>
                     <input
@@ -467,7 +467,7 @@ export default function CustomerManagement() {
                       maxLength={6}
                       required
                       placeholder="e.g. 482910"
-                      className="w-full px-4 py-3 border border-[#0F50AA] rounded-lg text-[18px] tracking-widest text-center font-[700] text-[#0F50AA] outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                      className="w-full px-4 py-3 border border-brand-fg rounded-lg text-[18px] tracking-widest text-center font-[700] text-brand-fg outline-none focus:ring-2 focus:ring-brand-fg"
                       value={regOtp}
                       onChange={(e) => setRegOtp(e.target.value)}
                     />
@@ -476,7 +476,7 @@ export default function CustomerManagement() {
                     <button
                       type="button"
                       onClick={() => setRegStep(1)}
-                      className="text-gray-500 hover:underline font-[500]"
+                      className="text-fg-secondary hover:underline font-[500]"
                     >
                       ← Change Phone / Details
                     </button>
@@ -484,27 +484,27 @@ export default function CustomerManagement() {
                       type="button"
                       disabled={otpTimer > 0 || sendingOtp}
                       onClick={handleSendOtp}
-                      className="text-[#0F50AA] hover:underline font-[600] disabled:opacity-40"
+                      className="text-brand-fg hover:underline font-[600] disabled:opacity-40"
                     >
                       {otpTimer > 0 ? `Resend OTP in ${otpTimer}s` : "Resend OTP"}
                     </button>
                   </div>
                 </div>
-                <div className="p-4 bg-[#F8F9FA] border-t border-[#E4E6EA] flex justify-end gap-2.5">
+                <div className="p-4 bg-subtle border-t border-line flex justify-end gap-2.5">
                   <button
                     type="button"
                     onClick={() => {
                       setModal(null);
                       setRegStep(1);
                     }}
-                    className="px-4 py-2 border border-[#E4E6EA] text-[#667085] hover:bg-white rounded-lg text-[13px] font-[500] transition-colors"
+                    className="px-4 py-2 border border-line text-fg-secondary hover:bg-surface rounded-lg text-[13px] font-[500] transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={sendingOtp}
-                    className="px-5 py-2 bg-[#0F50AA] hover:bg-[#0C438F] text-white rounded-lg text-[13px] font-[500] transition-colors flex items-center gap-2 disabled:opacity-50"
+                    className="px-5 py-2 bg-brand hover:bg-brand-hover text-on-brand rounded-lg text-[13px] font-[500] transition-colors flex items-center gap-2 disabled:opacity-50"
                   >
                     {sendingOtp ? <Loader2 size={16} className="animate-spin" /> : null}
                     Verify OTP & Register
@@ -518,32 +518,32 @@ export default function CustomerManagement() {
 
       {/* Points History Modal */}
       {modal === "history" && selectedCustomer && (
-        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-5 border-b border-[#E4E6EA] bg-[#F8F9FA] flex justify-between items-center">
+        <div className="fixed inset-0 bg-backdrop z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-xl w-full max-w-lg shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-line bg-subtle flex justify-between items-center">
               <div>
-                <h3 className="font-[600] text-[16px] text-[#383E49] flex items-center gap-2">
-                  <Coins className="text-[#F4A100]" size={18} />
+                <h3 className="font-[600] text-[16px] text-fg flex items-center gap-2">
+                  <Coins className="text-warning" size={18} />
                   Loyalty Points History
                 </h3>
-                <p className="text-[12px] text-[#667085] mt-0.5">
+                <p className="text-[12px] text-fg-secondary mt-0.5">
                   Customer: {selectedCustomer.name} ({selectedCustomer.contactNumber})
                 </p>
               </div>
               <button
                 onClick={() => setModal(null)}
-                className="text-[#667085] hover:bg-gray-100 p-1.5 rounded-lg transition-all"
+                className="text-fg-secondary hover:bg-hover p-1.5 rounded-lg transition-all"
               >
                 <X size={20} />
               </button>
             </div>
             <div className="p-6 max-h-[60vh] overflow-y-auto">
-              <div className="flex items-center justify-between p-4 bg-[#FFFDF5] border border-[#F4A100]/20 rounded-xl mb-4">
+              <div className="flex items-center justify-between p-4 bg-subtle border border-warning/20 rounded-xl mb-4">
                 <div className="flex items-center gap-2">
-                  <Coins className="text-[#F4A100] w-6 h-6" />
-                  <span className="text-[14px] text-[#667085] font-[500]">Current Balance</span>
+                  <Coins className="text-warning w-6 h-6" />
+                  <span className="text-[14px] text-fg-secondary font-[500]">Current Balance</span>
                 </div>
-                <span className="text-[20px] font-[800] text-[#383E49]">
+                <span className="text-[20px] font-[800] text-fg">
                   {selectedCustomer.loyaltyPoints?.toFixed(3) || "0.000"} Points
                 </span>
               </div>
@@ -551,7 +551,7 @@ export default function CustomerManagement() {
               {loadingHistory ? (
                 <Loader variant="section" text="Retrieving loyalty logs..." />
               ) : pointsHistory.length === 0 ? (
-                <div className="py-12 text-center text-[#667085] italic">
+                <div className="py-12 text-center text-fg-secondary italic">
                   No points activity recorded for this customer yet.
                 </div>
               ) : (
@@ -561,14 +561,14 @@ export default function CustomerManagement() {
                     return (
                       <div
                         key={log.id}
-                        className="p-3.5 border rounded-lg hover:border-gray-300 transition-colors bg-[#FAFBFD]"
+                        className="p-3.5 border rounded-lg hover:border-line-strong transition-colors bg-subtle"
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <p className="text-[14px] font-[500] text-[#383E49] leading-tight">
+                            <p className="text-[14px] font-[500] text-fg leading-tight">
                               {log.description}
                             </p>
-                            <p className="text-[11px] text-[#667085] mt-1.5 flex items-center gap-1">
+                            <p className="text-[11px] text-fg-secondary mt-1.5 flex items-center gap-1">
                               <Calendar size={12} />
                               {new Date(log.createdAt).toLocaleString()}
                             </p>
@@ -576,8 +576,8 @@ export default function CustomerManagement() {
                           <span
                             className={`text-[14px] font-[700] whitespace-nowrap px-2.5 py-0.5 rounded-full ${
                               isCredit
-                                ? "bg-green-50 text-green-700"
-                                : "bg-red-50 text-red-700"
+                                ? "bg-success/10 text-success"
+                                : "bg-error/10 text-error"
                             }`}
                           >
                             {isCredit ? `+${log.pointsChanged.toFixed(3)}` : `${log.pointsChanged.toFixed(3)}`}
@@ -589,10 +589,10 @@ export default function CustomerManagement() {
                 </div>
               )}
             </div>
-            <div className="p-4 bg-[#F8F9FA] border-t border-[#E4E6EA] text-right">
+            <div className="p-4 bg-subtle border-t border-line text-right">
               <button
                 onClick={() => setModal(null)}
-                className="px-6 py-2 bg-[#0F50AA] text-white hover:bg-[#0C438F] rounded-lg text-[13px] font-[500] transition-colors"
+                className="px-6 py-2 bg-brand text-on-brand hover:bg-brand-hover rounded-lg text-[13px] font-[500] transition-colors"
               >
                 Close
               </button>
@@ -605,22 +605,22 @@ export default function CustomerManagement() {
       {showToast && (
         <div className="fixed top-4 right-4 z-[10000000] animate-in fade-in slide-in-from-top-4 duration-300">
           <div
-            className={`bg-white border-l-4 ${
-              toastType === "success" ? "border-[#199D26]" : "border-[#EF4444]"
+            className={`bg-elevated border-l-4 ${
+              toastType === "success" ? "border-success" : "border-error"
             } rounded-lg shadow-2xl p-4 flex items-center gap-3 min-w-[300px]`}
           >
             <div
               className={`flex-shrink-0 w-8 h-8 ${
-                toastType === "success" ? "bg-green-100" : "bg-red-100"
+                toastType === "success" ? "bg-success/10" : "bg-error/10"
               } rounded-full flex items-center justify-center`}
             >
               {toastType === "success" ? (
-                <Check className="w-5 h-5 text-[#199D26]" />
+                <Check className="w-5 h-5 text-success" />
               ) : (
-                <X className="w-5 h-5 text-[#EF4444]" />
+                <X className="w-5 h-5 text-error" />
               )}
             </div>
-            <p className="text-[14px] text-[#383E49] font-[500]">{toastMsg}</p>
+            <p className="text-[14px] text-fg font-[500]">{toastMsg}</p>
           </div>
         </div>
       )}

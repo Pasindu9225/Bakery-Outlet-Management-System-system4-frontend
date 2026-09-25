@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import {
   Plus,
   RefreshCw,
@@ -158,7 +159,7 @@ export default function StorekeeperIouRequests() {
       setShowAddMaterialModal(false);
       setNewMaterialForm({ materialName: "", unitOfMeasure: "Kg", unitCost: 0, minimumStockLevel: 5 });
     } catch (err) {
-      alert("Error creating raw material: " + err.message);
+      toast.error("Error creating raw material: " + err.message);
     }
   };
 
@@ -194,7 +195,7 @@ export default function StorekeeperIouRequests() {
         ],
       });
     } catch (err) {
-      alert("Error: " + err.message);
+      toast.error("Error: " + err.message);
     }
   };
 
@@ -232,7 +233,7 @@ export default function StorekeeperIouRequests() {
       setShowSettleModal(false);
       fetchIous();
     } catch (err) {
-      alert("Error: " + err.message);
+      toast.error("Error: " + err.message);
     }
   };
 
@@ -454,31 +455,31 @@ export default function StorekeeperIouRequests() {
     switch (status) {
       case "PENDING":
         return (
-          <span className="px-3 py-1 bg-[#FFFBEB] text-[#F4A100] rounded-full text-[12px] font-[500] flex items-center gap-1">
+          <span className="px-3 py-1 bg-hover text-warning rounded-full text-[12px] font-[500] flex items-center gap-1">
             <Clock size={14} /> Pending Approval
           </span>
         );
       case "APPROVED":
         return (
-          <span className="px-3 py-1 bg-[#F0FDF4] text-[#199D26] rounded-full text-[12px] font-[500] flex items-center gap-1">
+          <span className="px-3 py-1 bg-hover text-success rounded-full text-[12px] font-[500] flex items-center gap-1">
             <CheckCircle2 size={14} /> Approved
           </span>
         );
       case "SETTLEMENT_PENDING":
         return (
-          <span className="px-3 py-1 bg-[#EFF6FF] text-[#0F50AA] rounded-full text-[12px] font-[500] flex items-center gap-1">
+          <span className="px-3 py-1 bg-hover text-brand-fg rounded-full text-[12px] font-[500] flex items-center gap-1">
             <Clock size={14} /> Settlement Pending
           </span>
         );
       case "CLOSED":
         return (
-          <span className="px-3 py-1 bg-[#F0FDF4] text-[#199D26] rounded-full text-[12px] font-[500] flex items-center gap-1">
+          <span className="px-3 py-1 bg-hover text-success rounded-full text-[12px] font-[500] flex items-center gap-1">
             <CheckCircle2 size={14} /> Settled / Closed
           </span>
         );
       default:
         return (
-          <span className="px-3 py-1 bg-[#F8F9FA] text-[#667085] rounded-full text-[12px] font-[500]">
+          <span className="px-3 py-1 bg-subtle text-fg-secondary rounded-full text-[12px] font-[500]">
             {status}
           </span>
         );
@@ -486,7 +487,7 @@ export default function StorekeeperIouRequests() {
   };
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <StorekeeperSidebar sidebarOpen={sidebarOpen} />
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <StorekeeperNavBar
@@ -498,71 +499,71 @@ export default function StorekeeperIouRequests() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
             <div>
-              <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+              <h1 className="text-[20px] font-[600] text-fg mb-1">
                 IOU Requests
               </h1>
-              <p className="text-[14px] text-[#667085]">
+              <p className="text-[14px] text-fg-secondary">
                 Manage cash advances for external purchases
               </p>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="mt-4 sm:mt-0 px-4 py-2 bg-[#0F50AA] text-white text-[14px] font-[500] rounded-lg hover:bg-[#0D4494] flex items-center gap-2"
+              className="mt-4 sm:mt-0 px-4 py-2 bg-brand text-on-brand text-[14px] font-[500] rounded-lg hover:bg-brand-hover flex items-center gap-2"
             >
               <Plus size={16} />
               Create IOU Request
             </button>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA]">
-            <div className="p-4 sm:p-6 border-b border-[#E4E6EA] flex justify-between items-center">
-              <h2 className="text-[16px] font-[600] text-[#383E49]">
+          <div className="bg-surface rounded-lg shadow-sm border border-line">
+            <div className="p-4 sm:p-6 border-b border-line flex justify-between items-center">
+              <h2 className="text-[16px] font-[600] text-fg">
                 All IOU Requests
               </h2>
-              <button onClick={fetchIous} className="p-2 hover:bg-[#F8F9FA] rounded-md transition-colors">
-                <RefreshCw size={18} className="text-[#64748B] hover:text-[#0F50AA]" />
+              <button onClick={fetchIous} className="p-2 hover:bg-subtle rounded-md transition-colors">
+                <RefreshCw size={18} className="text-fg-secondary hover:text-brand-fg" />
               </button>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full min-w-[800px]">
                 <thead>
-                  <tr className="border-b border-[#E4E6EA] bg-[#F8F9FA]">
-                    <th className="text-left py-4 px-4 text-[12px] font-[500] text-[#667085] uppercase">ID</th>
-                    <th className="text-left py-4 px-4 text-[12px] font-[500] text-[#667085] uppercase">Date</th>
-                    <th className="text-left py-4 px-4 text-[12px] font-[500] text-[#667085] uppercase">Receiver</th>
-                    <th className="text-left py-4 px-4 text-[12px] font-[500] text-[#667085] uppercase">Est. Amount</th>
-                    <th className="text-left py-4 px-4 text-[12px] font-[500] text-[#667085] uppercase">Status</th>
-                    <th className="text-right py-4 px-4 text-[12px] font-[500] text-[#667085] uppercase">Actions</th>
+                  <tr className="border-b border-line bg-subtle">
+                    <th className="text-left py-4 px-4 text-[12px] font-[500] text-fg-secondary uppercase">ID</th>
+                    <th className="text-left py-4 px-4 text-[12px] font-[500] text-fg-secondary uppercase">Date</th>
+                    <th className="text-left py-4 px-4 text-[12px] font-[500] text-fg-secondary uppercase">Receiver</th>
+                    <th className="text-left py-4 px-4 text-[12px] font-[500] text-fg-secondary uppercase">Est. Amount</th>
+                    <th className="text-left py-4 px-4 text-[12px] font-[500] text-fg-secondary uppercase">Status</th>
+                    <th className="text-right py-4 px-4 text-[12px] font-[500] text-fg-secondary uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan="6" className="text-center py-8 text-[#667085]">Loading formatting IOUs...</td>
+                      <td colSpan="6" className="text-center py-8 text-fg-secondary">Loading formatting IOUs...</td>
                     </tr>
                   ) : error ? (
                     <tr>
-                      <td colSpan="6" className="text-center py-8 text-[#EF4444]">{error}</td>
+                      <td colSpan="6" className="text-center py-8 text-error">{error}</td>
                     </tr>
                   ) : ious.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="text-center py-8 text-[#667085]">No IOUs found</td>
+                      <td colSpan="6" className="text-center py-8 text-fg-secondary">No IOUs found</td>
                     </tr>
                   ) : (
                     ious.map((iou) => (
-                      <tr key={iou.id} className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]">
+                      <tr key={iou.id} className="border-b border-line hover:bg-subtle">
                         <td className="py-4 px-4">
-                          <span className="text-[14px] font-[500] text-[#383E49]">IOU-{iou.id.toString().padStart(4, '0')}</span>
+                          <span className="text-[14px] font-[500] text-fg">IOU-{iou.id.toString().padStart(4, '0')}</span>
                         </td>
                         <td className="py-4 px-4">
-                          <span className="text-[14px] text-[#383E49]">{iou.requestDate}</span>
+                          <span className="text-[14px] text-fg">{iou.requestDate}</span>
                         </td>
                         <td className="py-4 px-4">
-                          <span className="text-[14px] text-[#383E49]">{iou.receiverName}</span>
+                          <span className="text-[14px] text-fg">{iou.receiverName}</span>
                         </td>
                         <td className="py-4 px-4">
-                          <span className="text-[14px] font-[500] text-[#383E49]">
+                          <span className="text-[14px] font-[500] text-fg">
                             Rs. {iou.totalEstimatedAmount?.toFixed(2)}
                           </span>
                         </td>
@@ -576,8 +577,8 @@ export default function StorekeeperIouRequests() {
                               onClick={() => printIou(iou)}
                               className={`p-2 rounded-lg transition-colors ${
                                 iou.status === "APPROVED" 
-                                ? "text-[#0F50AA] bg-[#F0F8FF] hover:bg-[#E0F0FF]" 
-                                : "text-[#A0AAB4] bg-[#F8F9FA] cursor-not-allowed"
+                                ? "text-brand-fg bg-subtle hover:bg-hover" 
+                                : "text-fg-muted bg-subtle cursor-not-allowed"
                               }`}
                               title={iou.status === "APPROVED" ? "Print IOU" : "Approval Required to Print"}
                             >
@@ -586,7 +587,7 @@ export default function StorekeeperIouRequests() {
                             {iou.status === "APPROVED" && (
                               <button
                                 onClick={() => handleSettleClick(iou)}
-                                className="px-3 py-1.5 bg-[#199D26] text-white rounded-md text-[12px] font-[500] hover:bg-[#15801E]"
+                                className="px-3 py-1.5 bg-success-solid text-on-brand rounded-md text-[12px] font-[500] hover:bg-success-solid"
                               >
                                 Settle
                               </button>
@@ -605,12 +606,12 @@ export default function StorekeeperIouRequests() {
 
       {/* CREATE IOU MODAL */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[999999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
-              <h2 className="text-[18px] font-[600] text-[#383E49]">Create IOU Request</h2>
-              <button onClick={() => setShowCreateModal(false)} className="p-2 hover:bg-[#F8F9FA] rounded-md transition-colors">
-                <X size={20} className="text-[#64748B]" />
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[999999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-line">
+              <h2 className="text-[18px] font-[600] text-fg">Create IOU Request</h2>
+              <button onClick={() => setShowCreateModal(false)} className="p-2 hover:bg-subtle rounded-md transition-colors">
+                <X size={20} className="text-fg-secondary" />
               </button>
             </div>
             
@@ -618,62 +619,62 @@ export default function StorekeeperIouRequests() {
               <form id="createIouForm" onSubmit={handleCreateSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                   <div>
-                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">Request Date *</label>
+                    <label className="block text-[14px] font-[500] text-fg mb-1">Request Date *</label>
                     <input 
                       type="date" 
                       required
                       value={createForm.requestDate}
                       onChange={e => setCreateForm({...createForm, requestDate: e.target.value})}
-                      className="w-full px-4 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA]" 
+                      className="w-full px-4 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg" 
                     />
                   </div>
                   <div>
-                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">Receiver Name *</label>
+                    <label className="block text-[14px] font-[500] text-fg mb-1">Receiver Name *</label>
                     <input 
                       type="text" 
                       required
                       value={createForm.receiverName}
                       onChange={e => setCreateForm({...createForm, receiverName: e.target.value})}
-                      className="w-full px-4 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA]" 
+                      className="w-full px-4 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg" 
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">Justification / Reason *</label>
+                    <label className="block text-[14px] font-[500] text-fg mb-1">Justification / Reason *</label>
                     <textarea 
                       required
                       rows="2"
                       value={createForm.justification}
                       onChange={e => setCreateForm({...createForm, justification: e.target.value})}
-                      className="w-full px-4 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA]" 
+                      className="w-full px-4 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg" 
                     />
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-[16px] font-[600] text-[#383E49]">Supplier & Items Estimates</h3>
+                  <h3 className="text-[16px] font-[600] text-fg">Supplier & Items Estimates</h3>
                   <button 
                     type="button" 
                     onClick={addCreateItem}
-                    className="text-[#0F50AA] text-[14px] font-[500] flex items-center gap-1 hover:underline"
+                    className="text-brand-fg text-[14px] font-[500] flex items-center gap-1 hover:underline"
                   >
                     <Plus size={16} /> Add Market Item
                   </button>
                 </div>
 
                 {createForm.items.map((item, index) => (
-                  <div key={index} className="bg-[#F8F9FA] rounded-lg p-4 mb-4 border border-[#E4E6EA] relative">
+                  <div key={index} className="bg-subtle rounded-lg p-4 mb-4 border border-line relative">
                     {createForm.items.length > 1 && (
                       <button 
                         type="button"
                         onClick={() => removeCreateItem(index)}
-                        className="absolute right-3 top-3 text-[#EF4444] hover:bg-[#FEF2F2] p-1 rounded-md"
+                        className="absolute right-3 top-3 text-error hover:bg-subtle p-1 rounded-md"
                       >
                         <X size={16} />
                       </button>
                     )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
-                        <label className="block text-[12px] font-[500] text-[#667085] mb-1">
+                        <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                           Raw Material Item *
                         </label>
                         <select
@@ -682,7 +683,7 @@ export default function StorekeeperIouRequests() {
                           onChange={(e) =>
                             handleCreateItemChange(index, "rawMaterialId", e.target.value)
                           }
-                          className="w-full px-3 py-2 text-[14px] border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] bg-white text-[#383E49]"
+                          className="w-full px-3 py-2 text-[14px] border border-line rounded-lg focus:ring-2 focus:ring-brand-fg bg-surface text-fg"
                         >
                           <option value="">-- Select Raw Material --</option>
                           {rawMaterials.map((rm) => (
@@ -694,7 +695,7 @@ export default function StorekeeperIouRequests() {
                       </div>
 
                       <div>
-                        <label className="block text-[12px] font-[500] text-[#667085] mb-1">
+                        <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                           Supplier / Vendor *
                         </label>
                         {rowSuppliers[index] && rowSuppliers[index].length > 0 ? (
@@ -720,7 +721,7 @@ export default function StorekeeperIouRequests() {
                                 }
                               }
                             }}
-                            className="w-full px-3 py-2 text-[14px] border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] bg-white text-[#383E49]"
+                            className="w-full px-3 py-2 text-[14px] border border-line rounded-lg focus:ring-2 focus:ring-brand-fg bg-surface text-fg"
                           >
                             <option value="">-- Select Supplier --</option>
                             {rowSuppliers[index].map((s) => (
@@ -739,35 +740,35 @@ export default function StorekeeperIouRequests() {
                             onChange={(e) =>
                               handleCreateItemChange(index, "supplierName", e.target.value)
                             }
-                            className="w-full px-3 py-2 text-[14px] border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA]"
+                            className="w-full px-3 py-2 text-[14px] border border-line rounded-lg focus:ring-2 focus:ring-brand-fg"
                           />
                         )}
                       </div>
 
                       <div>
-                        <label className="block text-[12px] font-[500] text-[#667085] mb-1">Contact (Optional)</label>
+                        <label className="block text-[12px] font-[500] text-fg-secondary mb-1">Contact (Optional)</label>
                         <input 
                           type="text" 
                           placeholder="Phone / Email"
                           value={item.supplierContact}
                           onChange={e => handleCreateItemChange(index, 'supplierContact', e.target.value)}
-                          className="w-full px-3 py-2 text-[14px] border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA]" 
+                          className="w-full px-3 py-2 text-[14px] border border-line rounded-lg focus:ring-2 focus:ring-brand-fg" 
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[12px] font-[500] text-[#667085] mb-1">Item Display Name *</label>
+                        <label className="block text-[12px] font-[500] text-fg-secondary mb-1">Item Display Name *</label>
                         <input 
                           type="text" 
                           required
                           value={item.itemName}
                           onChange={e => handleCreateItemChange(index, 'itemName', e.target.value)}
-                          className="w-full px-3 py-2 text-[14px] border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA]" 
+                          className="w-full px-3 py-2 text-[14px] border border-line rounded-lg focus:ring-2 focus:ring-brand-fg" 
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[12px] font-[500] text-[#667085] mb-1">Est. Quantity *</label>
+                        <label className="block text-[12px] font-[500] text-fg-secondary mb-1">Est. Quantity *</label>
                         <input 
                           type="number" 
                           step="0.01"
@@ -775,12 +776,12 @@ export default function StorekeeperIouRequests() {
                           required
                           value={item.estimatedQuantity}
                           onChange={e => handleCreateItemChange(index, 'estimatedQuantity', e.target.value === '' ? '' : Math.max(0, parseFloat(e.target.value)))}
-                          className="w-full px-3 py-2 text-[14px] border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA]" 
+                          className="w-full px-3 py-2 text-[14px] border border-line rounded-lg focus:ring-2 focus:ring-brand-fg" 
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[12px] font-[500] text-[#667085] mb-1">Est. Unit Price *</label>
+                        <label className="block text-[12px] font-[500] text-fg-secondary mb-1">Est. Unit Price *</label>
                         <input 
                           type="number" 
                           step="0.01"
@@ -788,13 +789,13 @@ export default function StorekeeperIouRequests() {
                           required
                           value={item.estimatedPrice}
                           onChange={e => handleCreateItemChange(index, 'estimatedPrice', e.target.value === '' ? '' : Math.max(0, parseFloat(e.target.value)))}
-                          className="w-full px-3 py-2 text-[14px] border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA]" 
+                          className="w-full px-3 py-2 text-[14px] border border-line rounded-lg focus:ring-2 focus:ring-brand-fg" 
                         />
                       </div>
                       <div className="sm:col-span-2 flex items-end">
-                        <div className="w-full p-2 bg-white rounded border border-[#E4E6EA] text-right">
-                          <span className="text-[12px] text-[#667085]">Est. Line Total: </span>
-                          <span className="text-[14px] font-[600] text-[#383E49]">
+                        <div className="w-full p-2 bg-surface rounded border border-line text-right">
+                          <span className="text-[12px] text-fg-secondary">Est. Line Total: </span>
+                          <span className="text-[14px] font-[600] text-fg">
                             Rs. {((item.estimatedQuantity || 0) * (item.estimatedPrice || 0)).toFixed(2)}
                           </span>
                         </div>
@@ -806,21 +807,21 @@ export default function StorekeeperIouRequests() {
               </form>
             </div>
             
-            <div className="p-6 border-t border-[#E4E6EA] flex justify-between items-center bg-[#F8F9FA] rounded-b-lg">
-              <div className="text-[16px] font-[600] text-[#383E49]">
+            <div className="p-6 border-t border-line flex justify-between items-center bg-subtle rounded-b-lg">
+              <div className="text-[16px] font-[600] text-fg">
                 Total Estimate: Rs. {createForm.items.reduce((acc, item) => acc + ((item.estimatedQuantity || 0) * (item.estimatedPrice || 0)), 0).toFixed(2)}
               </div>
               <div className="flex gap-3">
                 <button 
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 border border-[#E4E6EA] text-[#383E49] text-[14px] font-[500] rounded-lg hover:bg-[#F0F1F3]"
+                  className="px-4 py-2 border border-line text-fg text-[14px] font-[500] rounded-lg hover:bg-app"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
                   form="createIouForm"
-                  className="px-4 py-2 bg-[#0F50AA] text-white text-[14px] font-[500] rounded-lg hover:bg-[#0D4494]"
+                  className="px-4 py-2 bg-brand text-on-brand text-[14px] font-[500] rounded-lg hover:bg-brand-hover"
                 >
                   Submit Request
                 </button>
@@ -832,50 +833,50 @@ export default function StorekeeperIouRequests() {
 
       {/* SETTLE IOU MODAL */}
       {showSettleModal && selectedIou && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[999999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[999999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-line">
               <div>
-                <h2 className="text-[18px] font-[600] text-[#383E49]">Settle IOU - GRN & Invoice</h2>
-                <p className="text-[14px] text-[#667085]">IOU-{selectedIou.id.toString().padStart(4, '0')} | Approved Est: Rs. {selectedIou.totalEstimatedAmount?.toFixed(2)}</p>
+                <h2 className="text-[18px] font-[600] text-fg">Settle IOU - GRN & Invoice</h2>
+                <p className="text-[14px] text-fg-secondary">IOU-{selectedIou.id.toString().padStart(4, '0')} | Approved Est: Rs. {selectedIou.totalEstimatedAmount?.toFixed(2)}</p>
               </div>
-              <button onClick={() => setShowSettleModal(false)} className="p-2 hover:bg-[#F8F9FA] rounded-md transition-colors">
-                <X size={20} className="text-[#64748B]" />
+              <button onClick={() => setShowSettleModal(false)} className="p-2 hover:bg-subtle rounded-md transition-colors">
+                <X size={20} className="text-fg-secondary" />
               </button>
             </div>
             
             <div className="p-6 overflow-y-auto flex-1">
-              <div className="bg-[#FFF8E1] border border-[#FFE082] rounded-lg p-4 mb-6 flex items-start gap-3">
-                <AlertTriangle size={20} className="text-[#F57C00] mt-0.5" />
+              <div className="bg-hover border border-warning/30 rounded-lg p-4 mb-6 flex items-start gap-3">
+                <AlertTriangle size={20} className="text-warning mt-0.5" />
                 <div>
-                  <h4 className="text-[14px] font-[600] text-[#383E49]">Important Note on Settlement</h4>
-                  <p className="text-[13px] text-[#667085]">Submitting this settlement will automatically create Purchase Orders (PO) and Goods Received Notes (GRN) for these items based on the actual details provided. The final difference will be routed to the manager for balancing.</p>
+                  <h4 className="text-[14px] font-[600] text-fg">Important Note on Settlement</h4>
+                  <p className="text-[13px] text-fg-secondary">Submitting this settlement will automatically create Purchase Orders (PO) and Goods Received Notes (GRN) for these items based on the actual details provided. The final difference will be routed to the manager for balancing.</p>
                 </div>
               </div>
 
               <form id="settleIouForm" onSubmit={handleSettleSubmit}>
                 <div className="mb-6">
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-1">Invoice Number (Aggregated / Primary) *</label>
+                  <label className="block text-[14px] font-[500] text-fg mb-1">Invoice Number (Aggregated / Primary) *</label>
                   <input 
                     type="text" 
                     required
                     placeholder="INV-XXXXX"
                     value={settleForm.invoiceNumber}
                     onChange={e => setSettleForm({...settleForm, invoiceNumber: e.target.value})}
-                    className="w-full md:w-1/3 px-4 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA]" 
+                    className="w-full md:w-1/3 px-4 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg" 
                   />
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full border border-[#E4E6EA] rounded-lg">
+                  <table className="w-full border border-line rounded-lg">
                     <thead>
-                      <tr className="bg-[#F8F9FA] border-b border-[#E4E6EA]">
-                        <th className="py-3 px-4 text-left text-[12px] font-[500] text-[#667085]">Est. Details (Reference)</th>
-                        <th className="py-3 px-4 text-left text-[12px] font-[500] text-[#667085]">Actual Item Name *</th>
-                        <th className="py-3 px-4 text-left text-[12px] font-[500] text-[#667085]">Actual Supplier *</th>
-                        <th className="py-3 px-4 text-left text-[12px] font-[500] text-[#667085]">Act. Qty *</th>
-                        <th className="py-3 px-4 text-left text-[12px] font-[500] text-[#667085]">Act. Price *</th>
-                        <th className="py-3 px-4 text-right text-[12px] font-[500] text-[#667085]">Line Total</th>
+                      <tr className="bg-subtle border-b border-line">
+                        <th className="py-3 px-4 text-left text-[12px] font-[500] text-fg-secondary">Est. Details (Reference)</th>
+                        <th className="py-3 px-4 text-left text-[12px] font-[500] text-fg-secondary">Actual Item Name *</th>
+                        <th className="py-3 px-4 text-left text-[12px] font-[500] text-fg-secondary">Actual Supplier *</th>
+                        <th className="py-3 px-4 text-left text-[12px] font-[500] text-fg-secondary">Act. Qty *</th>
+                        <th className="py-3 px-4 text-left text-[12px] font-[500] text-fg-secondary">Act. Price *</th>
+                        <th className="py-3 px-4 text-right text-[12px] font-[500] text-fg-secondary">Line Total</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -883,11 +884,11 @@ export default function StorekeeperIouRequests() {
                         const original = selectedIou.items[idx];
                         const lineTotal = (item.actualQuantity || 0) * (item.actualPrice || 0);
                         return (
-                          <tr key={idx} className="border-b border-[#E4E6EA]">
+                          <tr key={idx} className="border-b border-line">
                             <td className="py-3 px-4 align-top w-1/4">
-                              <p className="text-[13px] font-[500] text-[#383E49]">{original.itemName}</p>
-                              <p className="text-[12px] text-[#667085]">{original.supplierName}</p>
-                              <p className="text-[11px] text-[#A0AAB4]">Est: {formatQuantity(original.estimatedQuantity)} x {original.estimatedPrice}</p>
+                              <p className="text-[13px] font-[500] text-fg">{original.itemName}</p>
+                              <p className="text-[12px] text-fg-secondary">{original.supplierName}</p>
+                              <p className="text-[11px] text-fg-muted">Est: {formatQuantity(original.estimatedQuantity)} x {original.estimatedPrice}</p>
                             </td>
                             <td className="py-3 px-4 align-top">
                               <input 
@@ -895,7 +896,7 @@ export default function StorekeeperIouRequests() {
                                 required
                                 value={item.actualItemName}
                                 onChange={(e) => handleSettleItemChange(idx, "actualItemName", e.target.value)}
-                                className="w-full px-2 py-1.5 text-[13px] border border-[#E4E6EA] rounded focus:ring-1 focus:ring-[#0F50AA]"
+                                className="w-full px-2 py-1.5 text-[13px] border border-line rounded focus:ring-1 focus:ring-brand-fg"
                               />
                             </td>
                             <td className="py-3 px-4 align-top">
@@ -904,7 +905,7 @@ export default function StorekeeperIouRequests() {
                                 required
                                 value={item.actualSupplierName}
                                 onChange={(e) => handleSettleItemChange(idx, "actualSupplierName", e.target.value)}
-                                className="w-full px-2 py-1.5 text-[13px] border border-[#E4E6EA] rounded focus:ring-1 focus:ring-[#0F50AA]"
+                                className="w-full px-2 py-1.5 text-[13px] border border-line rounded focus:ring-1 focus:ring-brand-fg"
                               />
                             </td>
                              <td className="py-3 px-4 align-top">
@@ -916,7 +917,7 @@ export default function StorekeeperIouRequests() {
                                 placeholder="0"
                                 value={item.actualQuantity}
                                 onChange={(e) => handleSettleItemChange(idx, "actualQuantity", e.target.value === '' ? '' : Math.max(0, parseFloat(e.target.value)))}
-                                className="w-20 px-2 py-1.5 text-[13px] border border-[#E4E6EA] rounded focus:ring-1 focus:ring-[#0F50AA]"
+                                className="w-20 px-2 py-1.5 text-[13px] border border-line rounded focus:ring-1 focus:ring-brand-fg"
                               />
                             </td>
                             <td className="py-3 px-4 align-top">
@@ -928,10 +929,10 @@ export default function StorekeeperIouRequests() {
                                 placeholder="0.00"
                                 value={item.actualPrice}
                                 onChange={(e) => handleSettleItemChange(idx, "actualPrice", e.target.value === '' ? '' : Math.max(0, parseFloat(e.target.value)))}
-                                className="w-24 px-2 py-1.5 text-[13px] border border-[#E4E6EA] rounded focus:ring-1 focus:ring-[#0F50AA]"
+                                className="w-24 px-2 py-1.5 text-[13px] border border-line rounded focus:ring-1 focus:ring-brand-fg"
                               />
                             </td>
-                            <td className="py-3 px-4 align-top text-right text-[13px] font-[600] text-[#383E49]">
+                            <td className="py-3 px-4 align-top text-right text-[13px] font-[600] text-fg">
                               {lineTotal.toFixed(2)}
                             </td>
                           </tr>
@@ -943,33 +944,33 @@ export default function StorekeeperIouRequests() {
               </form>
             </div>
             
-            <div className="p-6 border-t border-[#E4E6EA] flex justify-between items-center bg-[#F8F9FA] rounded-b-lg">
+            <div className="p-6 border-t border-line flex justify-between items-center bg-subtle rounded-b-lg">
               <div className="flex flex-wrap gap-4">
                 <div className="text-[14px]">
-                  <span className="text-[#667085]">Manager Issued: </span>
-                  <span className="font-[600] text-[#0F50AA]">Rs. {(selectedIou.issuedAmount || selectedIou.totalEstimatedAmount)?.toFixed(2)}</span>
+                  <span className="text-fg-secondary">Manager Issued: </span>
+                  <span className="font-[600] text-brand-fg">Rs. {(selectedIou.issuedAmount || selectedIou.totalEstimatedAmount)?.toFixed(2)}</span>
                 </div>
                 <div className="text-[14px]">
-                  <span className="text-[#667085]">Actual Total Spent: </span>
-                  <span className="font-[600] text-[#383E49]">Rs. {settleForm.actualItems.reduce((acc, obj) => acc + ((obj.actualQuantity || 0) * (obj.actualPrice || 0)), 0).toFixed(2)}</span>
+                  <span className="text-fg-secondary">Actual Total Spent: </span>
+                  <span className="font-[600] text-fg">Rs. {settleForm.actualItems.reduce((acc, obj) => acc + ((obj.actualQuantity || 0) * (obj.actualPrice || 0)), 0).toFixed(2)}</span>
                 </div>
                 {(() => {
                   const issued = selectedIou.issuedAmount || selectedIou.totalEstimatedAmount || 0;
                   const spent = settleForm.actualItems.reduce((acc, obj) => acc + ((obj.actualQuantity || 0) * (obj.actualPrice || 0)), 0);
                   const diff = issued - spent;
                   return (
-                    <div className="text-[14px] pl-4 border-l border-[#E4E6EA]">
-                      <span className="text-[#667085]">Balance Status: </span>
+                    <div className="text-[14px] pl-4 border-l border-line">
+                      <span className="text-fg-secondary">Balance Status: </span>
                       {diff > 0 ? (
-                        <span className="font-[600] text-[#199D26]">
+                        <span className="font-[600] text-success">
                           Refund to Company: Rs. {diff.toFixed(2)}
                         </span>
                       ) : diff < 0 ? (
-                        <span className="font-[600] text-[#EF4444]">
+                        <span className="font-[600] text-error">
                           Reimburse Storekeeper: Rs. {Math.abs(diff).toFixed(2)}
                         </span>
                       ) : (
-                        <span className="font-[600] text-[#383E49]">
+                        <span className="font-[600] text-fg">
                           Fully Balanced (Rs. 0.00)
                         </span>
                       )}
@@ -980,14 +981,14 @@ export default function StorekeeperIouRequests() {
               <div className="flex gap-3">
                 <button 
                   onClick={() => setShowSettleModal(false)}
-                  className="px-4 py-2 border border-[#E4E6EA] text-[#383E49] text-[14px] font-[500] rounded-lg hover:bg-[#F0F1F3]"
+                  className="px-4 py-2 border border-line text-fg text-[14px] font-[500] rounded-lg hover:bg-app"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
                   form="settleIouForm"
-                  className="px-4 py-2 bg-[#199D26] text-white text-[14px] font-[500] rounded-lg hover:bg-[#15801E]"
+                  className="px-4 py-2 bg-success-solid text-on-brand text-[14px] font-[500] rounded-lg hover:bg-success-solid"
                 >
                   Submit Settlement
                 </button>

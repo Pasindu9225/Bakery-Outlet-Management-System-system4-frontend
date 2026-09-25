@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import { ThemeProvider } from "./context/ThemeContext";
 import "./index.css";
 import axios from 'axios';
 
@@ -117,4 +118,8 @@ axios.interceptors.response.use(
 );
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
+root.render(
+    <ThemeProvider>
+        <App />
+    </ThemeProvider>
+);

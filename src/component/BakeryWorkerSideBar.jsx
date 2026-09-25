@@ -20,7 +20,7 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
       name: "Dashboard",
       icon: LayoutDashboard,
       path: "/bakeryWorkerDashboard",
-      color: "text-blue-600",
+      color: "text-brand-fg",
     },
   ];
 
@@ -30,16 +30,16 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       } md:translate-x-0`}
     >
-      <div className="w-64 bg-white shadow-lg h-screen flex flex-col">
+      <div className="w-64 bg-surface shadow-lg h-screen flex flex-col">
         {/* Logo & Back Button */}
-        <div className="p-4 border-b border-[#E4E6EA] flex items-center justify-between">
+        <div className="p-4 border-b border-line flex items-center justify-between">
           <div className="flex items-center">
-            <img src="/logo.png" alt="logo" className="h-14 w-auto" />
+            <img src="/logo.png" alt="logo" className="logo-plate h-14 w-auto" />
           </div>
           <NavLink
             to={"/mainDashboard"}
 
-            className="p-2 text-[#667085] hover:bg-[#F0F1F3] rounded-lg transition-colors"
+            className="p-2 text-fg-secondary hover:bg-app rounded-lg transition-colors"
             title="Back to Main Dashboard"
           >
             <ArrowLeft size={18} />
@@ -47,9 +47,9 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
         </div>
 
         {/* Bakery Worker Module Title */}
-        <div className="px-4 py-3 bg-gradient-to-r from-[#0F50AA] to-[#1E40AF] text-white">
+        <div className="px-4 py-3 bg-gradient-to-r from-brand to-brand-hover text-on-brand">
           <h2 className="text-[16px] font-[600]">Bakery Worker Module</h2>
-          <p className="text-[12px] text-blue-100">
+          <p className="text-[12px] text-on-brand/80">
             Not used in this deployment
           </p>
         </div>
@@ -66,8 +66,8 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
                     className={({ isActive }) =>
                       `flex items-center gap-3 p-3 rounded-lg w-full transition-all text-[13px] text-left ${
                         isActive
-                          ? "bg-[#0F50AA] text-white shadow-sm"
-                          : "text-[#667085] hover:bg-[#F0F1F3] hover:text-[#383E49]"
+                          ? "bg-brand text-on-brand shadow-sm"
+                          : "text-fg-secondary hover:bg-app hover:text-fg"
                       }`
                     }
                   >
@@ -75,11 +75,11 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
                       <>
                         <Icon
                           size={18}
-                          className={isActive ? "text-white" : item.color}
+                          className={isActive ? "text-on-brand" : item.color}
                         />
                         <span className="font-[500]">{item.name}</span>
                         {isActive && (
-                          <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>
+                          <div className="ml-auto w-2 h-2 bg-surface rounded-full"></div>
                         )}
                       </>
                     )}
@@ -91,21 +91,21 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
         </nav>
 
         {/* User Profile */}
-        <div className="p-4 border-t border-[#E4E6EA]">
+        <div className="p-4 border-t border-line">
           <div className="flex items-center gap-3">
             <RoleAvatar roleId={localStorage.getItem("userRole")} />
             <div className="flex-1">
-              <p className="text-[14px] font-[500] text-[#383E49]">
+              <p className="text-[14px] font-[500] text-fg">
                 {localStorage.getItem("firstName") || localStorage.getItem("lastName")
                   ? `${localStorage.getItem("firstName") || ""} ${localStorage.getItem("lastName") || ""}`.trim()
                   : localStorage.getItem("userName") || "Bakery Worker"}
               </p>
-              <p className="text-[12px] text-[#667085]">
+              <p className="text-[12px] text-fg-secondary">
                 {getRoleName(localStorage.getItem("userRole")) || "Production Staff"}
               </p>
             </div>
             <button
-              className="p-1 text-[#667085] hover:text-red-500 transition-colors"
+              className="p-1 text-fg-secondary hover:text-error transition-colors"
               onClick={onLogout}
             >
               <LogOut size={16} />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import {
   Search,
   Filter,
@@ -309,7 +310,7 @@ export default function StorekeeperViewStore() {
   };
 
   const handleCreatePO = (productCode) => {
-    alert(
+    toast(
       `Creating Purchase Order for ${productCode}. This would redirect to PO creation page.`
     );
   };
@@ -336,7 +337,7 @@ export default function StorekeeperViewStore() {
   ).length;
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <StorekeeperSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -350,10 +351,10 @@ export default function StorekeeperViewStore() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+            <h1 className="text-[20px] font-[600] text-fg mb-1">
               Inventory Management
             </h1>
-            <p className="text-[14px] text-[#667085]">
+            <p className="text-[14px] text-fg-secondary">
               Monitor raw materials, track expiry dates, and manage stock levels
               with FIFO principle
             </p>
@@ -361,62 +362,62 @@ export default function StorekeeperViewStore() {
 
           {/* Alerts & Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     EXPIRED ITEMS
                   </p>
-                  <p className="text-[24px] font-[700] text-[#EF4444]">
+                  <p className="text-[24px] font-[700] text-error">
                     {expiredCount}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-[#FEE2E2] rounded-lg flex items-center justify-center">
-                  <AlertTriangle size={24} className="text-[#EF4444]" />
+                <div className="w-12 h-12 bg-hover rounded-lg flex items-center justify-center">
+                  <AlertTriangle size={24} className="text-error" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     NEAR EXPIRY
                   </p>
-                  <p className="text-[24px] font-[700] text-[#F4A100]">
+                  <p className="text-[24px] font-[700] text-warning">
                     {nearExpiryCount}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-[#FFF4E6] rounded-lg flex items-center justify-center">
-                  <Clock size={24} className="text-[#F4A100]" />
+                <div className="w-12 h-12 bg-hover rounded-lg flex items-center justify-center">
+                  <Clock size={24} className="text-warning" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     BELOW MINIMUM
                   </p>
-                  <p className="text-[24px] font-[700] text-[#0369A1]">
+                  <p className="text-[24px] font-[700] text-info">
                     {belowMinCount}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-[#E0F2FE] rounded-lg flex items-center justify-center">
-                  <TrendingDown size={24} className="text-[#0369A1]" />
+                <div className="w-12 h-12 bg-hover rounded-lg flex items-center justify-center">
+                  <TrendingDown size={24} className="text-info" />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Search and Filter Controls */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 mb-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-4 mb-6">
             <div className="flex flex-col lg:flex-row gap-4">
               {/* Search Bar */}
               <div className="flex-1 relative">
                 <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
                   size={16}
                 />
                 <input
@@ -424,7 +425,7 @@ export default function StorekeeperViewStore() {
                   placeholder="Search by material name, code, or batch number..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent text-[14px]"
+                  className="w-full pl-10 pr-4 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent text-[14px]"
                 />
               </div>
 
@@ -434,8 +435,8 @@ export default function StorekeeperViewStore() {
                   onClick={() => setActiveFilter("All")}
                   className={`px-4 py-2 text-[14px] font-[500] rounded-md transition-colors ${
                     activeFilter === "All"
-                      ? "bg-[#0F50AA] text-white"
-                      : "bg-[#F8F9FA] text-[#667085] hover:bg-[#E4E6EA]"
+                      ? "bg-brand text-on-brand"
+                      : "bg-subtle text-fg-secondary hover:bg-line"
                   }`}
                 >
                   All Items
@@ -444,8 +445,8 @@ export default function StorekeeperViewStore() {
                   onClick={() => setActiveFilter("Expiry")}
                   className={`px-4 py-2 text-[14px] font-[500] rounded-md transition-colors ${
                     activeFilter === "Expiry"
-                      ? "bg-[#F4A100] text-white"
-                      : "bg-[#F8F9FA] text-[#667085] hover:bg-[#E4E6EA]"
+                      ? "bg-warning-solid text-on-brand"
+                      : "bg-subtle text-fg-secondary hover:bg-line"
                   }`}
                 >
                   By Expiry
@@ -454,8 +455,8 @@ export default function StorekeeperViewStore() {
                   onClick={() => setActiveFilter("MinimumQty")}
                   className={`px-4 py-2 text-[14px] font-[500] rounded-md transition-colors ${
                     activeFilter === "MinimumQty"
-                      ? "bg-[#0369A1] text-white"
-                      : "bg-[#F8F9FA] text-[#667085] hover:bg-[#E4E6EA]"
+                      ? "bg-info-solid text-on-brand"
+                      : "bg-subtle text-fg-secondary hover:bg-line"
                   }`}
                 >
                   Min Quantity
@@ -465,13 +466,13 @@ export default function StorekeeperViewStore() {
               {/* Expiry Days Filter (only show when Expiry filter is active) */}
               {activeFilter === "Expiry" && (
                 <div className="flex items-center gap-2">
-                  <label className="text-[14px] font-[500] text-[#383E49]">
+                  <label className="text-[14px] font-[500] text-fg">
                     Days:
                   </label>
                   <select
                     value={expiryDays}
                     onChange={(e) => setExpiryDays(parseInt(e.target.value))}
-                    className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                    className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                   >
                     <option value={7}>7 days</option>
                     <option value={15}>15 days</option>
@@ -485,9 +486,9 @@ export default function StorekeeperViewStore() {
           </div>
 
           {/* Inventory Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-              <h3 className="text-[18px] font-[600] text-[#383E49]">
+              <h3 className="text-[18px] font-[600] text-fg">
                 {activeFilter === "All" && "All Raw Materials"}
                 {activeFilter === "Expiry" &&
                   `Items Expiring within ${expiryDays} days`}
@@ -495,7 +496,7 @@ export default function StorekeeperViewStore() {
                   "Items Below Minimum Quantity"}
               </h3>
               <div className="flex items-center gap-2 mt-2 sm:mt-0">
-                <span className="text-[12px] text-[#667085]">
+                <span className="text-[12px] text-fg-secondary">
                   Showing {groupedInventory.length} categories ({filteredInventory.length} brands)
                 </span>
               </div>
@@ -503,11 +504,11 @@ export default function StorekeeperViewStore() {
 
             {filteredInventory.length === 0 ? (
               <div className="text-center py-12">
-                <Package size={48} className="mx-auto text-[#667085] mb-4" />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <Package size={48} className="mx-auto text-fg-secondary mb-4" />
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   No items found
                 </p>
-                <p className="text-[14px] text-[#667085]">
+                <p className="text-[14px] text-fg-secondary">
                   {searchTerm
                     ? "Try adjusting your search criteria"
                     : "No items match the selected filter"}
@@ -517,26 +518,26 @@ export default function StorekeeperViewStore() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E4E6EA]">
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                    <tr className="border-b border-line">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Code & Name
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Batch Details
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Supplier
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Stock
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Expiry
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Price
                       </th>
-                      <th className="text-center py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-center py-3 text-[12px] font-[600] text-fg uppercase">
                         Actions
                       </th>
                     </tr>
@@ -546,21 +547,21 @@ export default function StorekeeperViewStore() {
                        <React.Fragment key={group.name}>
                          {/* Generic Material Parent Row */}
                          <tr
-                           className="bg-[#F8F9FA] border-b border-[#E4E6EA] cursor-pointer hover:bg-[#F1F3F5]"
+                           className="bg-subtle border-b border-line cursor-pointer hover:bg-hover"
                            onClick={() => toggleGroup(group.name)}
                          >
                            <td className="py-4 pl-4">
                              <div className="flex items-center gap-3">
                                {expandedGroups.has(group.name) ? (
-                                 <ChevronDown size={18} className="text-[#0F50AA]" />
+                                 <ChevronDown size={18} className="text-brand-fg" />
                                ) : (
-                                 <ChevronRight size={18} className="text-[#667085]" />
+                                 <ChevronRight size={18} className="text-fg-secondary" />
                                )}
                                <div>
-                                 <p className="text-[14px] font-[700] text-[#0F50AA]">
+                                 <p className="text-[14px] font-[700] text-brand-fg">
                                    {group.name}
                                  </p>
-                                 <p className="text-[12px] text-[#667085]">
+                                 <p className="text-[12px] text-fg-secondary">
                                    {group.category} | {group.items.length} Brands
                                  </p>
                                </div>
@@ -570,19 +571,19 @@ export default function StorekeeperViewStore() {
                              <div className="flex flex-col gap-1">
                                <div className="flex flex-wrap gap-1">
                                  {group.items.slice(0, 3).map(item => (
-                                   <span key={item.id} className="inline-flex items-center px-2 py-0.5 rounded bg-white border border-[#E4E6EA] text-[10px] text-[#667085]">
+                                   <span key={item.id} className="inline-flex items-center px-2 py-0.5 rounded bg-surface border border-line text-[10px] text-fg-secondary">
                                      {item.brand}
                                    </span>
                                  ))}
                                  {group.items.length > 3 && (
-                                   <span className="text-[10px] text-[#667085]">+{group.items.length - 3} more</span>
+                                   <span className="text-[10px] text-fg-secondary">+{group.items.length - 3} more</span>
                                  )}
                                </div>
                                {searchTerm && (
                                  <div className="flex flex-wrap gap-1 mt-1">
                                    {group.items.map(item => 
                                      item.batches && item.batches.filter(b => b.batchNo && b.batchNo.toLowerCase().includes(searchTerm.toLowerCase())).map(b => (
-                                       <span key={b.batchNo} className="inline-flex items-center px-2 py-0.5 rounded bg-[#EBF8FF] border border-[#0F50AA]/20 text-[10px] text-[#0F50AA]">
+                                       <span key={b.batchNo} className="inline-flex items-center px-2 py-0.5 rounded bg-hover border border-brand-fg/20 text-[10px] text-brand-fg">
                                          Batch: {b.batchNo}
                                        </span>
                                      ))
@@ -592,15 +593,15 @@ export default function StorekeeperViewStore() {
                              </div>
                            </td>
                            <td className="py-4">
-                             <span className="text-[12px] text-[#667085]">—</span>
+                             <span className="text-[12px] text-fg-secondary">—</span>
                            </td>
                            <td className="py-4">
                              <div>
-                               <p className={`text-[14px] font-[700] ${group.isBelowMin ? "text-[#EF4444]" : "text-[#383E49]"}`}>
+                               <p className={`text-[14px] font-[700] ${group.isBelowMin ? "text-error" : "text-fg"}`}>
                                  {group.totalQuantity} {group.unit}
                                </p>
                                {group.isBelowMin && (
-                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-[600] bg-[#FEE2E2] text-[#EF4444] mt-1">
+                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-[600] bg-hover text-error mt-1">
                                    LOW STOCK
                                  </span>
                                )}
@@ -609,18 +610,18 @@ export default function StorekeeperViewStore() {
                            <td className="py-4">
                              {group.nearestExpiry && (
                                <div>
-                                 <p className={`text-[13px] font-[500] ${group.isExpired ? "text-[#EF4444]" : group.isNearExpiry ? "text-[#F4A100]" : "text-[#383E49]"}`}>
+                                 <p className={`text-[13px] font-[500] ${group.isExpired ? "text-error" : group.isNearExpiry ? "text-warning" : "text-fg"}`}>
                                    {new Date(group.nearestExpiry).toLocaleDateString()}
                                  </p>
-                                 {group.isExpired && <p className="text-[10px] font-[600] text-[#EF4444]">EXPIRED</p>}
+                                 {group.isExpired && <p className="text-[10px] font-[600] text-error">EXPIRED</p>}
                                </div>
                              )}
                            </td>
                            <td className="py-4">
-                             <span className="text-[12px] text-[#667085]">—</span>
+                             <span className="text-[12px] text-fg-secondary">—</span>
                            </td>
                            <td className="py-4 text-center">
-                             <button className="text-[12px] font-[600] text-[#0F50AA] hover:underline">
+                             <button className="text-[12px] font-[600] text-brand-fg hover:underline">
                                {expandedGroups.has(group.name) ? "Collapse" : "Expand"}
                              </button>
                            </td>
@@ -630,51 +631,51 @@ export default function StorekeeperViewStore() {
                          {expandedGroups.has(group.name) && group.items.map((item) => (
                            <tr
                              key={`${item.id}-${item.code}`}
-                             className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA] transition-colors"
+                             className="border-b border-line hover:bg-subtle transition-colors"
                            >
                              <td className="py-4 pl-12">
                                <div>
-                                 <p className="text-[13px] font-[600] text-[#383E49]">
+                                 <p className="text-[13px] font-[600] text-fg">
                                    {item.code}
                                  </p>
-                                 <p className="text-[12px] text-[#667085]">
-                                   Brand: <span className="font-[600] text-[#383E49]">{item.brand}</span>
+                                 <p className="text-[12px] text-fg-secondary">
+                                   Brand: <span className="font-[600] text-fg">{item.brand}</span>
                                  </p>
                                </div>
                              </td>
                              <td className="py-4">
                                <div>
-                                 <p className="text-[13px] font-[600] text-[#383E49]">
+                                 <p className="text-[13px] font-[600] text-fg">
                                    Batches: {item.batchCount}
                                  </p>
-                                 <p className="text-[11px] text-[#667085]">
+                                 <p className="text-[11px] text-fg-secondary">
                                    Unit: {item.unit}
                                  </p>
                                  {searchTerm && item.batches && item.batches.filter(b => b.batchNo && b.batchNo.toLowerCase().includes(searchTerm.toLowerCase())).map(b => (
-                                   <p key={b.batchNo} className="text-[11px] text-[#0F50AA] font-[600] mt-1">
+                                   <p key={b.batchNo} className="text-[11px] text-brand-fg font-[600] mt-1">
                                      Batch: {b.batchNo}
                                    </p>
                                  ))}
                                </div>
                              </td>
                              <td className="py-4">
-                               <p className="text-[13px] text-[#383E49]">
+                               <p className="text-[13px] text-fg">
                                  {item.firstSupplier}
                                </p>
                              </td>
                               <td className="py-4">
                                 <div>
-                                  <p className={`text-[13px] font-[600] ${item.isBelowMin ? "text-[#EF4444]" : "text-[#383E49]"}`}>
+                                  <p className={`text-[13px] font-[600] ${item.isBelowMin ? "text-error" : "text-fg"}`}>
                                     {formatQuantity(item.totalQuantity)}
                                   </p>
-                                 <p className="text-[11px] text-[#667085]">
+                                 <p className="text-[11px] text-fg-secondary">
                                    Min: {item.minQty}
                                  </p>
                                </div>
                              </td>
                              <td className="py-4">
                                <div>
-                                 <p className={`text-[13px] ${item.isExpired ? "text-[#EF4444]" : item.isNearExpiry ? "text-[#F4A100]" : "text-[#383E49]"}`}>
+                                 <p className={`text-[13px] ${item.isExpired ? "text-error" : item.isNearExpiry ? "text-warning" : "text-fg"}`}>
                                    {item.nearestExpiry ? new Date(item.nearestExpiry).toLocaleDateString() : "-"}
                                  </p>
                                  <p className="text-[10px]">
@@ -683,7 +684,7 @@ export default function StorekeeperViewStore() {
                                </div>
                              </td>
                              <td className="py-4">
-                               <p className="text-[13px] font-[600] text-[#383E49]">
+                               <p className="text-[13px] font-[600] text-fg">
                                  Rs.{item.purchasePrice.toFixed(2)}
                                </p>
                              </td>
@@ -691,14 +692,14 @@ export default function StorekeeperViewStore() {
                                <div className="flex items-center justify-center gap-2">
                                  <button
                                    onClick={(e) => { e.stopPropagation(); handleViewBinCard(item.id); }}
-                                   className="p-1.5 text-[#0F50AA] hover:bg-[#EBF8FF] rounded"
+                                   className="p-1.5 text-brand-fg hover:bg-hover rounded"
                                  >
                                    <Eye size={16} />
                                  </button>
                                  {item.isBelowMin && (
                                    <button
                                      onClick={(e) => { e.stopPropagation(); handleCreatePO(item.code); }}
-                                     className="p-1.5 text-[#199D26] hover:bg-[#F0FDF4] rounded"
+                                     className="p-1.5 text-success hover:bg-hover rounded"
                                    >
                                      <ShoppingCart size={16} />
                                    </button>
@@ -719,17 +720,17 @@ export default function StorekeeperViewStore() {
 
       {/* BIN Card Modal */}
       {showBinCardModal && selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 border-b border-[#E4E6EA]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 border-b border-line">
               {/* Title & Product Info */}
               <div>
-                <h2 className="text-[20px] font-[600] text-[#383E49]">
+                <h2 className="text-[20px] font-[600] text-fg">
                   BIN Card -{" "}
                   {inventory.find((item) => item.id === selectedProduct)?.name}
                 </h2>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   Product Code:{" "}
                   {inventory.find((item) => item.id === selectedProduct)?.code}
                 </p>
@@ -738,24 +739,24 @@ export default function StorekeeperViewStore() {
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <button
-                  onClick={() => alert("Downloading BIN card report...")}
-                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-[#0F50AA] bg-[#EBF8FF] hover:bg-[#DBEAFE] rounded-lg transition-colors"
+                  onClick={() => toast("Downloading BIN card report...")}
+                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-brand-fg bg-hover hover:bg-line rounded-lg transition-colors"
                 >
                   <Download size={16} />
                   Download
                 </button>
                 <button
-                  onClick={() => alert("Printing BIN card...")}
-                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-[#0F50AA] bg-[#EBF8FF] hover:bg-[#DBEAFE] rounded-lg transition-colors"
+                  onClick={() => toast("Printing BIN card...")}
+                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-brand-fg bg-hover hover:bg-line rounded-lg transition-colors"
                 >
                   <Printer size={16} />
                   Print
                 </button>
                 <button
                   onClick={() => setShowBinCardModal(false)}
-                  className="p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                  className="p-2 hover:bg-subtle rounded-lg transition-colors"
                 >
-                  <X size={20} className="text-[#667085]" />
+                  <X size={20} className="text-fg-secondary" />
                 </button>
               </div>
             </div>
@@ -763,12 +764,12 @@ export default function StorekeeperViewStore() {
             {/* Modal Body */}
             <div className="p-6">
               {/* Product Summary */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-[#F8F9FA] rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-subtle rounded-lg">
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Current Stock
                   </p>
-                  <p className="text-[16px] font-[600] text-[#383E49]">
+                  <p className="text-[16px] font-[600] text-fg">
                     {inventory.find((item) => item.id === selectedProduct)
                       ?.totalQuantity || 0}{" "}
                     {
@@ -778,10 +779,10 @@ export default function StorekeeperViewStore() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Minimum Quantity
                   </p>
-                  <p className="text-[16px] font-[600] text-[#383E49]">
+                  <p className="text-[16px] font-[600] text-fg">
                     {inventory.find((item) => item.id === selectedProduct)
                       ?.minQty || 0}{" "}
                     {
@@ -791,50 +792,50 @@ export default function StorekeeperViewStore() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Active Batches
                   </p>
-                  <p className="text-[16px] font-[600] text-[#383E49]">
+                  <p className="text-[16px] font-[600] text-fg">
                     {inventory.find((item) => item.id === selectedProduct)
                       ?.batches.length || 0}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Brand
                   </p>
-                  <p className="text-[16px] font-[600] text-[#383E49]">
+                  <p className="text-[16px] font-[600] text-fg">
                     {inventory.find((item) => item.id === selectedProduct)
                       ?.brand || "N/A"}
                   </p>
                 </div>
               </div>
               {/* Filter Controls */}
-              <div className="flex flex-wrap gap-4 mb-6 p-4 bg-[#F8F9FA] rounded-lg border border-[#E4E6EA]">
+              <div className="flex flex-wrap gap-4 mb-6 p-4 bg-subtle rounded-lg border border-line">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[12px] font-[600] text-[#667085]">Start Date</label>
+                  <label className="text-[12px] font-[600] text-fg-secondary">Start Date</label>
                   <input 
                     type="date" 
                     value={binStartDate}
                     onChange={(e) => setBinStartDate(e.target.value)}
-                    className="px-3 py-2 text-[14px] border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#E24E11]/20"
+                    className="px-3 py-2 text-[14px] border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-warning/20"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-[12px] font-[600] text-[#667085]">End Date</label>
+                  <label className="text-[12px] font-[600] text-fg-secondary">End Date</label>
                   <input 
                     type="date" 
                     value={binEndDate}
                     onChange={(e) => setBinEndDate(e.target.value)}
-                    className="px-3 py-2 text-[14px] border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#E24E11]/20"
+                    className="px-3 py-2 text-[14px] border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-warning/20"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-[12px] font-[600] text-[#667085]">Last Entries</label>
+                  <label className="text-[12px] font-[600] text-fg-secondary">Last Entries</label>
                   <select 
                     value={lastEntries}
                     onChange={(e) => setLastEntries(e.target.value)}
-                    className="px-3 py-2 text-[14px] border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#E24E11]/20"
+                    className="px-3 py-2 text-[14px] border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-warning/20"
                   >
                     <option value="All">All Entries</option>
                     <option value="10">Last 10</option>
@@ -849,7 +850,7 @@ export default function StorekeeperViewStore() {
                       setBinEndDate("");
                       setLastEntries("All");
                     }}
-                    className="px-4 py-2 text-[14px] font-[500] text-[#667085] hover:text-[#E24E11] transition-colors"
+                    className="px-4 py-2 text-[14px] font-[500] text-fg-secondary hover:text-warning transition-colors"
                   >
                     Reset Filters
                   </button>
@@ -857,82 +858,82 @@ export default function StorekeeperViewStore() {
               </div>
 
               {/* Batches Table */}
-              <div className="border border-[#E4E6EA] rounded-lg">
-                <div className="bg-[#F8F9FA] px-4 py-3 border-b border-[#E4E6EA]">
-                  <h4 className="text-[16px] font-[600] text-[#383E49]">
+              <div className="border border-line rounded-lg">
+                <div className="bg-subtle px-4 py-3 border-b border-line">
+                  <h4 className="text-[16px] font-[600] text-fg">
                     Batches
                   </h4>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-[#F8F9FA]">
+                    <thead className="bg-subtle">
                       <tr>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Batch/Lot
                         </th>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Supplier
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Purchase Price
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Qty Received
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Qty Issued
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Balance
                         </th>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Receive Date
                         </th>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Expiry
                         </th>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Min Qty
                         </th>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase"></th>
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase"></th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E4E6EA]">
+                    <tbody className="divide-y divide-line">
                       {getFilteredBatches(
                         inventory.find((it) => it.id === selectedProduct)
                           ?.batches || []
                       ).map((b, idx) => (
-                        <tr key={idx} className="hover:bg-[#F8F9FA]">
-                          <td className="py-3 px-4 text-[14px] text-[#383E49]">
+                        <tr key={idx} className="hover:bg-subtle">
+                          <td className="py-3 px-4 text-[14px] text-fg">
                             {b.batchNo || "-"}
                           </td>
-                          <td className="py-3 px-4 text-[14px] text-[#383E49]">
+                          <td className="py-3 px-4 text-[14px] text-fg">
                             {b.supplier || "-"}
                           </td>
-                          <td className="py-3 px-4 text-right text-[14px] text-[#383E49]">
+                          <td className="py-3 px-4 text-right text-[14px] text-fg">
                             Rs.{Number(b.purchasePrice || 0).toFixed(2)}
                           </td>
-                           <td className="py-3 px-4 text-right text-[14px] text-[#383E49]">
+                           <td className="py-3 px-4 text-right text-[14px] text-fg">
                              {b.receivedQuantity ?? 0}
                            </td>
-                           <td className="py-3 px-4 text-right text-[14px] text-[#383E49]">
+                           <td className="py-3 px-4 text-right text-[14px] text-fg">
                              {b.issuedQuantity ?? 0}
                            </td>
-                           <td className="py-3 px-4 text-right text-[14px] font-[600] text-[#383E49]">
+                           <td className="py-3 px-4 text-right text-[14px] font-[600] text-fg">
                              {b.balance ?? b.quantity ?? 0}
                            </td>
-                          <td className="py-3 px-4 text-[14px] text-[#383E49]">
+                          <td className="py-3 px-4 text-[14px] text-fg">
                             {b.receiveDate
                               ? new Date(b.receiveDate).toLocaleDateString()
                               : "-"}
                           </td>
-                          <td className="py-3 px-4 text-[14px] text-[#383E49]">
+                          <td className="py-3 px-4 text-[14px] text-fg">
                             <div className="flex flex-col items-start gap-1">
                               <span>{b.expiryDate ? new Date(b.expiryDate).toLocaleDateString() : "-"}</span>
                               <ExpiryTag expiryDate={b.expiryDate} warnDays={expiryDays} />
                             </div>
                           </td>
-                          <td className="py-3 px-4 text-[14px] text-[#383E49]">
+                          <td className="py-3 px-4 text-[14px] text-fg">
                             {b.minQty ?? 0}
                           </td>
                           <td className="py-3 px-4">
@@ -947,7 +948,7 @@ export default function StorekeeperViewStore() {
                                     stockRef: `raw_materials:${b.id}`, available: b.balance ?? b.quantity,
                                   });
                                 }}
-                                className="px-3 py-1 text-[12px] font-[600] text-red-600 border border-red-200 rounded-lg hover:bg-red-50 whitespace-nowrap"
+                                className="px-3 py-1 text-[12px] font-[600] text-error border border-error/30 rounded-lg hover:bg-error/10 whitespace-nowrap"
                               >
                                 Report wastage
                               </button>
@@ -962,10 +963,10 @@ export default function StorekeeperViewStore() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex justify-end items-center p-6 border-t border-[#E4E6EA]">
+            <div className="flex justify-end items-center p-6 border-t border-line">
               <button
                 onClick={() => setShowBinCardModal(false)}
-                className="px-4 py-2 text-[14px] font-[500] text-[#667085] bg-white border border-[#E4E6EA] hover:bg-[#F8F9FA] rounded-md transition-colors"
+                className="px-4 py-2 text-[14px] font-[500] text-fg-secondary bg-surface border border-line hover:bg-subtle rounded-md transition-colors"
               >
                 Close
               </button>
@@ -977,7 +978,7 @@ export default function StorekeeperViewStore() {
       {/* Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -993,7 +994,7 @@ export default function StorekeeperViewStore() {
         />
       )}
       {reportMsg && (
-        <div className="fixed top-6 right-6 z-[100001] bg-white border-l-4 border-green-500 rounded-xl shadow-2xl p-4 text-[13px] text-[#344054]">
+        <div className="fixed top-6 right-6 z-[100001] bg-elevated border-l-4 border-success rounded-xl shadow-2xl p-4 text-[13px] text-fg">
           {reportMsg}
         </div>
       )}

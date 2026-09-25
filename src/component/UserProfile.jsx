@@ -75,20 +75,20 @@ export default function UserProfile() {
 
   const roleName = profile ? getRoleName(profile.role) || profile.role : "";
 
-  const InfoRow = ({ icon: Icon, label, value, color = "text-[#0F50AA]" }) => {
+  const InfoRow = ({ icon: Icon, label, value, color = "text-brand-fg" }) => {
     if (!value && value !== 0) return null;
     return (
-      <div className="flex items-start gap-3 py-3 border-b border-[#F0F1F3] last:border-0">
+      <div className="flex items-start gap-3 py-3 border-b border-line last:border-0">
         <div
-          className={`mt-0.5 p-2 rounded-lg bg-[#F0F1F3] ${color} flex-shrink-0`}
+          className={`mt-0.5 p-2 rounded-lg bg-app ${color} flex-shrink-0`}
         >
           <Icon size={15} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-[500] text-[#667085] uppercase tracking-wide mb-0.5">
+          <p className="text-[11px] font-[500] text-fg-secondary uppercase tracking-wide mb-0.5">
             {label}
           </p>
-          <p className="text-[14px] font-[500] text-[#383E49] break-words">
+          <p className="text-[14px] font-[500] text-fg break-words">
             {value}
           </p>
         </div>
@@ -101,15 +101,15 @@ export default function UserProfile() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[22px] font-[700] text-[#383E49]">My Profile</h1>
-          <p className="text-[13px] text-[#667085] mt-0.5">
+          <h1 className="text-[22px] font-[700] text-fg">My Profile</h1>
+          <p className="text-[13px] text-fg-secondary mt-0.5">
             Your account information
           </p>
         </div>
         <button
           onClick={fetchProfile}
           disabled={loading}
-          className="flex items-center gap-2 px-3 py-2 text-[13px] text-[#667085] hover:text-[#0F50AA] hover:bg-[#F0F1F3] rounded-lg transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-3 py-2 text-[13px] text-fg-secondary hover:text-brand-fg hover:bg-app rounded-lg transition-colors disabled:opacity-50"
           title="Refresh profile"
         >
           <RefreshCw size={15} className={loading ? "animate-spin" : ""} />
@@ -118,21 +118,21 @@ export default function UserProfile() {
       </div>
 
       {error && (
-        <div className="mb-4 px-4 py-3 bg-yellow-50 border border-yellow-200 rounded-lg text-[13px] text-yellow-700">
+        <div className="mb-4 px-4 py-3 bg-warning/10 border border-warning/30 rounded-lg text-[13px] text-warning">
           {error}
         </div>
       )}
 
       {loading ? (
-        <div className="bg-white rounded-xl shadow-sm border border-[#E4E6EA] p-12 flex flex-col items-center justify-center gap-3">
-          <RefreshCw size={28} className="animate-spin text-[#0F50AA]" />
-          <p className="text-[14px] text-[#667085]">Loading profile...</p>
+        <div className="bg-surface rounded-xl shadow-sm border border-line p-12 flex flex-col items-center justify-center gap-3">
+          <RefreshCw size={28} className="animate-spin text-brand-fg" />
+          <p className="text-[14px] text-fg-secondary">Loading profile...</p>
         </div>
       ) : (
         <>
           {/* Avatar Card */}
-          <div className="bg-gradient-to-br from-[#0F50AA] to-[#1E40AF] rounded-xl p-6 mb-4 flex items-center gap-5 shadow-md">
-            <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
+          <div className="bg-gradient-to-br from-brand to-brand-hover rounded-xl p-6 mb-4 flex items-center gap-5 shadow-md">
+            <div className="w-16 h-16 rounded-2xl bg-surface/20 flex items-center justify-center flex-shrink-0">
               <RoleAvatar
                 roleId={profile?.role}
                 size="lg"
@@ -140,12 +140,12 @@ export default function UserProfile() {
               />
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="text-[20px] font-[700] text-white truncate">
+              <h2 className="text-[20px] font-[700] text-on-brand truncate">
                 {fullName}
               </h2>
-              <p className="text-[13px] text-blue-200 mt-0.5">{roleName}</p>
+              <p className="text-[13px] text-on-brand/80 mt-0.5">{roleName}</p>
               {profile?.username && (
-                <p className="text-[12px] text-blue-300 mt-1">
+                <p className="text-[12px] text-brand-fg mt-1">
                   @{profile.username}
                 </p>
               )}
@@ -153,8 +153,8 @@ export default function UserProfile() {
           </div>
 
           {/* Details Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-[#E4E6EA] p-5 mb-4">
-            <h3 className="text-[13px] font-[600] text-[#383E49] uppercase tracking-wide mb-1">
+          <div className="bg-surface rounded-xl shadow-sm border border-line p-5 mb-4">
+            <h3 className="text-[13px] font-[600] text-fg uppercase tracking-wide mb-1">
               Account Details
             </h3>
             <div className="mt-2">
@@ -162,31 +162,31 @@ export default function UserProfile() {
                 icon={User}
                 label="Full Name"
                 value={fullName}
-                color="text-[#0F50AA]"
+                color="text-brand-fg"
               />
               <InfoRow
                 icon={Hash}
                 label="Username"
                 value={profile?.username}
-                color="text-purple-600"
+                color="text-plum"
               />
               <InfoRow
                 icon={Shield}
                 label="Role"
                 value={roleName}
-                color="text-green-600"
+                color="text-success"
               />
               <InfoRow
                 icon={Mail}
                 label="Email"
                 value={profile?.email}
-                color="text-orange-600"
+                color="text-warning"
               />
               <InfoRow
                 icon={Phone}
                 label="Phone"
                 value={profile?.phone}
-                color="text-teal-600"
+                color="text-success"
               />
             </div>
           </div>
@@ -198,8 +198,8 @@ export default function UserProfile() {
             profile?.outletId ||
             profile?.productionCenterId ||
             profile?.mpcId) && (
-            <div className="bg-white rounded-xl shadow-sm border border-[#E4E6EA] p-5 mb-4">
-              <h3 className="text-[13px] font-[600] text-[#383E49] uppercase tracking-wide mb-1">
+            <div className="bg-surface rounded-xl shadow-sm border border-line p-5 mb-4">
+              <h3 className="text-[13px] font-[600] text-fg uppercase tracking-wide mb-1">
                 Assignments
               </h3>
               <div className="mt-2">
@@ -207,7 +207,7 @@ export default function UserProfile() {
                   icon={Building2}
                   label="Outlet"
                   value={profile?.outletName || (profile?.outletId ? `Outlet #${profile.outletId}` : null)}
-                  color="text-indigo-600"
+                  color="text-plum"
                 />
                 <InfoRow
                   icon={Factory}
@@ -219,13 +219,13 @@ export default function UserProfile() {
                       ? `Center #${profile.productionCenterId}`
                       : null
                   }
-                  color="text-pink-600"
+                  color="text-error"
                 />
                 <InfoRow
                   icon={Layers}
                   label="MPC / Sub-center"
                   value={profile?.mpcName || (profile?.mpcId ? `MPC #${profile.mpcId}` : null)}
-                  color="text-cyan-600"
+                  color="text-info"
                 />
               </div>
             </div>
@@ -234,7 +234,7 @@ export default function UserProfile() {
           {/* Logout */}
           <button
             onClick={onLogout}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-colors text-[14px] font-[500]"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-error/30 text-error bg-error/10 hover:bg-error/10 transition-colors text-[14px] font-[500]"
           >
             <LogOut size={16} />
             Sign Out

@@ -233,22 +233,22 @@ export default function POSGoodsEntry() {
     {
       value: "Store",
       icon: <Store size={16} />,
-      color: "bg-blue-100 text-blue-800",
+      color: "bg-brand/10 text-brand-fg",
     },
     {
       value: "Bakery",
       icon: <ChefHat size={16} />,
-      color: "bg-green-100 text-green-800",
+      color: "bg-success/10 text-success",
     },
     {
       value: "Production",
       icon: <Package size={16} />,
-      color: "bg-purple-100 text-purple-800",
+      color: "bg-plum/10 text-plum",
     },
     {
       value: "Kitchen",
       icon: <ChefHat size={16} />,
-      color: "bg-orange-100 text-orange-800",
+      color: "bg-warning/10 text-warning",
     },
   ];
 
@@ -432,11 +432,11 @@ export default function POSGoodsEntry() {
 
   const getSourceColor = (source) => {
     const sourceData = sources.find((s) => s.value === source);
-    return sourceData ? sourceData.color : "bg-gray-100 text-gray-800";
+    return sourceData ? sourceData.color : "bg-hover text-fg";
   };
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <POSSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -450,12 +450,12 @@ export default function POSGoodsEntry() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             {/* Tabs */}
-            <div className="flex border-b border-[#E4E6EA]">
+            <div className="flex border-b border-line">
               <button
                 onClick={() => setActiveTab("expected")}
                 className={`px-4 py-2 border-b-2 transition-colors ${activeTab === "expected"
-                  ? "border-[#0F50AA] text-[#0F50AA] font-[500]"
-                  : "border-transparent text-[#667085] hover:text-[#383E49]"
+                  ? "border-brand-fg text-brand-fg font-[500]"
+                  : "border-transparent text-fg-secondary hover:text-fg"
                   }`}
               >
                 Incoming GTNs
@@ -463,8 +463,8 @@ export default function POSGoodsEntry() {
               <button
                 onClick={() => setActiveTab("transfers")}
                 className={`px-4 py-2 border-b-2 transition-colors ${activeTab === "transfers"
-                  ? "border-[#0F50AA] text-[#0F50AA] font-[500]"
-                  : "border-transparent text-[#667085] hover:text-[#383E49]"
+                  ? "border-brand-fg text-brand-fg font-[500]"
+                  : "border-transparent text-fg-secondary hover:text-fg"
                   }`}
               >
                 Outgoing Transfers
@@ -472,8 +472,8 @@ export default function POSGoodsEntry() {
               <button
                 onClick={() => setActiveTab("manual")}
                 className={`px-4 py-2 border-b-2 transition-colors ${activeTab === "manual"
-                  ? "border-[#0F50AA] text-[#0F50AA] font-[500]"
-                  : "border-transparent text-[#667085] hover:text-[#383E49]"
+                  ? "border-brand-fg text-brand-fg font-[500]"
+                  : "border-transparent text-fg-secondary hover:text-fg"
                   }`}
               >
                 Manual Entry
@@ -482,8 +482,8 @@ export default function POSGoodsEntry() {
             <div className="flex items-center gap-3 mt-4 sm:mt-0">
               <span
                 className={`px-3 py-1 rounded-full text-[12px] font-[500] ${isConfirmed
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
+                  ? "bg-success/10 text-success"
+                  : "bg-warning/10 text-warning"
                   }`}
               >
                 {isConfirmed ? "Entry Confirmed" : "Entry Pending"}
@@ -495,29 +495,29 @@ export default function POSGoodsEntry() {
           {activeTab === "expected" && (
             <div className="space-y-6">
               {/* Search and Filter */}
-              <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg border border-[#E4E6EA]">
+              <div className="flex flex-col sm:flex-row gap-4 bg-surface p-4 rounded-lg border border-line">
                 <div className="relative flex-1">
                   <Search
                     size={16}
-                    className="absolute left-3 top-3 text-[#667085]"
+                    className="absolute left-3 top-3 text-fg-secondary"
                   />
                   <input
                     type="text"
                     placeholder="Search products..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 w-full border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-[#0F50AA]"
+                    className="pl-10 pr-4 py-2 w-full border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg"
                   />
                 </div>
                 <div className="relative">
                   <Filter
                     size={16}
-                    className="absolute left-3 top-3 text-[#667085]"
+                    className="absolute left-3 top-3 text-fg-secondary"
                   />
                   <select
                     value={filterSource}
                     onChange={(e) => setFilterSource(e.target.value)}
-                    className="pl-10 pr-8 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-[#0F50AA]"
+                    className="pl-10 pr-8 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg"
                   >
                     <option value="all">All Sources</option>
                     {sources.map((source) => (
@@ -530,12 +530,12 @@ export default function POSGoodsEntry() {
               </div>
 
               {/* Expected Deliveries List */}
-              <div className="bg-white rounded-lg border border-[#E4E6EA]">
-                <div className="p-4 border-b border-[#E4E6EA]">
-                  <h3 className="text-[18px] font-[600] text-[#383E49]">
+              <div className="bg-surface rounded-lg border border-line">
+                <div className="p-4 border-b border-line">
+                  <h3 className="text-[18px] font-[600] text-fg">
                     Expected Deliveries
                   </h3>
-                  <p className="text-[14px] text-[#667085]">
+                  <p className="text-[14px] text-fg-secondary">
                     {
                       filteredExpectedDeliveries.filter(
                         (item) => item.status === "received"
@@ -548,20 +548,20 @@ export default function POSGoodsEntry() {
                 {loadingExpected ? (
                   <Loader variant="section" text="Loading expected deliveries..." />
                 ) : expectedError ? (
-                  <div className="p-6 flex items-center gap-3 text-red-600">
+                  <div className="p-6 flex items-center gap-3 text-error">
                     <AlertCircle size={18} />
                     <span className="text-[14px]">{expectedError}</span>
                   </div>
                 ) : filteredExpectedDeliveries.length === 0 ? (
-                  <div className="p-6 text-center text-[14px] text-[#667085]">
+                  <div className="p-6 text-center text-[14px] text-fg-secondary">
                     No expected deliveries found.
                   </div>
                 ) : (
-                  <div className="divide-y divide-[#E4E6EA]">
+                  <div className="divide-y divide-line">
                     {filteredExpectedDeliveries.map((item) => (
                       <div
                         key={item.id}
-                        className="p-4 hover:bg-[#F8F9FA] transition-colors"
+                        className="p-4 hover:bg-subtle transition-colors"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
@@ -581,7 +581,7 @@ export default function POSGoodsEntry() {
 
                               {/* Entry status badge */}
                               {/* {item.entryStatus && (
-                                <span className="px-2 py-1 rounded-full text-[11px] font-[500] bg-blue-50 text-blue-700">
+                                <span className="px-2 py-1 rounded-full text-[11px] font-[500] bg-brand/10 text-brand-fg">
                                   {item.entryStatus}
                                 </span>
                               )} */}
@@ -592,12 +592,12 @@ export default function POSGoodsEntry() {
                                     <span
                                       className={`px-2 py-1 rounded-full text-[11px] font-[500] ${
                                         s === "OVER_RECEIVED"
-                                          ? "bg-red-100 text-red-700"
+                                          ? "bg-error/10 text-error"
                                           : s === "PARTIALLY_RECEIVED" || s === "PARTIALY_RECEIVED"
-                                          ? "bg-orange-100 text-orange-700"
+                                          ? "bg-warning/10 text-warning"
                                           : s === "RECEIVED"
-                                          ? "bg-green-100 text-green-800"
-                                          : "bg-gray-100 text-gray-700"
+                                          ? "bg-success/10 text-success"
+                                          : "bg-hover text-fg"
                                       }`}
                                     >
                                       {item.itemStatus}
@@ -608,29 +608,29 @@ export default function POSGoodsEntry() {
                               </div>
 
                               {item.status === "received" && (
-                                <CheckCircle size={16} className="text-green-600" />
+                                <CheckCircle size={16} className="text-success" />
                               )}
                             </div>
 
                             {/* Product name with item status badge */}
                             <div className="flex items-center gap-2">
-                              <h4 className="text-[16px] font-[500] text-[#383E49]">
+                              <h4 className="text-[16px] font-[500] text-fg">
                                 {item.productName}
                               </h4>
                             </div>
 
                             {/* Product code | GTN batch */}
-                            <p className="text-[14px] text-[#667085]">
+                            <p className="text-[14px] text-fg-secondary">
                               GTN ID: {item.gtnId} &nbsp;|&nbsp; Code: {item.productCode} &nbsp;|&nbsp; Batch: {item.batchNo}
                             </p>
 
                             {/* GTN ID | GTN Item ID | Product ID */}
-                            {/* <p className="text-[12px] text-[#667085] mt-1">
+                            {/* <p className="text-[12px] text-fg-secondary mt-1">
                               GTN ID: {item.gtnId}
                             </p> */}
 
                             {/* GTN date | Expiry date */}
-                            <p className="text-[12px] text-[#667085] mt-1">
+                            <p className="text-[12px] text-fg-secondary mt-1">
                               {item.gtnDate && (
                                 <>GTN Date: {new Date(item.gtnDate).toLocaleString()}</>
                               )}
@@ -643,20 +643,20 @@ export default function POSGoodsEntry() {
                             </p>
 
                             {/* Added by | Approved by */}
-                            {/* <p className="text-[12px] text-[#667085] mt-1">
+                            {/* <p className="text-[12px] text-fg-secondary mt-1">
                               Added By: {item.addedBy} &nbsp;|&nbsp; Approved By: {item.approvedBy}
                             </p> */}
 
                             {/* Expected & received quantities */}
                             <div className="flex items-center gap-4 mt-2 flex-wrap">
-                              <span className="text-[14px] text-[#667085]">
+                              <span className="text-[14px] text-fg-secondary">
                                 Expected: <strong>{item.expectedQty}</strong> {item.unit}
                               </span>
-                              <span className="text-[14px] text-[#667085]">
+                              <span className="text-[14px] text-fg-secondary">
                                 Received (API): <strong>{item.alreadyReceivedQty}</strong> {item.unit}
                               </span>
                               {item.expectedQty - item.alreadyReceivedQty > 0 && (
-                                <span className="text-[14px] text-amber-600 font-[500]">
+                                <span className="text-[14px] text-warning font-[500]">
                                   Remaining: <strong>{item.expectedQty - item.alreadyReceivedQty}</strong> {item.unit}
                                 </span>
                               )}
@@ -666,7 +666,7 @@ export default function POSGoodsEntry() {
                           {/* Received qty input */}
                           <div className="flex items-center gap-3">
                             <div className="text-right">
-                              <label className="block text-[12px] text-[#667085] mb-1">
+                              <label className="block text-[12px] text-fg-secondary mb-1">
                                 Received Qty
                               </label>
                               <div className="flex items-center gap-2">
@@ -678,7 +678,7 @@ export default function POSGoodsEntry() {
                                   onChange={(e) =>
                                     handleQuantityChange(item.id, e.target.value)
                                   }
-                                  className="w-24 px-3 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-[#0F50AA] text-center"
+                                  className="w-24 px-3 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg text-center"
                                   placeholder="0"
                                   disabled={isConfirmed}
                                 />
@@ -690,7 +690,7 @@ export default function POSGoodsEntry() {
                                   }}
                                   disabled={isConfirmed}
                                   title="Fill remaining quantity"
-                                  className="px-3 py-2 border border-blue-200 text-[#0F50AA] hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-[13px] font-[500]"
+                                  className="px-3 py-2 border border-brand/20 text-brand-fg hover:bg-brand/10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-[13px] font-[500]"
                                 >
                                   Target
                                 </button>
@@ -709,28 +709,28 @@ export default function POSGoodsEntry() {
           {activeTab === "transfers" && (
             <div className="space-y-6">
               {/* Search and Filter */}
-              <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg border border-[#E4E6EA]">
+              <div className="flex flex-col sm:flex-row gap-4 bg-surface p-4 rounded-lg border border-line">
                 <div className="relative flex-1">
                   <Search
                     size={16}
-                    className="absolute left-3 top-3 text-[#667085]"
+                    className="absolute left-3 top-3 text-fg-secondary"
                   />
                   <input
                     type="text"
                     placeholder="Search transfers..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 w-full border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-[#0F50AA]"
+                    className="pl-10 pr-4 py-2 w-full border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg"
                   />
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg border border-[#E4E6EA]">
-                <div className="p-4 border-b border-[#E4E6EA]">
-                  <h3 className="text-[18px] font-[600] text-[#383E49]">
+              <div className="bg-surface rounded-lg border border-line">
+                <div className="p-4 border-b border-line">
+                  <h3 className="text-[18px] font-[600] text-fg">
                     Pending Transfers
                   </h3>
-                  <p className="text-[14px] text-[#667085]">
+                  <p className="text-[14px] text-fg-secondary">
                     {pendingTransfers.length} pending transfer(s)
                   </p>
                 </div>
@@ -738,25 +738,25 @@ export default function POSGoodsEntry() {
                 <div className="p-4 sm:p-6">
                   {loadingTransfers ? (
                     <div className="text-center py-8">
-                      <p className="text-[#667085]">Loading transfers...</p>
+                      <p className="text-fg-secondary">Loading transfers...</p>
                     </div>
                   ) : transferError ? (
                     <div className="text-center py-8">
-                      <p className="text-red-500">{transferError}</p>
+                      <p className="text-error">{transferError}</p>
                     </div>
                   ) : pendingTransfers.length === 0 ? (
                     <div className="text-center py-8">
-                      <p className="text-[#667085]">No pending transfers found.</p>
+                      <p className="text-fg-secondary">No pending transfers found.</p>
                     </div>
                   ) : (
-                    <div className="divide-y divide-[#E4E6EA]">
+                    <div className="divide-y divide-line">
                       {pendingTransfers
                         .filter(t => !searchTerm || (t.productName && t.productName.toLowerCase().includes(searchTerm.toLowerCase())))
                         .map((t) => (
                         <div key={t.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div>
-                            <p className="font-[500] text-[16px] text-[#383E49]">{t.productName || "Unknown Product"}</p>
-                            <p className="text-[14px] text-[#667085] mt-1">
+                            <p className="font-[500] text-[16px] text-fg">{t.productName || "Unknown Product"}</p>
+                            <p className="text-[14px] text-fg-secondary mt-1">
                               From: {t.sourceOutletName || "Unknown Source"} &bull; Requested: {t.requestedQuantity}
                             </p>
                           </div>
@@ -766,7 +766,7 @@ export default function POSGoodsEntry() {
                               setApproveQuantity(t.requestedQuantity?.toString() || "");
                               setIsApproveModalOpen(true);
                             }}
-                            className="px-6 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] text-[14px] font-[500] transition-colors whitespace-nowrap"
+                            className="px-6 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover text-[14px] font-[500] transition-colors whitespace-nowrap"
                           >
                             Approve Transfer
                           </button>
@@ -783,20 +783,20 @@ export default function POSGoodsEntry() {
           {activeTab === "manual" && (
             <div className="space-y-6">
               {/* Manual Entry Form */}
-              <div className="bg-white rounded-lg border border-[#E4E6EA] p-6">
+              <div className="bg-surface rounded-lg border border-line p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <User size={20} className="text-[#0F50AA]" />
-                  <h3 className="text-[18px] font-[600] text-[#383E49]">
+                  <User size={20} className="text-brand-fg" />
+                  <h3 className="text-[18px] font-[600] text-fg">
                     Add Manual Entry
                   </h3>
-                  {/* <span className="text-[12px] bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
+                  {/* <span className="text-[12px] bg-warning/10 text-warning px-2 py-1 rounded-full">
                     Manager Only
                   </span> */}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-[12px] font-[500] text-[#667085] mb-1">
+                    <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                       Select Product *
                     </label>
                     <select
@@ -823,7 +823,7 @@ export default function POSGoodsEntry() {
                           }));
                         }
                       }}
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-[#0F50AA]"
+                      className="w-full px-3 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg"
                       disabled={isConfirmed}
                     >
                       <option value="">-- Choose a Product --</option>
@@ -835,20 +835,20 @@ export default function POSGoodsEntry() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[12px] font-[500] text-[#667085] mb-1">
+                    <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                       Product Name (Auto-filled)
                     </label>
                     <input
                       type="text"
                       value={manualEntry.productName}
                       readOnly
-                      className="w-full px-3 py-2 bg-gray-50 border border-[#E4E6EA] rounded-lg text-gray-700"
+                      className="w-full px-3 py-2 bg-subtle border border-line rounded-lg text-fg"
                       placeholder="Selected product name"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[12px] font-[500] text-[#667085] mb-1">
+                    <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                       Product Code
                     </label>
                     <input
@@ -857,14 +857,14 @@ export default function POSGoodsEntry() {
                       onChange={(e) =>
                         handleManualEntryChange("productCode", e.target.value)
                       }
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-[#0F50AA]"
+                      className="w-full px-3 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg"
                       placeholder="Enter product code"
                       disabled={isConfirmed}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[12px] font-[500] text-[#667085] mb-1">
+                    <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                       Source *
                     </label>
                     <select
@@ -872,7 +872,7 @@ export default function POSGoodsEntry() {
                       onChange={(e) =>
                         handleManualEntryChange("source", e.target.value)
                       }
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-[#0F50AA]"
+                      className="w-full px-3 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg"
                       disabled={isConfirmed}
                     >
                       {sources.map((source) => (
@@ -884,7 +884,7 @@ export default function POSGoodsEntry() {
                   </div>
 
                   <div>
-                    <label className="block text-[12px] font-[500] text-[#667085] mb-1">
+                    <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                       Quantity *
                     </label>
                     <input
@@ -895,14 +895,14 @@ export default function POSGoodsEntry() {
                       onChange={(e) =>
                         handleManualEntryChange("quantity", e.target.value)
                       }
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-[#0F50AA]"
+                      className="w-full px-3 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg"
                       placeholder="0"
                       disabled={isConfirmed}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[12px] font-[500] text-[#667085] mb-1">
+                    <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                       Unit
                     </label>
                     <select
@@ -910,7 +910,7 @@ export default function POSGoodsEntry() {
                       onChange={(e) =>
                         handleManualEntryChange("unit", e.target.value)
                       }
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-[#0F50AA]"
+                      className="w-full px-3 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg"
                       disabled={isConfirmed}
                     >
                       {units.map((unit) => (
@@ -922,7 +922,7 @@ export default function POSGoodsEntry() {
                   </div>
 
                   <div>
-                    <label className="block text-[12px] font-[500] text-[#667085] mb-1">
+                    <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                       Batch No.
                     </label>
                     <input
@@ -931,7 +931,7 @@ export default function POSGoodsEntry() {
                       onChange={(e) =>
                         handleManualEntryChange("batchNo", e.target.value)
                       }
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-[#0F50AA]"
+                      className="w-full px-3 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg"
                       placeholder="Enter batch number"
                       disabled={isConfirmed}
                     />
@@ -939,7 +939,7 @@ export default function POSGoodsEntry() {
                 </div>
 
                 <div className="mt-4">
-                  <label className="block text-[12px] font-[500] text-[#667085] mb-1">
+                  <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                     Remarks
                   </label>
                   <textarea
@@ -947,7 +947,7 @@ export default function POSGoodsEntry() {
                     onChange={(e) =>
                       handleManualEntryChange("remarks", e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-[#0F50AA]"
+                    className="w-full px-3 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg"
                     rows="3"
                     placeholder="Add any additional notes..."
                     disabled={isConfirmed}
@@ -958,7 +958,7 @@ export default function POSGoodsEntry() {
                   <button
                     onClick={addManualEntry}
                     disabled={isConfirmed}
-                    className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
                     <Plus size={16} />
                     Add Entry
@@ -968,14 +968,14 @@ export default function POSGoodsEntry() {
 
               {/* Manual Entries List */}
               {entries.length > 0 && (
-                <div className="bg-white rounded-lg border border-[#E4E6EA]">
-                  <div className="p-4 border-b border-[#E4E6EA]">
-                    <h3 className="text-[18px] font-[600] text-[#383E49]">
+                <div className="bg-surface rounded-lg border border-line">
+                  <div className="p-4 border-b border-line">
+                    <h3 className="text-[18px] font-[600] text-fg">
                       Manual Entries
                     </h3>
                   </div>
 
-                  <div className="divide-y divide-[#E4E6EA]">
+                  <div className="divide-y divide-line">
                     {entries.map((entry) => (
                       <div
                         key={entry.id}
@@ -993,33 +993,33 @@ export default function POSGoodsEntry() {
                                 {entry.source}
                               </div>
                             </span>
-                            <span className="text-[12px] text-[#667085]">
+                            <span className="text-[12px] text-fg-secondary">
                               {entry.timestamp}
                             </span>
                           </div>
 
-                          <h4 className="text-[16px] font-[500] text-[#383E49]">
+                          <h4 className="text-[16px] font-[500] text-fg">
                             {entry.productName}
                           </h4>
                           {entry.productCode && (
-                            <p className="text-[14px] text-[#667085]">
+                            <p className="text-[14px] text-fg-secondary">
                               Code: {entry.productCode}
                             </p>
                           )}
 
                           <div className="flex items-center gap-4 mt-2">
-                            <span className="text-[14px] font-[500] text-[#383E49]">
+                            <span className="text-[14px] font-[500] text-fg">
                               Quantity: {entry.quantity} {entry.unit}
                             </span>
                             {entry.batchNo && (
-                              <span className="text-[14px] text-[#667085]">
+                              <span className="text-[14px] text-fg-secondary">
                                 Batch: {entry.batchNo}
                               </span>
                             )}
                           </div>
 
                           {entry.remarks && (
-                            <p className="text-[12px] text-[#667085] mt-1">
+                            <p className="text-[12px] text-fg-secondary mt-1">
                               Note: {entry.remarks}
                             </p>
                           )}
@@ -1028,7 +1028,7 @@ export default function POSGoodsEntry() {
                         {!isConfirmed && (
                           <button
                             onClick={() => removeManualEntry(entry.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-2 text-error hover:bg-error/10 rounded-lg transition-colors"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -1047,7 +1047,7 @@ export default function POSGoodsEntry() {
               <button
                 onClick={confirmMorningEntry}
                 disabled={isConfirmed}
-                className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-[500]"
+                className="px-8 py-3 bg-success-solid text-on-brand rounded-lg hover:bg-success-solid transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-[500]"
               >
                 <CheckCircle size={20} />
                 {isConfirmed ? "Entry Confirmed" : activeTab === "manual" ? "Confirm & Update Manual Stock" : "Confirm Entry"}
@@ -1059,27 +1059,27 @@ export default function POSGoodsEntry() {
 
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Approve Transfer Modal */}
       {isApproveModalOpen && selectedTransfer && (
-        <div className="fixed inset-0 bg-black/50 z-[10000] flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-sm shadow-xl p-6">
-            <h3 className="font-semibold text-lg mb-4 text-[#383E49]">Approve Transfer</h3>
-            <p className="text-sm text-gray-600 mb-4">
+        <div className="fixed inset-0 bg-backdrop z-[10000] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-xl w-full max-w-sm shadow-xl p-6">
+            <h3 className="font-semibold text-lg mb-4 text-fg">Approve Transfer</h3>
+            <p className="text-sm text-fg-secondary mb-4">
               Approving this transfer will deduct stock from this outlet and generate a GTN for the destination outlet.
             </p>
             {approveError && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg flex items-center gap-2">
+              <div className="mb-4 p-3 bg-error/10 border border-error/30 text-error text-sm rounded-lg flex items-center gap-2">
                 <AlertCircle size={16} />
                 <span>{approveError}</span>
               </div>
             )}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Approved Quantity</label>
+              <label className="block text-sm font-medium text-fg mb-1">Approved Quantity</label>
               <input
                 type="number"
                 min="1"
@@ -1089,7 +1089,7 @@ export default function POSGoodsEntry() {
                   setApproveQuantity(e.target.value);
                   setApproveError(null);
                 }}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full border border-line-strong rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-brand-fg"
               />
             </div>
             <div className="flex justify-end gap-3">
@@ -1099,7 +1099,7 @@ export default function POSGoodsEntry() {
                   setSelectedTransfer(null);
                   setApproveError(null);
                 }}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-line-strong rounded-lg text-sm text-fg hover:bg-subtle"
               >
                 Cancel
               </button>
@@ -1139,7 +1139,7 @@ export default function POSGoodsEntry() {
                     setApproveError(err.message);
                   }
                 }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+                className="px-4 py-2 bg-brand text-on-brand rounded-lg text-sm hover:bg-brand-hover"
               >
                 Approve
               </button>

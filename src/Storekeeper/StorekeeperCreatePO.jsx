@@ -506,7 +506,7 @@ export default function StorekeeperCreatePO() {
   };
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <StorekeeperSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -520,23 +520,23 @@ export default function StorekeeperCreatePO() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+            <h1 className="text-[20px] font-[600] text-fg mb-1">
               Purchase Order Management
             </h1>
-            <p className="text-[14px] text-[#667085]">
+            <p className="text-[14px] text-fg-secondary">
               Create purchase orders for inventory items and manage procurement
               process
             </p>
           </div>
 
           {/* Tab Navigation */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] mb-6">
-            <div className="flex flex-wrap border-b border-[#E4E6EA]">
+          <div className="bg-surface rounded-lg shadow-sm border border-line mb-6">
+            <div className="flex flex-wrap border-b border-line">
               <button
                 onClick={() => setActiveTab("lowStock")}
                 className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-[14px] font-[500] border-b-2 transition-colors ${activeTab === "lowStock"
-                    ? "border-[#0F50AA] text-[#0F50AA] bg-[#EBF8FF]"
-                    : "border-transparent text-[#667085] hover:text-[#383E49]"
+                    ? "border-brand-fg text-brand-fg bg-hover"
+                    : "border-transparent text-fg-secondary hover:text-fg"
                   }`}
               >
                 <TrendingDown size={16} />
@@ -545,8 +545,8 @@ export default function StorekeeperCreatePO() {
               <button
                 onClick={() => setActiveTab("createPO")}
                 className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-[14px] font-[500] border-b-2 transition-colors ${activeTab === "createPO"
-                    ? "border-[#0F50AA] text-[#0F50AA] bg-[#EBF8FF]"
-                    : "border-transparent text-[#667085] hover:text-[#383E49]"
+                    ? "border-brand-fg text-brand-fg bg-hover"
+                    : "border-transparent text-fg-secondary hover:text-fg"
                   }`}
               >
                 <ShoppingCart size={16} />
@@ -555,8 +555,8 @@ export default function StorekeeperCreatePO() {
               <button
                 onClick={() => setActiveTab("poHistory")}
                 className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-[14px] font-[500] border-b-2 transition-colors ${activeTab === "poHistory"
-                    ? "border-[#0F50AA] text-[#0F50AA] bg-[#EBF8FF]"
-                    : "border-transparent text-[#667085] hover:text-[#383E49]"
+                    ? "border-brand-fg text-brand-fg bg-hover"
+                    : "border-transparent text-fg-secondary hover:text-fg"
                   }`}
               >
                 <FileText size={16} />
@@ -569,10 +569,10 @@ export default function StorekeeperCreatePO() {
           {activeTab === "lowStock" && (
             <div className="space-y-6">
               {/* Search Bar */}
-              <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+              <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
                 <div className="relative">
                   <Search
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]"
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
                     size={16}
                   />
                   <input
@@ -580,19 +580,19 @@ export default function StorekeeperCreatePO() {
                     placeholder="Search by material name or code..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent text-[14px]"
+                    className="w-full pl-10 pr-4 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent text-[14px]"
                   />
                 </div>
               </div>
 
               {/* Low Stock Dashboard */}
-              <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+              <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-                  <h3 className="text-[18px] font-[600] text-[#383E49]">
+                  <h3 className="text-[18px] font-[600] text-fg">
                     Full Material Portfolio
                   </h3>
                   <div className="flex items-center gap-2 mt-2 sm:mt-0">
-                    <span className="text-[12px] text-[#667085]">
+                    <span className="text-[12px] text-fg-secondary">
                       Showing {filteredLowStock.length} of{" "}
                       {lowStockItems.length} items
                     </span>
@@ -605,12 +605,12 @@ export default function StorekeeperCreatePO() {
                   <div className="text-center py-12">
                     <CheckCircle2
                       size={48}
-                      className="mx-auto text-[#199D26] mb-4"
+                      className="mx-auto text-success mb-4"
                     />
-                    <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                    <p className="text-[16px] font-[500] text-fg mb-2">
                       All items are adequately stocked
                     </p>
-                    <p className="text-[14px] text-[#667085]">
+                    <p className="text-[14px] text-fg-secondary">
                       No items are currently below their reorder levels
                     </p>
                   </div>
@@ -618,20 +618,20 @@ export default function StorekeeperCreatePO() {
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-[#E4E6EA]">
-                          <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <tr className="border-b border-line">
+                          <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                             Material
                           </th>
-                          <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                          <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                             Stock Status
                           </th>
-                          <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                          <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                             Brands Available
                           </th>
-                          <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                          <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                             PO Status
                           </th>
-                          <th className="text-center py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                          <th className="text-center py-3 text-[12px] font-[600] text-fg uppercase">
                             Action
                           </th>
                         </tr>
@@ -640,35 +640,35 @@ export default function StorekeeperCreatePO() {
                         {filteredLowStock.map((item) => (
                           <tr
                             key={item.id}
-                            className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                            className="border-b border-line hover:bg-subtle"
                           >
                             <td className="py-4 min-w-[150px]">
                               <div>
-                                <p className="text-[14px] font-[600] text-[#383E49]">
+                                <p className="text-[14px] font-[600] text-fg">
                                   {item.code}
                                 </p>
-                                <p className="text-[14px] font-[500] text-[#383E49]">
+                                <p className="text-[14px] font-[500] text-fg">
                                   {item.name}
                                 </p>
                                 {item.genericMaterialName && item.genericMaterialName !== item.name && (
-                                  <p className="text-[12px] text-[#0F50AA] font-[500]">
+                                  <p className="text-[12px] text-brand-fg font-[500]">
                                     Generic: {item.genericMaterialName}
                                   </p>
                                 )}
-                                <p className="text-[12px] text-[#667085]">
+                                <p className="text-[12px] text-fg-secondary">
                                   Unit: {item.unit}
                                 </p>
                               </div>
                             </td>
                             <td className="py-4 min-w-[150px]">
                               <div>
-                                <p className="text-[14px] font-[600] text-[#EF4444]">
+                                <p className="text-[14px] font-[600] text-error">
                                   {item.currentStock} {item.unit}
                                 </p>
-                                <p className="text-[12px] text-[#667085]">
+                                <p className="text-[12px] text-fg-secondary">
                                   Stock: {item.minStockLevel} (Min) - {item.maxStockLevel} (Max)
                                 </p>
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-[#FEE2E2] text-[#EF4444] mt-1">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-error mt-1">
                                   <TrendingDown size={10} className="mr-1" />
                                   LOW STOCK
                                 </span>
@@ -678,10 +678,10 @@ export default function StorekeeperCreatePO() {
                               <div>
                                 {item.brands.map((brand, index) => (
                                   <div key={index} className="mb-2 last:mb-0">
-                                    <p className="text-[14px] font-[500] text-[#383E49]">
+                                    <p className="text-[14px] font-[500] text-fg">
                                       {brand.brand}
                                     </p>
-                                    <p className="text-[12px] text-[#667085]">
+                                    <p className="text-[12px] text-fg-secondary">
                                       Rs.{brand.lastPrice.toFixed(2)} |{" "}
                                       {brand.suppliers
                                         .map((s) => s.name)
@@ -693,12 +693,12 @@ export default function StorekeeperCreatePO() {
                             </td>
                             <td className="py-4 min-w-[100px]">
                               {item.alreadyPOCreated ? (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-[#DDFFE0] text-[#199D26]">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-success">
                                   <CheckCircle2 size={10} className="mr-1" />
                                   PO CREATED
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-[#FFF4E6] text-[#F4A100]">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-warning">
                                   <Clock size={10} className="mr-1" />
                                   PENDING
                                 </span>
@@ -713,8 +713,8 @@ export default function StorekeeperCreatePO() {
                                 className={`inline-flex items-center gap-2 px-3 py-2 text-[12px] font-[500] rounded-lg transition-colors ${selectedItems.find(
                                   (selected) => selected.id === item.id
                                 )
-                                    ? "bg-[#F8F9FA] text-[#667085] cursor-not-allowed"
-                                    : "bg-[#0F50AA] text-white hover:bg-[#0D4494]"
+                                    ? "bg-subtle text-fg-secondary cursor-not-allowed"
+                                    : "bg-brand text-on-brand hover:bg-brand-hover"
                                   }`}
                               >
                                 <Plus size={14} />
@@ -739,22 +739,22 @@ export default function StorekeeperCreatePO() {
           {activeTab === "createPO" && (
             <div className="space-y-6">
               {selectedItems.length === 0 ? (
-                <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-12">
+                <div className="bg-surface rounded-lg shadow-sm border border-line p-12">
                   <div className="text-center">
                     <ShoppingCart
                       size={48}
-                      className="mx-auto text-[#667085] mb-4"
+                      className="mx-auto text-fg-secondary mb-4"
                     />
-                    <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                    <p className="text-[16px] font-[500] text-fg mb-2">
                       No items selected for PO
                     </p>
-                    <p className="text-[14px] text-[#667085] mb-4">
+                    <p className="text-[14px] text-fg-secondary mb-4">
                       Go to Low Stock Items tab and add materials to create a
                       purchase order
                     </p>
                     <button
                       onClick={() => setActiveTab("lowStock")}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-[#0F50AA] text-white text-[14px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-brand text-on-brand text-[14px] font-[500] rounded-lg hover:bg-brand-hover transition-colors"
                     >
                       <TrendingDown size={16} />
                       View Low Stock Items
@@ -762,23 +762,23 @@ export default function StorekeeperCreatePO() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-                    <h3 className="text-[18px] font-[600] text-[#383E49]">
+                    <h3 className="text-[18px] font-[600] text-fg">
                       Purchase Order Items
                     </h3>
                     <div className="flex items-center gap-4 mt-2 sm:mt-0">
                       <div className="text-right">
-                        <p className="text-[12px] text-[#667085]">
+                        <p className="text-[12px] text-fg-secondary">
                           Total Value
                         </p>
-                        <p className="text-[18px] font-[700] text-[#199D26]">
+                        <p className="text-[18px] font-[700] text-success">
                           Rs.{getTotalPOValue().toFixed(2)}
                         </p>
                       </div>
                       <button
                         onClick={handleCreatePO}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#0F50AA] text-white text-[14px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-brand text-on-brand text-[14px] font-[500] rounded-lg hover:bg-brand-hover transition-colors"
                       >
                         <FileText size={16} />
                         Create PO
@@ -789,26 +789,26 @@ export default function StorekeeperCreatePO() {
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-[#E4E6EA]">
-                          <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <tr className="border-b border-line">
+                          <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                             Material
                           </th>
-                          <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                          <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                             Brand
                           </th>
-                          <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                          <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                             Supplier
                           </th>
-                          <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                          <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                             Quantity
                           </th>
-                          <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                          <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                             Unit Price
                           </th>
-                          <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                          <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                             Total
                           </th>
-                          <th className="text-center py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                          <th className="text-center py-3 text-[12px] font-[600] text-fg uppercase">
                             Action
                           </th>
                         </tr>
@@ -817,14 +817,14 @@ export default function StorekeeperCreatePO() {
                         {selectedItems.map((item) => (
                           <tr
                             key={item.id}
-                            className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                            className="border-b border-line hover:bg-subtle"
                           >
                             <td className="py-4 min-w-[100px]">
                               <div>
-                                <p className="text-[14px] font-[600] text-[#383E49]">
+                                <p className="text-[14px] font-[600] text-fg">
                                   {item.name}
                                 </p>
-                                <p className="text-[12px] text-[#667085]">
+                                <p className="text-[12px] text-fg-secondary">
                                   {item.code} | {item.unit}
                                 </p>
                               </div>
@@ -839,7 +839,7 @@ export default function StorekeeperCreatePO() {
                                     e.target.value
                                   )
                                 }
-                                className="w-[95%] p-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                                className="w-[95%] p-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                               >
                                 {item.brands.map((brand, index) => (
                                   <option key={index} value={brand.brand}>
@@ -858,7 +858,7 @@ export default function StorekeeperCreatePO() {
                                     e.target.value
                                   )
                                 }
-                                className="w-[95%] p-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                                className="w-[95%] p-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                               >
                                 {item.selectedBrand.suppliers.map(
                                   (supplier, index) => (
@@ -889,21 +889,21 @@ export default function StorekeeperCreatePO() {
                                     min="0.01"
                                     step="0.01"
                                     className={`w-24 p-2 border rounded-md focus:outline-none focus:ring-2 text-[14px] text-center transition ${item.quantity > item.maxOrderQty
-                                        ? "border-[#F4A100] focus:ring-[#F4A100]"
-                                        : "border-[#E4E6EA] focus:ring-[#0F50AA]"
+                                        ? "border-warning focus:ring-warning"
+                                        : "border-line focus:ring-brand-fg"
                                       }`}
                                   />
                                   {item.quantity > item.maxOrderQty && (
                                     <AlertTriangle
                                       size={16}
-                                      className="text-[#F4A100]"
+                                      className="text-warning"
                                       title="Exceeds maximum stock level - requires manager approval"
                                     />
                                   )}
                                 </div>
 
                                 {/* Helper text showing Stock Thresholds */}
-                                <div className="flex flex-col text-[10px] text-[#667085] mt-1">
+                                <div className="flex flex-col text-[10px] text-fg-secondary mt-1">
                                   <span>Min Stock: {item.minStockLevel}</span>
                                   <span>Max Stock: {item.maxStockLevel}</span>
                                 </div>
@@ -923,18 +923,18 @@ export default function StorekeeperCreatePO() {
                                 }
                                 min="0"
                                 step="0.01"
-                                className="w-24 p-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                                className="w-24 p-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                               />
                             </td>
                             <td className="py-4 min-w-[100px]">
-                              <p className="text-[14px] font-[600] text-[#199D26]">
+                              <p className="text-[14px] font-[600] text-success">
                                 Rs.{item.totalPrice.toFixed(2)}
                               </p>
                             </td>
                             <td className="py-4 text-center">
                               <button
                                 onClick={() => handleRemoveFromPO(item.id)}
-                                className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors"
+                                className="p-2 text-error hover:bg-hover rounded-lg transition-colors"
                                 title="Remove from PO"
                               >
                                 <Trash2 size={16} />
@@ -952,13 +952,13 @@ export default function StorekeeperCreatePO() {
 
           {/* PO History Tab */}
           {activeTab === "poHistory" && (
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-                <h3 className="text-[18px] font-[600] text-[#383E49]">
+                <h3 className="text-[18px] font-[600] text-fg">
                   Purchase Order History
                 </h3>
                 <div className="flex items-center gap-2 mt-2 sm:mt-0">
-                  <span className="text-[12px] text-[#667085]">
+                  <span className="text-[12px] text-fg-secondary">
                     Total: {poHistory.length} POs
                   </span>
                 </div>
@@ -968,21 +968,21 @@ export default function StorekeeperCreatePO() {
                 <Loader variant="section" text="Loading purchase orders..." />
               ) : poHistoryError ? (
                 <div className="text-center py-12">
-                  <FileText size={48} className="mx-auto text-[#EF4444] mb-4" />
-                  <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                  <FileText size={48} className="mx-auto text-error mb-4" />
+                  <p className="text-[16px] font-[500] text-fg mb-2">
                     Error loading purchase orders
                   </p>
-                  <p className="text-[14px] text-[#667085] mb-4">
+                  <p className="text-[14px] text-fg-secondary mb-4">
                     {poHistoryError}
                   </p>
                 </div>
               ) : poHistory.length === 0 ? (
                 <div className="text-center py-12">
-                  <FileText size={48} className="mx-auto text-[#667085] mb-4" />
-                  <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                  <FileText size={48} className="mx-auto text-fg-secondary mb-4" />
+                  <p className="text-[16px] font-[500] text-fg mb-2">
                     No purchase orders created
                   </p>
-                  <p className="text-[14px] text-[#667085]">
+                  <p className="text-[14px] text-fg-secondary">
                     Purchase orders will appear here once created
                   </p>
                 </div>
@@ -990,26 +990,26 @@ export default function StorekeeperCreatePO() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-[#E4E6EA]">
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <tr className="border-b border-line">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           PO Details
                         </th>
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Supplier
                         </th>
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Items
                         </th>
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Total Cost
                         </th>
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Status
                         </th>
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Delivery
                         </th>
-                        <th className="text-center py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-center py-3 text-[12px] font-[600] text-fg uppercase">
                           Action
                         </th>
                       </tr>
@@ -1018,52 +1018,52 @@ export default function StorekeeperCreatePO() {
                       {poHistory.map((po) => (
                         <tr
                           key={po.id}
-                          className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                          className="border-b border-line hover:bg-subtle"
                         >
                           <td className="py-4">
                             <div>
-                              <p className="text-[14px] font-[600] text-[#383E49]">
+                              <p className="text-[14px] font-[600] text-fg">
                                 {po.poNumber}
                               </p>
-                              <p className="text-[12px] text-[#667085]">
+                              <p className="text-[12px] text-fg-secondary">
                                 {new Date(po.date).toLocaleDateString()}
                               </p>
                             </div>
                           </td>
                           <td className="py-4">
                             <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 bg-[#F0F1F3] rounded-full flex items-center justify-center">
+                              <div className="w-8 h-8 bg-app rounded-full flex items-center justify-center">
                                 <Building
                                   size={14}
-                                  className="text-[#667085]"
+                                  className="text-fg-secondary"
                                 />
                               </div>
-                              <p className="text-[14px] font-[500] text-[#383E49]">
+                              <p className="text-[14px] font-[500] text-fg">
                                 {po.supplier}
                               </p>
                             </div>
                           </td>
                           <td className="py-4">
-                            <p className="text-[14px] font-[600] text-[#383E49]">
+                            <p className="text-[14px] font-[600] text-fg">
                               {po.itemCount} items
                             </p>
                           </td>
                           <td className="py-4">
-                            <p className="text-[14px] font-[600] text-[#199D26]">
+                            <p className="text-[14px] font-[600] text-success">
                               Rs.{po.totalCost.toFixed(2)}
                             </p>
                           </td>
                           <td className="py-4">
                             <span
                               className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] ${po.status === "Pending"
-                                  ? "bg-[#FFF4E6] text-[#F4A100]"
+                                  ? "bg-hover text-warning"
                                   : po.status === "Approved"
-                                    ? "bg-[#EBF8FF] text-[#0F50AA]"
+                                    ? "bg-hover text-brand-fg"
                                     : po.status === "Completed"
-                                      ? "bg-[#DDFFE0] text-[#199D26]"
+                                      ? "bg-hover text-success"
                                       : po.status === "Pending Approval"
-                                        ? "bg-[#FEE2E2] text-[#EF4444]"
-                                        : "bg-[#F8F9FA] text-[#667085]"
+                                        ? "bg-hover text-error"
+                                        : "bg-subtle text-fg-secondary"
                                 }`}
                             >
                               {po.status === "Pending" && (
@@ -1083,8 +1083,8 @@ export default function StorekeeperCreatePO() {
                           </td>
                           <td className="py-4">
                             <div className="flex items-center gap-2">
-                              <Calendar size={14} className="text-[#667085]" />
-                              <p className="text-[14px] text-[#383E49]">
+                              <Calendar size={14} className="text-fg-secondary" />
+                              <p className="text-[14px] text-fg">
                                 {new Date(
                                   po.expectedDelivery
                                 ).toLocaleDateString()}
@@ -1094,7 +1094,7 @@ export default function StorekeeperCreatePO() {
                           <td className="py-4 text-center">
                             <button
                               onClick={() => handleViewPODetails(po)}
-                              className="inline-flex items-center gap-2 px-3 py-2 text-[#0F50AA] bg-[#EBF8FF] hover:bg-[#DBEAFE] text-[12px] font-[500] rounded-lg transition-colors"
+                              className="inline-flex items-center gap-2 px-3 py-2 text-brand-fg bg-hover hover:bg-line text-[12px] font-[500] rounded-lg transition-colors"
                             >
                               <Eye size={14} />
                               View
@@ -1113,43 +1113,43 @@ export default function StorekeeperCreatePO() {
 
       {/* PO Creation Form Modal */}
       {showPOForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+            <div className="flex items-center justify-between p-6 border-b border-line">
               <div>
-                <h2 className="text-[20px] font-[600] text-[#383E49]">
+                <h2 className="text-[20px] font-[600] text-fg">
                   Create Purchase Order
                 </h2>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   PO Number: {poForm.poNumber}
                 </p>
               </div>
               <button
                 onClick={() => setShowPOForm(false)}
-                className="p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >
-                <X size={20} className="text-[#667085]" />
+                <X size={20} className="text-fg-secondary" />
               </button>
             </div>
 
             {/* Modal Body */}
             <div className="p-6">
               {/* PO Header Details */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-[#F8F9FA] rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-subtle rounded-lg">
                 <div>
-                  <label className="block text-[12px] font-[500] text-[#667085] mb-1">
+                  <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                     PO Number
                   </label>
                   <input
                     type="text"
                     value={poForm.poNumber}
                     readOnly
-                    className="w-full p-2 border border-[#E4E6EA] rounded-md bg-[#F8F9FA] text-[14px] font-[600] text-[#383E49]"
+                    className="w-full p-2 border border-line rounded-md bg-subtle text-[14px] font-[600] text-fg"
                   />
                 </div>
                 <div>
-                  <label className="block text-[12px] font-[500] text-[#667085] mb-1">
+                  <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                     PO Date
                   </label>
                   <input
@@ -1158,11 +1158,11 @@ export default function StorekeeperCreatePO() {
                     onChange={(e) =>
                       setPOForm({ ...poForm, poDate: e.target.value })
                     }
-                    className="w-full p-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                    className="w-full p-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[12px] font-[500] text-[#667085] mb-1">
+                  <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                     Expected Delivery *
                   </label>
                   <input
@@ -1175,7 +1175,7 @@ export default function StorekeeperCreatePO() {
                       })
                     }
                     min={poForm.poDate}
-                    className="w-full p-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                    className="w-full p-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                     required
                   />
                 </div>
@@ -1183,77 +1183,77 @@ export default function StorekeeperCreatePO() {
 
               {/* Items Summary */}
               <div className="mb-6">
-                <h4 className="text-[16px] font-[600] text-[#383E49] mb-4">
+                <h4 className="text-[16px] font-[600] text-fg mb-4">
                   Order Summary
                 </h4>
-                <div className="border border-[#E4E6EA] rounded-lg">
-                  <div className="bg-[#F8F9FA] px-4 py-3 border-b border-[#E4E6EA] grid grid-cols-12 gap-2">
-                    <div className="col-span-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                <div className="border border-line rounded-lg">
+                  <div className="bg-subtle px-4 py-3 border-b border-line grid grid-cols-12 gap-2">
+                    <div className="col-span-4 text-[12px] font-[600] text-fg uppercase">
                       Item
                     </div>
-                    <div className="col-span-2 text-[12px] font-[600] text-[#383E49] uppercase">
+                    <div className="col-span-2 text-[12px] font-[600] text-fg uppercase">
                       Supplier
                     </div>
-                    <div className="col-span-2 text-[12px] font-[600] text-[#383E49] uppercase text-center">
+                    <div className="col-span-2 text-[12px] font-[600] text-fg uppercase text-center">
                       Quantity
                     </div>
-                    <div className="col-span-2 text-[12px] font-[600] text-[#383E49] uppercase text-right">
+                    <div className="col-span-2 text-[12px] font-[600] text-fg uppercase text-right">
                       Unit Price
                     </div>
-                    <div className="col-span-2 text-[12px] font-[600] text-[#383E49] uppercase text-right">
+                    <div className="col-span-2 text-[12px] font-[600] text-fg uppercase text-right">
                       Total
                     </div>
                   </div>
                   {poForm.items.map((item, index) => (
                     <div
                       key={item.id}
-                      className="px-4 py-3 border-b border-[#E4E6EA] last:border-b-0 grid grid-cols-12 gap-2 items-center"
+                      className="px-4 py-3 border-b border-line last:border-b-0 grid grid-cols-12 gap-2 items-center"
                     >
                       <div className="col-span-4">
-                        <p className="text-[14px] font-[500] text-[#383E49]">
+                        <p className="text-[14px] font-[500] text-fg">
                           {item.name}
                         </p>
-                        <p className="text-[12px] text-[#667085]">
+                        <p className="text-[12px] text-fg-secondary">
                           {item.selectedBrand.brand} | {item.code}
                         </p>
                       </div>
                       <div className="col-span-2">
-                        <p className="text-[14px] text-[#383E49]">
+                        <p className="text-[14px] text-fg">
                           {item.selectedSupplier.name}
                         </p>
                       </div>
                       <div className="col-span-2 text-center">
-                        <p className="text-[14px] font-[600] text-[#383E49]">
+                        <p className="text-[14px] font-[600] text-fg">
                           {item.quantity} {item.unit}
                         </p>
                         {item.quantity > item.maxOrderQty && (
-                          <p className="text-[10px] text-[#F4A100] flex items-center justify-center gap-1 mt-1">
+                          <p className="text-[10px] text-warning flex items-center justify-center gap-1 mt-1">
                             <AlertTriangle size={10} />
                             Needs Approval
                           </p>
                         )}
                       </div>
                       <div className="col-span-2 text-right">
-                        <p className="text-[14px] text-[#383E49]">
+                        <p className="text-[14px] text-fg">
                           Rs.{item.unitPrice.toFixed(2)}
                         </p>
                       </div>
                       <div className="col-span-2 text-right">
-                        <p className="text-[14px] font-[600] text-[#199D26]">
+                        <p className="text-[14px] font-[600] text-success">
                           Rs.{item.totalPrice.toFixed(2)}
                         </p>
                       </div>
                     </div>
                   ))}
-                  <div className="px-4 py-3 bg-[#F8F9FA] grid grid-cols-12 gap-2">
+                  <div className="px-4 py-3 bg-subtle grid grid-cols-12 gap-2">
                     <div className="col-span-8"></div>
                     <div className="col-span-2 text-right">
-                      <p className="text-[14px] font-[600] text-[#383E49]">
+                      <p className="text-[14px] font-[600] text-fg">
                         Grand Total:
                       </p>
                     </div>
                     <div className="col-span-2 text-right">
-                      <p className="text-[18px] font-[700] text-[#199D26]">
+                      <p className="text-[18px] font-[700] text-success">
                         Rs.{getTotalPOValue().toFixed(2)}
                       </p>
                     </div>
@@ -1265,17 +1265,17 @@ export default function StorekeeperCreatePO() {
               {poForm.items.some(
                 (item) => item.quantity > item.maxOrderQty
               ) && (
-                  <div className="mb-6 p-4 bg-[#FFF4E6] border border-[#F4A100] rounded-lg">
+                  <div className="mb-6 p-4 bg-hover border border-warning rounded-lg">
                     <div className="flex items-start gap-3">
                       <AlertTriangle
                         size={20}
-                        className="text-[#F4A100] mt-0.5"
+                        className="text-warning mt-0.5"
                       />
                       <div>
-                        <p className="text-[14px] font-[600] text-[#F4A100] mb-1">
+                        <p className="text-[14px] font-[600] text-warning mb-1">
                           Manager Approval Required
                         </p>
-                        <p className="text-[14px] text-[#383E49]">
+                        <p className="text-[14px] text-fg">
                           Some items exceed maximum stock level limits. This PO
                           will require manager approval before processing.
                         </p>
@@ -1286,8 +1286,8 @@ export default function StorekeeperCreatePO() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex justify-between items-center p-6 border-t border-[#E4E6EA]">
-              <div className="text-[14px] text-[#667085]">
+            <div className="flex justify-between items-center p-6 border-t border-line">
+              <div className="text-[14px] text-fg-secondary">
                 <p>
                   Total Items: {poForm.items.length} | Total Value: Rs.
                   {getTotalPOValue().toFixed(2)}
@@ -1296,13 +1296,13 @@ export default function StorekeeperCreatePO() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowPOForm(false)}
-                  className="px-4 py-2 text-[14px] font-[500] text-[#667085] bg-white border border-[#E4E6EA] hover:bg-[#F8F9FA] rounded-md transition-colors"
+                  className="px-4 py-2 text-[14px] font-[500] text-fg-secondary bg-surface border border-line hover:bg-subtle rounded-md transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSubmitPO}
-                  className="flex items-center gap-2 px-4 py-2 text-[14px] font-[500] text-white bg-[#0F50AA] hover:bg-[#0D4694] rounded-md transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-[14px] font-[500] text-on-brand bg-brand hover:bg-brand-hover rounded-md transition-colors"
                 >
                   <Save size={16} />
                   Submit PO
@@ -1315,69 +1315,69 @@ export default function StorekeeperCreatePO() {
 
       {/* PO Details View Modal */}
       {showPODetails && selectedPO && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+            <div className="flex items-center justify-between p-6 border-b border-line">
               <div>
-                <h2 className="text-[20px] font-[600] text-[#383E49]">
+                <h2 className="text-[20px] font-[600] text-fg">
                   Purchase Order Details
                 </h2>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   {selectedPO.poNumber} |{" "}
                   {new Date(selectedPO.date).toLocaleDateString()}
                 </p>
               </div>
               <button
                 onClick={() => setShowPODetails(false)}
-                className="p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >
-                <X size={20} className="text-[#667085]" />
+                <X size={20} className="text-fg-secondary" />
               </button>
             </div>
 
             {/* Modal Body */}
             <div className="p-6">
               {/* PO Header Info */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-[#F8F9FA] rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-subtle rounded-lg">
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Supplier
                   </p>
-                  <p className="text-[14px] font-[600] text-[#383E49]">
+                  <p className="text-[14px] font-[600] text-fg">
                     {selectedPO.supplier}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Total Cost
                   </p>
-                  <p className="text-[14px] font-[600] text-[#199D26]">
+                  <p className="text-[14px] font-[600] text-success">
                     Rs.{selectedPO.totalCost.toFixed(2)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Status
                   </p>
                   <span
                     className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] ${selectedPO.status === "Pending"
-                        ? "bg-[#FFF4E6] text-[#F4A100]"
+                        ? "bg-hover text-warning"
                         : selectedPO.status === "Approved"
-                          ? "bg-[#EBF8FF] text-[#0F50AA]"
+                          ? "bg-hover text-brand-fg"
                           : selectedPO.status === "Completed"
-                            ? "bg-[#DDFFE0] text-[#199D26]"
-                            : "bg-[#F8F9FA] text-[#667085]"
+                            ? "bg-hover text-success"
+                            : "bg-subtle text-fg-secondary"
                       }`}
                   >
                     {selectedPO.status.toUpperCase()}
                   </span>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Expected Delivery
                   </p>
-                  <p className="text-[14px] font-[600] text-[#383E49]">
+                  <p className="text-[14px] font-[600] text-fg">
                     {new Date(selectedPO.expectedDelivery).toLocaleDateString()}
                   </p>
                 </div>
@@ -1385,61 +1385,61 @@ export default function StorekeeperCreatePO() {
 
               {/* Items Table */}
               <div>
-                <h4 className="text-[16px] font-[600] text-[#383E49] mb-4">
+                <h4 className="text-[16px] font-[600] text-fg mb-4">
                   Ordered Items
                 </h4>
-                <div className="border border-[#E4E6EA] rounded-lg overflow-x-auto">
+                <div className="border border-line rounded-lg overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-[#F8F9FA]">
+                    <thead className="bg-subtle">
                       <tr>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Item
                         </th>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Brand
                         </th>
-                        <th className="text-center py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-center py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Quantity
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Unit Price
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Total
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E4E6EA]">
+                    <tbody className="divide-y divide-line">
                       {(selectedPO.items &&
                         selectedPO.items.map((item, index) => (
-                          <tr key={index} className="hover:bg-[#F8F9FA]">
+                          <tr key={index} className="hover:bg-subtle">
                             <td className="py-3 px-4">
                               <div>
-                                <p className="text-[14px] font-[500] text-[#383E49]">
+                                <p className="text-[14px] font-[500] text-fg">
                                   {item.name}
                                 </p>
-                                <p className="text-[12px] text-[#667085]">
+                                <p className="text-[12px] text-fg-secondary">
                                   {item.code}
                                 </p>
                               </div>
                             </td>
                             <td className="py-3 px-4">
-                              <p className="text-[14px] text-[#383E49]">
+                              <p className="text-[14px] text-fg">
                                 {item.selectedBrand?.brand || "N/A"}
                               </p>
                             </td>
                             <td className="py-3 px-4 text-center">
-                              <p className="text-[14px] font-[600] text-[#383E49]">
+                              <p className="text-[14px] font-[600] text-fg">
                                 {item.quantity} {item.unit}
                               </p>
                             </td>
                             <td className="py-3 px-4 text-right">
-                              <p className="text-[14px] text-[#383E49]">
+                              <p className="text-[14px] text-fg">
                                 Rs.{item.unitPrice.toFixed(2)}
                               </p>
                             </td>
                             <td className="py-3 px-4 text-right">
-                              <p className="text-[14px] font-[600] text-[#199D26]">
+                              <p className="text-[14px] font-[600] text-success">
                                 Rs.{item.totalPrice.toFixed(2)}
                               </p>
                             </td>
@@ -1448,7 +1448,7 @@ export default function StorekeeperCreatePO() {
                           <tr>
                             <td
                               colSpan="5"
-                              className="py-8 text-center text-[#667085]"
+                              className="py-8 text-center text-fg-secondary"
                             >
                               No item details available
                             </td>
@@ -1461,17 +1461,17 @@ export default function StorekeeperCreatePO() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex justify-end p-6 border-t border-[#E4E6EA]">
+            <div className="flex justify-end p-6 border-t border-line">
               <button
                 onClick={handlePrint}
-                className="mr-3 flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-[#0F50AA] bg-[#EBF8FF] hover:bg-[#DBEAFE] rounded-lg transition-colors"
+                className="mr-3 flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-brand-fg bg-hover hover:bg-line rounded-lg transition-colors"
               >
                 Print
               </button>
 
               <button
                 onClick={() => setShowPODetails(false)}
-                className="px-4 py-2 text-[14px] font-[500] text-[#667085] bg-white border border-[#E4E6EA] hover:bg-[#F8F9FA] rounded-md transition-colors"
+                className="px-4 py-2 text-[14px] font-[500] text-fg-secondary bg-surface border border-line hover:bg-subtle rounded-md transition-colors"
               >
                 Close
               </button>
@@ -1483,7 +1483,7 @@ export default function StorekeeperCreatePO() {
       {/* Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { confirmDialog } from "../component/ConfirmDialog";
+import toast from "react-hot-toast";
 import { Package, Search, Plus, Edit, Trash2, X, Check, AlertTriangle, ChevronDown, ChevronRight, FileText } from "lucide-react";
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
@@ -183,12 +185,12 @@ export default function AdminCreateBOM() {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
 
-    const handleChange = (field, value) => {
+    const handleChange = async (field, value) => {
         // Duplicate BOM Check
         if (field === 'parentProduct' && value) {
             const existingBOM = boms.find(b => b.parentProduct.id === value.id);
             if (existingBOM) {
-                if (window.confirm(`${value.name} already has a BOM. Do you want to edit the existing one?`)) {
+                if (await confirmDialog(`${value.name} already has a BOM. Do you want to edit the existing one?`, { confirmText: "Edit existing BOM" })) {
                     setShowProductDropdown(false);
                     setProductSearchTerm('');
                     handleEdit(existingBOM);
@@ -425,7 +427,7 @@ export default function AdminCreateBOM() {
 
             const invalidItem = itemsPayload.find(it => !it.childItemId);
             if (invalidItem) {
-                alert("One or more items in the BOM could not be matched to an existing Raw Material or Product ID. Please re-select the item(s) from the dropdown.");
+                toast.error("One or more items in the BOM could not be matched to an existing Raw Material or Product ID. Please re-select the item(s) from the dropdown.");
                 return;
             }
 
@@ -463,11 +465,11 @@ export default function AdminCreateBOM() {
                     } else {
                         const errorMsg = await parseFetchError(response, 'Failed to update BOM.');
                         console.error('Update failed:', errorMsg);
-                        alert(errorMsg);
+                        toast.error(errorMsg);
                     }
                 } catch (error) {
                     console.error('Error updating BOM:', error);
-                    alert('Error connecting to the server. Please try again later.');
+                    toast.error('Error connecting to the server. Please try again later.');
                 }
             } else {
                 try {
@@ -502,11 +504,11 @@ export default function AdminCreateBOM() {
                     } else {
                         const errorMsg = await parseFetchError(response, 'Failed to create BOM.');
                         console.error('Creation failed:', errorMsg);
-                        alert(errorMsg);
+                        toast.error(errorMsg);
                     }
                 } catch (error) {
                     console.error('Error creating BOM:', error);
-                    alert('Error connecting to the server. Please try again later.');
+                    toast.error('Error connecting to the server. Please try again later.');
                 }
             }
         }
@@ -562,7 +564,7 @@ export default function AdminCreateBOM() {
     };
 
     const handleDelete = async (bom) => {
-        if (window.confirm('Are you sure you want to delete this BOM?')) {
+        if (await confirmDialog('Are you sure you want to delete this BOM?', { confirmText: "Delete", danger: true })) {
             try {
                 const token = localStorage.getItem("authToken");
                 const response = await fetch(`${process.env.REACT_APP_BASE_URL || ''}/api/v1/admin/bom/delete/${bom.parentProduct.id}`, {
@@ -578,11 +580,11 @@ export default function AdminCreateBOM() {
                 } else {
                     const errorData = await response.json();
                     console.error('Delete failed:', errorData);
-                    alert('Failed to delete BOM. Please try again.');
+                    toast.error('Failed to delete BOM. Please try again.');
                 }
             } catch (error) {
                 console.error('Error deleting BOM:', error);
-                alert('Error connecting to the server. Please try again later.');
+                toast.error('Error connecting to the server. Please try again later.');
             }
         }
     };
@@ -644,17 +646,17 @@ export default function AdminCreateBOM() {
     };
 
     const exportBOMToPDF = (bom) => {
-        alert(`Exporting BOM for ${bom.parentProduct.name} as PDF...`);
+        toast(`Exporting BOM for ${bom.parentProduct.name} as PDF...`);
         // Implement PDF export logic here
     };
 
     const exportBOMToExcel = (bom) => {
-        alert(`Exporting BOM for ${bom.parentProduct.name} as Excel...`);
+        toast(`Exporting BOM for ${bom.parentProduct.name} as Excel...`);
         // Implement Excel export logic here
     };
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             {/* Sidebar */}
             <AdminSidebar sidebarOpen={sidebarOpen} />
 
@@ -669,21 +671,21 @@ export default function AdminCreateBOM() {
                 <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
                     {/* Page Header */}
                     <div className="mb-6">
-                        <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+                        <h1 className="text-[20px] font-[600] text-fg mb-1">
                             Bill of Materials (BOM)
                         </h1>
-                        <p className="text-[14px] leading-[20px] font-[400] text-[#667085]">
+                        <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
                             View and manage product composition hierarchy
                         </p>
                     </div>
 
                     {/* BOM List Table */}
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-                            <h3 className="text-[18px] font-[600] text-[#383E49]">BOM List</h3>
+                            <h3 className="text-[18px] font-[600] text-fg">BOM List</h3>
                             <button
                                 onClick={handleCreateNew}
-                                className="flex items-center gap-2 bg-[#0F50AA] hover:bg-[#1366D9] text-white px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors mt-2 sm:mt-0"
+                                className="flex items-center gap-2 bg-brand hover:bg-brand-hover text-on-brand px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors mt-2 sm:mt-0"
                             >
                                 <Plus className="w-5 h-5" />
                                 Create New BOM
@@ -694,13 +696,13 @@ export default function AdminCreateBOM() {
                         <div className="flex flex-col lg:flex-row gap-4 mb-6">
                             {/* Search Bar */}
                             <div className="flex-1 relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={16} />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary" size={16} />
                                 <input
                                     type="text"
                                     placeholder="Search by product code or name..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                                    className="w-full pl-10 pr-4 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                                 />
                             </div>
 
@@ -709,7 +711,7 @@ export default function AdminCreateBOM() {
                                 <select
                                     value={productFilter}
                                     onChange={(e) => setProductFilter(e.target.value)}
-                                    className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                                    className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                                 >
                                     <option value="All">All Products</option>
                                     {uniqueProducts.map(product => (
@@ -719,7 +721,7 @@ export default function AdminCreateBOM() {
                                 <select
                                     value={stageFilter}
                                     onChange={(e) => setStageFilter(e.target.value)}
-                                    className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                                    className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                                 >
                                     <option value="All">All Stages</option>
                                     {productionStages.map(stage => (
@@ -729,7 +731,7 @@ export default function AdminCreateBOM() {
                                 <select
                                     value={centerFilter}
                                     onChange={(e) => setCenterFilter(e.target.value)}
-                                    className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                                    className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                                 >
                                     <option value="All">All Centers</option>
                                     {productionCenters.map(center => (
@@ -739,7 +741,7 @@ export default function AdminCreateBOM() {
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                                    className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                                 >
                                     <option value="All">All Status</option>
                                     <option value="Active">Active</option>
@@ -752,32 +754,32 @@ export default function AdminCreateBOM() {
                         {filteredBOMs.length > 0 ? (
                             <div className="space-y-4">
                                 {filteredBOMs.map((bom) => (
-                                    <div key={bom.id} className="border border-[#E4E6EA] rounded-lg overflow-hidden">
+                                    <div key={bom.id} className="border border-line rounded-lg overflow-hidden">
 
                                         {/* Parent Product Header */}
-                                        <div className="bg-[#F8F9FA] p-4">
+                                        <div className="bg-subtle p-4">
                                             <div className="flex flex-wrap items-center justify-between gap-3">
                                                 {/* Left Section */}
                                                 <div className="flex items-center gap-3 flex-shrink-0">
                                                     <button
                                                         onClick={() => toggleBOMExpansion(bom.id)}
-                                                        className="p-1 hover:bg-[#E4E6EA] rounded transition-colors"
+                                                        className="p-1 hover:bg-line rounded transition-colors"
                                                     >
                                                         {expandedBOMs[bom.id] ? (
-                                                            <ChevronDown className="w-5 h-5 text-[#48505E]" />
+                                                            <ChevronDown className="w-5 h-5 text-fg" />
                                                         ) : (
-                                                            <ChevronRight className="w-5 h-5 text-[#48505E]" />
+                                                            <ChevronRight className="w-5 h-5 text-fg" />
                                                         )}
                                                     </button>
-                                                    <Package className="w-6 h-6 text-[#0F50AA]" />
+                                                    <Package className="w-6 h-6 text-brand-fg" />
                                                 </div>
 
                                                 {/* Middle Section — Product Info */}
                                                 <div className="flex-1 min-w-[220px]">
-                                                    <p className="text-[16px] font-[600] text-[#383E49] truncate">
+                                                    <p className="text-[16px] font-[600] text-fg truncate">
                                                         {bom.parentProduct.name}
                                                     </p>
-                                                    <p className="text-[12px] text-[#667085]">
+                                                    <p className="text-[12px] text-fg-secondary">
                                                         Code: {bom.parentProduct.code} | Created: {bom.createdDate}
                                                     </p>
                                                 </div>
@@ -786,52 +788,52 @@ export default function AdminCreateBOM() {
                                                 <div className="flex flex-wrap items-center gap-2 justify-end w-full sm:w-auto">
                                                     <div className="flex items-center gap-6 mr-4">
                                                         <div className="flex flex-col items-end">
-                                                            <span className="text-[11px] text-[#667085] uppercase font-[600]">Expected GP</span>
-                                                            <span className="text-[15px] font-[700] text-[#667085]">
+                                                            <span className="text-[11px] text-fg-secondary uppercase font-[600]">Expected GP</span>
+                                                            <span className="text-[15px] font-[700] text-fg-secondary">
                                                                 {bom.parentProduct.expectedGP != null ? `${bom.parentProduct.expectedGP.toFixed(2)}%` : '0.00%'}
                                                             </span>
                                                         </div>
                                                         <div className="flex flex-col items-end">
-                                                            <span className="text-[11px] text-[#667085] uppercase font-[600]">Actual GP</span>
-                                                            <span className={`text-[15px] font-[700] ${bom.parentProduct.actualGP != null && bom.parentProduct.actualGP > 0 ? 'text-[#199D26]' : 'text-[#EF4444]'}`}>
+                                                            <span className="text-[11px] text-fg-secondary uppercase font-[600]">Actual GP</span>
+                                                            <span className={`text-[15px] font-[700] ${bom.parentProduct.actualGP != null && bom.parentProduct.actualGP > 0 ? 'text-success' : 'text-error'}`}>
                                                                 {bom.parentProduct.actualGP != null ? `${bom.parentProduct.actualGP.toFixed(2)}%` : '0.00%'}
                                                             </span>
                                                         </div>
                                                         <div className="flex flex-col items-end">
-                                                            <span className="text-[11px] text-[#667085] uppercase font-[600]">Cost</span>
-                                                            <span className="text-[15px] font-[700] text-[#0F50AA]">
+                                                            <span className="text-[11px] text-fg-secondary uppercase font-[600]">Cost</span>
+                                                            <span className="text-[15px] font-[700] text-brand-fg">
                                                                 Rs. {(bom.parentProduct.totalCost || 0).toFixed(2)}
                                                             </span>
                                                         </div>
                                                         <div className="flex flex-col items-end">
-                                                            <span className="text-[11px] text-[#667085] uppercase font-[600]">Sale Price</span>
-                                                            <span className="text-[15px] font-[700] text-[#0F50AA]">
+                                                            <span className="text-[11px] text-fg-secondary uppercase font-[600]">Sale Price</span>
+                                                            <span className="text-[15px] font-[700] text-brand-fg">
                                                                 Rs. {(bom.parentProduct.salePrice || 0).toFixed(2)}
                                                             </span>
                                                         </div>
                                                     </div>
                                                     <span
                                                         className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-[500] ${bom.status === 'Active'
-                                                            ? 'bg-[#DDFFE0] text-[#199D26]'
-                                                            : 'bg-[#FEE2E2] text-[#EF4444]'
+                                                            ? 'bg-hover text-success'
+                                                            : 'bg-hover text-error'
                                                             }`}
                                                     >
                                                         {bom.status}
                                                     </span>
-                                                    <span className="text-[14px] text-[#667085]">
+                                                    <span className="text-[14px] text-fg-secondary">
                                                         {bom.childItems.length} items
                                                     </span>
                                                     <div className="flex gap-2">
                                                         <button
                                                             onClick={() => handleEdit(bom)}
-                                                            className="p-2 text-[#0F50AA] hover:bg-[#EBF8FF] rounded-lg transition-colors"
+                                                            className="p-2 text-brand-fg hover:bg-hover rounded-lg transition-colors"
                                                             title="Edit BOM"
                                                         >
                                                             <Edit size={16} />
                                                         </button>
                                                         <button
                                                             onClick={() => handleDelete(bom)}
-                                                            className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors"
+                                                            className="p-2 text-error hover:bg-hover rounded-lg transition-colors"
                                                             title="Delete BOM"
                                                         >
                                                             <Trash2 size={16} />
@@ -847,44 +849,44 @@ export default function AdminCreateBOM() {
                                                 <div className="min-w-[1200px]">
                                                     <table className="w-full">
                                                         <thead>
-                                                            <tr className="border-b border-[#E4E6EA]">
-                                                                <th className="text-left py-3 text-[14px] font-[500] text-[#383E49]">Item Code</th>
-                                                                <th className="text-left py-3 text-[14px] font-[500] text-[#383E49]">Name</th>
-                                                                <th className="text-left py-3 text-[14px] font-[500] text-[#383E49]">Type</th>
-                                                                <th className="text-right py-3 text-[14px] font-[500] text-[#383E49]">Qty</th>
-                                                                <th className="text-left py-3 text-[14px] font-[500] text-[#383E49]">Unit</th>
-                                                                <th className="text-left py-3 text-[14px] font-[500] text-[#383E49]">Production Center</th>
-                                                                <th className="text-right py-3 text-[14px] font-[500] text-[#383E49]">Unit Price</th>
-                                                                <th className="text-center py-3 text-[14px] font-[500] text-[#383E49]">Active</th>
+                                                            <tr className="border-b border-line">
+                                                                <th className="text-left py-3 text-[14px] font-[500] text-fg">Item Code</th>
+                                                                <th className="text-left py-3 text-[14px] font-[500] text-fg">Name</th>
+                                                                <th className="text-left py-3 text-[14px] font-[500] text-fg">Type</th>
+                                                                <th className="text-right py-3 text-[14px] font-[500] text-fg">Qty</th>
+                                                                <th className="text-left py-3 text-[14px] font-[500] text-fg">Unit</th>
+                                                                <th className="text-left py-3 text-[14px] font-[500] text-fg">Production Center</th>
+                                                                <th className="text-right py-3 text-[14px] font-[500] text-fg">Unit Price</th>
+                                                                <th className="text-center py-3 text-[14px] font-[500] text-fg">Active</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody className="divide-y divide-[#E4E6EA]">
+                                                        <tbody className="divide-y divide-line">
                                                             {bom.childItems.map((item) => (
-                                                                <tr key={item.id} className="hover:bg-[#F8F9FA] transition-colors">
-                                                                    <td className="py-3 text-[14px] font-[500] text-[#383E49]">{item.itemCode}</td>
-                                                                    <td className="py-3 text-[14px] text-[#48505E]">{item.name}</td>
+                                                                <tr key={item.id} className="hover:bg-subtle transition-colors">
+                                                                    <td className="py-3 text-[14px] font-[500] text-fg">{item.itemCode}</td>
+                                                                    <td className="py-3 text-[14px] text-fg">{item.name}</td>
                                                                     <td className="py-3">
-                                                                        <span className="inline-flex items-center px-2 py-1 rounded-md text-[12px] font-[500] bg-[#EBF8FF] text-[#0F50AA]">
+                                                                        <span className="inline-flex items-center px-2 py-1 rounded-md text-[12px] font-[500] bg-hover text-brand-fg">
                                                                             {item.type}
                                                                         </span>
                                                                     </td>
-                                                                    <td className="py-3 text-right text-[14px] font-[600] text-[#383E49]">
+                                                                    <td className="py-3 text-right text-[14px] font-[600] text-fg">
                                                                         {item.qty != null ? item.qty.toFixed(6) : '0.000000'}
                                                                     </td>
-                                                                    <td className="py-3 text-[14px] text-[#48505E]">{item.unit}</td>
-                                                                    <td className="py-3 text-[14px] text-[#48505E]">{item.productionCenter}</td>
-                                                                    {/* <td className="py-3 text-right text-[14px] text-[#48505E]">{item.cost?.toFixed(2)}</td> */}
-                                                                    <td className="py-3 text-right text-[14px] text-[#48505E]">{item.unitPrice?.toFixed(2)}</td>
-                                                                    {/* <td className="py-3 text-right text-[14px] text-[#48505E]">{item.totalCost?.toFixed(2)}</td> */}
-                                                                    {/* <td className="py-3 text-right text-[14px] text-[#48505E]">{item.salePrice?.toFixed(2)}</td> */}
+                                                                    <td className="py-3 text-[14px] text-fg">{item.unit}</td>
+                                                                    <td className="py-3 text-[14px] text-fg">{item.productionCenter}</td>
+                                                                    {/* <td className="py-3 text-right text-[14px] text-fg">{item.cost?.toFixed(2)}</td> */}
+                                                                    <td className="py-3 text-right text-[14px] text-fg">{item.unitPrice?.toFixed(2)}</td>
+                                                                    {/* <td className="py-3 text-right text-[14px] text-fg">{item.totalCost?.toFixed(2)}</td> */}
+                                                                    {/* <td className="py-3 text-right text-[14px] text-fg">{item.salePrice?.toFixed(2)}</td> */}
                                                                     <td className="py-3 text-center">
                                                                         {item.active ? (
-                                                                            <span className="inline-flex items-center justify-center w-5 h-5 bg-[#DDFFE0] rounded-full">
-                                                                                <Check className="w-3 h-3 text-[#199D26]" />
+                                                                            <span className="inline-flex items-center justify-center w-5 h-5 bg-hover rounded-full">
+                                                                                <Check className="w-3 h-3 text-success" />
                                                                             </span>
                                                                         ) : (
-                                                                            <span className="inline-flex items-center justify-center w-5 h-5 bg-[#FEE2E2] rounded-full">
-                                                                                <X className="w-3 h-3 text-[#EF4444]" />
+                                                                            <span className="inline-flex items-center justify-center w-5 h-5 bg-hover rounded-full">
+                                                                                <X className="w-3 h-3 text-error" />
                                                                             </span>
                                                                         )}
                                                                     </td>
@@ -900,9 +902,9 @@ export default function AdminCreateBOM() {
                             </div>
                         ) : (
                             <div className="text-center py-12">
-                                <Package size={48} className="mx-auto text-[#667085] mb-4" />
-                                <p className="text-[16px] font-[500] text-[#383E49] mb-2">No BOMs found</p>
-                                <p className="text-[14px] text-[#667085]">
+                                <Package size={48} className="mx-auto text-fg-secondary mb-4" />
+                                <p className="text-[16px] font-[500] text-fg mb-2">No BOMs found</p>
+                                <p className="text-[14px] text-fg-secondary">
                                     {searchTerm || productFilter !== 'All' || statusFilter !== 'All'
                                         ? "Try adjusting your search criteria"
                                         : "Click 'Create New BOM' to add your first Bill of Materials"}
@@ -916,15 +918,15 @@ export default function AdminCreateBOM() {
 
             {/* BOM Form Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+                        <div className="flex items-center justify-between p-6 border-b border-line">
                             <div>
-                                <h2 className="text-[20px] leading-[30px] font-[600] text-[#383E49]">
+                                <h2 className="text-[20px] leading-[30px] font-[600] text-fg">
                                     {isEditMode ? 'Edit BOM' : 'Create New BOM'}
                                 </h2>
-                                <p className="text-[14px] text-[#667085] mt-1">
+                                <p className="text-[14px] text-fg-secondary mt-1">
                                     {isEditMode
                                         ? 'Update Bill of Materials information'
                                         : 'Define product composition and hierarchy'
@@ -933,7 +935,7 @@ export default function AdminCreateBOM() {
                             </div>
                             <button
                                 onClick={handleCancel}
-                                className="p-2 text-[#667085] hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                                className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -943,11 +945,11 @@ export default function AdminCreateBOM() {
                         <div className="p-6">
                             {/* Parent Product Selection */}
                             <div className="mb-6">
-                                <h3 className="text-[16px] font-[600] text-[#383E49] mb-4">Parent Product</h3>
+                                <h3 className="text-[16px] font-[600] text-fg mb-4">Parent Product</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                            Select Product <span className="text-[#EF4444]">*</span>
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                                            Select Product <span className="text-error">*</span>
                                         </label>
 
                                         <div className="relative" ref={productDropdownRef}>
@@ -966,13 +968,13 @@ export default function AdminCreateBOM() {
                                                     handleChange('parentProduct', null);
                                                 }}
                                                 onFocus={() => setShowProductDropdown(true)}
-                                                className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.parentProduct ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                                className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.parentProduct ? 'border-error' : 'border-line'
                                                     }`}
                                             />
 
                                             {/* Dropdown List */}
                                             {showProductDropdown && (
-                                                <div className="absolute z-50 w-full bg-white border border-[#E4E6EA] rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg">
+                                                <div className="absolute z-50 w-full bg-elevated border border-line rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg">
                                                     {getFilteredProducts().length > 0 ? (
                                                         getFilteredProducts().map(product => (
                                                             <div
@@ -982,13 +984,13 @@ export default function AdminCreateBOM() {
                                                                     setProductSearchTerm('');
                                                                     setShowProductDropdown(false);
                                                                 }}
-                                                                className="px-4 py-2 hover:bg-[#F0F1F3] cursor-pointer text-[14px]"
+                                                                className="px-4 py-2 hover:bg-app cursor-pointer text-[14px]"
                                                             >
                                                                 {product.code} - {product.name}
                                                             </div>
                                                         ))
                                                     ) : (
-                                                        <div className="px-4 py-2 text-[14px] text-[#667085]">
+                                                        <div className="px-4 py-2 text-[14px] text-fg-secondary">
                                                             No products found
                                                         </div>
                                                     )}
@@ -997,18 +999,18 @@ export default function AdminCreateBOM() {
                                         </div>
 
                                         {errors.parentProduct && (
-                                            <p className="text-[#EF4444] text-[12px] mt-1">{errors.parentProduct}</p>
+                                            <p className="text-error text-[12px] mt-1">{errors.parentProduct}</p>
                                         )}
                                     </div>
 
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
                                             Status
                                         </label>
                                         <select
                                             value={formData.status}
                                             onChange={(e) => handleChange('status', e.target.value)}
-                                            className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                            className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                         >
                                             <option value="Active">Active</option>
                                             <option value="Inactive">Inactive</option>
@@ -1020,28 +1022,28 @@ export default function AdminCreateBOM() {
                             {/* Child Items Section */}
                             <div className="mb-6">
                                 <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-[16px] font-[600] text-[#383E49]">Child Items</h3>
+                                    <h3 className="text-[16px] font-[600] text-fg">Child Items</h3>
 
                                 </div>
 
                                 {errors.childItems && childItemsForm.length === 0 && (
-                                    <div className="mb-4 p-3 bg-[#FEE2E2] border-l-4 border-[#EF4444] rounded">
-                                        <p className="text-[14px] text-[#EF4444]">{errors.childItems}</p>
+                                    <div className="mb-4 p-3 bg-hover border-l-4 border-error rounded">
+                                        <p className="text-[14px] text-error">{errors.childItems}</p>
                                     </div>
                                 )}
 
                                 {childItemsForm.length > 0 ? (
                                     <div className="space-y-4">
                                         {childItemsForm.map((item, index) => (
-                                            <div key={item.tempId} className="border border-[#E4E6EA] rounded-lg p-4 bg-[#F8F9FA]">
+                                            <div key={item.tempId} className="border border-line rounded-lg p-4 bg-subtle">
                                                 <div className="flex items-start justify-between mb-4">
-                                                    <h4 className="text-[14px] font-[600] text-[#383E49]">
+                                                    <h4 className="text-[14px] font-[600] text-fg">
                                                         Item #{index + 1}
                                                     </h4>
                                                     <button
                                                         type="button"
                                                         onClick={() => handleRemoveChildItem(item.tempId)}
-                                                        className="p-1 text-[#EF4444] hover:bg-[#FEE2E2] rounded transition-colors"
+                                                        className="p-1 text-error hover:bg-hover rounded transition-colors"
                                                     >
                                                         <Trash2 size={16} />
                                                     </button>
@@ -1051,13 +1053,13 @@ export default function AdminCreateBOM() {
 
                                                     {/* Type Selection - FIRST */}
                                                     <div>
-                                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                                            Production Type <span className="text-[#EF4444]">*</span>
+                                                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                                                            Production Type <span className="text-error">*</span>
                                                         </label>
                                                         <select
                                                             value={item.selectedType}
                                                             onChange={(e) => handleChildItemChange(item.tempId, 'selectedType', e.target.value)}
-                                                            className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white ${errors[`childItem_${index}_selectedType`] ? 'border-[#EF4444]' : 'border-[#E4E6EA]'}`}
+                                                            className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface ${errors[`childItem_${index}_selectedType`] ? 'border-error' : 'border-line'}`}
                                                         >
                                                             <option value="">Select Type First</option>
                                                             {getUniqueTypes().map((type) => (
@@ -1073,8 +1075,8 @@ export default function AdminCreateBOM() {
                                                         className="md:col-span-2 relative"
                                                         ref={(el) => (childItemDropdownRefs.current[item.tempId] = el)}
                                                     >
-                                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                                            Child Item <span className="text-[#EF4444]">*</span>
+                                                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                                                            Child Item <span className="text-error">*</span>
                                                         </label>
 
                                                         <input
@@ -1094,15 +1096,15 @@ export default function AdminCreateBOM() {
                                                             onFocus={() =>
                                                                 handleChildItemChange(item.tempId, 'showDropdown', true)
                                                             }
-                                                            className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors[`childItem_${index}_itemCode`]
-                                                                ? 'border-[#EF4444]'
-                                                                : 'border-[#E4E6EA]'
+                                                            className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors[`childItem_${index}_itemCode`]
+                                                                ? 'border-error'
+                                                                : 'border-line'
                                                                 }`}
                                                         />
 
                                                         {/* Dropdown */}
                                                         {item.showDropdown && item.selectedType && (
-                                                            <div className="absolute z-50 w-full bg-white border border-[#E4E6EA] rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg">
+                                                            <div className="absolute z-50 w-full bg-elevated border border-line rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg">
                                                                 {getFilteredChildItems(item.selectedType, item.searchTerm).length > 0 ? (
                                                                     getFilteredChildItems(item.selectedType, item.searchTerm).map(ci => (
                                                                         <div
@@ -1112,13 +1114,13 @@ export default function AdminCreateBOM() {
                                                                                 handleChildItemChange(item.tempId, 'searchTerm', '');
                                                                                 handleChildItemChange(item.tempId, 'showDropdown', false);
                                                                             }}
-                                                                            className="px-4 py-2 hover:bg-[#F0F1F3] cursor-pointer text-[14px]"
+                                                                            className="px-4 py-2 hover:bg-app cursor-pointer text-[14px]"
                                                                         >
                                                                             {item.selectedType === 'Raw Material' ? ci.name : `${ci.code} - ${ci.name}`}
                                                                         </div>
                                                                     ))
                                                                 ) : (
-                                                                    <div className="px-4 py-2 text-[14px] text-[#667085]">
+                                                                    <div className="px-4 py-2 text-[14px] text-fg-secondary">
                                                                         No items found
                                                                     </div>
                                                                 )}
@@ -1130,8 +1132,8 @@ export default function AdminCreateBOM() {
 
                                                     {/* Quantity */}
                                                     <div>
-                                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                                            Qty per Unit <span className="text-[#EF4444]">*</span>
+                                                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                                                            Qty per Unit <span className="text-error">*</span>
                                                         </label>
                                                         <input
                                                             type="number"
@@ -1140,11 +1142,11 @@ export default function AdminCreateBOM() {
                                                             placeholder="0.00"
                                                             step="0.01"
                                                             min="0"
-                                                            className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors[`childItem_${index}_qty`] ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                                            className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors[`childItem_${index}_qty`] ? 'border-error' : 'border-line'
                                                                 }`}
                                                         />
                                                         {errors[`childItem_${index}_qty`] && (
-                                                            <p className="text-[#EF4444] text-[12px] mt-1">
+                                                            <p className="text-error text-[12px] mt-1">
                                                                 {errors[`childItem_${index}_qty`]}
                                                             </p>
                                                         )}
@@ -1152,27 +1154,27 @@ export default function AdminCreateBOM() {
 
                                                     {/* Unit (Auto-filled) */}
                                                     <div>
-                                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                                        <label className="block text-[14px] font-[500] text-fg mb-1">
                                                             Unit of Measure
                                                         </label>
                                                         <input
                                                             type="text"
                                                             value={item.unit || ''}
                                                             readOnly
-                                                            className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] bg-[#F0F1F3] text-[#667085]"
+                                                            className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] bg-app text-fg-secondary"
                                                         />
                                                     </div>
 
                                                     {/* Production Center (Auto-filled) */}
                                                     <div>
-                                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                                        <label className="block text-[14px] font-[500] text-fg mb-1">
                                                             Production Center
                                                         </label>
                                                         <select
                                                             value={item.productionCenter || ''}
                                                             onChange={(e) => handleChildItemChange(item.tempId, 'productionCenter', e.target.value)}
-                                                            className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${item.selectedType === 'Raw Material' ? 'bg-[#F8F9FA]' : 'bg-white'
-                                                                } border-[#E4E6EA]`}
+                                                            className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${item.selectedType === 'Raw Material' ? 'bg-subtle' : 'bg-surface'
+                                                                } border-line`}
                                                         >
                                                             <option value="">Select Center</option>
                                                             {productionCenters.map(center => (
@@ -1190,9 +1192,9 @@ export default function AdminCreateBOM() {
                                                                 type="checkbox"
                                                                 checked={item.active}
                                                                 onChange={(e) => handleChildItemChange(item.tempId, 'active', e.target.checked)}
-                                                                className="w-4 h-4 text-[#0F50AA] border-[#E4E6EA] rounded focus:ring-2 focus:ring-[#0F50AA]"
+                                                                className="w-4 h-4 text-brand-fg border-line rounded focus:ring-2 focus:ring-brand-fg"
                                                             />
-                                                            <span className="text-[14px] font-[500] text-[#383E49]">Active</span>
+                                                            <span className="text-[14px] font-[500] text-fg">Active</span>
                                                         </label>
                                                     </div>
                                                 </div>
@@ -1200,9 +1202,9 @@ export default function AdminCreateBOM() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="text-center py-8 border-2 border-dashed border-[#E4E6EA] rounded-lg">
-                                        <Package size={40} className="mx-auto text-[#667085] mb-2" />
-                                        <p className="text-[14px] text-[#667085]">
+                                    <div className="text-center py-8 border-2 border-dashed border-line rounded-lg">
+                                        <Package size={40} className="mx-auto text-fg-secondary mb-2" />
+                                        <p className="text-[14px] text-fg-secondary">
                                             No child items added yet. Click "Add Item" to add components.
                                         </p>
                                     </div>
@@ -1211,7 +1213,7 @@ export default function AdminCreateBOM() {
                                     <button
                                         type="button"
                                         onClick={handleAddChildItem}
-                                        className="flex items-center gap-2 mt-3 bg-[#0F50AA] hover:bg-[#1366D9] text-white px-3 py-2 rounded-md text-[14px] font-[500] transition-colors"
+                                        className="flex items-center gap-2 mt-3 bg-brand hover:bg-brand-hover text-on-brand px-3 py-2 rounded-md text-[14px] font-[500] transition-colors"
                                     >
                                         <Plus className="w-4 h-4" />
                                         Add Item
@@ -1221,33 +1223,33 @@ export default function AdminCreateBOM() {
 
                             {/* Summary Information */}
                             {childItemsForm.length > 0 && (
-                                <div className="mb-6 p-4 bg-[#EBF8FF] border border-[#0F50AA] rounded-lg">
+                                <div className="mb-6 p-4 bg-hover border border-brand-fg rounded-lg">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <AlertTriangle className="w-5 h-5 text-[#0F50AA]" />
-                                        <h4 className="text-[14px] font-[600] text-[#383E49]">BOM Summary</h4>
+                                        <AlertTriangle className="w-5 h-5 text-brand-fg" />
+                                        <h4 className="text-[14px] font-[600] text-fg">BOM Summary</h4>
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         <div>
-                                            <p className="text-[12px] text-[#667085]">Total Items</p>
-                                            <p className="text-[16px] font-[600] text-[#383E49]">
+                                            <p className="text-[12px] text-fg-secondary">Total Items</p>
+                                            <p className="text-[16px] font-[600] text-fg">
                                                 {childItemsForm.length}
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-[12px] text-[#667085]">Active Items</p>
-                                            <p className="text-[16px] font-[600] text-[#199D26]">
+                                            <p className="text-[12px] text-fg-secondary">Active Items</p>
+                                            <p className="text-[16px] font-[600] text-success">
                                                 {childItemsForm.filter(i => i.active).length}
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-[12px] text-[#667085]">Raw Materials</p>
-                                            <p className="text-[16px] font-[600] text-[#383E49]">
+                                            <p className="text-[12px] text-fg-secondary">Raw Materials</p>
+                                            <p className="text-[16px] font-[600] text-fg">
                                                 {childItemsForm.filter(i => i.selectedType === 'Raw Material' && i.itemCode).length}
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-[12px] text-[#667085]">Semi-Finished</p>
-                                            <p className="text-[16px] font-[600] text-[#383E49]">
+                                            <p className="text-[12px] text-fg-secondary">Semi-Finished</p>
+                                            <p className="text-[16px] font-[600] text-fg">
                                                 {childItemsForm.filter(i => i.selectedType === 'Product' && i.itemCode).length}
                                             </p>
                                         </div>
@@ -1256,18 +1258,18 @@ export default function AdminCreateBOM() {
                             )}
 
                             {/* Modal Footer */}
-                            <div className="flex gap-3 pt-6 border-t border-[#E4E6EA]">
+                            <div className="flex gap-3 pt-6 border-t border-line">
                                 <button
                                     type="button"
                                     onClick={handleCancel}
-                                    className="flex-1 px-4 py-2.5 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] font-[500] hover:bg-[#F8F9FA] transition-colors"
+                                    className="flex-1 px-4 py-2.5 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="button"
                                     onClick={handleSubmit}
-                                    className="flex-1 px-4 py-2.5 bg-[#0F50AA] hover:bg-[#1366D9] text-white rounded-md text-[14px] font-[500] transition-colors"
+                                    className="flex-1 px-4 py-2.5 bg-brand hover:bg-brand-hover text-on-brand rounded-md text-[14px] font-[500] transition-colors"
                                 >
                                     {isEditMode ? 'Update BOM' : 'Create BOM'}
                                 </button>
@@ -1280,11 +1282,11 @@ export default function AdminCreateBOM() {
             {/* Toast Notification */}
             {showToast && (
                 <div className="fixed top-4 right-4 z-[10000] animate-fade-in">
-                    <div className="bg-white border-l-4 border-[#51CC5D] rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
-                        <div className="flex-shrink-0 w-8 h-8 bg-[#51CC5D] bg-opacity-10 rounded-full flex items-center justify-center">
-                            <Check className="w-5 h-5 text-[#199D26]" />
+                    <div className="bg-surface border-l-4 border-success rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
+                        <div className="flex-shrink-0 w-8 h-8 bg-success-solid bg-opacity-10 rounded-full flex items-center justify-center">
+                            <Check className="w-5 h-5 text-success" />
                         </div>
-                        <p className="text-[14px] text-[#383E49] font-[500]">{toastMessage}</p>
+                        <p className="text-[14px] text-fg font-[500]">{toastMessage}</p>
                     </div>
                 </div>
             )}
@@ -1292,7 +1294,7 @@ export default function AdminCreateBOM() {
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

@@ -32,40 +32,40 @@ export default function ManagerDashboard({ onBackToDashboard }) {
             icon: <Calendar size={20} />,
             path: "/managerProductionPlanning",
             description: "Create daily production plans",
-            color: "bg-blue-500",
-            hoverColor: "hover:bg-blue-600"
+            color: "bg-brand",
+            hoverColor: "hover:bg-brand-hover"
         },
         {
             name: "Kitchen Requests",
             icon: <ChefHat size={20} />,
             path: "/managerKitchenRequests",
             description: "Manage kitchen production",
-            color: "bg-green-500",
-            hoverColor: "hover:bg-green-600"
+            color: "bg-success-solid",
+            hoverColor: "hover:bg-success-solid"
         },
         {
             name: "Bakery Requests",
             icon: <Factory size={20} />,
             path: "/managerBakeryRequests",
             description: "Manage bakery production",
-            color: "bg-orange-500",
-            hoverColor: "hover:bg-orange-600"
+            color: "bg-warning-solid",
+            hoverColor: "hover:bg-warning-solid"
         },
         {
             name: "Outlet Distribution",
             icon: <Store size={20} />,
             path: "/managerOutletDistribution",
             description: "Plan product distribution",
-            color: "bg-purple-500",
-            hoverColor: "hover:bg-purple-600"
+            color: "bg-plum-solid",
+            hoverColor: "hover:bg-plum-solid"
         },
         {
             name: "Actual Production",
             icon: <Store size={20} />,
             path: "/managerActualProduction",
             description: "Manage stored items",
-            color: "bg-indigo-500",
-            hoverColor: "hover:bg-indigo-600"
+            color: "bg-plum-solid",
+            hoverColor: "hover:bg-plum-solid"
         }
     ];
 
@@ -120,8 +120,8 @@ export default function ManagerDashboard({ onBackToDashboard }) {
                 };
 
                 setRequestsOverview([
-                    getStats(bakeryPlans, "Bakery Requests", <Factory size={20} className="text-orange-600" />, "bg-orange-100", "/managerBakeryRequests"),
-                    getStats(kitchenPlans, "Kitchen Requests", <ChefHat size={20} className="text-green-600" />, "bg-green-100", "/managerKitchenRequests")
+                    getStats(bakeryPlans, "Bakery Requests", <Factory size={20} className="text-warning" />, "bg-warning/10", "/managerBakeryRequests"),
+                    getStats(kitchenPlans, "Kitchen Requests", <ChefHat size={20} className="text-success" />, "bg-success/10", "/managerKitchenRequests")
                 ]);
 
             } catch (err) {
@@ -137,7 +137,7 @@ export default function ManagerDashboard({ onBackToDashboard }) {
 
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             <ManagerSidebar
                 sidebarOpen={sidebarOpen}
             />
@@ -154,19 +154,19 @@ export default function ManagerDashboard({ onBackToDashboard }) {
 
                     {/* Quick Actions */}
                     <div className="mb-8">
-                        <h2 className="text-[20px] font-[600] text-[#383E49] mb-4">Quick Actions</h2>
+                        <h2 className="text-[20px] font-[600] text-fg mb-4">Quick Actions</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {quickActions.map((action) => (
                                 <NavLink
                                     key={action.path}
                                     to={action.path}
-                                    className={`${action.color} ${action.hoverColor} text-white p-6 rounded-lg transition-all duration-200 transform hover:scale-105 hover:shadow-lg text-left w-full`}
+                                    className={`${action.color} ${action.hoverColor} text-on-brand p-6 rounded-lg transition-all duration-200 transform hover:scale-105 hover:shadow-lg text-left w-full`}
                                 >
                                     <div className="flex items-center gap-3 mb-3">
                                         {action.icon}
                                         <h3 className="text-[16px] font-[600]">{action.name}</h3>
                                     </div>
-                                    <p className="text-[14px] text-white/80">{action.description}</p>
+                                    <p className="text-[14px] text-on-brand/80">{action.description}</p>
                                 </NavLink>
                             ))}
                         </div>
@@ -174,12 +174,12 @@ export default function ManagerDashboard({ onBackToDashboard }) {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                         {/* Recent Production Plans */}
-                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                        <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                             <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-[18px] font-[600] text-[#383E49]">Recent Production Plans</h3>
+                                <h3 className="text-[18px] font-[600] text-fg">Recent Production Plans</h3>
                                 <NavLink
                                     to={"/managerProductionPlanning"}
-                                    className="text-[14px] text-[#0F50AA] hover:underline flex items-center gap-1 transition-colors"
+                                    className="text-[14px] text-brand-fg hover:underline flex items-center gap-1 transition-colors"
                                 >
                                     View All <ArrowRight size={14} />
                                 </NavLink>
@@ -189,41 +189,41 @@ export default function ManagerDashboard({ onBackToDashboard }) {
                                 {loading ? (
                                     <Loader variant="section" text="Loading recent plans..." />
                                 ) : error ? (
-                                    <div className="text-center py-12 text-red-500">
+                                    <div className="text-center py-12 text-error">
                                         <p>{error}</p>
                                     </div>
                                 ) : recentPlans.length === 0 ? (
-                                    <div className="text-center py-12 bg-[#F8F9FA] rounded-lg">
-                                        <Package className="mx-auto text-[#667085] mb-2" size={32} />
-                                        <p className="text-[14px] text-[#667085]">No recent production plans</p>
+                                    <div className="text-center py-12 bg-subtle rounded-lg">
+                                        <Package className="mx-auto text-fg-secondary mb-2" size={32} />
+                                        <p className="text-[14px] text-fg-secondary">No recent production plans</p>
                                     </div>
                                 ) : (
                                     recentPlans.map((plan) => (
                                         <NavLink
                                             key={plan.id}
                                             to={`/managerProductionPlanning?id=${plan.originalId}`}
-                                            className="flex items-center justify-between p-4 bg-[#F8F9FA] rounded-lg border border-transparent hover:border-[#0F50AA] hover:bg-blue-50 transition-all cursor-pointer group"
+                                            className="flex items-center justify-between p-4 bg-subtle rounded-lg border border-transparent hover:border-brand-fg hover:bg-brand/10 transition-all cursor-pointer group"
                                         >
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <span className="text-[14px] font-[600] text-[#383E49] group-hover:text-[#0F50AA] transition-colors block">
+                                                    <span className="text-[14px] font-[600] text-fg group-hover:text-brand-fg transition-colors block">
                                                         {plan.planName}
                                                     </span>
-                                                    <span className="text-[11px] text-[#667085] font-[400] block">
+                                                    <span className="text-[11px] text-fg-secondary font-[400] block">
                                                         ID: {plan.id}
                                                     </span>
                                                     <span className={`text-[12px] px-2 py-0.5 rounded-full ${
-                                                        plan.status === 'Completed' ? 'bg-[#DDFFE0] text-[#199D26]' : 
-                                                        plan.status === 'Draft' ? 'bg-[#F0F1F3] text-[#667085]' : 'bg-[#FFF4E6] text-[#F4A100]'
+                                                        plan.status === 'Completed' ? 'bg-hover text-success' : 
+                                                        plan.status === 'Draft' ? 'bg-app text-fg-secondary' : 'bg-hover text-warning'
                                                     }`}>
                                                         {plan.status}
                                                     </span>
                                                 </div>
-                                                <p className="text-[12px] text-[#667085]">
+                                                <p className="text-[12px] text-fg-secondary">
                                                     {plan.date} • {plan.totalProducts} products • {plan.totalQty} quantity
                                                 </p>
                                             </div>
-                                            <ArrowRight size={16} className="text-[#667085] opacity-0 group-hover:opacity-100 group-hover:text-[#0F50AA] transition-all transform translate-x-2 group-hover:translate-x-0" />
+                                            <ArrowRight size={16} className="text-fg-secondary opacity-0 group-hover:opacity-100 group-hover:text-brand-fg transition-all transform translate-x-2 group-hover:translate-x-0" />
                                         </NavLink>
                                     ))
                                 )}
@@ -231,44 +231,44 @@ export default function ManagerDashboard({ onBackToDashboard }) {
                         </div>
 
                         {/* Requests Overview */}
-                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                        <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                             <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-[18px] font-[600] text-[#383E49]">Production Requests</h3>
+                                <h3 className="text-[18px] font-[600] text-fg">Production Requests</h3>
                             </div>
 
                             <div className="space-y-4">
                                 {loading ? (
                                     <div className="space-y-4">
                                         {[1, 2].map(i => (
-                                            <div key={i} className="animate-pulse flex items-center justify-between p-4 bg-[#F8F9FA] rounded-lg">
+                                            <div key={i} className="animate-pulse flex items-center justify-between p-4 bg-subtle rounded-lg">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-[#E4E6EA] rounded-lg"></div>
+                                                    <div className="w-10 h-10 bg-line rounded-lg"></div>
                                                     <div className="space-y-2">
-                                                        <div className="h-4 w-24 bg-[#E4E6EA] rounded"></div>
-                                                        <div className="h-3 w-32 bg-[#E4E6EA] rounded"></div>
+                                                        <div className="h-4 w-24 bg-line rounded"></div>
+                                                        <div className="h-3 w-32 bg-line rounded"></div>
                                                     </div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 ) : requestsOverview.map((request, index) => (
-                                    <div key={index} className="flex items-center justify-between p-4 bg-[#F8F9FA] rounded-lg border border-transparent hover:border-[#E4E6EA] transition-all">
+                                    <div key={index} className="flex items-center justify-between p-4 bg-subtle rounded-lg border border-transparent hover:border-line transition-all">
                                         <div className="flex items-center gap-3">
                                             <div className={`p-2.5 rounded-lg ${request.bgColor}`}>
                                                 {request.icon}
                                             </div>
                                             <div>
-                                                <p className="text-[14px] font-[600] text-[#383E49]">{request.type}</p>
-                                                <p className="text-[12px] text-[#667085]">
-                                                    Total: <span className="font-[500] text-[#383E49]">{request.total}</span> | 
-                                                    Completed: <span className="font-[500] text-[#199D26]">{request.completed}</span> | 
-                                                    Pending: <span className="font-[500] text-[#F4A100]">{request.pending}</span>
+                                                <p className="text-[14px] font-[600] text-fg">{request.type}</p>
+                                                <p className="text-[12px] text-fg-secondary">
+                                                    Total: <span className="font-[500] text-fg">{request.total}</span> | 
+                                                    Completed: <span className="font-[500] text-success">{request.completed}</span> | 
+                                                    Pending: <span className="font-[500] text-warning">{request.pending}</span>
                                                 </p>
                                             </div>
                                         </div>
                                         <NavLink
                                             to={request.path}
-                                            className="text-[#0F50AA] hover:bg-white p-2 rounded-lg transition-all"
+                                            className="text-brand-fg hover:bg-surface p-2 rounded-lg transition-all"
                                         >
                                             <ArrowRight size={18} />
                                         </NavLink>
@@ -283,7 +283,7 @@ export default function ManagerDashboard({ onBackToDashboard }) {
 
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

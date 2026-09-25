@@ -37,61 +37,61 @@ export default function AdminSidebar({ sidebarOpen }) {
       name: "Create Users",
       icon: UserPlus,
       path: "/adminCreateUser",
-      color: "text-green-600",
+      color: "text-success",
     },
     {
       name: "View Trends",
       icon: TrendingUp,
       path: "/adminViewTrends",
-      color: "text-purple-600",
+      color: "text-plum",
     },
     {
       name: "Generate Reports",
       icon: FileBarChart,
       path: "/adminGenerateReports",
-      color: "text-orange-600",
+      color: "text-warning",
     },
     {
       name: "Wastage",
       icon: Trash2,
       path: "/adminWastage",
-      color: "text-red-600",
+      color: "text-error",
     },
     {
       name: "Audit Log",
       icon: ScrollText,
       path: "/adminAuditLog",
-      color: "text-slate-700",
+      color: "text-fg",
     },
     {
       name: "Customer Ledgers",
       icon: CreditCard,
       path: "/adminCustomers",
-      color: "text-blue-600",
+      color: "text-brand-fg",
     },
     {
       name: "Promo Codes",
       icon: Tag,
       path: "/adminPromoCodes",
-      color: "text-[#1366D9]",
+      color: "text-brand-fg",
     },
     {
       name: "Discount Rules",
       icon: Percent,
       path: "/adminDiscountRules",
-      color: "text-[#7C3AED]",
+      color: "text-plum",
     },
     {
       name: "Stock & Item Entry",
       icon: Package,
       path: "/adminStockEntry",
-      color: "text-teal-600",
+      color: "text-success",
     },
     {
       name: "MPC Material Requests",
       icon: Layers,
       path: "/adminMpcRequests",
-      color: "text-[#0F50AA]",
+      color: "text-brand-fg",
     },
   ];
 
@@ -101,15 +101,15 @@ export default function AdminSidebar({ sidebarOpen }) {
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       } md:translate-x-0`}
     >
-      <div className="w-64 bg-white shadow-lg h-screen flex flex-col">
+      <div className="w-64 bg-surface shadow-lg h-screen flex flex-col">
         {/* Logo & Back Button */}
-        <div className="p-4 border-b border-[#E4E6EA] flex items-center justify-between">
+        <div className="p-4 border-b border-line flex items-center justify-between">
           <div className="flex items-center">
-            <img src="/logo.png" alt="logo" className="h-14 w-auto" />
+            <img src="/logo.png" alt="logo" className="logo-plate h-14 w-auto" />
           </div>
           <NavLink
             to={"/adminDashboard"}
-            className="p-2 text-[#667085] hover:bg-[#F0F1F3] rounded-lg transition-colors"
+            className="p-2 text-fg-secondary hover:bg-app rounded-lg transition-colors"
             title="Admin Dashboard"
           >
             <ArrowLeft size={18} />
@@ -117,31 +117,31 @@ export default function AdminSidebar({ sidebarOpen }) {
         </div>
 
         {/* Module Title */}
-        <div className="px-4 py-3 bg-gradient-to-r from-[#0F50AA] to-[#1E40AF] text-white">
+        <div className="px-4 py-3 bg-gradient-to-r from-brand to-brand-hover text-on-brand">
           <h2 className="text-[16px] font-[600]">Admin Module</h2>
-          <p className="text-[12px] text-blue-100">
+          <p className="text-[12px] text-on-brand/80">
             System Management & Control
           </p>
         </div>
 
         {/* Quick Actions */}
-        <div className="px-4 py-3 bg-[#F8F9FA] border-b border-[#E4E6EA]">
-          <p className="text-[10px] font-[600] text-[#667085] uppercase tracking-wide mb-2">
+        <div className="px-4 py-3 bg-subtle border-b border-line">
+          <p className="text-[10px] font-[600] text-fg-secondary uppercase tracking-wide mb-2">
             Quick Actions
           </p>
           <div className="grid grid-cols-2 gap-2">
             <NavLink
               to={"/adminCreateUser"}
-              className="flex items-center gap-2 p-2 text-[11px] bg-white rounded border hover:bg-green-50 hover:border-green-200 transition-colors"
+              className="flex items-center gap-2 p-2 text-[11px] bg-surface rounded border hover:bg-success/10 hover:border-success/30 transition-colors"
             >
-              <UserPlus size={14} className="text-green-600" />
+              <UserPlus size={14} className="text-success" />
               <span>Add User</span>
             </NavLink>
             <NavLink
               to={"/adminGenerateReports"}
-              className="flex items-center gap-2 p-2 text-[11px] bg-white rounded border hover:bg-orange-50 hover:border-orange-200 transition-colors"
+              className="flex items-center gap-2 p-2 text-[11px] bg-surface rounded border hover:bg-warning/10 hover:border-warning/30 transition-colors"
             >
-              <FileText size={14} className="text-orange-600" />
+              <FileText size={14} className="text-warning" />
               <span>Reports</span>
             </NavLink>
           </div>
@@ -159,8 +159,8 @@ export default function AdminSidebar({ sidebarOpen }) {
                     className={({ isActive }) =>
                       `flex items-center gap-3 p-3 rounded-lg w-full transition-all text-[13px] ${
                         isActive
-                          ? "bg-[#0F50AA] text-white shadow-sm"
-                          : "text-[#667085] hover:bg-[#F0F1F3] hover:text-[#383E49]"
+                          ? "bg-brand text-on-brand shadow-sm"
+                          : "text-fg-secondary hover:bg-app hover:text-fg"
                       }`
                     }
                   >
@@ -168,11 +168,11 @@ export default function AdminSidebar({ sidebarOpen }) {
                       <>
                         <Icon
                           size={18}
-                          className={isActive ? "text-white" : item.color}
+                          className={isActive ? "text-on-brand" : item.color}
                         />
                         <span className="font-[500]">{item.name}</span>
                         {isActive && (
-                          <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>
+                          <div className="ml-auto w-2 h-2 bg-surface rounded-full"></div>
                         )}
                       </>
                     )}
@@ -184,21 +184,21 @@ export default function AdminSidebar({ sidebarOpen }) {
         </nav>
 
         {/* Admin Profile */}
-        <div className="p-4 border-t border-[#E4E6EA]">
+        <div className="p-4 border-t border-line">
           <div className="flex items-center gap-3">
             <RoleAvatar roleId={localStorage.getItem("userRole")} />
             <div className="flex-1">
-              <p className="text-[14px] font-[500] text-[#383E49]">
+              <p className="text-[14px] font-[500] text-fg">
                 {localStorage.getItem("firstName") || localStorage.getItem("lastName")
                   ? `${localStorage.getItem("firstName") || ""} ${localStorage.getItem("lastName") || ""}`.trim()
                   : localStorage.getItem("userName") || "Admin"}
               </p>
-              <p className="text-[12px] text-[#667085]">
+              <p className="text-[12px] text-fg-secondary">
                 {getRoleName(localStorage.getItem("userRole")) || "Administrator"}
               </p>
             </div>
             <button
-              className="p-1 text-[#667085] hover:text-red-500 transition-colors"
+              className="p-1 text-fg-secondary hover:text-error transition-colors"
               onClick={onLogout}
             >
               <LogOut size={16} />

@@ -120,7 +120,7 @@ export default function ManagerCreditOrders() {
   ).length;
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <ManagerSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -135,10 +135,10 @@ export default function ManagerCreditOrders() {
             {/* Header & Actions */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h2 className="text-[20px] font-[600] text-[#383E49]">
+                <h2 className="text-[20px] font-[600] text-fg">
                   Credit Orders Management
                 </h2>
-                <p className="text-[12px] text-[#667085]">
+                <p className="text-[12px] text-fg-secondary">
                   View, monitor, and manage special credit orders for your outlet
                 </p>
               </div>
@@ -146,87 +146,87 @@ export default function ManagerCreditOrders() {
               <button
                 onClick={fetchCreditOrders}
                 disabled={loading}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E6EA] rounded-lg text-[13px] font-[500] text-[#383E49] hover:bg-gray-50 transition-colors shadow-sm"
+                className="flex items-center gap-2 px-4 py-2 bg-surface border border-line rounded-lg text-[13px] font-[500] text-fg hover:bg-subtle transition-colors shadow-sm"
               >
-                <RefreshCw size={16} className={loading ? "animate-spin text-[#0F50AA]" : ""} />
+                <RefreshCw size={16} className={loading ? "animate-spin text-brand-fg" : ""} />
                 Refresh
               </button>
             </div>
 
             {/* Metric Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white p-4 rounded-xl shadow-sm border border-[#E4E6EA]">
+              <div className="bg-surface p-4 rounded-xl shadow-sm border border-line">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[12px] font-[500] text-[#667085]">Total Credit Orders</span>
-                  <div className="p-2 bg-blue-50 text-[#0F50AA] rounded-lg">
+                  <span className="text-[12px] font-[500] text-fg-secondary">Total Credit Orders</span>
+                  <div className="p-2 bg-brand/10 text-brand-fg rounded-lg">
                     <FileText size={18} />
                   </div>
                 </div>
-                <p className="text-[22px] font-[700] text-[#383E49]">{totalOrdersCount}</p>
-                <p className="text-[11px] text-[#667085] mt-1">Active special/credit orders</p>
+                <p className="text-[22px] font-[700] text-fg">{totalOrdersCount}</p>
+                <p className="text-[11px] text-fg-secondary mt-1">Active special/credit orders</p>
               </div>
 
-              <div className="bg-white p-4 rounded-xl shadow-sm border border-[#E4E6EA]">
+              <div className="bg-surface p-4 rounded-xl shadow-sm border border-line">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[12px] font-[500] text-[#667085]">Total Advance Collected</span>
-                  <div className="p-2 bg-green-50 text-green-600 rounded-lg">
+                  <span className="text-[12px] font-[500] text-fg-secondary">Total Advance Collected</span>
+                  <div className="p-2 bg-success/10 text-success rounded-lg">
                     <DollarSign size={18} />
                   </div>
                 </div>
-                <p className="text-[22px] font-[700] text-green-600">
+                <p className="text-[22px] font-[700] text-success">
                   Rs. {totalAdvanceAmount.toFixed(2)}
                 </p>
-                <p className="text-[11px] text-[#667085] mt-1">Deposits received upfront</p>
+                <p className="text-[11px] text-fg-secondary mt-1">Deposits received upfront</p>
               </div>
 
-              <div className="bg-white p-4 rounded-xl shadow-sm border border-[#E4E6EA]">
+              <div className="bg-surface p-4 rounded-xl shadow-sm border border-line">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[12px] font-[500] text-[#667085]">Outstanding Balance</span>
-                  <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
+                  <span className="text-[12px] font-[500] text-fg-secondary">Outstanding Balance</span>
+                  <div className="p-2 bg-warning/10 text-warning rounded-lg">
                     <Clock size={18} />
                   </div>
                 </div>
-                <p className="text-[22px] font-[700] text-amber-600">
+                <p className="text-[22px] font-[700] text-warning">
                   Rs. {totalRemainingBalance.toFixed(2)}
                 </p>
-                <p className="text-[11px] text-[#667085] mt-1">Remaining payment due</p>
+                <p className="text-[11px] text-fg-secondary mt-1">Remaining payment due</p>
               </div>
 
-              <div className="bg-white p-4 rounded-xl shadow-sm border border-[#E4E6EA]">
+              <div className="bg-surface p-4 rounded-xl shadow-sm border border-line">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[12px] font-[500] text-[#667085]">Pending Action</span>
-                  <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
+                  <span className="text-[12px] font-[500] text-fg-secondary">Pending Action</span>
+                  <div className="p-2 bg-plum/10 text-plum rounded-lg">
                     <Shield size={18} />
                   </div>
                 </div>
-                <p className="text-[22px] font-[700] text-purple-600">{pendingApprovalsCount}</p>
-                <p className="text-[11px] text-[#667085] mt-1">Requires fulfillment / approval</p>
+                <p className="text-[22px] font-[700] text-plum">{pendingApprovalsCount}</p>
+                <p className="text-[11px] text-fg-secondary mt-1">Requires fulfillment / approval</p>
               </div>
             </div>
 
             {/* Filters & Search */}
-            <div className="bg-white rounded-xl shadow-sm border border-[#E4E6EA] p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="bg-surface rounded-xl shadow-sm border border-line p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="relative w-full sm:w-80">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-muted" size={16} />
                 <input
                   type="text"
                   placeholder="Search by customer, contact or ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-1 focus:ring-[#0F50AA]"
+                  className="w-full pl-9 pr-4 py-2 border border-line rounded-lg text-[13px] focus:outline-none focus:ring-1 focus:ring-brand-fg"
                 />
               </div>
 
               <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
-                <span className="text-[12px] font-[500] text-[#667085] whitespace-nowrap">Status:</span>
+                <span className="text-[12px] font-[500] text-fg-secondary whitespace-nowrap">Status:</span>
                 {["ALL", "ADVANCE_PAID", "PENDING_APPROVAL", "COMPLETED", "CANCELLED"].map((status) => (
                   <button
                     key={status}
                     onClick={() => setStatusFilter(status)}
                     className={`px-3 py-1.5 rounded-lg text-[12px] font-[500] transition-colors whitespace-nowrap ${
                       statusFilter === status
-                        ? "bg-[#0F50AA] text-white"
-                        : "bg-[#F8F9FA] text-[#667085] hover:bg-gray-100"
+                        ? "bg-brand text-on-brand"
+                        : "bg-subtle text-fg-secondary hover:bg-hover"
                     }`}
                   >
                     {status.replace("_", " ")}
@@ -236,109 +236,109 @@ export default function ManagerCreditOrders() {
             </div>
 
             {/* Credit Orders Table */}
-            <div className="bg-white rounded-xl shadow-sm border border-[#E4E6EA] overflow-hidden">
+            <div className="bg-surface rounded-xl shadow-sm border border-line overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[800px]">
-                  <thead className="bg-[#F9FAFB] border-b border-[#E4E6EA]">
+                  <thead className="bg-subtle border-b border-line">
                     <tr>
-                      <th className="px-6 py-3 text-left text-[11px] font-[600] text-[#667085] uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Order ID & Date
                       </th>
-                      <th className="px-6 py-3 text-left text-[11px] font-[600] text-[#667085] uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Customer
                       </th>
-                      <th className="px-6 py-3 text-right text-[11px] font-[600] text-[#667085] uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Total Amount
                       </th>
-                      <th className="px-6 py-3 text-right text-[11px] font-[600] text-[#667085] uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Advance Paid
                       </th>
-                      <th className="px-6 py-3 text-right text-[11px] font-[600] text-[#667085] uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Balance Due
                       </th>
-                      <th className="px-6 py-3 text-left text-[11px] font-[600] text-[#667085] uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Delivery Schedule
                       </th>
-                      <th className="px-6 py-3 text-center text-[11px] font-[600] text-[#667085] uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-center text-[11px] font-[600] text-[#667085] uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E4E6EA]">
+                  <tbody className="divide-y divide-line">
                     {loading ? (
                       <tr>
-                        <td colSpan="8" className="py-12 text-center text-[#667085]">
+                        <td colSpan="8" className="py-12 text-center text-fg-secondary">
                           <div className="flex items-center justify-center gap-2">
-                            <RefreshCw className="animate-spin text-[#0F50AA]" size={20} />
+                            <RefreshCw className="animate-spin text-brand-fg" size={20} />
                             <span>Loading Credit Orders...</span>
                           </div>
                         </td>
                       </tr>
                     ) : error ? (
                       <tr>
-                        <td colSpan="8" className="py-8 text-center text-red-500 text-[14px]">
+                        <td colSpan="8" className="py-8 text-center text-error text-[14px]">
                           {error}
                         </td>
                       </tr>
                     ) : filteredOrders.length === 0 ? (
                       <tr>
-                        <td colSpan="8" className="py-12 text-center text-[#667085]">
-                          <FileText size={36} className="mx-auto mb-2 text-gray-300" />
+                        <td colSpan="8" className="py-12 text-center text-fg-secondary">
+                          <FileText size={36} className="mx-auto mb-2 text-fg-muted" />
                           <p className="text-[14px] font-[500]">No credit orders found</p>
-                          <p className="text-[12px] text-gray-400">
+                          <p className="text-[12px] text-fg-muted">
                             Credit orders created at the POS terminal will appear here.
                           </p>
                         </td>
                       </tr>
                     ) : (
                       filteredOrders.map((order) => (
-                        <tr key={order.id} className="hover:bg-gray-50/60 transition-colors">
+                        <tr key={order.id} className="hover:bg-subtle/60 transition-colors">
                           <td className="px-6 py-4">
-                            <span className="text-[14px] font-[600] text-[#0F50AA]">
+                            <span className="text-[14px] font-[600] text-brand-fg">
                               #{order.id}
                             </span>
-                            <span className="block text-[12px] text-[#667085]">
+                            <span className="block text-[12px] text-fg-secondary">
                               {order.orderDate || order.createdAt || "N/A"}
                             </span>
                           </td>
 
                           <td className="px-6 py-4">
-                            <span className="text-[14px] font-[500] text-[#383E49] block">
+                            <span className="text-[14px] font-[500] text-fg block">
                               {order.customerName || "Walk-in Customer"}
                             </span>
-                            <span className="text-[12px] text-[#667085]">
+                            <span className="text-[12px] text-fg-secondary">
                               {order.contactNumber || "No Phone"}
                             </span>
                           </td>
 
                           <td className="px-6 py-4 text-right">
-                            <span className="text-[14px] font-[600] text-[#383E49]">
+                            <span className="text-[14px] font-[600] text-fg">
                               Rs. {(order.totalAmount || 0).toFixed(2)}
                             </span>
                           </td>
 
                           <td className="px-6 py-4 text-right">
-                            <span className="text-[14px] font-[600] text-green-600">
+                            <span className="text-[14px] font-[600] text-success">
                               Rs. {(order.advanceAmount || 0).toFixed(2)}
                             </span>
                           </td>
 
                           <td className="px-6 py-4 text-right">
-                            <span className="text-[14px] font-[600] text-amber-600">
+                            <span className="text-[14px] font-[600] text-warning">
                               Rs. {(order.balanceAmount || 0).toFixed(2)}
                             </span>
                           </td>
 
                           <td className="px-6 py-4">
-                            <div className="flex items-center gap-1.5 text-[13px] text-[#383E49]">
-                              <Calendar size={14} className="text-[#667085]" />
+                            <div className="flex items-center gap-1.5 text-[13px] text-fg">
+                              <Calendar size={14} className="text-fg-secondary" />
                               <span>{order.deliveryDate || "N/A"}</span>
                             </div>
                             {order.deliveryTime && (
-                              <span className="text-[11px] text-[#667085] ml-5 block">
+                              <span className="text-[11px] text-fg-secondary ml-5 block">
                                 {order.deliveryTime}
                               </span>
                             )}
@@ -348,12 +348,12 @@ export default function ManagerCreditOrders() {
                             <span
                               className={`px-2.5 py-1 rounded-full text-[11px] font-[600] inline-block ${
                                 order.status === "COMPLETED"
-                                  ? "bg-green-100 text-green-700"
+                                  ? "bg-success/10 text-success"
                                   : order.status === "CANCELLED"
-                                  ? "bg-red-100 text-red-700"
+                                  ? "bg-error/10 text-error"
                                   : order.status === "ADVANCE_PAID"
-                                  ? "bg-blue-100 text-blue-700"
-                                  : "bg-amber-100 text-amber-700"
+                                  ? "bg-brand/10 text-brand-fg"
+                                  : "bg-warning/10 text-warning"
                               }`}
                             >
                               {(order.status || "PENDING").replace("_", " ")}
@@ -366,7 +366,7 @@ export default function ManagerCreditOrders() {
                                 setSelectedOrder(order);
                                 setShowDetailModal(true);
                               }}
-                              className="px-3 py-1.5 bg-[#0F50AA]/10 text-[#0F50AA] hover:bg-[#0F50AA]/20 rounded-lg text-[12px] font-[500] transition-colors inline-flex items-center gap-1"
+                              className="px-3 py-1.5 bg-brand/10 text-brand-fg hover:bg-brand/20 rounded-lg text-[12px] font-[500] transition-colors inline-flex items-center gap-1"
                             >
                               <Eye size={14} />
                               Manage
@@ -385,24 +385,24 @@ export default function ManagerCreditOrders() {
 
       {/* Order Detail & Action Modal */}
       {showDetailModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="p-6 border-b border-[#E4E6EA] flex justify-between items-center bg-[#F8F9FA] rounded-t-xl">
+            <div className="p-6 border-b border-line flex justify-between items-center bg-subtle rounded-t-xl">
               <div>
-                <h3 className="text-[18px] font-[600] text-[#383E49]">
+                <h3 className="text-[18px] font-[600] text-fg">
                   Credit Order Details #{selectedOrder.id}
                 </h3>
-                <p className="text-[12px] text-[#667085]">
+                <p className="text-[12px] text-fg-secondary">
                   Status:{" "}
-                  <span className="font-[600] text-[#0F50AA]">
+                  <span className="font-[600] text-brand-fg">
                     {(selectedOrder.status || "PENDING").replace("_", " ")}
                   </span>
                 </p>
               </div>
               <button
                 onClick={() => setShowDetailModal(false)}
-                className="text-[#667085] hover:text-[#383E49] p-1 rounded-lg"
+                className="text-fg-secondary hover:text-fg p-1 rounded-lg"
               >
                 <X size={20} />
               </button>
@@ -411,36 +411,36 @@ export default function ManagerCreditOrders() {
             {/* Modal Body */}
             <div className="p-6 space-y-6">
               {/* Customer Info Card */}
-              <div className="bg-[#F8F9FA] p-4 rounded-xl border border-[#E4E6EA] space-y-2">
-                <h4 className="text-[13px] font-[600] text-[#383E49] flex items-center gap-2">
-                  <User size={16} className="text-[#0F50AA]" />
+              <div className="bg-subtle p-4 rounded-xl border border-line space-y-2">
+                <h4 className="text-[13px] font-[600] text-fg flex items-center gap-2">
+                  <User size={16} className="text-brand-fg" />
                   Customer Information
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[13px]">
                   <div>
-                    <span className="text-[#667085]">Name:</span>{" "}
-                    <span className="font-[500] text-[#383E49]">
+                    <span className="text-fg-secondary">Name:</span>{" "}
+                    <span className="font-[500] text-fg">
                       {selectedOrder.customerName || "N/A"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[#667085]">Contact:</span>{" "}
-                    <span className="font-[500] text-[#383E49]">
+                    <span className="text-fg-secondary">Contact:</span>{" "}
+                    <span className="font-[500] text-fg">
                       {selectedOrder.contactNumber || "N/A"}
                     </span>
                   </div>
                   {selectedOrder.customerEmail && (
                     <div>
-                      <span className="text-[#667085]">Email:</span>{" "}
-                      <span className="font-[500] text-[#383E49]">
+                      <span className="text-fg-secondary">Email:</span>{" "}
+                      <span className="font-[500] text-fg">
                         {selectedOrder.customerEmail}
                       </span>
                     </div>
                   )}
                   {selectedOrder.deliveryDate && (
                     <div>
-                      <span className="text-[#667085]">Delivery Date:</span>{" "}
-                      <span className="font-[500] text-[#383E49]">
+                      <span className="text-fg-secondary">Delivery Date:</span>{" "}
+                      <span className="font-[500] text-fg">
                         {selectedOrder.deliveryDate}
                       </span>
                     </div>
@@ -450,13 +450,13 @@ export default function ManagerCreditOrders() {
 
               {/* Order Items Table */}
               <div>
-                <h4 className="text-[13px] font-[600] text-[#383E49] mb-3 flex items-center gap-2">
-                  <Package size={16} className="text-[#0F50AA]" />
+                <h4 className="text-[13px] font-[600] text-fg mb-3 flex items-center gap-2">
+                  <Package size={16} className="text-brand-fg" />
                   Order Items
                 </h4>
-                <div className="border border-[#E4E6EA] rounded-lg overflow-hidden">
+                <div className="border border-line rounded-lg overflow-hidden">
                   <table className="w-full text-left text-[13px]">
-                    <thead className="bg-[#F9FAFB] border-b border-[#E4E6EA] text-[#667085]">
+                    <thead className="bg-subtle border-b border-line text-fg-secondary">
                       <tr>
                         <th className="p-3 font-[600]">Product</th>
                         <th className="p-3 font-[600] text-center">Qty</th>
@@ -464,25 +464,25 @@ export default function ManagerCreditOrders() {
                         <th className="p-3 font-[600] text-right">Total</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E4E6EA]">
+                    <tbody className="divide-y divide-line">
                       {selectedOrder.items && selectedOrder.items.length > 0 ? (
                         selectedOrder.items.map((item, idx) => (
                           <tr key={idx}>
-                            <td className="p-3 font-[500] text-[#383E49]">
+                            <td className="p-3 font-[500] text-fg">
                               {item.name || item.productName || `Item #${item.productId}`}
                             </td>
                             <td className="p-3 text-center">{item.quantity}</td>
                             <td className="p-3 text-right">
                               Rs. {(item.unitPrice || 0).toFixed(2)}
                             </td>
-                            <td className="p-3 text-right font-[600] text-[#0F50AA]">
+                            <td className="p-3 text-right font-[600] text-brand-fg">
                               Rs. {((item.quantity || 1) * (item.unitPrice || 0)).toFixed(2)}
                             </td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan="4" className="p-4 text-center text-[#667085]">
+                          <td colSpan="4" className="p-4 text-center text-fg-secondary">
                             No detailed item breakdown recorded
                           </td>
                         </tr>
@@ -493,22 +493,22 @@ export default function ManagerCreditOrders() {
               </div>
 
               {/* Financial Breakdown */}
-              <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 space-y-2 text-[13px]">
+              <div className="bg-brand/10 p-4 rounded-xl border border-brand/20 space-y-2 text-[13px]">
                 <div className="flex justify-between">
-                  <span className="text-[#667085]">Total Order Amount:</span>
-                  <span className="font-[600] text-[#383E49]">
+                  <span className="text-fg-secondary">Total Order Amount:</span>
+                  <span className="font-[600] text-fg">
                     Rs. {(selectedOrder.totalAmount || 0).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#667085]">Advance Deposit Paid:</span>
-                  <span className="font-[600] text-green-600">
+                  <span className="text-fg-secondary">Advance Deposit Paid:</span>
+                  <span className="font-[600] text-success">
                     Rs. {(selectedOrder.advanceAmount || 0).toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between border-t border-blue-200 pt-2 font-[600] text-[14px]">
-                  <span className="text-[#383E49]">Remaining Balance Due:</span>
-                  <span className="text-amber-600">
+                <div className="flex justify-between border-t border-brand/20 pt-2 font-[600] text-[14px]">
+                  <span className="text-fg">Remaining Balance Due:</span>
+                  <span className="text-warning">
                     Rs. {(selectedOrder.balanceAmount || 0).toFixed(2)}
                   </span>
                 </div>
@@ -516,11 +516,11 @@ export default function ManagerCreditOrders() {
             </div>
 
             {/* Modal Actions */}
-            <div className="p-6 border-t border-[#E4E6EA] bg-[#F8F9FA] flex justify-between items-center rounded-b-xl gap-3">
+            <div className="p-6 border-t border-line bg-subtle flex justify-between items-center rounded-b-xl gap-3">
               <button
                 onClick={() => setShowCancelModal(true)}
                 disabled={isSubmitting || selectedOrder.status === "CANCELLED"}
-                className="px-4 py-2 border border-red-300 text-red-600 hover:bg-red-50 rounded-lg text-[13px] font-[500] transition-colors disabled:opacity-50"
+                className="px-4 py-2 border border-error/30 text-error hover:bg-error/10 rounded-lg text-[13px] font-[500] transition-colors disabled:opacity-50"
               >
                 Cancel Order
               </button>
@@ -528,7 +528,7 @@ export default function ManagerCreditOrders() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowDetailModal(false)}
-                  className="px-4 py-2 border border-[#E4E6EA] text-[#667085] hover:bg-gray-100 rounded-lg text-[13px] font-[500] transition-colors"
+                  className="px-4 py-2 border border-line text-fg-secondary hover:bg-hover rounded-lg text-[13px] font-[500] transition-colors"
                 >
                   Close
                 </button>
@@ -536,7 +536,7 @@ export default function ManagerCreditOrders() {
                   <button
                     onClick={() => handleApproveOrder(selectedOrder.id)}
                     disabled={isSubmitting}
-                    className="px-4 py-2 bg-[#0F50AA] text-white hover:bg-[#0D4494] rounded-lg text-[13px] font-[500] transition-colors flex items-center gap-2 disabled:opacity-50"
+                    className="px-4 py-2 bg-brand text-on-brand hover:bg-brand-hover rounded-lg text-[13px] font-[500] transition-colors flex items-center gap-2 disabled:opacity-50"
                   >
                     <CheckCircle size={16} />
                     {isSubmitting ? "Processing..." : "Approve & Fulfill"}
@@ -550,13 +550,13 @@ export default function ManagerCreditOrders() {
 
       {/* Cancel Reason Modal */}
       {showCancelModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 z-[10000] flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 space-y-4">
-            <h3 className="text-[16px] font-[600] text-[#383E49] flex items-center gap-2">
-              <XCircle className="text-red-500" size={20} />
+        <div className="fixed inset-0 bg-backdrop bg-opacity-60 z-[10000] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-xl shadow-xl w-full max-w-md p-6 space-y-4">
+            <h3 className="text-[16px] font-[600] text-fg flex items-center gap-2">
+              <XCircle className="text-error" size={20} />
               Cancel Order #{selectedOrder.id}
             </h3>
-            <p className="text-[13px] text-[#667085]">
+            <p className="text-[13px] text-fg-secondary">
               Please state the reason for cancelling this credit order:
             </p>
             <textarea
@@ -564,19 +564,19 @@ export default function ManagerCreditOrders() {
               placeholder="Reason for cancellation..."
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}
-              className="w-full p-3 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:border-red-500"
+              className="w-full p-3 border border-line rounded-lg text-[13px] focus:outline-none focus:border-error"
             />
             <div className="flex justify-end gap-3 pt-2">
               <button
                 onClick={() => setShowCancelModal(false)}
-                className="px-4 py-2 border border-[#E4E6EA] text-[#667085] rounded-lg text-[13px] font-[500]"
+                className="px-4 py-2 border border-line text-fg-secondary rounded-lg text-[13px] font-[500]"
               >
                 Back
               </button>
               <button
                 onClick={handleCancelOrder}
                 disabled={isSubmitting || !cancelReason.trim()}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg text-[13px] font-[500] hover:bg-red-700 disabled:opacity-50"
+                className="px-4 py-2 bg-error-solid text-on-brand rounded-lg text-[13px] font-[500] hover:bg-error-solid disabled:opacity-50"
               >
                 {isSubmitting ? "Cancelling..." : "Confirm Cancellation"}
               </button>

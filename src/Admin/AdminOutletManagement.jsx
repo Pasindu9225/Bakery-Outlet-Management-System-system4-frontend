@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+import { confirmDialog } from "../component/ConfirmDialog";
 import axios from "axios";
 import { Store, X, Check, Trash2, Edit, Search, MapPin, Building2 } from "lucide-react";
 
@@ -113,7 +115,7 @@ export default function AdminOutletManagement() {
             return;
         }
         if (mpcs.some(m => m.name.toLowerCase() === trimmed.toLowerCase())) {
-            alert('This production center already exists');
+            toast.error('This production center already exists');
             setErrors(prev => ({...prev, mpcName: 'This production center already exists'}));
             return;
         }
@@ -131,7 +133,7 @@ export default function AdminOutletManagement() {
         if (!editingOutletId) return;
 
         if (mpcs.some(m => m.name.toLowerCase() === trimmed.toLowerCase())) {
-            alert('This production center already exists');
+            toast.error('This production center already exists');
             setErrors(prev => ({...prev, mpcName: 'This production center already exists'}));
             return;
         }
@@ -328,7 +330,7 @@ export default function AdminOutletManagement() {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this outlet?')) {
+        if (await confirmDialog('Are you sure you want to delete this outlet?', { confirmText: "Delete", danger: true })) {
             try {
                 const headers = getAuthHeaders();
                 await axios.delete(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/${id}`, { headers });
@@ -367,7 +369,7 @@ export default function AdminOutletManagement() {
     const filteredOutlets = getFilteredOutlets();
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             <AdminSidebar sidebarOpen={sidebarOpen} />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -379,20 +381,20 @@ export default function AdminOutletManagement() {
 
                 <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
                     <div className="mb-6">
-                        <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+                        <h1 className="text-[20px] font-[600] text-fg mb-1">
                             Outlet Management
                         </h1>
-                        <p className="text-[14px] leading-[20px] font-[400] text-[#667085]">
+                        <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
                             Manage outlet locations and information
                         </p>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-                            <h3 className="text-[18px] font-[600] text-[#383E49]">Outlet List</h3>
+                            <h3 className="text-[18px] font-[600] text-fg">Outlet List</h3>
                             <button
                                 onClick={handleCreateNew}
-                                className="flex items-center gap-2 bg-[#0F50AA] hover:bg-[#1366D9] text-white px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors mt-2 sm:mt-0"
+                                className="flex items-center gap-2 bg-brand hover:bg-brand-hover text-on-brand px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors mt-2 sm:mt-0"
                             >
                                 <Store className="w-5 h-5" />
                                 Add New Outlet
@@ -401,14 +403,14 @@ export default function AdminOutletManagement() {
 
                         <div className="flex flex-col lg:flex-row gap-4 mb-6">
                             <div className="flex-1 relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={16} />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary" size={16} />
                                 <input
                                     type="text"
                                     placeholder="Search by name, location, branch or address..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     autoComplete="off"
-                                    className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                                    className="w-full pl-10 pr-4 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                                 />
                             </div>
 
@@ -416,7 +418,7 @@ export default function AdminOutletManagement() {
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                                    className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                                 >
                                     <option value="All">All Status</option>
                                     <option value="Active">Active</option>
@@ -429,54 +431,54 @@ export default function AdminOutletManagement() {
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="border-b border-[#E4E6EA]">
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                        <tr className="border-b border-line">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Outlet Name
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Location
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Main Branch
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Address
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Status
                                             </th>
-                                            <th className="text-center py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-center py-4 text-[14px] font-[500] text-fg">
                                                 Actions
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-[#E4E6EA]">
+                                    <tbody className="divide-y divide-line">
                                         {filteredOutlets.map((outlet) => (
-                                            <tr key={outlet.id} className="hover:bg-[#F8F9FA] transition-colors">
+                                            <tr key={outlet.id} className="hover:bg-subtle transition-colors">
                                                 <td className="py-4">
-                                                    <p className="text-[14px] font-[600] text-[#383E49]">
+                                                    <p className="text-[14px] font-[600] text-fg">
                                                         {outlet.name}
                                                     </p>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className="text-[14px] text-[#48505E]">
+                                                    <p className="text-[14px] text-fg">
                                                         {outlet.location}
                                                     </p>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className="text-[14px] text-[#48505E]">
+                                                    <p className="text-[14px] text-fg">
                                                         {outlet.mainBranch}
                                                     </p>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className="text-[14px] text-[#48505E]">
+                                                    <p className="text-[14px] text-fg">
                                                         {outlet.address}
                                                     </p>
                                                 </td>
                                                 <td className="py-4">
                                                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-[500] ${outlet.status === 'Active'
-                                                        ? 'bg-[#DDFFE0] text-[#199D26]'
-                                                        : 'bg-[#FEE2E2] text-[#EF4444]'
+                                                        ? 'bg-hover text-success'
+                                                        : 'bg-hover text-error'
                                                         }`}>
                                                         {outlet.status}
                                                     </span>
@@ -485,14 +487,14 @@ export default function AdminOutletManagement() {
                                                     <div className="flex items-center justify-center gap-2">
                                                         <button
                                                             onClick={() => handleEdit(outlet)}
-                                                            className="p-2 text-[#0F50AA] hover:bg-[#EBF8FF] rounded-lg transition-colors"
+                                                            className="p-2 text-brand-fg hover:bg-hover rounded-lg transition-colors"
                                                             title="Edit Outlet"
                                                         >
                                                             <Edit size={16} />
                                                         </button>
                                                         <button
                                                             onClick={() => handleDelete(outlet.id)}
-                                                            className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors"
+                                                            className="p-2 text-error hover:bg-hover rounded-lg transition-colors"
                                                             title="Delete Outlet"
                                                         >
                                                             <Trash2 size={16} />
@@ -506,9 +508,9 @@ export default function AdminOutletManagement() {
                             </div>
                         ) : (
                             <div className="text-center py-12">
-                                <Store size={48} className="mx-auto text-[#667085] mb-4" />
-                                <p className="text-[16px] font-[500] text-[#383E49] mb-2">No outlets found</p>
-                                <p className="text-[14px] text-[#667085]">
+                                <Store size={48} className="mx-auto text-fg-secondary mb-4" />
+                                <p className="text-[16px] font-[500] text-fg mb-2">No outlets found</p>
+                                <p className="text-[14px] text-fg-secondary">
                                     {searchTerm || statusFilter !== 'All'
                                         ? "Try adjusting your search criteria"
                                         : "Click 'Add New Outlet' to create your first outlet"
@@ -521,14 +523,14 @@ export default function AdminOutletManagement() {
             </div>
 
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between p-6 border-b border-line">
                             <div>
-                                <h2 className="text-[20px] leading-[30px] font-[600] text-[#383E49]">
+                                <h2 className="text-[20px] leading-[30px] font-[600] text-fg">
                                     {isEditMode ? 'Edit Outlet' : 'Add New Outlet'}
                                 </h2>
-                                <p className="text-[14px] text-[#667085] mt-1">
+                                <p className="text-[14px] text-fg-secondary mt-1">
                                     {isEditMode
                                         ? 'Update outlet information'
                                         : 'Fill in the details to create a new outlet'
@@ -537,7 +539,7 @@ export default function AdminOutletManagement() {
                             </div>
                             <button
                                 onClick={handleCancel}
-                                className="p-2 text-[#667085] hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                                className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -546,98 +548,98 @@ export default function AdminOutletManagement() {
                         <div className="p-6">
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                        Outlet Name <span className="text-[#EF4444]">*</span>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
+                                        Outlet Name <span className="text-error">*</span>
                                     </label>
                                     <div className="relative">
-                                        <Store className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                                        <Store className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                                         <input
                                             type="text"
                                             name="name"
                                             value={formData.name}
                                             onChange={handleChange}
                                             placeholder="Enter outlet name"
-                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.name ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.name ? 'border-error' : 'border-line'
                                                 }`}
                                         />
                                     </div>
                                     {errors.name && (
-                                        <p className="text-[#EF4444] text-[12px] mt-1">{errors.name}</p>
+                                        <p className="text-error text-[12px] mt-1">{errors.name}</p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                        Location <span className="text-[#EF4444]">*</span>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
+                                        Location <span className="text-error">*</span>
                                     </label>
                                     <div className="relative">
-                                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                                         <input
                                             type="text"
                                             name="location"
                                             value={formData.location}
                                             onChange={handleChange}
                                             placeholder="Enter location"
-                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.location ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.location ? 'border-error' : 'border-line'
                                                 }`}
                                         />
                                     </div>
                                     {errors.location && (
-                                        <p className="text-[#EF4444] text-[12px] mt-1">{errors.location}</p>
+                                        <p className="text-error text-[12px] mt-1">{errors.location}</p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                        Main Branch Name <span className="text-[#EF4444]">*</span>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
+                                        Main Branch Name <span className="text-error">*</span>
                                     </label>
                                     <div className="relative">
-                                        <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                                        <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                                         <input
                                             type="text"
                                             name="mainBranch"
                                             value={formData.mainBranch}
                                             onChange={handleChange}
                                             placeholder="Enter main branch name"
-                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.mainBranch ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.mainBranch ? 'border-error' : 'border-line'
                                                 }`}
                                         />
                                     </div>
                                     {errors.mainBranch && (
-                                        <p className="text-[#EF4444] text-[12px] mt-1">{errors.mainBranch}</p>
+                                        <p className="text-error text-[12px] mt-1">{errors.mainBranch}</p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                        Address <span className="text-[#EF4444]">*</span>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
+                                        Address <span className="text-error">*</span>
                                     </label>
                                     <div className="relative">
-                                        <MapPin className="absolute left-3 top-3 w-5 h-5 text-[#667085]" />
+                                        <MapPin className="absolute left-3 top-3 w-5 h-5 text-fg-secondary" />
                                         <textarea
                                             name="address"
                                             value={formData.address}
                                             onChange={handleChange}
                                             placeholder="Enter full address"
                                             rows={3}
-                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] resize-none ${errors.address ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg resize-none ${errors.address ? 'border-error' : 'border-line'
                                                 }`}
                                         />
                                     </div>
                                     {errors.address && (
-                                        <p className="text-[#EF4444] text-[12px] mt-1">{errors.address}</p>
+                                        <p className="text-error text-[12px] mt-1">{errors.address}</p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
                                         Status
                                     </label>
                                     <select
                                         name="status"
                                         value={formData.status}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                        className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                     >
                                         <option value="Active">Active</option>
                                         <option value="Inactive">Inactive</option>
@@ -645,26 +647,26 @@ export default function AdminOutletManagement() {
                                 </div>
 
                                 <div className="mt-4">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-fg mb-2">
                                       Outlet Mini Production Centers
                                     </label>
                                     <div className="space-y-2">
                                         {mpcs.length === 0 && (
-                                            <p className="text-sm text-gray-500">No outlet mini production centers yet.</p>
+                                            <p className="text-sm text-fg-secondary">No outlet mini production centers yet.</p>
                                         )}
                                         {mpcs.map((m, idx) => (
                                             <div key={m.id ?? `new-${idx}`} className="flex items-center gap-2 p-2 border rounded">
                                                 <span className="flex-1">{m.name}</span>
                                                 <button
                                                     type="button"
-                                                    className={`px-2 py-1 text-xs rounded ${m.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}`}
+                                                    className={`px-2 py-1 text-xs rounded ${m.isActive ? 'bg-success/10 text-success' : 'bg-line text-fg'}`}
                                                     onClick={() => toggleMpcActive(idx)}
                                                 >
                                                     {m.isActive ? 'Active' : 'Inactive'}
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    className="px-2 py-1 text-xs text-red-600"
+                                                    className="px-2 py-1 text-xs text-error"
                                                     onClick={() => removeMpc(idx)}
                                                 >
                                                     Remove
@@ -688,29 +690,29 @@ export default function AdminOutletManagement() {
                                         <button
                                             type="button"
                                             onClick={() => isEditMode ? addMpcEdit() : addMpcStaged()}
-                                            className="px-3 py-2 bg-blue-600 text-white rounded text-sm"
+                                            className="px-3 py-2 bg-brand text-on-brand rounded text-sm"
                                         >
                                             + Add
                                         </button>
                                     </div>
                                     {errors.mpcName && (
-                                        <p className="text-[#EF4444] text-[12px] mt-1">{errors.mpcName}</p>
+                                        <p className="text-error text-[12px] mt-1">{errors.mpcName}</p>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="flex gap-3 mt-6 pt-6 border-t border-[#E4E6EA]">
+                            <div className="flex gap-3 mt-6 pt-6 border-t border-line">
                                 <button
                                     type="button"
                                     onClick={handleCancel}
-                                    className="flex-1 px-4 py-2.5 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] font-[500] hover:bg-[#F8F9FA] transition-colors"
+                                    className="flex-1 px-4 py-2.5 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="button"
                                     onClick={handleSubmit}
-                                    className="flex-1 px-4 py-2.5 bg-[#0F50AA] hover:bg-[#1366D9] text-white rounded-md text-[14px] font-[500] transition-colors"
+                                    className="flex-1 px-4 py-2.5 bg-brand hover:bg-brand-hover text-on-brand rounded-md text-[14px] font-[500] transition-colors"
                                 >
                                     {isEditMode ? 'Update Outlet' : 'Save Outlet'}
                                 </button>
@@ -722,18 +724,18 @@ export default function AdminOutletManagement() {
 
             {showToast && (
                 <div className="fixed top-4 right-4 z-[10000] animate-fade-in">
-                    <div className="bg-white border-l-4 border-[#51CC5D] rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
-                        <div className="flex-shrink-0 w-8 h-8 bg-[#51CC5D] bg-opacity-10 rounded-full flex items-center justify-center">
-                            <Check className="w-5 h-5 text-[#199D26]" />
+                    <div className="bg-surface border-l-4 border-success rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
+                        <div className="flex-shrink-0 w-8 h-8 bg-success-solid bg-opacity-10 rounded-full flex items-center justify-center">
+                            <Check className="w-5 h-5 text-success" />
                         </div>
-                        <p className="text-[14px] text-[#383E49] font-[500]">{toastMessage}</p>
+                        <p className="text-[14px] text-fg font-[500]">{toastMessage}</p>
                     </div>
                 </div>
             )}
 
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

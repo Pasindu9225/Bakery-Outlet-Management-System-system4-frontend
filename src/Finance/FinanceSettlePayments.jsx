@@ -40,9 +40,9 @@ const PAYMENT_METHODS = ["Bank Transfer", "Cash", "Cheque", "Credit Card", "Onli
 const STATUS_FILTER_OPTIONS = ["All Status", "Pending", "Cleared"];
 
 const STATUS_STYLE = {
-    Overdue: { text: "text-[#EF4444]", bg: "bg-[#FEF2F2]", icon: <AlertTriangle size={11} /> },
-    Pending: { text: "text-[#F4A100]", bg: "bg-[#FFFBEB]", icon: <Clock size={11} /> },
-    Cleared: { text: "text-[#199D26]", bg: "bg-[#F0FDF4]", icon: <CheckCircle size={11} /> },
+    Overdue: { text: "text-error", bg: "bg-subtle", icon: <AlertTriangle size={11} /> },
+    Pending: { text: "text-warning", bg: "bg-hover", icon: <Clock size={11} /> },
+    Cleared: { text: "text-success", bg: "bg-hover", icon: <CheckCircle size={11} /> },
 };
 
 const METHOD_ICON = {
@@ -69,51 +69,51 @@ function SupplierDropdown({ suppliers, value, onChange }) {
         <div className="relative">
             <button
                 onClick={() => setOpen(!open)}
-                className="w-full flex items-center gap-2 px-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] bg-white hover:bg-[#F8F9FA] transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2.5 border border-line rounded-lg text-[13px] text-fg bg-surface hover:bg-subtle transition-colors"
             >
                 {selected ? (
-                    <div className="w-6 h-6 bg-[#0F50AA] rounded-md flex items-center justify-center text-white text-[10px] font-[700] flex-shrink-0">
+                    <div className="w-6 h-6 bg-brand rounded-md flex items-center justify-center text-on-brand text-[10px] font-[700] flex-shrink-0">
                         {selected.code}
                     </div>
                 ) : (
-                    <Wallet size={14} className="text-[#667085] flex-shrink-0" />
+                    <Wallet size={14} className="text-fg-secondary flex-shrink-0" />
                 )}
                 <span className="flex-1 text-left truncate">{selected ? selected.name : "Select Supplier"}</span>
-                <ChevronDown size={13} className="text-[#667085] flex-shrink-0" />
+                <ChevronDown size={13} className="text-fg-secondary flex-shrink-0" />
             </button>
 
             {open && (
                 <>
                     <div className="fixed inset-0 z-40" onClick={() => { setOpen(false); setSearch(""); }} />
-                    <div className="absolute top-full mt-1 left-0 bg-white border border-[#E4E6EA] rounded-lg shadow-xl z-50 w-72">
-                        <div className="p-2 border-b border-[#E4E6EA]">
+                    <div className="absolute top-full mt-1 left-0 bg-elevated border border-line rounded-lg shadow-xl z-50 w-72">
+                        <div className="p-2 border-b border-line">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={13} />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                                 <input
                                     autoFocus
                                     type="text"
                                     placeholder="Search supplier..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="w-full pl-8 pr-3 py-2 border border-[#E4E6EA] rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                    className="w-full pl-8 pr-3 py-2 border border-line rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                 />
                             </div>
                         </div>
                         <div className="max-h-56 overflow-y-auto">
                             {filtered.length === 0 ? (
-                                <p className="px-4 py-3 text-[12px] text-[#667085]">No suppliers found</p>
+                                <p className="px-4 py-3 text-[12px] text-fg-secondary">No suppliers found</p>
                             ) : filtered.map((s) => (
                                 <button
                                     key={s.id}
                                     onClick={() => { onChange(s.id); setOpen(false); setSearch(""); }}
-                                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-[#F8F9FA] transition-colors ${value === s.id ? "bg-[#EEF3FB]" : ""}`}
+                                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-subtle transition-colors ${value === s.id ? "bg-hover" : ""}`}
                                 >
-                                    <div className="w-7 h-7 bg-[#0F50AA] rounded-md flex items-center justify-center text-white text-[10px] font-[700] flex-shrink-0">
+                                    <div className="w-7 h-7 bg-brand rounded-md flex items-center justify-center text-on-brand text-[10px] font-[700] flex-shrink-0">
                                         {s.code}
                                     </div>
                                     <div>
-                                        <p className={`text-[13px] font-[500] ${value === s.id ? "text-[#0F50AA]" : "text-[#383E49]"}`}>{s.name}</p>
-                                        <p className="text-[10px] text-[#667085]">{s.id}</p>
+                                        <p className={`text-[13px] font-[500] ${value === s.id ? "text-brand-fg" : "text-fg"}`}>{s.name}</p>
+                                        <p className="text-[10px] text-fg-secondary">{s.id}</p>
                                     </div>
                                 </button>
                             ))}
@@ -130,20 +130,20 @@ function SelectDropdown({ open, setOpen, value, options, onChange, placeholder }
         <div className="relative">
             <button
                 onClick={() => setOpen(!open)}
-                className="w-full flex items-center gap-2 px-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] bg-white hover:bg-[#F8F9FA] transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2.5 border border-line rounded-lg text-[13px] text-fg bg-surface hover:bg-subtle transition-colors"
             >
                 <span className="flex-1 text-left truncate">{value || placeholder}</span>
-                <ChevronDown size={13} className="text-[#667085] flex-shrink-0" />
+                <ChevronDown size={13} className="text-fg-secondary flex-shrink-0" />
             </button>
             {open && (
                 <>
                     <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-                    <div className="absolute top-full mt-1 left-0 bg-white border border-[#E4E6EA] rounded-lg shadow-lg z-50 min-w-full">
+                    <div className="absolute top-full mt-1 left-0 bg-elevated border border-line rounded-lg shadow-lg z-50 min-w-full">
                         {options.map((o) => (
                             <button
                                 key={o}
                                 onClick={() => { onChange(o); setOpen(false); }}
-                                className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-[#F8F9FA] first:rounded-t-lg last:rounded-b-lg ${value === o ? "text-[#0F50AA] font-[500] bg-[#EEF3FB]" : "text-[#383E49]"}`}
+                                className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-subtle first:rounded-t-lg last:rounded-b-lg ${value === o ? "text-brand-fg font-[500] bg-hover" : "text-fg"}`}
                             >
                                 {o}
                             </button>
@@ -207,17 +207,17 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
+            <div className="bg-elevated rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
 
                 {/* Header */}
-                <div className="p-5 border-b border-[#E4E6EA] flex items-center justify-between flex-shrink-0">
+                <div className="p-5 border-b border-line flex items-center justify-between flex-shrink-0">
                     <div>
-                        <h3 className="text-[16px] font-[600] text-[#383E49]">Settle Payment</h3>
-                        <p className="text-[12px] text-[#667085] mt-0.5">{supplier?.name} · {supplier?.id}</p>
+                        <h3 className="text-[16px] font-[600] text-fg">Settle Payment</h3>
+                        <p className="text-[12px] text-fg-secondary mt-0.5">{supplier?.name} · {supplier?.id}</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-[#F0F1F3] rounded-lg">
-                        <X size={16} className="text-[#667085]" />
+                    <button onClick={onClose} className="p-2 hover:bg-app rounded-lg">
+                        <X size={16} className="text-fg-secondary" />
                     </button>
                 </div>
 
@@ -225,34 +225,34 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
 
                     {/* Server-side error */}
                     {submitError && (
-                        <div className="bg-red-50 border border-red-200 text-red-700 text-[13px] rounded-lg px-4 py-3">
+                        <div className="bg-error/10 border border-error/30 text-error text-[13px] rounded-lg px-4 py-3">
                             {submitError}
                         </div>
                     )}
 
                     {/* Invoice Selection */}
                     <div>
-                        <p className="text-[12px] font-[600] text-[#383E49] mb-2 uppercase tracking-wide">
+                        <p className="text-[12px] font-[600] text-fg mb-2 uppercase tracking-wide">
                             Select Invoices to Settle
                         </p>
-                        {errors.invoices && <p className="text-[11px] text-[#EF4444] mb-2">{errors.invoices}</p>}
+                        {errors.invoices && <p className="text-[11px] text-error mb-2">{errors.invoices}</p>}
                         {pendingInvoices.length === 0 ? (
-                            <div className="text-center py-8 bg-[#F8F9FA] rounded-lg border border-[#E4E6EA]">
-                                <BadgeCheck size={32} className="mx-auto text-[#199D26] mb-2" />
-                                <p className="text-[13px] font-[500] text-[#383E49]">No outstanding invoices</p>
-                                <p className="text-[12px] text-[#667085]">This supplier is fully settled.</p>
+                            <div className="text-center py-8 bg-subtle rounded-lg border border-line">
+                                <BadgeCheck size={32} className="mx-auto text-success mb-2" />
+                                <p className="text-[13px] font-[500] text-fg">No outstanding invoices</p>
+                                <p className="text-[12px] text-fg-secondary">This supplier is fully settled.</p>
                             </div>
                         ) : (
-                            <div className="border border-[#E4E6EA] rounded-lg overflow-hidden">
+                            <div className="border border-line rounded-lg overflow-hidden">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="bg-[#F8F9FA] border-b border-[#E4E6EA]">
-                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-[#667085] text-left w-8"></th>
-                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-[#667085] text-left">Reference</th>
-                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-[#667085] text-left">Due Date</th>
-                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-[#667085] text-right">Outstanding</th>
-                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-[#667085] text-right">Pay Amount</th>
-                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-[#667085] text-center">Status</th>
+                                        <tr className="bg-subtle border-b border-line">
+                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-fg-secondary text-left w-8"></th>
+                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-fg-secondary text-left">Reference</th>
+                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-fg-secondary text-left">Due Date</th>
+                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-fg-secondary text-right">Outstanding</th>
+                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-fg-secondary text-right">Pay Amount</th>
+                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-fg-secondary text-center">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -262,27 +262,27 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
                                             return (
                                                 <tr
                                                     key={inv.grnId}
-                                                    className={`border-b border-[#E4E6EA] last:border-0 hover:bg-[#F8F9FA] transition-colors ${isSelected ? "bg-[#EEF3FB]" : inv.status === "Overdue" ? "bg-red-50/30" : ""}`}
+                                                    className={`border-b border-line last:border-0 hover:bg-subtle transition-colors ${isSelected ? "bg-hover" : inv.status === "Overdue" ? "bg-error/10" : ""}`}
                                                 >
                                                     <td className="py-3 px-3">
                                                         <input
                                                             type="checkbox"
                                                             checked={isSelected}
                                                             onChange={() => toggleInvoice(inv.grnId)}
-                                                            className="w-4 h-4 accent-[#0F50AA] cursor-pointer"
+                                                            className="w-4 h-4 accent-brand cursor-pointer"
                                                         />
                                                     </td>
                                                     <td className="py-3 px-3">
-                                                        <p className="text-[12px] font-[600] text-[#0F50AA] flex items-center gap-1">
+                                                        <p className="text-[12px] font-[600] text-brand-fg flex items-center gap-1">
                                                             <Hash size={9} />{inv.ref}
                                                         </p>
-                                                        <p className="text-[10px] text-[#667085] truncate max-w-[140px]" title={inv.description}>{inv.description}</p>
+                                                        <p className="text-[10px] text-fg-secondary truncate max-w-[140px]" title={inv.description}>{inv.description}</p>
                                                     </td>
                                                     <td className="py-3 px-3">
-                                                        <p className={`text-[12px] font-[500] ${inv.status === "Overdue" ? "text-[#EF4444]" : "text-[#383E49]"}`}>{inv.dueDate}</p>
+                                                        <p className={`text-[12px] font-[500] ${inv.status === "Overdue" ? "text-error" : "text-fg"}`}>{inv.dueDate}</p>
                                                     </td>
                                                     <td className="py-3 px-3 text-right">
-                                                        <p className="text-[13px] font-[700] text-[#EF4444]">Rs. {inv.outstanding.toLocaleString()}</p>
+                                                        <p className="text-[13px] font-[700] text-error">Rs. {inv.outstanding.toLocaleString()}</p>
                                                     </td>
                                                     <td className="py-3 px-3 text-right">
                                                         {isSelected ? (
@@ -292,10 +292,10 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
                                                                 max={inv.outstanding}
                                                                 value={selectedInvoices[inv.grnId]}
                                                                 onChange={(e) => handleAmountChange(inv.grnId, e.target.value)}
-                                                                className="w-24 px-2 py-1 border border-[#0F50AA] rounded-lg text-[12px] text-right focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white"
+                                                                className="w-24 px-2 py-1 border border-brand-fg rounded-lg text-[12px] text-right focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface"
                                                             />
                                                         ) : (
-                                                            <span className="text-[12px] text-[#C8CDD5]">—</span>
+                                                            <span className="text-[12px] text-fg-muted">—</span>
                                                         )}
                                                     </td>
                                                     <td className="py-3 px-3 text-center">
@@ -310,76 +310,76 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
                                 </table>
                             </div>
                         )}
-                        {errors.amount && <p className="text-[11px] text-[#EF4444] mt-1">{errors.amount}</p>}
+                        {errors.amount && <p className="text-[11px] text-error mt-1">{errors.amount}</p>}
                     </div>
 
                     {/* Payment Details */}
                     <div className="grid grid-cols-2 gap-4">
                         {/* Payment Method */}
                         <div>
-                            <label className="block text-[11px] font-[600] text-[#667085] mb-1.5 uppercase tracking-wide">Payment Method</label>
+                            <label className="block text-[11px] font-[600] text-fg-secondary mb-1.5 uppercase tracking-wide">Payment Method</label>
                             <SelectDropdown
                                 open={methodOpen} setOpen={setMethodOpen}
                                 value={paymentMethod} options={PAYMENT_METHODS}
                                 onChange={setPaymentMethod}
                                 placeholder="Select method"
                             />
-                            {errors.method && <p className="text-[11px] text-[#EF4444] mt-1">{errors.method}</p>}
+                            {errors.method && <p className="text-[11px] text-error mt-1">{errors.method}</p>}
                         </div>
 
                         {/* Payment Date */}
                         <div>
-                            <label className="block text-[11px] font-[600] text-[#667085] mb-1.5 uppercase tracking-wide">Payment Date</label>
+                            <label className="block text-[11px] font-[600] text-fg-secondary mb-1.5 uppercase tracking-wide">Payment Date</label>
                             <div className="relative">
-                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={13} />
+                                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                                 <input
                                     type="date"
                                     value={paymentDate}
                                     onChange={(e) => setPaymentDate(e.target.value)}
-                                    className="w-full pl-9 pr-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                    className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                 />
                             </div>
-                            {errors.date && <p className="text-[11px] text-[#EF4444] mt-1">{errors.date}</p>}
+                            {errors.date && <p className="text-[11px] text-error mt-1">{errors.date}</p>}
                         </div>
 
                         {/* Remarks */}
                         <div className="col-span-2">
-                            <label className="block text-[11px] font-[600] text-[#667085] mb-1.5 uppercase tracking-wide">Remarks</label>
+                            <label className="block text-[11px] font-[600] text-fg-secondary mb-1.5 uppercase tracking-wide">Remarks</label>
                             <textarea
                                 rows={2}
                                 value={remarks}
                                 onChange={(e) => setRemarks(e.target.value)}
                                 placeholder="Add payment notes or references..."
-                                className="w-full px-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] resize-none"
+                                className="w-full px-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg resize-none"
                             />
                         </div>
                     </div>
 
                     {/* Total Summary Bar */}
                     {totalPayment > 0 && (
-                        <div className="bg-[#EEF3FB] border border-[#0F50AA]/20 rounded-lg p-4 flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-[#0F50AA]">
+                        <div className="bg-hover border border-brand-fg/20 rounded-lg p-4 flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-brand-fg">
                                 <Banknote size={16} />
                                 <span className="text-[13px] font-[600]">Total Payment Amount</span>
                             </div>
-                            <span className="text-[20px] font-[700] text-[#0F50AA]">Rs. {totalPayment.toLocaleString()}</span>
+                            <span className="text-[20px] font-[700] text-brand-fg">Rs. {totalPayment.toLocaleString()}</span>
                         </div>
                     )}
                 </div>
 
                 {/* Footer */}
-                <div className="p-4 border-t border-[#E4E6EA] flex justify-end gap-2 flex-shrink-0">
+                <div className="p-4 border-t border-line flex justify-end gap-2 flex-shrink-0">
                     <button
                         onClick={onClose}
                         disabled={submitting}
-                        className="px-4 py-2 border border-[#E4E6EA] text-[#667085] text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="px-4 py-2 border border-line text-fg-secondary text-[13px] font-[500] rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSubmit}
                         disabled={pendingInvoices.length === 0 || submitting}
-                        className="inline-flex items-center gap-2 px-5 py-2 bg-[#0F50AA] text-white text-[13px] font-[500] rounded-lg hover:bg-[#0D4494] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        className="inline-flex items-center gap-2 px-5 py-2 bg-brand text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     >
                         {submitting ? <Loader variant="inline" /> : <BadgeCheck size={15} />}
                         {submitting ? "Saving..." : "Confirm Payment"}
@@ -394,17 +394,17 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
 function PaymentDetailModal({ payment, onClose }) {
     const ss = STATUS_STYLE[payment.status] || {};
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
-                <div className="p-5 border-b border-[#E4E6EA] flex items-center justify-between">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
+            <div className="bg-elevated rounded-xl shadow-2xl w-full max-w-md">
+                <div className="p-5 border-b border-line flex items-center justify-between">
                     <div>
-                        <h3 className="text-[16px] font-[600] text-[#383E49]">Payment Details</h3>
-                        <p className="text-[12px] text-[#667085] mt-0.5 flex items-center gap-1">
+                        <h3 className="text-[16px] font-[600] text-fg">Payment Details</h3>
+                        <p className="text-[12px] text-fg-secondary mt-0.5 flex items-center gap-1">
                             <Hash size={11} />{payment.id}
                         </p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-[#F0F1F3] rounded-lg">
-                        <X size={16} className="text-[#667085]" />
+                    <button onClick={onClose} className="p-2 hover:bg-app rounded-lg">
+                        <X size={16} className="text-fg-secondary" />
                     </button>
                 </div>
                 <div className="p-5 space-y-3">
@@ -417,19 +417,19 @@ function PaymentDetailModal({ payment, onClose }) {
                         { label: "Method", value: payment.method },
                         { label: "Remarks", value: payment.remarks || "—" },
                     ].map(({ label, value }) => (
-                        <div key={label} className="flex items-start justify-between py-2 border-b border-[#F0F1F3] last:border-0">
-                            <p className="text-[12px] text-[#667085]">{label}</p>
-                            <p className="text-[13px] font-[500] text-[#383E49] text-right max-w-[200px]">{value}</p>
+                        <div key={label} className="flex items-start justify-between py-2 border-b border-line last:border-0">
+                            <p className="text-[12px] text-fg-secondary">{label}</p>
+                            <p className="text-[13px] font-[500] text-fg text-right max-w-[200px]">{value}</p>
                         </div>
                     ))}
                     <div className="flex items-center justify-between py-2">
-                        <p className="text-[12px] text-[#667085]">Status</p>
+                        <p className="text-[12px] text-fg-secondary">Status</p>
                         <span className={`inline-flex items-center gap-1 text-[11px] font-[500] px-2.5 py-1 rounded-full ${ss.bg} ${ss.text}`}>
                             {ss.icon}{payment.status}
                         </span>
                     </div>
                 </div>
-                <div className="p-4 border-t border-[#E4E6EA] flex justify-end gap-2">
+                <div className="p-4 border-t border-line flex justify-end gap-2">
                     <button
                         onClick={() => {
                             generatePDF({
@@ -449,11 +449,11 @@ function PaymentDetailModal({ payment, onClose }) {
                                 fileName: `Payment_Voucher_${payment.id}`
                             });
                         }}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 border border-[#E4E6EA] text-[#667085] text-[12px] font-[500] rounded-lg hover:bg-[#F8F9FA]"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle"
                     >
                         <FileText size={13} /> Export PDF
                     </button>
-                    <button onClick={onClose} className="px-4 py-2 bg-[#0F50AA] text-white text-[12px] font-[500] rounded-lg hover:bg-[#0D4494]">
+                    <button onClick={onClose} className="px-4 py-2 bg-brand text-on-brand text-[12px] font-[500] rounded-lg hover:bg-brand-hover">
                         Close
                     </button>
                 </div>
@@ -465,15 +465,15 @@ function PaymentDetailModal({ payment, onClose }) {
 /* ── Success Toast ── */
 function SuccessToast({ message, onClose }) {
     return (
-        <div className="fixed top-6 right-6 z-[99999999] bg-white border border-[#199D26]/30 rounded-xl shadow-xl p-4 flex items-start gap-3 min-w-[280px] max-w-sm animate-bounce-in">
-            <div className="w-8 h-8 rounded-full bg-[#F0FDF4] flex items-center justify-center flex-shrink-0">
-                <CheckCircle size={16} className="text-[#199D26]" />
+        <div className="fixed top-6 right-6 z-[99999999] bg-elevated border border-success/30 rounded-xl shadow-xl p-4 flex items-start gap-3 min-w-[280px] max-w-sm animate-bounce-in">
+            <div className="w-8 h-8 rounded-full bg-hover flex items-center justify-center flex-shrink-0">
+                <CheckCircle size={16} className="text-success" />
             </div>
             <div className="flex-1">
-                <p className="text-[13px] font-[600] text-[#383E49]">Payment Recorded</p>
-                <p className="text-[12px] text-[#667085] mt-0.5">{message}</p>
+                <p className="text-[13px] font-[600] text-fg">Payment Recorded</p>
+                <p className="text-[12px] text-fg-secondary mt-0.5">{message}</p>
             </div>
-            <button onClick={onClose} className="text-[#667085] hover:text-[#383E49]">
+            <button onClick={onClose} className="text-fg-secondary hover:text-fg">
                 <X size={14} />
             </button>
         </div>
@@ -720,10 +720,10 @@ export default function FinanceSettlePayments() {
     };
 
     const SortIcon = ({ col }) => {
-        if (sortCol !== col) return <ArrowUpDown size={12} className="text-[#C8CDD5]" />;
+        if (sortCol !== col) return <ArrowUpDown size={12} className="text-fg-muted" />;
         return sortDir === "asc"
-            ? <ArrowUp size={12} className="text-[#0F50AA]" />
-            : <ArrowDown size={12} className="text-[#0F50AA]" />;
+            ? <ArrowUp size={12} className="text-brand-fg" />
+            : <ArrowDown size={12} className="text-brand-fg" />;
     };
 
     const handlePaymentSubmit = async ({ allocations, paymentMethod, paymentDate, remarks, totalPayment }) => {
@@ -812,7 +812,7 @@ export default function FinanceSettlePayments() {
     const loading = suppliersLoading || historyLoading;
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             <FinanceSideBar sidebarOpen={sidebarOpen} />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -827,25 +827,25 @@ export default function FinanceSettlePayments() {
                     {/* ── Page Header ── */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
                         <div>
-                            <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">Settle Payments</h1>
-                            <p className="text-[14px] text-[#667085]">Record and manage supplier payment settlements</p>
+                            <h1 className="text-[20px] font-[600] text-fg mb-1">Settle Payments</h1>
+                            <p className="text-[14px] text-fg-secondary">Record and manage supplier payment settlements</p>
                         </div>
                         <div className="flex items-center gap-2 mt-3 sm:mt-0">
                             <button
                                 onClick={fetchHistory}
-                                className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] bg-white text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                className="inline-flex items-center gap-2 px-4 py-2.5 border border-line text-fg-secondary bg-surface text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors"
                             >
                                 <RefreshCw size={15} className={historyLoading ? "animate-spin" : ""} /> Refresh
                             </button>
                             <button
                                 onClick={handleExportHistoryPDF}
-                                className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] bg-white text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                className="inline-flex items-center gap-2 px-4 py-2.5 border border-line text-fg-secondary bg-surface text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors"
                             >
                                 <FileText size={15} /> PDF
                             </button>
                             <button
                                 onClick={handleExportHistoryExcel}
-                                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0F50AA] text-white text-[13px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors"
+                                className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover transition-colors"
                             >
                                 <FileSpreadsheet size={15} /> Excel
                             </button>
@@ -853,7 +853,7 @@ export default function FinanceSettlePayments() {
                     </div>
 
                     {pageError && (
-                        <div className="bg-red-50 border border-red-200 text-red-700 text-[13px] rounded-lg px-4 py-3 mb-4">
+                        <div className="bg-error/10 border border-error/30 text-error text-[13px] rounded-lg px-4 py-3 mb-4">
                             {pageError}
                         </div>
                     )}
@@ -861,18 +861,18 @@ export default function FinanceSettlePayments() {
                     {/* ── Summary Cards ── */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
                         {[
-                            { label: "Total Paid (Cleared)", value: `Rs. ${totalPaid.toLocaleString()}`, icon: <BadgeCheck size={20} />, color: "bg-blue-500", hoverColor: "hover:bg-blue-600", iconBg: "bg-blue-400/30" },
-                            { label: "Pending Payments", value: `Rs. ${totalPending.toLocaleString()}`, icon: <Clock size={20} />, color: "bg-indigo-500", hoverColor: "hover:bg-indigo-600", iconBg: "bg-indigo-400/30" },
-                            { label: "Total Outstanding", value: `Rs. ${totalOutstanding.toLocaleString()}`, icon: <TrendingDown size={20} />, color: "bg-cyan-500", hoverColor: "hover:bg-cyan-600", iconBg: "bg-cyan-400/30" },
-                            { label: "Awaiting Approval", value: pendingCount, icon: <Receipt size={20} />, color: "bg-sky-500", hoverColor: "hover:bg-sky-600", iconBg: "bg-sky-400/30" },
+                            { label: "Total Paid (Cleared)", value: `Rs. ${totalPaid.toLocaleString()}`, icon: <BadgeCheck size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
+                            { label: "Pending Payments", value: `Rs. ${totalPending.toLocaleString()}`, icon: <Clock size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
+                            { label: "Total Outstanding", value: `Rs. ${totalOutstanding.toLocaleString()}`, icon: <TrendingDown size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+                            { label: "Awaiting Approval", value: pendingCount, icon: <Receipt size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
                         ].map((card, i) => (
                             <div
                                 key={i}
-                                className={`${card.color} ${card.hoverColor} rounded-lg p-5 text-white shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer`}
+                                className={`${card.color} ${card.hoverColor} rounded-lg p-5 text-on-brand shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer`}
                             >
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-[13px] font-medium text-white/80 mb-2">{card.label}</p>
+                                        <p className="text-[13px] font-medium text-on-brand/80 mb-2">{card.label}</p>
                                         <h2 className="text-[26px] font-bold leading-none">{card.value}</h2>
                                     </div>
                                     <div className={`${card.iconBg} w-12 h-12 rounded-lg flex items-center justify-center backdrop-blur-sm`}>
@@ -884,16 +884,16 @@ export default function FinanceSettlePayments() {
                     </div>
 
                     {/* ── New Payment Entry Panel ── */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-[#E4E6EA] p-4 sm:p-5 mb-6">
+                    <div className="bg-surface rounded-2xl shadow-sm border border-line p-4 sm:p-5 mb-6">
                         <div className="flex flex-col xl:flex-row gap-5">
 
                             {/* Left Section */}
                             <div className="flex-1 min-w-0">
-                                <h3 className="text-[15px] font-[600] text-[#383E49] mb-1">
+                                <h3 className="text-[15px] font-[600] text-fg mb-1">
                                     New Payment Entry
                                 </h3>
 
-                                <p className="text-[12px] text-[#667085] mb-4">
+                                <p className="text-[12px] text-fg-secondary mb-4">
                                     Select a supplier to view outstanding invoices and record a payment.
                                 </p>
 
@@ -902,7 +902,7 @@ export default function FinanceSettlePayments() {
 
                                     {/* Supplier Dropdown */}
                                     <div className="w-full lg:flex-1 lg:max-w-sm">
-                                        <label className="block text-[11px] font-[500] text-[#667085] mb-1.5 uppercase tracking-wide">
+                                        <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">
                                             Supplier
                                         </label>
 
@@ -923,10 +923,10 @@ export default function FinanceSettlePayments() {
 
                                                 if (invoicesLoading) {
                                                     return (
-                                                        <div className="w-full sm:w-auto min-w-[180px] px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-between">
+                                                        <div className="w-full sm:w-auto min-w-[180px] px-4 py-3 bg-subtle border border-line rounded-xl flex items-center justify-between">
                                                             <div>
-                                                                <p className="text-[11px] text-[#667085]">Outstanding</p>
-                                                                <p className="text-[13px] font-[600] text-[#667085]">Loading...</p>
+                                                                <p className="text-[11px] text-fg-secondary">Outstanding</p>
+                                                                <p className="text-[13px] font-[600] text-fg-secondary">Loading...</p>
                                                             </div>
                                                             <Loader variant="inline" />
                                                         </div>
@@ -934,20 +934,20 @@ export default function FinanceSettlePayments() {
                                                 }
 
                                                 return total > 0 ? (
-                                                    <div className="w-full sm:w-auto min-w-[180px] px-4 py-3 bg-red-50 border border-red-100 rounded-xl">
-                                                        <p className="text-[11px] text-[#667085]">
+                                                    <div className="w-full sm:w-auto min-w-[180px] px-4 py-3 bg-error/10 border border-error/30 rounded-xl">
+                                                        <p className="text-[11px] text-fg-secondary">
                                                             Outstanding
                                                         </p>
-                                                        <p className="text-[15px] font-[700] text-[#EF4444]">
+                                                        <p className="text-[15px] font-[700] text-error">
                                                             Rs. {total.toLocaleString()}
                                                         </p>
                                                     </div>
                                                 ) : (
-                                                    <div className="w-full sm:w-auto min-w-[180px] px-4 py-3 bg-green-50 border border-green-100 rounded-xl">
-                                                        <p className="text-[11px] text-[#667085]">
+                                                    <div className="w-full sm:w-auto min-w-[180px] px-4 py-3 bg-success/10 border border-success/30 rounded-xl">
+                                                        <p className="text-[11px] text-fg-secondary">
                                                             Status
                                                         </p>
-                                                        <p className="text-[13px] font-[600] text-[#199D26] flex items-center gap-1">
+                                                        <p className="text-[13px] font-[600] text-success flex items-center gap-1">
                                                             <CheckCircle size={14} />
                                                             Fully Settled
                                                         </p>
@@ -962,7 +962,7 @@ export default function FinanceSettlePayments() {
                                                     invoicesLoading ||
                                                     !invoiceList.some((inv) => inv.outstanding > 0)
                                                 }
-                                                className="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-5 py-3 bg-[#0F50AA] text-white text-[13px] font-[500] rounded-xl hover:bg-[#0D4494] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                                className="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-5 py-3 bg-brand text-on-brand text-[13px] font-[500] rounded-xl hover:bg-brand-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                             >
                                                 <CreditCard size={15} />
                                                 Record Payment
@@ -975,9 +975,9 @@ export default function FinanceSettlePayments() {
                             {/* Right Side Open Invoice List */}
                             {selectedSupplier && !invoicesLoading &&
                                 invoiceList.filter((i) => i.outstanding > 0).length > 0 && (
-                                    <div className="w-full xl:w-[320px] bg-[#F8F9FA] rounded-2xl border border-[#E4E6EA] p-4 flex-shrink-0">
+                                    <div className="w-full xl:w-[320px] bg-subtle rounded-2xl border border-line p-4 flex-shrink-0">
 
-                                        <p className="text-[11px] font-[600] text-[#667085] uppercase tracking-wide mb-3">
+                                        <p className="text-[11px] font-[600] text-fg-secondary uppercase tracking-wide mb-3">
                                             Open Invoices
                                         </p>
 
@@ -999,12 +999,12 @@ export default function FinanceSettlePayments() {
                                                                     {ss.icon}
                                                                 </span>
 
-                                                                <p className="text-[12px] font-[500] text-[#383E49] truncate">
+                                                                <p className="text-[12px] font-[500] text-fg truncate">
                                                                     {inv.ref}
                                                                 </p>
                                                             </div>
 
-                                                            <p className="text-[12px] font-[700] text-[#EF4444] whitespace-nowrap">
+                                                            <p className="text-[12px] font-[700] text-error whitespace-nowrap">
                                                                 Rs. {inv.outstanding.toLocaleString()}
                                                             </p>
                                                         </div>
@@ -1017,14 +1017,14 @@ export default function FinanceSettlePayments() {
                     </div>
 
                     {/* ── Payment History Table ── */}
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
 
                         {/* Table Header + Filters */}
                         <div className="flex flex-col gap-4 mb-5">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div>
-                                    <h3 className="text-[18px] font-[600] text-[#383E49]">Payment History</h3>
-                                    <p className="text-[12px] text-[#667085] mt-0.5">Showing {paginated.length} of {sorted.length} records</p>
+                                    <h3 className="text-[18px] font-[600] text-fg">Payment History</h3>
+                                    <p className="text-[12px] text-fg-secondary mt-0.5">Showing {paginated.length} of {sorted.length} records</p>
                                 </div>
                             </div>
 
@@ -1032,12 +1032,12 @@ export default function FinanceSettlePayments() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
                                 {/* Search */}
                                 <div className="lg:col-span-4 relative">
-                                    <label className="block text-[11px] font-[500] text-[#667085] mb-1.5 uppercase tracking-wide">Search</label>
-                                    <Search className="absolute left-3 top-[calc(50%+8px)] -translate-y-1/2 text-[#667085]" size={14} />
+                                    <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Search</label>
+                                    <Search className="absolute left-3 top-[calc(50%+8px)] -translate-y-1/2 text-fg-secondary" size={14} />
                                     <input
                                         type="text"
                                         placeholder="Search supplier, ref, or ID..."
-                                        className="w-full pl-9 pr-4 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                        className="w-full pl-9 pr-4 py-2.5 border border-line rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                         value={searchTerm}
                                         onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
                                     />
@@ -1045,25 +1045,25 @@ export default function FinanceSettlePayments() {
 
                                 {/* Status */}
                                 <div className="lg:col-span-2">
-                                    <label className="block text-[11px] font-[500] text-[#667085] mb-1.5 uppercase tracking-wide">Status</label>
+                                    <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Status</label>
                                     <div className="relative">
                                         <button
                                             onClick={() => setStatusOpen(!statusOpen)}
-                                            className="w-full flex items-center gap-2 px-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] bg-white hover:bg-[#F8F9FA]"
+                                            className="w-full flex items-center gap-2 px-3 py-2.5 border border-line rounded-lg text-[13px] text-fg bg-surface hover:bg-subtle"
                                         >
-                                            <Filter size={13} className="text-[#667085]" />
+                                            <Filter size={13} className="text-fg-secondary" />
                                             <span className="flex-1 text-left">{statusFilter}</span>
-                                            <ChevronDown size={13} className="text-[#667085]" />
+                                            <ChevronDown size={13} className="text-fg-secondary" />
                                         </button>
                                         {statusOpen && (
                                             <>
                                                 <div className="fixed inset-0 z-40" onClick={() => setStatusOpen(false)} />
-                                                <div className="absolute top-full mt-1 left-0 bg-white border border-[#E4E6EA] rounded-lg shadow-lg z-50 min-w-full">
+                                                <div className="absolute top-full mt-1 left-0 bg-elevated border border-line rounded-lg shadow-lg z-50 min-w-full">
                                                     {STATUS_FILTER_OPTIONS.map((o) => (
                                                         <button
                                                             key={o}
                                                             onClick={() => { setStatusFilter(o); setStatusOpen(false); setPage(1); }}
-                                                            className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-[#F8F9FA] first:rounded-t-lg last:rounded-b-lg ${statusFilter === o ? "text-[#0F50AA] font-[500] bg-[#EEF3FB]" : "text-[#383E49]"}`}
+                                                            className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-subtle first:rounded-t-lg last:rounded-b-lg ${statusFilter === o ? "text-brand-fg font-[500] bg-hover" : "text-fg"}`}
                                                         >
                                                             {o}
                                                         </button>
@@ -1076,28 +1076,28 @@ export default function FinanceSettlePayments() {
 
                                 {/* From Date */}
                                 <div className="lg:col-span-2">
-                                    <label className="block text-[11px] font-[500] text-[#667085] mb-1.5 uppercase tracking-wide">From</label>
+                                    <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">From</label>
                                     <div className="relative">
-                                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={13} />
+                                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                                         <input
                                             type="date"
                                             value={startDate}
                                             onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
-                                            className="w-full pl-9 pr-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                            className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                         />
                                     </div>
                                 </div>
 
                                 {/* To Date */}
                                 <div className="lg:col-span-2">
-                                    <label className="block text-[11px] font-[500] text-[#667085] mb-1.5 uppercase tracking-wide">To</label>
+                                    <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">To</label>
                                     <div className="relative">
-                                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={13} />
+                                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                                         <input
                                             type="date"
                                             value={endDate}
                                             onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
-                                            className="w-full pl-9 pr-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                            className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                         />
                                     </div>
                                 </div>
@@ -1106,7 +1106,7 @@ export default function FinanceSettlePayments() {
                                 <div className="lg:col-span-2 pt-5">
                                     <button
                                         onClick={handleReset}
-                                        className="w-full flex items-center justify-center gap-1 px-3 py-2.5 border border-[#E4E6EA] text-[#667085] text-[12px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                        className="w-full flex items-center justify-center gap-1 px-3 py-2.5 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle transition-colors"
                                     >
                                         <RefreshCw size={11} /> Reset
                                     </button>
@@ -1121,7 +1121,7 @@ export default function FinanceSettlePayments() {
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="border-b border-[#E4E6EA] bg-[#F8F9FA]">
+                                        <tr className="border-b border-line bg-subtle">
                                             {[
                                                 { key: "id", label: "Payment Ref" },
                                                 { key: "date", label: "Date" },
@@ -1135,7 +1135,7 @@ export default function FinanceSettlePayments() {
                                                 <th
                                                     key={col.key}
                                                     onClick={() => !col.noSort && handleSort(col.key)}
-                                                    className={`text-left py-3.5 px-4 text-[12px] font-[500] text-[#667085] whitespace-nowrap ${col.noSort ? "" : "cursor-pointer hover:text-[#383E49]"}`}
+                                                    className={`text-left py-3.5 px-4 text-[12px] font-[500] text-fg-secondary whitespace-nowrap ${col.noSort ? "" : "cursor-pointer hover:text-fg"}`}
                                                 >
                                                     <div className="flex items-center gap-1">
                                                         {col.label}
@@ -1149,55 +1149,55 @@ export default function FinanceSettlePayments() {
                                         {paginated.length === 0 ? (
                                             <tr>
                                                 <td colSpan={8} className="py-16 text-center">
-                                                    <Receipt size={36} className="mx-auto text-[#C8CDD5] mb-3" />
-                                                    <p className="text-[14px] font-[500] text-[#383E49]">No payment records found</p>
-                                                    <p className="text-[12px] text-[#667085]">Try adjusting your filters</p>
+                                                    <Receipt size={36} className="mx-auto text-fg-muted mb-3" />
+                                                    <p className="text-[14px] font-[500] text-fg">No payment records found</p>
+                                                    <p className="text-[12px] text-fg-secondary">Try adjusting your filters</p>
                                                 </td>
                                             </tr>
                                         ) : paginated.map((row) => {
-                                            const ss = STATUS_STYLE[row.status] || { text: "text-[#667085]", bg: "bg-[#F0F1F3]", icon: null };
+                                            const ss = STATUS_STYLE[row.status] || { text: "text-fg-secondary", bg: "bg-app", icon: null };
                                             const supplierCode = suppliers.find((s) => s.supplierId === row.supplierId)?.code || "??";
                                             return (
-                                                <tr key={row.paymentId} className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA] transition-colors">
+                                                <tr key={row.paymentId} className="border-b border-line hover:bg-subtle transition-colors">
 
                                                     {/* Payment Ref */}
                                                     <td className="py-3.5 px-4">
-                                                        <p className="text-[13px] font-[600] text-[#0F50AA] flex items-center gap-1 whitespace-nowrap">
+                                                        <p className="text-[13px] font-[600] text-brand-fg flex items-center gap-1 whitespace-nowrap">
                                                             <Hash size={10} />{row.id}
                                                         </p>
                                                     </td>
 
                                                     {/* Date */}
                                                     <td className="py-3.5 px-4">
-                                                        <p className="text-[13px] font-[500] text-[#383E49] whitespace-nowrap">{row.date}</p>
+                                                        <p className="text-[13px] font-[500] text-fg whitespace-nowrap">{row.date}</p>
                                                     </td>
 
                                                     {/* Supplier */}
                                                     <td className="py-3.5 px-4">
                                                         <div className="flex items-center gap-2">
-                                                            <div className="w-6 h-6 bg-[#0F50AA] rounded-md flex items-center justify-center text-white text-[9px] font-[700] flex-shrink-0">
+                                                            <div className="w-6 h-6 bg-brand rounded-md flex items-center justify-center text-on-brand text-[9px] font-[700] flex-shrink-0">
                                                                 {supplierCode}
                                                             </div>
-                                                            <p className="text-[13px] font-[500] text-[#383E49] whitespace-nowrap">{row.supplier}</p>
+                                                            <p className="text-[13px] font-[500] text-fg whitespace-nowrap">{row.supplier}</p>
                                                         </div>
                                                     </td>
 
                                                     {/* Invoice Ref */}
                                                     <td className="py-3.5 px-4">
-                                                        <p className="text-[12px] text-[#667085] max-w-[150px] truncate" title={row.ref}>{row.ref}</p>
+                                                        <p className="text-[12px] text-fg-secondary max-w-[150px] truncate" title={row.ref}>{row.ref}</p>
                                                     </td>
 
                                                     {/* Amount */}
                                                     <td className="py-3.5 px-4">
-                                                        <span className="text-[13px] font-[700] text-[#383E49]">
+                                                        <span className="text-[13px] font-[700] text-fg">
                                                             Rs. {row.amount.toLocaleString()}
                                                         </span>
                                                     </td>
 
                                                     {/* Method */}
                                                     <td className="py-3.5 px-4">
-                                                        <span className="inline-flex items-center gap-1.5 text-[12px] font-[500] text-[#383E49]">
-                                                            <span className="text-[#0F50AA]">{METHOD_ICON[row.method]}</span>
+                                                        <span className="inline-flex items-center gap-1.5 text-[12px] font-[500] text-fg">
+                                                            <span className="text-brand-fg">{METHOD_ICON[row.method]}</span>
                                                             {row.method}
                                                         </span>
                                                     </td>
@@ -1213,7 +1213,7 @@ export default function FinanceSettlePayments() {
                                                     <td className="py-3.5 px-4">
                                                         <button
                                                             onClick={() => setDetailModal(row)}
-                                                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#EEF3FB] text-[#0F50AA] text-[11px] font-[500] rounded-lg hover:bg-[#0F50AA] hover:text-white transition-colors"
+                                                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[11px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors"
                                                         >
                                                             <Eye size={12} /> View
                                                         </button>
@@ -1228,23 +1228,23 @@ export default function FinanceSettlePayments() {
 
                         {/* ── Pagination ── */}
                         {totalPages > 1 && (
-                            <div className="flex items-center justify-between mt-5 pt-4 border-t border-[#E4E6EA]">
-                                <p className="text-[12px] text-[#667085]">
+                            <div className="flex items-center justify-between mt-5 pt-4 border-t border-line">
+                                <p className="text-[12px] text-fg-secondary">
                                     Page {page} of {totalPages} · {sorted.length} records
                                 </p>
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                                         disabled={page === 1}
-                                        className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                        className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                     >
-                                        <ChevronLeft size={15} className="text-[#667085]" />
+                                        <ChevronLeft size={15} className="text-fg-secondary" />
                                     </button>
                                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                                         <button
                                             key={p}
                                             onClick={() => setPage(p)}
-                                            className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-[#0F50AA] text-white" : "text-[#667085] hover:bg-[#F0F1F3]"}`}
+                                            className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-brand text-on-brand" : "text-fg-secondary hover:bg-app"}`}
                                         >
                                             {p}
                                         </button>
@@ -1252,9 +1252,9 @@ export default function FinanceSettlePayments() {
                                     <button
                                         onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                                         disabled={page === totalPages}
-                                        className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                        className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                     >
-                                        <ChevronRight size={15} className="text-[#667085]" />
+                                        <ChevronRight size={15} className="text-fg-secondary" />
                                     </button>
                                 </div>
                             </div>
@@ -1284,7 +1284,7 @@ export default function FinanceSettlePayments() {
 
             {/* Bill Print Layout */}
             {printData && (
-                <div id="print-settlement" className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 text-black font-sans w-[210mm] min-h-screen">
+                <div id="print-settlement" className="hidden print:block fixed inset-0 bg-surface z-[9999] p-8 text-fg-strong font-sans w-[210mm] min-h-screen">
                     <style dangerouslySetInnerHTML={{
                         __html: `
                         @media print {
@@ -1306,62 +1306,62 @@ export default function FinanceSettlePayments() {
                     `}} />
 
                     {/* Header / Branding */}
-                    <div className="flex justify-between items-start border-b-2 border-gray-800 pb-4 mb-6">
+                    <div className="flex justify-between items-start border-b-2 border-line-strong pb-4 mb-6">
                         <div>
-                            <h1 className="text-2xl font-bold uppercase tracking-wide text-gray-900">Bakery Outlet Management System</h1>
-                            <p className="text-sm text-gray-500 mt-1">Payment Settlement Receipt / Voucher</p>
+                            <h1 className="text-2xl font-bold uppercase tracking-wide text-fg-strong">Bakery Outlet Management System</h1>
+                            <p className="text-sm text-fg-secondary mt-1">Payment Settlement Receipt / Voucher</p>
                         </div>
                         <div className="text-right">
-                            <p className="text-sm font-semibold text-gray-700">Receipt Ref: <span className="font-bold text-black">{printData.payment.paymentRef}</span></p>
-                            <p className="text-sm text-gray-500 mt-1">Print Date: {new Date().toLocaleString()}</p>
+                            <p className="text-sm font-semibold text-fg">Receipt Ref: <span className="font-bold text-fg-strong">{printData.payment.paymentRef}</span></p>
+                            <p className="text-sm text-fg-secondary mt-1">Print Date: {new Date().toLocaleString()}</p>
                         </div>
                     </div>
 
                     {/* Supplier & Payment Summary columns */}
                     <div className="grid grid-cols-2 gap-6 mb-6">
                         {/* Supplier Info */}
-                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Supplier Details</h3>
-                            <p className="text-base font-bold text-gray-900">{printData.supplier.name}</p>
-                            <p className="text-sm text-gray-600 mt-1">Code: {printData.supplier.id}</p>
+                        <div className="border border-line rounded-lg p-4 bg-subtle">
+                            <h3 className="text-xs font-bold text-fg-secondary uppercase tracking-wider mb-2">Supplier Details</h3>
+                            <p className="text-base font-bold text-fg-strong">{printData.supplier.name}</p>
+                            <p className="text-sm text-fg-secondary mt-1">Code: {printData.supplier.id}</p>
                         </div>
 
                         {/* Payment Details */}
-                        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Payment Details</h3>
+                        <div className="border border-line rounded-lg p-4 bg-subtle">
+                            <h3 className="text-xs font-bold text-fg-secondary uppercase tracking-wider mb-2">Payment Details</h3>
                             <div className="grid grid-cols-2 gap-y-1 text-sm">
-                                <span className="text-gray-500">Payment Ref:</span>
-                                <span className="font-semibold text-gray-900">{printData.payment.paymentRef}</span>
+                                <span className="text-fg-secondary">Payment Ref:</span>
+                                <span className="font-semibold text-fg-strong">{printData.payment.paymentRef}</span>
 
-                                <span className="text-gray-500">Payment Date:</span>
-                                <span className="font-semibold text-gray-900">{printData.payment.paymentDate}</span>
+                                <span className="text-fg-secondary">Payment Date:</span>
+                                <span className="font-semibold text-fg-strong">{printData.payment.paymentDate}</span>
 
-                                <span className="text-gray-500">Payment Method:</span>
-                                <span className="font-semibold text-gray-900">{printData.payment.paymentMethod}</span>
+                                <span className="text-fg-secondary">Payment Method:</span>
+                                <span className="font-semibold text-fg-strong">{printData.payment.paymentMethod}</span>
 
-                                <span className="text-gray-500">Status:</span>
-                                <span className="font-semibold text-gray-900">{printData.payment.status}</span>
+                                <span className="text-fg-secondary">Status:</span>
+                                <span className="font-semibold text-fg-strong">{printData.payment.status}</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Remarks Section */}
                     {printData.payment.remarks && (
-                        <div className="border border-gray-200 rounded-lg p-4 mb-6">
-                            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Remarks / Notes</h3>
-                            <p className="text-sm text-gray-800">{printData.payment.remarks}</p>
+                        <div className="border border-line rounded-lg p-4 mb-6">
+                            <h3 className="text-xs font-bold text-fg-secondary uppercase tracking-wider mb-1">Remarks / Notes</h3>
+                            <p className="text-sm text-fg">{printData.payment.remarks}</p>
                         </div>
                     )}
 
                     {/* Table 1: Invoices Settled in this payment */}
                     <div className="mb-6">
-                        <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-2 flex items-center justify-between">
+                        <h3 className="text-sm font-bold text-fg uppercase tracking-wider mb-2 flex items-center justify-between">
                             <span>Settled Invoices</span>
-                            <span className="text-xs text-gray-500 font-normal">Allocated amounts</span>
+                            <span className="text-xs text-fg-secondary font-normal">Allocated amounts</span>
                         </h3>
-                        <table className="w-full border-collapse border border-gray-200 rounded-lg overflow-hidden">
+                        <table className="w-full border-collapse border border-line rounded-lg overflow-hidden">
                             <thead>
-                                <tr className="bg-gray-100 border-b border-gray-200 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                <tr className="bg-hover border-b border-line text-left text-xs font-bold text-fg uppercase tracking-wider">
                                     <th className="py-2.5 px-3">Invoice / GRN Reference</th>
                                     <th className="py-2.5 px-3 text-right">Settled Amount (Rs.)</th>
                                 </tr>
@@ -1369,19 +1369,19 @@ export default function FinanceSettlePayments() {
                             <tbody>
                                 {printData.payment.allocations && printData.payment.allocations.length > 0 ? (
                                     printData.payment.allocations.map((alloc) => (
-                                        <tr key={alloc.allocationId || alloc.grnId} className="border-b border-gray-200 text-sm text-gray-800 last:border-0 hover:bg-gray-50">
-                                            <td className="py-2.5 px-3 font-semibold text-blue-900">{alloc.grnRef || `GRN-${alloc.grnId}`}</td>
-                                            <td className="py-2.5 px-3 text-right font-bold text-gray-900">Rs. {Number(alloc.allocatedAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                        <tr key={alloc.allocationId || alloc.grnId} className="border-b border-line text-sm text-fg last:border-0 hover:bg-subtle">
+                                            <td className="py-2.5 px-3 font-semibold text-brand-fg">{alloc.grnRef || `GRN-${alloc.grnId}`}</td>
+                                            <td className="py-2.5 px-3 text-right font-bold text-fg-strong">Rs. {Number(alloc.allocatedAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                         </tr>
                                     ))
                                 ) : (
-                                    <tr className="border-b border-gray-200 text-sm text-gray-500 text-center">
+                                    <tr className="border-b border-line text-sm text-fg-secondary text-center">
                                         <td colSpan="2" className="py-4">No allocations recorded</td>
                                     </tr>
                                 )}
-                                <tr className="bg-gray-50 font-bold border-t-2 border-gray-800 text-sm">
-                                    <td className="py-3 px-3 text-right uppercase tracking-wider text-gray-700">Total Settled Amount:</td>
-                                    <td className="py-3 px-3 text-right text-base text-gray-900">Rs. {Number(printData.payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <tr className="bg-subtle font-bold border-t-2 border-line-strong text-sm">
+                                    <td className="py-3 px-3 text-right uppercase tracking-wider text-fg">Total Settled Amount:</td>
+                                    <td className="py-3 px-3 text-right text-base text-fg-strong">Rs. {Number(printData.payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1389,13 +1389,13 @@ export default function FinanceSettlePayments() {
 
                     {/* Table 2: Pending Outstanding Invoices */}
                     <div className="mb-8">
-                        <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-2 flex items-center justify-between">
+                        <h3 className="text-sm font-bold text-fg uppercase tracking-wider mb-2 flex items-center justify-between">
                             <span>Pending Invoices (Remaining Balance)</span>
-                            <span className="text-xs text-gray-500 font-normal">Awaiting settlement</span>
+                            <span className="text-xs text-fg-secondary font-normal">Awaiting settlement</span>
                         </h3>
-                        <table className="w-full border-collapse border border-gray-200 rounded-lg overflow-hidden">
+                        <table className="w-full border-collapse border border-line rounded-lg overflow-hidden">
                             <thead>
-                                <tr className="bg-gray-100 border-b border-gray-200 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                <tr className="bg-hover border-b border-line text-left text-xs font-bold text-fg uppercase tracking-wider">
                                     <th className="py-2.5 px-3">Invoice / GRN Reference</th>
                                     <th className="py-2.5 px-3">Due Date</th>
                                     <th className="py-2.5 px-3 text-right">Outstanding Amount (Rs.)</th>
@@ -1404,20 +1404,20 @@ export default function FinanceSettlePayments() {
                             <tbody>
                                 {printData.remainingInvoices && printData.remainingInvoices.length > 0 ? (
                                     printData.remainingInvoices.map((inv) => (
-                                        <tr key={inv.grnId} className="border-b border-gray-200 text-sm text-gray-800 last:border-0 hover:bg-gray-50">
-                                            <td className="py-2.5 px-3 font-semibold text-gray-700">{inv.ref}</td>
-                                            <td className="py-2.5 px-3 text-gray-600">{inv.dueDate}</td>
-                                            <td className="py-2.5 px-3 text-right font-semibold text-red-600">Rs. {Number(inv.outstanding).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                        <tr key={inv.grnId} className="border-b border-line text-sm text-fg last:border-0 hover:bg-subtle">
+                                            <td className="py-2.5 px-3 font-semibold text-fg">{inv.ref}</td>
+                                            <td className="py-2.5 px-3 text-fg-secondary">{inv.dueDate}</td>
+                                            <td className="py-2.5 px-3 text-right font-semibold text-error">Rs. {Number(inv.outstanding).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                         </tr>
                                     ))
                                 ) : (
-                                    <tr className="border-b border-gray-200 text-sm text-gray-500 text-center">
+                                    <tr className="border-b border-line text-sm text-fg-secondary text-center">
                                         <td colSpan="3" className="py-4">No remaining outstanding invoices. Supplier is fully settled!</td>
                                     </tr>
                                 )}
-                                <tr className="bg-gray-50 font-bold border-t-2 border-gray-800 text-sm">
-                                    <td colSpan="2" className="py-3 px-3 text-right uppercase tracking-wider text-gray-700">Total Pending Balance:</td>
-                                    <td className="py-3 px-3 text-right text-base text-red-600">
+                                <tr className="bg-subtle font-bold border-t-2 border-line-strong text-sm">
+                                    <td colSpan="2" className="py-3 px-3 text-right uppercase tracking-wider text-fg">Total Pending Balance:</td>
+                                    <td className="py-3 px-3 text-right text-base text-error">
                                         Rs. {printData.remainingInvoices.reduce((sum, inv) => sum + (Number(inv.outstanding) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </td>
                                 </tr>
@@ -1426,22 +1426,22 @@ export default function FinanceSettlePayments() {
                     </div>
 
                     {/* Signature lines: Prepared By, Checked By, Authorized By, Received By */}
-                    <div className="mt-16 grid grid-cols-4 gap-4 text-center pt-8 border-t border-dashed border-gray-300">
+                    <div className="mt-16 grid grid-cols-4 gap-4 text-center pt-8 border-t border-dashed border-line-strong">
                         <div>
-                            <div className="border-b border-black h-8 mx-auto w-3/4 mb-1"></div>
-                            <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">Prepared By</p>
+                            <div className="border-b border-fg-strong h-8 mx-auto w-3/4 mb-1"></div>
+                            <p className="text-xs font-bold text-fg uppercase tracking-wide">Prepared By</p>
                         </div>
                         <div>
-                            <div className="border-b border-black h-8 mx-auto w-3/4 mb-1"></div>
-                            <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">Checked By</p>
+                            <div className="border-b border-fg-strong h-8 mx-auto w-3/4 mb-1"></div>
+                            <p className="text-xs font-bold text-fg uppercase tracking-wide">Checked By</p>
                         </div>
                         <div>
-                            <div className="border-b border-black h-8 mx-auto w-3/4 mb-1"></div>
-                            <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">Authorized By</p>
+                            <div className="border-b border-fg-strong h-8 mx-auto w-3/4 mb-1"></div>
+                            <p className="text-xs font-bold text-fg uppercase tracking-wide">Authorized By</p>
                         </div>
                         <div>
-                            <div className="border-b border-black h-8 mx-auto w-3/4 mb-1"></div>
-                            <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">Received By</p>
+                            <div className="border-b border-fg-strong h-8 mx-auto w-3/4 mb-1"></div>
+                            <p className="text-xs font-bold text-fg uppercase tracking-wide">Received By</p>
                         </div>
                     </div>
                 </div>
@@ -1453,7 +1453,7 @@ export default function FinanceSettlePayments() {
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

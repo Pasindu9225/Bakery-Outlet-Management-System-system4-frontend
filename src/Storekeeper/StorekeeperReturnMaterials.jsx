@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import {
   Search,
   Filter,
@@ -288,13 +288,13 @@ export default function StorekeeperReturnMaterials() {
   const getStatusColor = (status) => {
     switch (status) {
       case "Pending":
-        return "bg-[#FFF4E6] text-[#F4A100]";
+        return "bg-hover text-warning";
       case "Approved":
-        return "bg-[#DDFFE0] text-[#199D26]";
+        return "bg-hover text-success";
       case "Rejected":
-        return "bg-[#FEE2E2] text-[#EF4444]";
+        return "bg-hover text-error";
       default:
-        return "bg-[#F0F1F3] text-[#667085]";
+        return "bg-app text-fg-secondary";
     }
   };
 
@@ -889,8 +889,7 @@ export default function StorekeeperReturnMaterials() {
   };
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
-      <Toaster position="top-right" reverseOrder={false} />
+    <div className="flex bg-app h-screen overflow-hidden">
       <StorekeeperSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -904,10 +903,10 @@ export default function StorekeeperReturnMaterials() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+            <h1 className="text-[20px] font-[600] text-fg mb-1">
               Return Materials
             </h1>
-            <p className="text-[14px] text-[#667085]">
+            <p className="text-[14px] text-fg-secondary">
               Process returns for expired, damaged, or incorrect materials with
               manager approval
             </p>
@@ -915,89 +914,89 @@ export default function StorekeeperReturnMaterials() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     PENDING RETURNS
                   </p>
-                  <p className="text-[24px] font-[700] text-[#F4A100]">
+                  <p className="text-[24px] font-[700] text-warning">
                     {
                       returnNotes.filter((note) => note.status === "Pending")
                         .length
                     }
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-[#FFF4E6] rounded-lg flex items-center justify-center">
-                  <Clock size={24} className="text-[#F4A100]" />
+                <div className="w-12 h-12 bg-hover rounded-lg flex items-center justify-center">
+                  <Clock size={24} className="text-warning" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     APPROVED RETURNS
                   </p>
-                  <p className="text-[24px] font-[700] text-[#199D26]">
+                  <p className="text-[24px] font-[700] text-success">
                     {
                       returnNotes.filter((note) => note.status === "Approved")
                         .length
                     }
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-[#DDFFE0] rounded-lg flex items-center justify-center">
-                  <CheckCircle2 size={24} className="text-[#199D26]" />
+                <div className="w-12 h-12 bg-hover rounded-lg flex items-center justify-center">
+                  <CheckCircle2 size={24} className="text-success" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     REJECTED RETURNS
                   </p>
-                  <p className="text-[24px] font-[700] text-[#EF4444]">
+                  <p className="text-[24px] font-[700] text-error">
                     {
                       returnNotes.filter((note) => note.status === "Rejected")
                         .length
                     }
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-[#FEE2E2] rounded-lg flex items-center justify-center">
-                  <AlertTriangle size={24} className="text-[#EF4444]" />
+                <div className="w-12 h-12 bg-hover rounded-lg flex items-center justify-center">
+                  <AlertTriangle size={24} className="text-error" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     TOTAL RETURNS
                   </p>
-                  <p className="text-[24px] font-[700] text-[#0F50AA]">
+                  <p className="text-[24px] font-[700] text-brand-fg">
                     {returnNotes.length}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-[#EBF8FF] rounded-lg flex items-center justify-center">
-                  <Check size={24} className="text-[#0F50AA]" />
+                <div className="w-12 h-12 bg-hover rounded-lg flex items-center justify-center">
+                  <Check size={24} className="text-brand-fg" />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Tab Switcher */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] mb-6">
-            <div className="flex border-b border-[#E4E6EA]">
+          <div className="bg-surface rounded-lg shadow-sm border border-line mb-6">
+            <div className="flex border-b border-line">
               <button
                 onClick={() => setActiveTab("rawMaterials")}
                 className={`flex items-center gap-2 px-6 py-4 text-[14px] font-[500] border-b-2 transition-colors ${
                   activeTab === "rawMaterials"
-                    ? "border-[#0F50AA] text-[#0F50AA] bg-[#EBF8FF]"
-                    : "border-transparent text-[#667085] hover:text-[#383E49]"
+                    ? "border-brand-fg text-brand-fg bg-hover"
+                    : "border-transparent text-fg-secondary hover:text-fg"
                 }`}
               >
                 <RotateCcw size={16} />
@@ -1007,8 +1006,8 @@ export default function StorekeeperReturnMaterials() {
                 onClick={() => setActiveTab("outletReturns")}
                 className={`flex items-center gap-2 px-6 py-4 text-[14px] font-[500] border-b-2 transition-colors ${
                   activeTab === "outletReturns"
-                    ? "border-[#0F50AA] text-[#0F50AA] bg-[#EBF8FF]"
-                    : "border-transparent text-[#667085] hover:text-[#383E49]"
+                    ? "border-brand-fg text-brand-fg bg-hover"
+                    : "border-transparent text-fg-secondary hover:text-fg"
                 }`}
               >
                 <Warehouse size={16} />
@@ -1020,16 +1019,16 @@ export default function StorekeeperReturnMaterials() {
           {activeTab === "rawMaterials" ? (
             <>
               {/* Create Return Note Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6 mb-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-              <h3 className="text-[18px] font-[600] text-[#383E49]">
+              <h3 className="text-[18px] font-[600] text-fg">
                 Create Return Note
               </h3>
               <div className="flex items-center gap-2 mt-2 sm:mt-0">
-                <span className="text-[12px] text-[#667085]">
+                <span className="text-[12px] text-fg-secondary">
                   Return Note ID:
                 </span>
-                <span className="text-[14px] font-[600] text-[#383E49]">
+                <span className="text-[14px] font-[600] text-fg">
                   {returnNote.returnNoteId}
                 </span>
               </div>
@@ -1038,8 +1037,8 @@ export default function StorekeeperReturnMaterials() {
             {/* Return Note Header */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
-                  Return Date <span className="text-[#EF4444]">*</span>
+                <label className="block text-[14px] font-[500] text-fg mb-2">
+                  Return Date <span className="text-error">*</span>
                 </label>
                 <input
                   type="date"
@@ -1050,12 +1049,12 @@ export default function StorekeeperReturnMaterials() {
                       returnDate: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                  className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                 />
               </div>
               <div>
-                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
-                  Supplier <span className="text-[#EF4444]">*</span>
+                <label className="block text-[14px] font-[500] text-fg mb-2">
+                  Supplier <span className="text-error">*</span>
                 </label>
 
                 <select
@@ -1079,7 +1078,7 @@ export default function StorekeeperReturnMaterials() {
                       setAvailableStock([]);
                     }
                   }}
-                  className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                  className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                   disabled={loadingSuppliers}
                 >
                   <option value="">Select Supplier</option>
@@ -1097,7 +1096,7 @@ export default function StorekeeperReturnMaterials() {
                 </select>
 
                 {supplierError && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p className="text-error text-sm mt-1">
                     Error: {supplierError}
                   </p>
                 )}
@@ -1106,13 +1105,13 @@ export default function StorekeeperReturnMaterials() {
 
             {/* Add Item Button */}
             <div className="flex justify-between items-center mb-4">
-              <h4 className="text-[16px] font-[600] text-[#383E49]">
+              <h4 className="text-[16px] font-[600] text-fg">
                 Return Items
               </h4>
               <button
                 onClick={() => setShowAddItemModal(true)}
                 disabled={!returnNote.supplier || loadingRawMaterials}
-                className="flex items-center gap-2 px-4 py-2 bg-[#0F50AA] text-white text-[14px] font-[500] rounded-md hover:bg-[#2563EB] disabled:bg-[#667085] disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-brand text-on-brand text-[14px] font-[500] rounded-md hover:bg-brand-hover disabled:bg-neutral-solid disabled:cursor-not-allowed transition-colors"
               >
                 <Plus size={16} />
                 {loadingRawMaterials
@@ -1126,23 +1125,23 @@ export default function StorekeeperReturnMaterials() {
               <div className="overflow-x-auto mb-6">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E4E6EA]">
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                    <tr className="border-b border-line">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Material
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Batch Info
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Available
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Return Qty
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Reason
                       </th>
-                      <th className="text-center py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-center py-3 text-[12px] font-[600] text-fg uppercase">
                         Action
                       </th>
                     </tr>
@@ -1151,42 +1150,42 @@ export default function StorekeeperReturnMaterials() {
                     {returnNote.items.map((item, index) => (
                       <tr
                         key={index}
-                        className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                        className="border-b border-line hover:bg-subtle"
                       >
                         <td className="py-4">
                           <div>
-                            <p className="text-[14px] font-[600] text-[#383E49]">
+                            <p className="text-[14px] font-[600] text-fg">
                               {item.name}
                             </p>
-                            <p className="text-[12px] text-[#667085]">
+                            <p className="text-[12px] text-fg-secondary">
                               Brand: {item.brand}
                             </p>
                           </div>
                         </td>
                         <td className="py-4">
                           <div>
-                            <p className="text-[14px] font-[500] text-[#383E49]">
+                            <p className="text-[14px] font-[500] text-fg">
                               {item.batchNo}
                             </p>
                             <p
                               className={`text-[12px] ${
                                 isExpired(item.expiryDate)
-                                  ? "text-[#EF4444]"
-                                  : "text-[#667085]"
+                                  ? "text-error"
+                                  : "text-fg-secondary"
                               }`}
                             >
                               Exp:{" "}
                               {new Date(item.expiryDate).toLocaleDateString()}
                             </p>
                             {isExpired(item.expiryDate) && (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-[#FEE2E2] text-[#EF4444] mt-1">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-error mt-1">
                                 EXPIRED
                               </span>
                             )}
                           </div>
                         </td>
                         <td className="py-4">
-                          <p className="text-[14px] font-[500] text-[#383E49]">
+                          <p className="text-[14px] font-[500] text-fg">
                             {item.availableStock} {item.unit}
                           </p>
                         </td>
@@ -1204,7 +1203,7 @@ export default function StorekeeperReturnMaterials() {
                                 e.target.value === "" ? "" : parseFloat(e.target.value)
                               )
                             }
-                            className="w-20 px-2 py-1 border border-[#E4E6EA] rounded text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                            className="w-20 px-2 py-1 border border-line rounded text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                           />
                         </td>
                         <td className="py-4">
@@ -1213,7 +1212,7 @@ export default function StorekeeperReturnMaterials() {
                             onChange={(e) =>
                               handleUpdateItem(index, "reason", e.target.value)
                             }
-                            className="w-32 px-2 py-1 border border-[#E4E6EA] rounded text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white"
+                            className="w-32 px-2 py-1 border border-line rounded text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface"
                           >
                             {returnReasons.map((reason) => (
                               <option key={reason} value={reason}>
@@ -1225,7 +1224,7 @@ export default function StorekeeperReturnMaterials() {
                         <td className="py-4 text-center">
                           <button
                             onClick={() => handleRemoveItem(index)}
-                            className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors"
+                            className="p-2 text-error hover:bg-hover rounded-lg transition-colors"
                             title="Remove Item"
                           >
                             <Trash2 size={16} />
@@ -1237,19 +1236,19 @@ export default function StorekeeperReturnMaterials() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-8 border border-dashed border-[#E4E6EA] rounded-lg mb-6">
-                <Package size={48} className="mx-auto text-[#667085] mb-4" />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+              <div className="text-center py-8 border border-dashed border-line rounded-lg mb-6">
+                <Package size={48} className="mx-auto text-fg-secondary mb-4" />
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   No items added yet
                 </p>
-                <p className="text-[14px] text-[#667085]">
+                <p className="text-[14px] text-fg-secondary">
                   Click "Add Raw Material" to start creating your return note
                 </p>
               </div>
             )}
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#E4E6EA]">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-line">
               <button
                 onClick={handleSubmitReturnNote}
                 disabled={
@@ -1257,7 +1256,7 @@ export default function StorekeeperReturnMaterials() {
                   returnNote.items.length === 0 ||
                   submitLoading
                 }
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-[#0F50AA] text-white text-[14px] font-[500] rounded-md hover:bg-[#2563EB] disabled:bg-[#667085] disabled:cursor-not-allowed transition-colors"
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-brand text-on-brand text-[14px] font-[500] rounded-md hover:bg-brand-hover disabled:bg-neutral-solid disabled:cursor-not-allowed transition-colors"
               >
                 <Send size={16} />
                 {submitLoading ? "Submitting..." : "Submit for Approval"}
@@ -1271,7 +1270,7 @@ export default function StorekeeperReturnMaterials() {
                     items: [],
                   })
                 }
-                className="px-6 py-3 text-[#667085] bg-white border border-[#E4E6EA] text-[14px] font-[500] rounded-md hover:bg-[#F8F9FA] transition-colors"
+                className="px-6 py-3 text-fg-secondary bg-surface border border-line text-[14px] font-[500] rounded-md hover:bg-subtle transition-colors"
               >
                 Cancel
               </button>
@@ -1279,13 +1278,13 @@ export default function StorekeeperReturnMaterials() {
           </div>
 
           {/* Return Notes History */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-              <h3 className="text-[18px] font-[600] text-[#383E49]">
+              <h3 className="text-[18px] font-[600] text-fg">
                 Return Notes History
               </h3>
               <div className="flex items-center gap-2 mt-2 sm:mt-0">
-                <span className="text-[12px] text-[#667085]">
+                <span className="text-[12px] text-fg-secondary">
                   Showing {filteredReturnNotes.length} return notes
                 </span>
               </div>
@@ -1296,7 +1295,7 @@ export default function StorekeeperReturnMaterials() {
               {/* Search Bar */}
               <div className="flex-1 relative">
                 <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
                   size={16}
                 />
                 <input
@@ -1304,7 +1303,7 @@ export default function StorekeeperReturnMaterials() {
                   placeholder="Search by return note ID or supplier..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                  className="w-full pl-10 pr-4 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                 />
               </div>
 
@@ -1313,7 +1312,7 @@ export default function StorekeeperReturnMaterials() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                  className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                 >
                   <option value="All">All Status</option>
                   <option value="Pending">Pending</option>
@@ -1324,7 +1323,7 @@ export default function StorekeeperReturnMaterials() {
                 <select
                   value={supplierFilter}
                   onChange={(e) => setSupplierFilter(e.target.value)}
-                  className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                  className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                 >
                   <option value="All">All Suppliers</option>
                   {uniqueSuppliers.map((supplier) => (
@@ -1343,34 +1342,34 @@ export default function StorekeeperReturnMaterials() {
               <div className="text-center py-12">
                 <AlertCircle
                   size={48}
-                  className="mx-auto text-[#EF4444] mb-4"
+                  className="mx-auto text-error mb-4"
                 />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   Failed to load returns
                 </p>
-                <p className="text-[14px] text-[#667085]">{returnsError}</p>
+                <p className="text-[14px] text-fg-secondary">{returnsError}</p>
               </div>
             ) : filteredReturnNotes.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E4E6EA]">
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                    <tr className="border-b border-line">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Return Note ID
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Supplier
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Date
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Items
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Status
                       </th>
-                      <th className="text-center py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-center py-3 text-[12px] font-[600] text-fg uppercase">
                         Actions
                       </th>
                     </tr>
@@ -1379,28 +1378,28 @@ export default function StorekeeperReturnMaterials() {
                     {filteredReturnNotes.map((note) => (
                       <tr
                         key={note.id}
-                        className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                        className="border-b border-line hover:bg-subtle"
                       >
                         <td className="py-4">
-                          <p className="text-[14px] font-[600] text-[#383E49]">
+                          <p className="text-[14px] font-[600] text-fg">
                             {note.returnNoteId}
                           </p>
-                          <p className="text-[12px] text-[#667085]">
+                          <p className="text-[12px] text-fg-secondary">
                             by {note.createdBy}
                           </p>
                         </td>
                         <td className="py-4">
-                          <p className="text-[14px] font-[500] text-[#383E49]">
+                          <p className="text-[14px] font-[500] text-fg">
                             {getSupplierNameById(note.supplierId)}
                           </p>
                         </td>
                         <td className="py-4">
-                          <p className="text-[14px] text-[#383E49]">
+                          <p className="text-[14px] text-fg">
                             {new Date(note.date).toLocaleDateString()}
                           </p>
                         </td>
                         <td className="py-4">
-                          <p className="text-[14px] font-[500] text-[#383E49]">
+                          <p className="text-[14px] font-[500] text-fg">
                             {note.totalItems} items
                           </p>
                         </td>
@@ -1432,14 +1431,14 @@ export default function StorekeeperReturnMaterials() {
                                 setSelectedReturnNote(note);
                                 setShowReturnDetailsModal(true);
                               }}
-                              className="p-2 text-[#0F50AA] hover:bg-[#EBF8FF] rounded-lg transition-colors"
+                              className="p-2 text-brand-fg hover:bg-hover rounded-lg transition-colors"
                               title="View Details"
                             >
                               <Eye size={16} />
                             </button>
                             <button
                               onClick={() => handleEditReturnNote(note)}
-                              className="p-2 text-[#F4A100] hover:bg-[#FFF4E6] rounded-lg transition-colors"
+                              className="p-2 text-warning hover:bg-hover rounded-lg transition-colors"
                               title="Edit Return"
                             >
                               <Edit size={16} />
@@ -1452,7 +1451,7 @@ export default function StorekeeperReturnMaterials() {
                                 disabled={
                                   approveLoadingId === note.returnNoteId
                                 }
-                                className="p-2 text-[#199D26] hover:bg-[#F0FDF4] rounded-lg transition-colors disabled:text-[#94D3A2] disabled:cursor-not-allowed"
+                                className="p-2 text-success hover:bg-hover rounded-lg transition-colors disabled:text-success disabled:cursor-not-allowed"
                                 title="Mark as Returned"
                               >
                                 <Check
@@ -1474,11 +1473,11 @@ export default function StorekeeperReturnMaterials() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <FileText size={48} className="mx-auto text-[#667085] mb-4" />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <FileText size={48} className="mx-auto text-fg-secondary mb-4" />
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   No return notes found
                 </p>
-                <p className="text-[14px] text-[#667085]">
+                <p className="text-[14px] text-fg-secondary">
                   {searchTerm ||
                   statusFilter !== "All" ||
                   supplierFilter !== "All"
@@ -1491,18 +1490,18 @@ export default function StorekeeperReturnMaterials() {
           </>
         ) : (
           /* Outlet Returns Tab Content */
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
               <div>
-                <h3 className="text-[18px] font-[600] text-[#383E49]">
+                <h3 className="text-[18px] font-[600] text-fg">
                   Approved POS Outlet Returns
                 </h3>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   Approved returns from POS outlets waiting to be received into main store inventory
                 </p>
               </div>
               <div className="mt-4 sm:mt-0">
-                <span className="text-[12px] text-[#667085]">
+                <span className="text-[12px] text-fg-secondary">
                   Showing {outletReturns.length} pending receipts
                 </span>
               </div>
@@ -1512,43 +1511,43 @@ export default function StorekeeperReturnMaterials() {
               <Loader variant="section" text="Loading outlet returns..." />
             ) : outletReturnsError ? (
               <div className="text-center py-12">
-                <AlertCircle size={48} className="mx-auto text-[#EF4444] mb-4" />
-                <p className="text-[16px] font-[500] text-[#383E49]">Error</p>
-                <p className="text-[14px] text-[#667085]">{outletReturnsError}</p>
+                <AlertCircle size={48} className="mx-auto text-error mb-4" />
+                <p className="text-[16px] font-[500] text-fg">Error</p>
+                <p className="text-[14px] text-fg-secondary">{outletReturnsError}</p>
               </div>
             ) : outletReturns.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E4E6EA]">
-                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">Return ID</th>
-                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">Outlet</th>
-                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">Date</th>
-                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">Items</th>
-                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">Initiator</th>
-                      <th className="text-center py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">Actions</th>
+                    <tr className="border-b border-line">
+                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">Return ID</th>
+                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">Outlet</th>
+                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">Date</th>
+                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">Items</th>
+                      <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">Initiator</th>
+                      <th className="text-center py-3 px-4 text-[12px] font-[600] text-fg uppercase">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E4E6EA]">
+                  <tbody className="divide-y divide-line">
                     {outletReturns.map((ret) => (
-                      <tr key={ret.id} className="hover:bg-[#F8F9FA]">
+                      <tr key={ret.id} className="hover:bg-subtle">
                         <td className="py-4 px-4">
-                          <p className="text-[14px] font-[600] text-[#0F50AA]">{ret.returnNoteId}</p>
+                          <p className="text-[14px] font-[600] text-brand-fg">{ret.returnNoteId}</p>
                         </td>
                         <td className="py-4 px-4">
                           <div className="flex items-center gap-2">
-                            <Building size={16} className="text-[#667085]" />
-                            <p className="text-[14px] font-[500] text-[#383E49]">{ret.outletName}</p>
+                            <Building size={16} className="text-fg-secondary" />
+                            <p className="text-[14px] font-[500] text-fg">{ret.outletName}</p>
                           </div>
                         </td>
                         <td className="py-4 px-4">
-                          <p className="text-[14px] text-[#667085]">{new Date(ret.date).toLocaleDateString()}</p>
+                          <p className="text-[14px] text-fg-secondary">{new Date(ret.date).toLocaleDateString()}</p>
                         </td>
                         <td className="py-4 px-4">
-                          <p className="text-[14px] font-[500] text-[#383E49]">{ret.totalItems} Items</p>
+                          <p className="text-[14px] font-[500] text-fg">{ret.totalItems} Items</p>
                         </td>
                         <td className="py-4 px-4">
-                          <p className="text-[14px] text-[#667085]">{ret.initiator}</p>
+                          <p className="text-[14px] text-fg-secondary">{ret.initiator}</p>
                         </td>
                         <td className="py-4 px-4 text-center">
                           <div className="flex items-center justify-center gap-2">
@@ -1575,7 +1574,7 @@ export default function StorekeeperReturnMaterials() {
                                 });
                                 setShowReturnDetailsModal(true);
                               }}
-                              className="p-2 text-[#0F50AA] hover:bg-[#EBF8FF] rounded-lg transition-colors"
+                              className="p-2 text-brand-fg hover:bg-hover rounded-lg transition-colors"
                               title="View Items"
                             >
                               <Eye size={16} />
@@ -1584,7 +1583,7 @@ export default function StorekeeperReturnMaterials() {
                               <button
                                 onClick={() => handleReceiveOutletReturn(ret.id)}
                                 disabled={approveLoadingId === ret.id}
-                                className="flex items-center gap-2 px-3 py-1.5 bg-[#199D26] text-white text-[12px] font-[500] rounded hover:bg-[#15803D] disabled:bg-[#94D3A2] transition-colors"
+                                className="flex items-center gap-2 px-3 py-1.5 bg-success-solid text-on-brand text-[12px] font-[500] rounded hover:bg-success-solid disabled:bg-success-solid transition-colors"
                               >
                                 {approveLoadingId === ret.id ? (
                                   <Clock size={14} className="animate-spin" />
@@ -1595,7 +1594,7 @@ export default function StorekeeperReturnMaterials() {
                               </button>
                             )}
                             {ret.status === 'Received' && (
-                              <span className="px-3 py-1 bg-[#DDFFE0] text-[#199D26] text-[12px] font-[600] rounded-full">
+                              <span className="px-3 py-1 bg-hover text-success text-[12px] font-[600] rounded-full">
                                 Received
                               </span>
                             )}
@@ -1607,10 +1606,10 @@ export default function StorekeeperReturnMaterials() {
                 </table>
               </div>
             ) : (
-              <div className="text-center py-12 border border-dashed border-[#E4E6EA] rounded-lg">
-                <Warehouse size={48} className="mx-auto text-[#667085] mb-4" />
-                <p className="text-[16px] font-[500] text-[#383E49]">No approved returns</p>
-                <p className="text-[14px] text-[#667085]">There are no approved outlet returns waiting to be received.</p>
+              <div className="text-center py-12 border border-dashed border-line rounded-lg">
+                <Warehouse size={48} className="mx-auto text-fg-secondary mb-4" />
+                <p className="text-[16px] font-[500] text-fg">No approved returns</p>
+                <p className="text-[14px] text-fg-secondary">There are no approved outlet returns waiting to be received.</p>
               </div>
             )}
           </div>
@@ -1620,15 +1619,15 @@ export default function StorekeeperReturnMaterials() {
 
       {/* Edit Return Note Modal */}
       {showEditModal && editingReturnNote && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+            <div className="flex items-center justify-between p-6 border-b border-line">
               <div>
-                <h2 className="text-[20px] font-[600] text-[#383E49]">
+                <h2 className="text-[20px] font-[600] text-fg">
                   Edit Return Note
                 </h2>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   Return Note ID: {editingReturnNote.returnNoteId}
                 </p>
               </div>
@@ -1637,9 +1636,9 @@ export default function StorekeeperReturnMaterials() {
                   setShowEditModal(false);
                   setEditingReturnNote(null);
                 }}
-                className="p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >
-                <X size={20} className="text-[#667085]" />
+                <X size={20} className="text-fg-secondary" />
               </button>
             </div>
 
@@ -1647,8 +1646,8 @@ export default function StorekeeperReturnMaterials() {
               {/* Return Note Header */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
-                    Return Date <span className="text-[#EF4444]">*</span>
+                  <label className="block text-[14px] font-[500] text-fg mb-2">
+                    Return Date <span className="text-error">*</span>
                   </label>
                   <input
                     type="date"
@@ -1659,12 +1658,12 @@ export default function StorekeeperReturnMaterials() {
                         returnDate: e.target.value,
                       }))
                     }
-                    className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                    className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
-                    Supplier <span className="text-[#EF4444]">*</span>
+                  <label className="block text-[14px] font-[500] text-fg mb-2">
+                    Supplier <span className="text-error">*</span>
                   </label>
 
                   <select
@@ -1688,7 +1687,7 @@ export default function StorekeeperReturnMaterials() {
                         setAvailableStock([]);
                       }
                     }}
-                    className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                    className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                     disabled={loadingSuppliers}
                   >
                     <option value="">Select Supplier</option>
@@ -1706,7 +1705,7 @@ export default function StorekeeperReturnMaterials() {
                   </select>
 
                   {supplierError && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-error text-sm mt-1">
                       Error: {supplierError}
                     </p>
                   )}
@@ -1715,13 +1714,13 @@ export default function StorekeeperReturnMaterials() {
 
               {/* Add Item Button */}
               <div className="flex justify-between items-center mb-4">
-                <h4 className="text-[16px] font-[600] text-[#383E49]">
+                <h4 className="text-[16px] font-[600] text-fg">
                   Return Items
                 </h4>
                 <button
                   onClick={() => setShowAddItemModal(true)}
                   disabled={!editingReturnNote.supplier || loadingRawMaterials}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#0F50AA] text-white text-[14px] font-[500] rounded-md hover:bg-[#2563EB] disabled:bg-[#667085] disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-brand text-on-brand text-[14px] font-[500] rounded-md hover:bg-brand-hover disabled:bg-neutral-solid disabled:cursor-not-allowed transition-colors"
                 >
                   <Plus size={16} />
                   {loadingRawMaterials
@@ -1735,23 +1734,23 @@ export default function StorekeeperReturnMaterials() {
                 <div className="overflow-x-auto mb-6">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-[#E4E6EA]">
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <tr className="border-b border-line">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Material
                         </th>
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Batch Info
                         </th>
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Available
                         </th>
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Return Qty
                         </th>
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Reason
                         </th>
-                        <th className="text-center py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-center py-3 text-[12px] font-[600] text-fg uppercase">
                           Action
                         </th>
                       </tr>
@@ -1760,42 +1759,42 @@ export default function StorekeeperReturnMaterials() {
                       {editingReturnNote.items.map((item, index) => (
                         <tr
                           key={index}
-                          className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                          className="border-b border-line hover:bg-subtle"
                         >
                           <td className="py-4">
                             <div>
-                              <p className="text-[14px] font-[600] text-[#383E49]">
+                              <p className="text-[14px] font-[600] text-fg">
                                 {item.name}
                               </p>
-                              <p className="text-[12px] text-[#667085]">
+                              <p className="text-[12px] text-fg-secondary">
                                 Brand: {item.brand}
                               </p>
                             </div>
                           </td>
                           <td className="py-4">
                             <div>
-                              <p className="text-[14px] font-[500] text-[#383E49]">
+                              <p className="text-[14px] font-[500] text-fg">
                                 {item.batchNo}
                               </p>
                               <p
                                 className={`text-[12px] ${
                                   isExpired(item.expiryDate)
-                                    ? "text-[#EF4444]"
-                                    : "text-[#667085]"
+                                    ? "text-error"
+                                    : "text-fg-secondary"
                                 }`}
                               >
                                 Exp:{" "}
                                 {new Date(item.expiryDate).toLocaleDateString()}
                               </p>
                               {isExpired(item.expiryDate) && (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-[#FEE2E2] text-[#EF4444] mt-1">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-error mt-1">
                                   EXPIRED
                                 </span>
                               )}
                             </div>
                           </td>
                           <td className="py-4">
-                            <p className="text-[14px] font-[500] text-[#383E49]">
+                            <p className="text-[14px] font-[500] text-fg">
                               {item.availableStock} {item.unit}
                             </p>
                           </td>
@@ -1813,7 +1812,7 @@ export default function StorekeeperReturnMaterials() {
                                   e.target.value === "" ? "" : parseFloat(e.target.value)
                                 )
                               }
-                              className="w-20 px-2 py-1 border border-[#E4E6EA] rounded text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                              className="w-20 px-2 py-1 border border-line rounded text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                             />
                           </td>
                           <td className="py-4">
@@ -1826,7 +1825,7 @@ export default function StorekeeperReturnMaterials() {
                                   e.target.value
                                 )
                               }
-                              className="w-32 px-2 py-1 border border-[#E4E6EA] rounded text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white"
+                              className="w-32 px-2 py-1 border border-line rounded text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface"
                             >
                               {returnReasons.map((reason) => (
                                 <option key={reason} value={reason}>
@@ -1838,7 +1837,7 @@ export default function StorekeeperReturnMaterials() {
                           <td className="py-4 text-center">
                             <button
                               onClick={() => handleRemoveEditingItem(index)}
-                              className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors"
+                              className="p-2 text-error hover:bg-hover rounded-lg transition-colors"
                               title="Remove Item"
                             >
                               <Trash2 size={16} />
@@ -1850,12 +1849,12 @@ export default function StorekeeperReturnMaterials() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-8 border border-dashed border-[#E4E6EA] rounded-lg mb-6">
-                  <Package size={48} className="mx-auto text-[#667085] mb-4" />
-                  <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <div className="text-center py-8 border border-dashed border-line rounded-lg mb-6">
+                  <Package size={48} className="mx-auto text-fg-secondary mb-4" />
+                  <p className="text-[16px] font-[500] text-fg mb-2">
                     No items added yet
                   </p>
-                  <p className="text-[14px] text-[#667085]">
+                  <p className="text-[14px] text-fg-secondary">
                     Click "Add Raw Material" to start creating your return note
                   </p>
                 </div>
@@ -1863,7 +1862,7 @@ export default function StorekeeperReturnMaterials() {
             </div>
 
             {/* Action buttons at bottom */}
-            <div className="p-6 border-t border-[#E4E6EA]">
+            <div className="p-6 border-t border-line">
               <div className="flex gap-3">
                 <button
                   onClick={handleSaveEditedReturnNote}
@@ -1871,7 +1870,7 @@ export default function StorekeeperReturnMaterials() {
                     !editingReturnNote.supplier ||
                     editingReturnNote.items.length === 0
                   }
-                  className="flex items-center gap-2 px-6 py-3 bg-[#0F50AA] text-white text-[14px] font-[500] rounded-md hover:bg-[#2563EB] disabled:bg-[#667085] disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-6 py-3 bg-brand text-on-brand text-[14px] font-[500] rounded-md hover:bg-brand-hover disabled:bg-neutral-solid disabled:cursor-not-allowed"
                 >
                   <Save size={16} />
                   Save Changes
@@ -1882,7 +1881,7 @@ export default function StorekeeperReturnMaterials() {
                     !editingReturnNote.supplier ||
                     editingReturnNote.items.length === 0
                   }
-                  className="flex items-center gap-2 px-6 py-3 bg-[#199D26] text-white text-[14px] font-[500] rounded-md hover:bg-[#15803D] disabled:bg-[#94D3A2] disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-6 py-3 bg-success-solid text-on-brand text-[14px] font-[500] rounded-md hover:bg-success-solid disabled:bg-success-solid disabled:cursor-not-allowed"
                 >
                   <Send size={16} />
                   Update on Server (PUT)
@@ -1892,7 +1891,7 @@ export default function StorekeeperReturnMaterials() {
                     setShowEditModal(false);
                     setEditingReturnNote(null);
                   }}
-                  className="px-6 py-3 text-[#667085] bg-white border border-[#E4E6EA] text-[14px] font-[500] rounded-md hover:bg-[#F8F9FA]"
+                  className="px-6 py-3 text-fg-secondary bg-surface border border-line text-[14px] font-[500] rounded-md hover:bg-subtle"
                 >
                   Cancel
                 </button>
@@ -1904,18 +1903,18 @@ export default function StorekeeperReturnMaterials() {
 
       {/* Add Item Modal */}
       {showAddItemModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-x-hidden overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-x-hidden overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
-              <h2 className="text-[20px] font-[600] text-[#383E49]">
+            <div className="flex items-center justify-between p-6 border-b border-line">
+              <h2 className="text-[20px] font-[600] text-fg">
                 Add Raw Materials to Return
               </h2>
               <button
                 onClick={() => setShowAddItemModal(false)}
-                className="p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >
-                <X size={20} className="text-[#667085]" />
+                <X size={20} className="text-fg-secondary" />
               </button>
             </div>
 
@@ -1937,16 +1936,16 @@ export default function StorekeeperReturnMaterials() {
 
       {/* Return Details Modal */}
       {showReturnDetailsModal && selectedReturnNote && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-6 border-b border-[#E4E6EA] gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-6 border-b border-line gap-4">
               {/* Title & Info */}
               <div className="text-center sm:text-left">
-                <h2 className="text-[20px] font-[600] text-[#383E49]">
+                <h2 className="text-[20px] font-[600] text-fg">
                   Return Note - {selectedReturnNote.returnNoteId}
                 </h2>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   {getSupplierNameById(selectedReturnNote.supplierId)} •{" "}
                   {new Date(selectedReturnNote.date).toLocaleDateString()}
                 </p>
@@ -1955,8 +1954,8 @@ export default function StorekeeperReturnMaterials() {
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2">
                 {/* <button
-                  onClick={() => alert("Downloading return note...")}
-                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-[#0F50AA] bg-[#EBF8FF] hover:bg-[#DBEAFE] rounded-lg transition-colors"
+                  onClick={() => toast("Downloading return note...")}
+                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-brand-fg bg-hover hover:bg-line rounded-lg transition-colors"
                 >
                   <Download size={16} />
                   Download
@@ -1964,7 +1963,7 @@ export default function StorekeeperReturnMaterials() {
 
                 <button
                   onClick={handlePrint}
-                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-[#0F50AA] bg-[#EBF8FF] hover:bg-[#DBEAFE] rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-brand-fg bg-hover hover:bg-line rounded-lg transition-colors"
                 >
                   <Printer size={16} />
                   Print
@@ -1972,9 +1971,9 @@ export default function StorekeeperReturnMaterials() {
 
                 <button
                   onClick={() => setShowReturnDetailsModal(false)}
-                  className="p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                  className="p-2 hover:bg-subtle rounded-lg transition-colors"
                 >
-                  <X size={20} className="text-[#667085]" />
+                  <X size={20} className="text-fg-secondary" />
                 </button>
               </div>
             </div>
@@ -1982,9 +1981,9 @@ export default function StorekeeperReturnMaterials() {
             {/* Modal Body */}
             <div className="p-6">
               {/* Return Note Summary */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-[#F8F9FA] rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-subtle rounded-lg">
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Status
                   </p>
                   <span
@@ -2005,26 +2004,26 @@ export default function StorekeeperReturnMaterials() {
                   </span>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Created By
                   </p>
-                  <p className="text-[14px] font-[500] text-[#383E49]">
+                  <p className="text-[14px] font-[500] text-fg">
                     {selectedReturnNote.createdBy}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Total Items
                   </p>
-                  <p className="text-[14px] font-[500] text-[#383E49]">
+                  <p className="text-[14px] font-[500] text-fg">
                     {selectedReturnNote.totalItems}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Total Cost
                   </p>
-                  <p className="text-[14px] font-[500] text-[#383E49]">
+                  <p className="text-[14px] font-[500] text-fg">
                     Rs. {selectedReturnNote.totalCost?.toFixed(2) || "0.00"}
                   </p>
                 </div>
@@ -2033,17 +2032,17 @@ export default function StorekeeperReturnMaterials() {
               {/* Rejection Reason (if applicable) */}
               {selectedReturnNote.status === "Rejected" &&
                 selectedReturnNote.rejectionReason && (
-                  <div className="mb-6 p-4 bg-[#FEE2E2] border border-[#FECACA] rounded-lg">
+                  <div className="mb-6 p-4 bg-hover border border-error/30 rounded-lg">
                     <div className="flex items-start gap-3">
                       <AlertCircle
                         size={20}
-                        className="text-[#EF4444] mt-0.5"
+                        className="text-error mt-0.5"
                       />
                       <div>
-                        <p className="text-[14px] font-[600] text-[#EF4444] mb-1">
+                        <p className="text-[14px] font-[600] text-error mb-1">
                           Return Rejected
                         </p>
-                        <p className="text-[14px] text-[#B91C1C]">
+                        <p className="text-[14px] text-error">
                           {selectedReturnNote.rejectionReason}
                         </p>
                       </div>
@@ -2052,86 +2051,86 @@ export default function StorekeeperReturnMaterials() {
                 )}
 
               {/* Return Items Table */}
-              <div className="border border-[#E4E6EA] rounded-lg">
-                <div className="bg-[#F8F9FA] px-4 py-3 border-b border-[#E4E6EA]">
-                  <h4 className="text-[16px] font-[600] text-[#383E49]">
+              <div className="border border-line rounded-lg">
+                <div className="bg-subtle px-4 py-3 border-b border-line">
+                  <h4 className="text-[16px] font-[600] text-fg">
                     Returned Items
                   </h4>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-[#F8F9FA]">
+                    <thead className="bg-subtle">
                       <tr>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Material
                         </th>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Brand
                         </th>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Batch/Lot
                         </th>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Expiry Date
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Available
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Return Qty
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Unit Price
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Total Price
                         </th>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Reason
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E4E6EA]">
+                    <tbody className="divide-y divide-line">
                       {selectedReturnNote.items.map((item, index) => {
                         const displayName =
                           item.name || `RM-${item.rawMaterialId}`;
                         return (
-                          <tr key={index} className="hover:bg-[#F8F9FA]">
-                            <td className="py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                          <tr key={index} className="hover:bg-subtle">
+                            <td className="py-3 px-4 text-[14px] font-[500] text-fg">
                               {displayName}
-                              <div className="text-[12px] text-[#667085]">
+                              <div className="text-[12px] text-fg-secondary">
                                 ID: {item.rawMaterialId}
                               </div>
                             </td>
-                            <td className="py-3 px-4 text-[14px] text-[#383E49]">
+                            <td className="py-3 px-4 text-[14px] text-fg">
                               {item.brand || "-"}
                             </td>
-                            <td className="py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                            <td className="py-3 px-4 text-[14px] font-[500] text-fg">
                               {item.batchNo}
                             </td>
-                            <td className="py-3 px-4 text-[14px] text-[#383E49]">
+                            <td className="py-3 px-4 text-[14px] text-fg">
                               {item.expiryDate || "-"}
                             </td>
-                            <td className="py-3 px-4 text-right text-[14px] text-[#383E49]">
+                            <td className="py-3 px-4 text-right text-[14px] text-fg">
                               {item.availableStock != null
                                 ? `${item.availableStock} ${item.unit}`
                                 : "-"}
                             </td>
-                            <td className="py-3 px-4 text-right text-[14px] font-[600] text-[#EF4444]">
+                            <td className="py-3 px-4 text-right text-[14px] font-[600] text-error">
                               {item.returnQuantity} {item.unit}
                             </td>
-                            <td className="py-3 px-4 text-right text-[14px] text-[#383E49]">
+                            <td className="py-3 px-4 text-right text-[14px] text-fg">
                               Rs. {item.unitPrice?.toFixed(2)}
                             </td>
-                            <td className="py-3 px-4 text-right text-[14px] font-[600] text-[#383E49]">
+                            <td className="py-3 px-4 text-right text-[14px] font-[600] text-fg">
                               Rs. {item.totalPrice?.toFixed(2)}
                             </td>
-                            <td className="py-3 px-4 text-[14px] text-[#383E49]">
+                            <td className="py-3 px-4 text-[14px] text-fg">
                               <div className="flex items-center gap-2">
                                 <span className="text-[12px]">
                                   {item.reason}
                                 </span>
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-[#F0F1F3] text-[#667085]">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-app text-fg-secondary">
                                   {item.status}
                                 </span>
                               </div>
@@ -2146,10 +2145,10 @@ export default function StorekeeperReturnMaterials() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex justify-end items-center p-6 border-t border-[#E4E6EA]">
+            <div className="flex justify-end items-center p-6 border-t border-line">
               <button
                 onClick={() => setShowReturnDetailsModal(false)}
-                className="px-4 py-2 text-[14px] font-[500] text-[#667085] bg-white border border-[#E4E6EA] hover:bg-[#F8F9FA] rounded-md transition-colors"
+                className="px-4 py-2 text-[14px] font-[500] text-fg-secondary bg-surface border border-line hover:bg-subtle rounded-md transition-colors"
               >
                 Close
               </button>
@@ -2161,7 +2160,7 @@ export default function StorekeeperReturnMaterials() {
       {/* Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -2220,7 +2219,7 @@ function AddItemModalContent({
       <div className="mb-4">
         <div className="relative">
           <Search
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
             size={16}
           />
           <input
@@ -2228,15 +2227,15 @@ function AddItemModalContent({
             placeholder="Search by material name, code, or batch number..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+            className="w-full pl-10 pr-4 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
           />
         </div>
       </div>
 
       {/* Supplier Filter Info */}
       {selectedSupplier && selectedSupplierName && (
-        <div className="mb-4 p-3 bg-[#EBF8FF] border border-[#BFDBFE] rounded-lg">
-          <p className="text-[14px] text-[#1D4ED8]">
+        <div className="mb-4 p-3 bg-hover border border-brand/20 rounded-lg">
+          <p className="text-[14px] text-brand-fg">
             <Building size={16} className="inline mr-2" />
             Showing items for supplier:{" "}
             <span className="font-[600]">{selectedSupplierName}</span>
@@ -2246,8 +2245,8 @@ function AddItemModalContent({
 
       {/* Error Message */}
       {error && (
-        <div className="mb-4 p-3 bg-[#FEE2E2] border border-[#FECACA] rounded-lg">
-          <p className="text-[14px] text-[#EF4444]">
+        <div className="mb-4 p-3 bg-hover border border-error/30 rounded-lg">
+          <p className="text-[14px] text-error">
             <AlertCircle size={16} className="inline mr-2" />
             {error}
           </p>
@@ -2256,8 +2255,8 @@ function AddItemModalContent({
 
       {/* Loading State */}
       {loading && (
-        <div className="mb-4 p-3 bg-[#F0F9FF] border border-[#BFDBFE] rounded-lg">
-          <p className="text-[14px] text-[#1D4ED8]">
+        <div className="mb-4 p-3 bg-subtle border border-brand/20 rounded-lg">
+          <p className="text-[14px] text-brand-fg">
             <Clock size={16} className="inline mr-2" />
             Loading raw materials...
           </p>
@@ -2266,28 +2265,28 @@ function AddItemModalContent({
 
       {/* Selected Items Counter */}
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-[14px] text-[#383E49]">
+        <p className="text-[14px] text-fg">
           Available Items ({filteredStock.length})
         </p>
-        <p className="text-[14px] font-[500] text-[#0F50AA]">
+        <p className="text-[14px] font-[500] text-brand-fg">
           Selected: {selectedItems.length}
         </p>
       </div>
 
       {/* Items List */}
-      <div className="border border-[#E4E6EA] rounded-lg">
+      <div className="border border-line rounded-lg">
         {loading ? (
           <Loader variant="section" text="Loading raw materials..." />
         ) : error ? (
           <div className="text-center py-12">
-            <AlertCircle size={48} className="mx-auto text-[#EF4444] mb-4" />
-            <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+            <AlertCircle size={48} className="mx-auto text-error mb-4" />
+            <p className="text-[16px] font-[500] text-fg mb-2">
               Failed to load materials
             </p>
-            <p className="text-[14px] text-[#667085]">{error}</p>
+            <p className="text-[14px] text-fg-secondary">{error}</p>
           </div>
         ) : filteredStock.length > 0 ? (
-          <div className="divide-y divide-[#E4E6EA]">
+          <div className="divide-y divide-line">
             {filteredStock.map((item) => {
               const isSelected = selectedItems.some(
                 (selected) =>
@@ -2299,7 +2298,7 @@ function AddItemModalContent({
                 <div
                   key={`${item.id}-${item.batchNo}`}
                   className={`p-4 cursor-pointer transition-colors ${
-                    isSelected ? "bg-[#EBF8FF]" : "hover:bg-[#F8F9FA]"
+                    isSelected ? "bg-hover" : "hover:bg-subtle"
                   }`}
                   onClick={() => handleItemSelect(item)}
                 >
@@ -2310,50 +2309,50 @@ function AddItemModalContent({
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleItemSelect(item)}
-                          className="w-4 h-4 text-[#0F50AA] bg-gray-100 border-gray-300 rounded focus:ring-[#0F50AA] focus:ring-2"
+                          className="w-4 h-4 text-brand-fg bg-hover border-line-strong rounded focus:ring-brand-fg focus:ring-2"
                         />
                         <div>
-                          <p className="text-[14px] font-[600] text-[#383E49]">
+                          <p className="text-[14px] font-[600] text-fg">
                             {item.name}
                           </p>
-                          <p className="text-[12px] text-[#667085]">
+                          <p className="text-[12px] text-fg-secondary">
                             {item.code} • Category: {item.category}
                           </p>
                         </div>
                       </div>
                       <div className="ml-7 grid grid-cols-2 md:grid-cols-4 gap-2 text-[12px]">
                         <div>
-                          <span className="text-[#667085]">Batch: </span>
-                          <span className="font-[500] text-[#383E49]">
+                          <span className="text-fg-secondary">Batch: </span>
+                          <span className="font-[500] text-fg">
                             {item.batchNo}
                           </span>
                         </div>
                         <div>
-                          <span className="text-[#667085]">Stock: </span>
-                          <span className="font-[500] text-[#383E49]">
+                          <span className="text-fg-secondary">Stock: </span>
+                          <span className="font-[500] text-fg">
                             {item.availableStock} {item.unit}
                           </span>
                         </div>
                         <div>
-                          <span className="text-[#667085]">Expiry: </span>
+                          <span className="text-fg-secondary">Expiry: </span>
                           <span
                             className={`font-[500] ${
-                              expired ? "text-[#EF4444]" : "text-[#383E49]"
+                              expired ? "text-error" : "text-fg"
                             }`}
                           >
                             {item.expiryDate ? new Date(item.expiryDate).toLocaleDateString() : "N/A"}
                           </span>
                         </div>
                         <div>
-                          <span className="text-[#667085]">Unit Cost: </span>
-                          <span className="font-[500] text-[#383E49]">
+                          <span className="text-fg-secondary">Unit Cost: </span>
+                          <span className="font-[500] text-fg">
                             Rs. {item.unitCost}
                           </span>
                         </div>
                       </div>
                       {expired && (
                         <div className="ml-7 mt-2">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-[#FEE2E2] text-[#EF4444]">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-error">
                             <AlertTriangle size={10} className="mr-1" />
                             EXPIRED
                           </span>
@@ -2367,11 +2366,11 @@ function AddItemModalContent({
           </div>
         ) : (
           <div className="text-center py-12">
-            <Package size={48} className="mx-auto text-[#667085] mb-4" />
-            <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+            <Package size={48} className="mx-auto text-fg-secondary mb-4" />
+            <p className="text-[16px] font-[500] text-fg mb-2">
               No items available
             </p>
-            <p className="text-[14px] text-[#667085]">
+            <p className="text-[14px] text-fg-secondary">
               {selectedSupplier
                 ? `No items found for ${selectedSupplierName}${
                     searchTerm ? " matching your search" : ""
@@ -2386,14 +2385,14 @@ function AddItemModalContent({
       <div className="flex justify-end items-center gap-3 mt-6">
         <button
           onClick={onClose}
-          className="px-4 py-2 text-[14px] font-[500] text-[#667085] bg-white border border-[#E4E6EA] hover:bg-[#F8F9FA] rounded-md transition-colors"
+          className="px-4 py-2 text-[14px] font-[500] text-fg-secondary bg-surface border border-line hover:bg-subtle rounded-md transition-colors"
         >
           Cancel
         </button>
         <button
           onClick={() => onAddItems(selectedItems)}
           disabled={selectedItems.length === 0}
-          className="px-6 py-2 bg-[#0F50AA] text-white text-[14px] font-[500] rounded-md hover:bg-[#2563EB] disabled:bg-[#667085] disabled:cursor-not-allowed transition-colors"
+          className="px-6 py-2 bg-brand text-on-brand text-[14px] font-[500] rounded-md hover:bg-brand-hover disabled:bg-neutral-solid disabled:cursor-not-allowed transition-colors"
         >
           Add {selectedItems.length} Item{selectedItems.length !== 1 ? "s" : ""}
         </button>

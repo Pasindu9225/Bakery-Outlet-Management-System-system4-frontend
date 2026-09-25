@@ -40,19 +40,24 @@ const REASON_OPTIONS = [
     { code: "OTHER", label: "Other" },
 ];
 
+// Design-token colours (CSS variables), so charts and chips follow the light/dark theme.
+const BRAND = "rgb(var(--brand-fg))";
+const NEUTRAL = "rgb(var(--fg-secondary))";
 const REASON_COLORS = {
-    EXPIRED: "#0F50AA",
-    DAMAGED: "#F4A100",
-    RETURNED: "#199D26",
-    OTHER: "#667085",
+    EXPIRED: BRAND,
+    DAMAGED: "rgb(var(--warning))",
+    RETURNED: "rgb(var(--success))",
+    OTHER: NEUTRAL,
     // Legacy keys (kept for any human-cased fallbacks)
-    Expired: "#0F50AA",
-    Damaged: "#F4A100",
-    Returned: "#199D26",
-    Other: "#667085",
+    Expired: BRAND,
+    Damaged: "rgb(var(--warning))",
+    Returned: "rgb(var(--success))",
+    Other: NEUTRAL,
 };
+// Soft chip background: the same colour at 10%
+const tint = (c) => c.replace(/\)$/, " / 0.1)");
 
-const OUTLET_COLORS = ["#0F50AA", "#1E40AF", "#3B82F6", "#60A5FA", "#93C5FD"];
+const OUTLET_COLORS = [BRAND, "rgb(var(--brand-fg) / 0.8)", "rgb(var(--brand-fg) / 0.6)", "rgb(var(--brand-fg) / 0.45)", "rgb(var(--brand-fg) / 0.3)"];
 
 const reasonLabel = (code) => {
     if (!code) return "Other";
@@ -72,37 +77,37 @@ const formatMoney = (n) => {
 
 function DrillDownModal({ title, rows, onClose }) {
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
-                <div className="p-5 border-b border-[#E4E6EA] flex items-center justify-between">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
+            <div className="bg-elevated rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+                <div className="p-5 border-b border-line flex items-center justify-between">
                     <div>
-                        <h3 className="text-[17px] font-[600] text-[#383E49]">{title}</h3>
-                        <p className="text-[12px] text-[#667085] mt-0.5">{rows.length} record{rows.length !== 1 ? "s" : ""} found</p>
+                        <h3 className="text-[17px] font-[600] text-fg">{title}</h3>
+                        <p className="text-[12px] text-fg-secondary mt-0.5">{rows.length} record{rows.length !== 1 ? "s" : ""} found</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-[#F0F1F3] rounded-lg transition-colors">
-                        <X size={18} className="text-[#667085]" />
+                    <button onClick={onClose} className="p-2 hover:bg-app rounded-lg transition-colors">
+                        <X size={18} className="text-fg-secondary" />
                     </button>
                 </div>
                 <div className="overflow-y-auto flex-1">
                     <table className="w-full">
-                        <thead className="sticky top-0 bg-[#F8F9FA]">
-                            <tr className="border-b border-[#E4E6EA]">
+                        <thead className="sticky top-0 bg-subtle">
+                            <tr className="border-b border-line">
                                 {["Date", "Outlet", "Product", "Qty", "Value", "Reason"].map((h) => (
-                                    <th key={h} className="text-left py-3 px-4 text-[12px] font-[500] text-[#667085]">{h}</th>
+                                    <th key={h} className="text-left py-3 px-4 text-[12px] font-[500] text-fg-secondary">{h}</th>
                                 ))}
                             </tr>
                         </thead>
                         <tbody>
                             {rows.map((r) => (
-                                <tr key={r.id} className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]">
-                                    <td className="py-3 px-4 text-[12px] text-[#383E49]">{r.date || "—"}</td>
-                                    <td className="py-3 px-4 text-[12px] text-[#383E49]">{r.outlet || "—"}</td>
-                                    <td className="py-3 px-4 text-[12px] font-[500] text-[#383E49]">{r.product || "—"}</td>
-                                    <td className="py-3 px-4 text-[12px] text-[#383E49]">{r.qty} {r.unit}</td>
-                                    <td className="py-3 px-4 text-[12px] text-[#383E49]">{formatMoney(r.value)}</td>
+                                <tr key={r.id} className="border-b border-line hover:bg-subtle">
+                                    <td className="py-3 px-4 text-[12px] text-fg">{r.date || "—"}</td>
+                                    <td className="py-3 px-4 text-[12px] text-fg">{r.outlet || "—"}</td>
+                                    <td className="py-3 px-4 text-[12px] font-[500] text-fg">{r.product || "—"}</td>
+                                    <td className="py-3 px-4 text-[12px] text-fg">{r.qty} {r.unit}</td>
+                                    <td className="py-3 px-4 text-[12px] text-fg">{formatMoney(r.value)}</td>
                                     <td className="py-3 px-4">
                                         <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full"
-                                            style={{ color: REASON_COLORS[r.reason] || "#667085", backgroundColor: (REASON_COLORS[r.reason] || "#667085") + "18" }}>
+                                            style={{ color: REASON_COLORS[r.reason] || NEUTRAL, backgroundColor: tint(REASON_COLORS[r.reason] || NEUTRAL) }}>
                                             {reasonLabel(r.reason)}
                                         </span>
                                     </td>
@@ -111,8 +116,8 @@ function DrillDownModal({ title, rows, onClose }) {
                         </tbody>
                     </table>
                 </div>
-                <div className="p-4 border-t border-[#E4E6EA] flex justify-end">
-                    <button onClick={onClose} className="px-4 py-2 border border-[#E4E6EA] text-[#667085] text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA]">
+                <div className="p-4 border-t border-line flex justify-end">
+                    <button onClick={onClose} className="px-4 py-2 border border-line text-fg-secondary text-[13px] font-[500] rounded-lg hover:bg-subtle">
                         Close
                     </button>
                 </div>
@@ -122,16 +127,16 @@ function DrillDownModal({ title, rows, onClose }) {
 }
 
 
-function SimpleBarChart({ data, color = "#0F50AA", onBarClick }) {
+function SimpleBarChart({ data, color = BRAND, onBarClick }) {
     const max = Math.max(...data.map((d) => d.value), 1);
     return (
         <div className="flex items-end gap-2 h-36 w-full">
             {data.map((d, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1 group cursor-pointer" onClick={() => onBarClick && onBarClick(d)}>
-                    <span className="text-[10px] text-[#667085] opacity-0 group-hover:opacity-100 transition-opacity font-[500]">{d.value}</span>
+                    <span className="text-[10px] text-fg-secondary opacity-0 group-hover:opacity-100 transition-opacity font-[500]">{d.value}</span>
                     <div className="w-full rounded-t-md transition-all duration-300 hover:opacity-80"
                         style={{ height: `${(d.value / max) * 100}%`, backgroundColor: color, minHeight: 4 }} />
-                    <span className="text-[9px] text-[#667085] truncate w-full text-center">{d.label}</span>
+                    <span className="text-[9px] text-fg-secondary truncate w-full text-center">{d.label}</span>
                 </div>
             ))}
         </div>
@@ -142,7 +147,7 @@ function SimpleBarChart({ data, color = "#0F50AA", onBarClick }) {
 function SimpleLineChart({ data }) {
     if (!data || data.length === 0) {
         return (
-            <div className="h-32 flex items-center justify-center text-[#667085] text-[13px]">No data</div>
+            <div className="h-32 flex items-center justify-center text-fg-secondary text-[13px]">No data</div>
         );
     }
     const max = Math.max(...data.map((d) => d.value), 1);
@@ -163,19 +168,19 @@ function SimpleLineChart({ data }) {
             <svg viewBox={`0 0 ${W} ${H + 10}`} className="w-full" preserveAspectRatio="none" style={{ height: 140 }}>
                 <defs>
                     <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#0F50AA" stopOpacity="0.18" />
-                        <stop offset="100%" stopColor="#0F50AA" stopOpacity="0" />
+                        <stop offset="0%" style={{ stopColor: BRAND }} stopOpacity="0.18" />
+                        <stop offset="100%" style={{ stopColor: BRAND }} stopOpacity="0" />
                     </linearGradient>
                 </defs>
                 <path d={areaD} fill="url(#lineGrad)" />
-                <path d={pathD} fill="none" stroke="#0F50AA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d={pathD} fill="none" className="stroke-brand-fg" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 {pts.map((p, i) => (
-                    <circle key={i} cx={p.x} cy={p.y} r="1.8" fill="#0F50AA" />
+                    <circle key={i} cx={p.x} cy={p.y} r="1.8" className="fill-brand-fg" />
                 ))}
             </svg>
             <div className="flex justify-between mt-1">
                 {data.map((d, i) => (
-                    <span key={i} className="text-[9px] text-[#667085]" style={{ width: `${100 / data.length}%`, textAlign: "center" }}>{d.label}</span>
+                    <span key={i} className="text-[9px] text-fg-secondary" style={{ width: `${100 / data.length}%`, textAlign: "center" }}>{d.label}</span>
                 ))}
             </div>
         </div>
@@ -208,19 +213,19 @@ function SimplePieChart({ data, onSliceClick }) {
         <div className="flex items-center gap-4">
             <svg viewBox="0 0 100 100" className="w-32 h-32 flex-shrink-0">
                 {slices.map((sl, i) => (
-                    <path key={i} d={describeSlice(sl.start, sl.end)} fill={sl.color}
+                    <path key={i} d={describeSlice(sl.start, sl.end)} style={{ fill: sl.color }}
                         className="cursor-pointer hover:opacity-80 transition-opacity"
                         onClick={() => onSliceClick && onSliceClick(sl)} />
                 ))}
-                <circle cx="50" cy="50" r="22" fill="white" />
-                <text x="50" y="54" textAnchor="middle" className="text-[8px]" fontSize="8" fill="#383E49" fontWeight="600">{total}</text>
+                <circle cx="50" cy="50" r="22" className="fill-surface" />
+                <text x="50" y="54" textAnchor="middle" className="text-[8px] fill-fg" fontSize="8" fontWeight="600">{total}</text>
             </svg>
             <div className="flex-1 space-y-1.5">
                 {slices.map((sl, i) => (
                     <div key={i} className="flex items-center gap-2 cursor-pointer hover:opacity-80" onClick={() => onSliceClick && onSliceClick(sl)}>
                         <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: sl.color }} />
-                        <span className="text-[11px] text-[#667085] flex-1 truncate">{sl.label}</span>
-                        <span className="text-[11px] font-[600] text-[#383E49]">{Math.round((sl.value / total) * 100)}%</span>
+                        <span className="text-[11px] text-fg-secondary flex-1 truncate">{sl.label}</span>
+                        <span className="text-[11px] font-[600] text-fg">{Math.round((sl.value / total) * 100)}%</span>
                     </div>
                 ))}
             </div>
@@ -456,8 +461,8 @@ export default function MISWastageDashboard() {
     };
 
     const SortIcon = ({ col }) => {
-        if (sortCol !== col) return <ArrowUpDown size={12} className="text-[#C8CDD5]" />;
-        return sortDir === "asc" ? <ArrowUp size={12} className="text-[#0F50AA]" /> : <ArrowDown size={12} className="text-[#0F50AA]" />;
+        if (sortCol !== col) return <ArrowUpDown size={12} className="text-fg-muted" />;
+        return sortDir === "asc" ? <ArrowUp size={12} className="text-brand-fg" /> : <ArrowDown size={12} className="text-brand-fg" />;
     };
 
     // ── Derived chart series ──
@@ -477,7 +482,7 @@ export default function MISWastageDashboard() {
         label: reasonLabel(g.label),
         rawLabel: g.label,
         value: g.recordCount || g.qty || 0,
-        color: REASON_COLORS[g.label] || "#667085",
+        color: REASON_COLORS[g.label] || NEUTRAL,
     })), [reasonBreakdown]);
 
     // Summary card values
@@ -496,19 +501,19 @@ export default function MISWastageDashboard() {
     const Dropdown = ({ open, setOpen, value, options, onChange, icon: Icon, optionKey = "label", optionValue = (o) => o }) => (
         <div className="relative">
             <button onClick={() => setOpen(!open)}
-                className="flex items-center gap-2 px-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] bg-white hover:bg-[#F8F9FA] transition-colors min-w-[160px] w-full">
-                {Icon && <Icon size={14} className="text-[#667085]" />}
+                className="flex items-center gap-2 px-3 py-2.5 border border-line rounded-lg text-[13px] text-fg bg-surface hover:bg-subtle transition-colors min-w-[160px] w-full">
+                {Icon && <Icon size={14} className="text-fg-secondary" />}
                 <span className="flex-1 text-left truncate">{value?.[optionKey] ?? value}</span>
-                <ChevronDown size={13} className="text-[#667085]" />
+                <ChevronDown size={13} className="text-fg-secondary" />
             </button>
             {open && (
-                <div className="absolute top-full mt-1 left-0 bg-white border border-[#E4E6EA] rounded-lg shadow-lg z-50 min-w-full max-h-60 overflow-y-auto">
+                <div className="absolute top-full mt-1 left-0 bg-elevated border border-line rounded-lg shadow-lg z-50 min-w-full max-h-60 overflow-y-auto">
                     {options.map((o, idx) => {
                         const label = o?.[optionKey] ?? o;
                         const selected = (value?.[optionKey] ?? value) === label;
                         return (
                             <button key={`${label}-${idx}`} onClick={() => { onChange(optionValue(o)); setOpen(false); }}
-                                className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-[#F8F9FA] transition-colors first:rounded-t-lg last:rounded-b-lg ${selected ? "text-[#0F50AA] font-[500] bg-[#F0F1F3]" : "text-[#383E49]"}`}>
+                                className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-subtle transition-colors first:rounded-t-lg last:rounded-b-lg ${selected ? "text-brand-fg font-[500] bg-app" : "text-fg"}`}>
                                 {label}
                             </button>
                         );
@@ -519,7 +524,7 @@ export default function MISWastageDashboard() {
     );
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             <MISAdminSideBar sidebarOpen={sidebarOpen} />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -530,24 +535,24 @@ export default function MISWastageDashboard() {
                     {/* ── Page Header ── */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
                         <div>
-                            <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">Wastage Dashboard</h1>
-                            <p className="text-[14px] text-[#667085]">Monitor wastage trends across all outlets in real-time</p>
+                            <h1 className="text-[20px] font-[600] text-fg mb-1">Wastage Dashboard</h1>
+                            <p className="text-[14px] text-fg-secondary">Monitor wastage trends across all outlets in real-time</p>
                         </div>
                         <div className="flex items-center gap-2 mt-3 sm:mt-0">
                             <button onClick={fetchDashboard}
-                                className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] bg-white text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors">
+                                className="inline-flex items-center gap-2 px-4 py-2.5 border border-line text-fg-secondary bg-surface text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors">
                                 <RefreshCw size={15} />
                                 Refresh
                             </button>
                             <button
                                 onClick={handleExportPDF}
-                                className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] bg-white text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors">
+                                className="inline-flex items-center gap-2 px-4 py-2.5 border border-line text-fg-secondary bg-surface text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors">
                                 <FileText size={15} />
                                 PDF
                             </button>
                             <button
                                 onClick={handleExportExcel}
-                                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0F50AA] text-white text-[13px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors">
+                                className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover transition-colors">
                                 <FileSpreadsheet size={15} />
                                 Excel
                             </button>
@@ -555,11 +560,11 @@ export default function MISWastageDashboard() {
                     </div>
 
                     {pageError && (
-                        <div className="mb-5 p-4 rounded-lg border border-[#F4C7CB] bg-[#FDECEE] text-[#A12230] text-[13px] flex items-start gap-3">
+                        <div className="mb-5 p-4 rounded-lg border border-error/30 bg-hover text-error text-[13px] flex items-start gap-3">
                             <AlertTriangle size={18} className="mt-0.5 flex-shrink-0" />
                             <div className="flex-1">
                                 <p className="font-[600] mb-0.5">Failed to load wastage dashboard</p>
-                                <p className="text-[12px] text-[#A12230]/90">{pageError}</p>
+                                <p className="text-[12px] text-error/90">{pageError}</p>
                             </div>
                             <button onClick={fetchDashboard}
                                 className="text-[12px] font-[500] underline hover:no-underline">
@@ -569,14 +574,14 @@ export default function MISWastageDashboard() {
                     )}
 
                     {/* ── Filter Panel ── */}
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 mb-6">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line p-4 mb-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
 
                             {/* Start Date */}
                             <div className="lg:col-span-2">
                                 <div className="relative">
                                     <Calendar
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]"
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary"
                                         size={14}
                                     />
                                     <input
@@ -584,7 +589,7 @@ export default function MISWastageDashboard() {
                                         value={startDate}
                                         onChange={(e) => setStartDate(e.target.value)}
                                         max={new Date().toISOString().slice(0, 10)}
-                                        className="w-full pl-9 pr-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent"
+                                        className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent"
                                     />
                                 </div>
                             </div>
@@ -593,7 +598,7 @@ export default function MISWastageDashboard() {
                             <div className="lg:col-span-2">
                                 <div className="relative">
                                     <Calendar
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]"
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary"
                                         size={14}
                                     />
                                     <input
@@ -601,7 +606,7 @@ export default function MISWastageDashboard() {
                                         value={endDate}
                                         onChange={(e) => setEndDate(e.target.value)}
                                         max={new Date().toISOString().slice(0, 10)}
-                                        className="w-full pl-9 pr-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent"
+                                        className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent"
                                     />
                                 </div>
                             </div>
@@ -623,24 +628,24 @@ export default function MISWastageDashboard() {
                             <div className="lg:col-span-2 relative">
                                 <button
                                     onClick={() => setProductOpen(!productOpen)}
-                                    className="w-full flex items-center gap-2 px-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] bg-white hover:bg-[#F8F9FA] transition-colors"
+                                    className="w-full flex items-center gap-2 px-3 py-2.5 border border-line rounded-lg text-[13px] text-fg bg-surface hover:bg-subtle transition-colors"
                                 >
                                     <span className="flex-1 text-left truncate">
                                         {product?.name}
                                     </span>
-                                    <ChevronDown size={13} className="text-[#667085]" />
+                                    <ChevronDown size={13} className="text-fg-secondary" />
                                 </button>
 
                                 {productOpen && (
-                                    <div className="absolute top-full mt-1 left-0 bg-white border border-[#E4E6EA] rounded-lg shadow-lg z-50 w-full">
+                                    <div className="absolute top-full mt-1 left-0 bg-elevated border border-line rounded-lg shadow-lg z-50 w-full">
 
-                                        <div className="p-2 border-b border-[#E4E6EA]">
+                                        <div className="p-2 border-b border-line">
                                             <input
                                                 type="text"
                                                 placeholder="Search product..."
                                                 value={productSearch}
                                                 onChange={(e) => setProductSearch(e.target.value)}
-                                                className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                                className="w-full px-3 py-2 border border-line rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                             />
                                         </div>
 
@@ -654,16 +659,16 @@ export default function MISWastageDashboard() {
                                                             setProductOpen(false);
                                                             setProductSearch("");
                                                         }}
-                                                        className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-[#F8F9FA] transition-colors ${product?.name === item.name
-                                                                ? "text-[#0F50AA] font-[500] bg-[#F0F1F3]"
-                                                                : "text-[#383E49]"
+                                                        className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-subtle transition-colors ${product?.name === item.name
+                                                                ? "text-brand-fg font-[500] bg-app"
+                                                                : "text-fg"
                                                             }`}
                                                     >
                                                         {item.name}
                                                     </button>
                                                 ))
                                             ) : (
-                                                <div className="px-4 py-3 text-[13px] text-[#667085]">
+                                                <div className="px-4 py-3 text-[13px] text-fg-secondary">
                                                     No products found
                                                 </div>
                                             )}
@@ -688,14 +693,14 @@ export default function MISWastageDashboard() {
                             <div className="lg:col-span-2 flex gap-2">
                                 <button
                                     onClick={handleApplyFilters}
-                                    className="flex-1 px-4 py-2.5 bg-[#0F50AA] text-white text-[13px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors"
+                                    className="flex-1 px-4 py-2.5 bg-brand text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover transition-colors"
                                 >
                                     Apply
                                 </button>
 
                                 <button
                                     onClick={handleClearFilters}
-                                    className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                    className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 border border-line text-fg-secondary text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors"
                                 >
                                     <RefreshCw size={13} />
                                     Clear
@@ -705,7 +710,7 @@ export default function MISWastageDashboard() {
                     </div>
 
                     {dashboard?.dataLimitation && (
-                        <div className="mb-5 p-3 rounded-lg border border-[#FFEBC2] bg-[#FFF8E5] text-[#7C5A00] text-[12px] flex items-start gap-2">
+                        <div className="mb-5 p-3 rounded-lg border border-warning/30 bg-hover text-warning text-[12px] flex items-start gap-2">
                             <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" />
                             <span>{dashboard.dataLimitationReason || "Some sources lack value data; totals may understate true wastage value."}</span>
                         </div>
@@ -718,19 +723,19 @@ export default function MISWastageDashboard() {
                             {/* ── Summary Cards ── */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
                                 {[
-                                    { label: "Total Wastage Qty", value: `${formatNumber(totalQty)} units`, icon: <Trash2 size={20} />, color: "bg-blue-500", hoverColor: "hover:bg-blue-600", iconBg: "bg-blue-400/30" },
-                                    { label: "Total Wastage Value", value: formatMoney(totalValue), icon: <Banknote size={20} />, color: "bg-indigo-500", hoverColor: "hover:bg-indigo-600", iconBg: "bg-indigo-400/30" },
-                                    { label: "Wastage % of Sales", value: wastagePercentDisplay.primary, subtitle: wastagePercentDisplay.subtitle, icon: <TrendingDown size={20} />, color: "bg-cyan-500", hoverColor: "hover:bg-cyan-600", iconBg: "bg-cyan-400/30" },
-                                    { label: "Wastage Records", value: formatNumber(recordCount), icon: <BarChart2 size={20} />, color: "bg-sky-500", hoverColor: "hover:bg-sky-600", iconBg: "bg-sky-400/30" },
+                                    { label: "Total Wastage Qty", value: `${formatNumber(totalQty)} units`, icon: <Trash2 size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
+                                    { label: "Total Wastage Value", value: formatMoney(totalValue), icon: <Banknote size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
+                                    { label: "Wastage % of Sales", value: wastagePercentDisplay.primary, subtitle: wastagePercentDisplay.subtitle, icon: <TrendingDown size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+                                    { label: "Wastage Records", value: formatNumber(recordCount), icon: <BarChart2 size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
                                 ].map((card, i) => (
                                     <div key={i}
-                                        className={`${card.color} ${card.hoverColor} rounded-lg p-5 text-white shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer`}>
+                                        className={`${card.color} ${card.hoverColor} rounded-lg p-5 text-on-brand shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer`}>
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <p className="text-[13px] font-medium text-white/80 mb-2">{card.label}</p>
+                                                <p className="text-[13px] font-medium text-on-brand/80 mb-2">{card.label}</p>
                                                 <h2 className="text-[26px] font-bold leading-none">{card.value}</h2>
                                                 {card.subtitle && (
-                                                    <p className="text-[11px] text-white/70 mt-2">{card.subtitle}</p>
+                                                    <p className="text-[11px] text-on-brand/70 mt-2">{card.subtitle}</p>
                                                 )}
                                             </div>
                                             <div className={`${card.iconBg} w-12 h-12 rounded-lg flex items-center justify-center backdrop-blur-sm`}>
@@ -745,41 +750,41 @@ export default function MISWastageDashboard() {
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
 
                                 {/* Bar Chart */}
-                                <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-5">
+                                <div className="bg-surface rounded-lg shadow-sm border border-line p-5">
                                     <div className="flex items-center justify-between mb-4">
                                         <div>
-                                            <h3 className="text-[15px] font-[600] text-[#383E49]">Wastage by Product</h3>
-                                            <p className="text-[12px] text-[#667085]">Value (Rs.) per product</p>
+                                            <h3 className="text-[15px] font-[600] text-fg">Wastage by Product</h3>
+                                            <p className="text-[12px] text-fg-secondary">Value (Rs.) per product</p>
                                         </div>
                                     </div>
                                     {barData.length > 0 ? (
                                         <SimpleBarChart
                                             data={barData}
-                                            color="#0F50AA"
+                                            color={BRAND}
                                             onBarClick={(d) => setDrillDown({ title: `Wastage – ${d.fullLabel || d.label}`, rows: records.filter((r) => r.product === d.fullLabel) })}
                                         />
                                     ) : (
-                                        <div className="h-36 flex items-center justify-center text-[#667085] text-[13px]">No data</div>
+                                        <div className="h-36 flex items-center justify-center text-fg-secondary text-[13px]">No data</div>
                                     )}
                                 </div>
 
                                 {/* Line Chart */}
-                                <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-5">
+                                <div className="bg-surface rounded-lg shadow-sm border border-line p-5">
                                     <div className="flex items-center justify-between mb-4">
                                         <div>
-                                            <h3 className="text-[15px] font-[600] text-[#383E49]">Wastage Trend</h3>
-                                            <p className="text-[12px] text-[#667085]">Daily wastage value (Rs.)</p>
+                                            <h3 className="text-[15px] font-[600] text-fg">Wastage Trend</h3>
+                                            <p className="text-[12px] text-fg-secondary">Daily wastage value (Rs.)</p>
                                         </div>
                                     </div>
                                     <SimpleLineChart data={trendData} />
                                 </div>
 
                                 {/* Pie Chart */}
-                                <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-5">
+                                <div className="bg-surface rounded-lg shadow-sm border border-line p-5">
                                     <div className="flex items-center justify-between mb-4">
                                         <div>
-                                            <h3 className="text-[15px] font-[600] text-[#383E49]">Wastage Reasons</h3>
-                                            <p className="text-[12px] text-[#667085]">Distribution by reason</p>
+                                            <h3 className="text-[15px] font-[600] text-fg">Wastage Reasons</h3>
+                                            <p className="text-[12px] text-fg-secondary">Distribution by reason</p>
                                         </div>
                                     </div>
                                     {pieData.length > 0 ? (
@@ -788,7 +793,7 @@ export default function MISWastageDashboard() {
                                             onSliceClick={(sl) => setDrillDown({ title: `Wastage – ${sl.label}`, rows: records.filter((r) => r.reason === sl.rawLabel) })}
                                         />
                                     ) : (
-                                        <div className="h-32 flex items-center justify-center text-[#667085] text-[13px]">No data</div>
+                                        <div className="h-32 flex items-center justify-center text-fg-secondary text-[13px]">No data</div>
                                     )}
                                 </div>
                             </div>
@@ -797,10 +802,10 @@ export default function MISWastageDashboard() {
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
 
                                 {/* Top 5 Products */}
-                                <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-5">
-                                    <h3 className="text-[15px] font-[600] text-[#383E49] mb-4">Top 5 Wasted Products</h3>
+                                <div className="bg-surface rounded-lg shadow-sm border border-line p-5">
+                                    <h3 className="text-[15px] font-[600] text-fg mb-4">Top 5 Wasted Products</h3>
                                     {top5Products.length === 0 ? (
-                                        <p className="text-[13px] text-[#667085]">No data</p>
+                                        <p className="text-[13px] text-fg-secondary">No data</p>
                                     ) : (
                                         <div className="space-y-3">
                                             {top5Products.map((p, i) => {
@@ -813,13 +818,13 @@ export default function MISWastageDashboard() {
                                                         onClick={() => setDrillDown({ title: `Top Waste – ${p.label}`, rows: records.filter((r) => r.product === p.label) })}>
                                                         <div className="flex items-center justify-between mb-1">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="w-5 h-5 rounded-full bg-[#0F50AA] text-white text-[10px] flex items-center justify-center font-[600]">{i + 1}</span>
-                                                                <span className="text-[13px] font-[500] text-[#383E49] group-hover:text-[#0F50AA] transition-colors">{p.label}</span>
+                                                                <span className="w-5 h-5 rounded-full bg-brand text-on-brand text-[10px] flex items-center justify-center font-[600]">{i + 1}</span>
+                                                                <span className="text-[13px] font-[500] text-fg group-hover:text-brand-fg transition-colors">{p.label}</span>
                                                             </div>
-                                                            <span className="text-[12px] font-[600] text-[#383E49]">{formatMoney(value)}</span>
+                                                            <span className="text-[12px] font-[600] text-fg">{formatMoney(value)}</span>
                                                         </div>
-                                                        <div className="w-full bg-[#E4E6EA] rounded-full h-2">
-                                                            <div className="h-2 rounded-full bg-[#0F50AA] transition-all duration-500" style={{ width: `${pct}%` }} />
+                                                        <div className="w-full bg-line rounded-full h-2">
+                                                            <div className="h-2 rounded-full bg-brand transition-all duration-500" style={{ width: `${pct}%` }} />
                                                         </div>
                                                     </div>
                                                 );
@@ -829,10 +834,10 @@ export default function MISWastageDashboard() {
                                 </div>
 
                                 {/* Hotspot Outlets */}
-                                <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-5">
-                                    <h3 className="text-[15px] font-[600] text-[#383E49] mb-4">Hotspot Outlets</h3>
+                                <div className="bg-surface rounded-lg shadow-sm border border-line p-5">
+                                    <h3 className="text-[15px] font-[600] text-fg mb-4">Hotspot Outlets</h3>
                                     {outletRanked.length === 0 ? (
-                                        <p className="text-[13px] text-[#667085]">No data</p>
+                                        <p className="text-[13px] text-fg-secondary">No data</p>
                                     ) : (
                                         <div className="space-y-3">
                                             {outletRanked.map((o, i) => {
@@ -845,13 +850,13 @@ export default function MISWastageDashboard() {
                                                         onClick={() => setDrillDown({ title: `Outlet Waste – ${o.label}`, rows: records.filter((r) => r.outlet === o.label) })}>
                                                         <div className="flex items-center justify-between mb-1">
                                                             <div className="flex items-center gap-2">
-                                                                <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: OUTLET_COLORS[i] || "#667085" }} />
-                                                                <span className="text-[13px] font-[500] text-[#383E49] group-hover:text-[#0F50AA] transition-colors">{o.label}</span>
+                                                                <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: OUTLET_COLORS[i] || NEUTRAL }} />
+                                                                <span className="text-[13px] font-[500] text-fg group-hover:text-brand-fg transition-colors">{o.label}</span>
                                                             </div>
-                                                            <span className="text-[12px] font-[600] text-[#383E49]">{formatMoney(value)}</span>
+                                                            <span className="text-[12px] font-[600] text-fg">{formatMoney(value)}</span>
                                                         </div>
-                                                        <div className="w-full bg-[#E4E6EA] rounded-full h-2">
-                                                            <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: OUTLET_COLORS[i] || "#667085" }} />
+                                                        <div className="w-full bg-line rounded-full h-2">
+                                                            <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: OUTLET_COLORS[i] || NEUTRAL }} />
                                                         </div>
                                                     </div>
                                                 );
@@ -862,22 +867,22 @@ export default function MISWastageDashboard() {
                             </div>
 
                             {/* ── Detailed Wastage Table ── */}
-                            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
                                     <div>
-                                        <h3 className="text-[18px] font-[600] text-[#383E49]">Detailed Wastage Records</h3>
-                                        <p className="text-[12px] text-[#667085] mt-0.5">Showing {paginated.length} of {sorted.length} records</p>
+                                        <h3 className="text-[18px] font-[600] text-fg">Detailed Wastage Records</h3>
+                                        <p className="text-[12px] text-fg-secondary mt-0.5">Showing {paginated.length} of {sorted.length} records</p>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <div className="relative">
-                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={15} />
+                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={15} />
                                             <input type="text" placeholder="Search product or outlet..."
-                                                className="pl-9 pr-4 py-2 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent w-52"
+                                                className="pl-9 pr-4 py-2 border border-line rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent w-52"
                                                 value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }} />
                                         </div>
                                         <button
                                             onClick={handleExportPDF}
-                                            className="inline-flex items-center gap-1.5 px-3 py-2 border border-[#E4E6EA] text-[#667085] text-[12px] font-[500] rounded-lg hover:bg-[#F8F9FA]">
+                                            className="inline-flex items-center gap-1.5 px-3 py-2 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle">
                                             <Printer size={13} /> Print
                                         </button>
                                     </div>
@@ -886,7 +891,7 @@ export default function MISWastageDashboard() {
                                 <div className="overflow-x-auto">
                                     <table className="w-full">
                                         <thead>
-                                            <tr className="border-b border-[#E4E6EA] bg-[#F8F9FA]">
+                                            <tr className="border-b border-line bg-subtle">
                                                 {[
                                                     { key: "date", label: "Date" },
                                                     { key: "outlet", label: "Outlet" },
@@ -897,7 +902,7 @@ export default function MISWastageDashboard() {
                                                     { key: "remarks", label: "Remarks", noSort: true },
                                                 ].map((col) => (
                                                     <th key={col.key}
-                                                        className={`text-left py-3 px-3 text-[12px] font-[500] text-[#667085] ${col.noSort ? "" : "cursor-pointer hover:text-[#383E49]"}`}
+                                                        className={`text-left py-3 px-3 text-[12px] font-[500] text-fg-secondary ${col.noSort ? "" : "cursor-pointer hover:text-fg"}`}
                                                         onClick={() => !col.noSort && handleSort(col.key)}>
                                                         <div className="flex items-center gap-1">
                                                             {col.label}
@@ -911,37 +916,37 @@ export default function MISWastageDashboard() {
                                             {paginated.length === 0 ? (
                                                 <tr>
                                                     <td colSpan={7} className="py-16 text-center">
-                                                        <AlertTriangle size={36} className="mx-auto text-[#C8CDD5] mb-3" />
-                                                        <p className="text-[14px] font-[500] text-[#383E49]">No wastage records found</p>
-                                                        <p className="text-[12px] text-[#667085]">Try adjusting your filters</p>
+                                                        <AlertTriangle size={36} className="mx-auto text-fg-muted mb-3" />
+                                                        <p className="text-[14px] font-[500] text-fg">No wastage records found</p>
+                                                        <p className="text-[12px] text-fg-secondary">Try adjusting your filters</p>
                                                     </td>
                                                 </tr>
                                             ) : paginated.map((r) => (
                                                 <tr key={r.id}
-                                                    className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA] transition-colors cursor-pointer"
+                                                    className="border-b border-line hover:bg-subtle transition-colors cursor-pointer"
                                                     onClick={() => setDrillDown({ title: `Record ${r.id} Details`, rows: [r] })}>
                                                     <td className="py-3.5 px-3">
-                                                        <p className="text-[13px] font-[500] text-[#383E49]">{r.date || "—"}</p>
-                                                        <p className="text-[10px] text-[#667085] flex items-center gap-1 mt-0.5"><Hash size={9} />{r.id}</p>
+                                                        <p className="text-[13px] font-[500] text-fg">{r.date || "—"}</p>
+                                                        <p className="text-[10px] text-fg-secondary flex items-center gap-1 mt-0.5"><Hash size={9} />{r.id}</p>
                                                     </td>
-                                                    <td className="py-3.5 px-3 text-[13px] text-[#383E49]">{r.outlet || "—"}</td>
+                                                    <td className="py-3.5 px-3 text-[13px] text-fg">{r.outlet || "—"}</td>
                                                     <td className="py-3.5 px-3">
-                                                        <span className="text-[13px] font-[500] text-[#383E49]">{r.product || "—"}</span>
-                                                    </td>
-                                                    <td className="py-3.5 px-3">
-                                                        <span className="text-[14px] font-[600] text-[#383E49]">{r.qty}</span>
-                                                        <span className="text-[11px] text-[#667085] ml-1">{r.unit}</span>
+                                                        <span className="text-[13px] font-[500] text-fg">{r.product || "—"}</span>
                                                     </td>
                                                     <td className="py-3.5 px-3">
-                                                        <span className="text-[13px] font-[600] text-[#383E49]">{formatMoney(r.value)}</span>
+                                                        <span className="text-[14px] font-[600] text-fg">{r.qty}</span>
+                                                        <span className="text-[11px] text-fg-secondary ml-1">{r.unit}</span>
+                                                    </td>
+                                                    <td className="py-3.5 px-3">
+                                                        <span className="text-[13px] font-[600] text-fg">{formatMoney(r.value)}</span>
                                                     </td>
                                                     <td className="py-3.5 px-3">
                                                         <span className="text-[11px] font-[500] px-2.5 py-1 rounded-full"
-                                                            style={{ color: REASON_COLORS[r.reason] || "#667085", backgroundColor: (REASON_COLORS[r.reason] || "#667085") + "18" }}>
+                                                            style={{ color: REASON_COLORS[r.reason] || NEUTRAL, backgroundColor: tint(REASON_COLORS[r.reason] || NEUTRAL) }}>
                                                             {reasonLabel(r.reason)}
                                                         </span>
                                                     </td>
-                                                    <td className="py-3.5 px-3 text-[12px] text-[#667085] max-w-[140px] truncate">{r.remarks || "—"}</td>
+                                                    <td className="py-3.5 px-3 text-[12px] text-fg-secondary max-w-[140px] truncate">{r.remarks || "—"}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -950,24 +955,24 @@ export default function MISWastageDashboard() {
 
                                 {/* Pagination */}
                                 {totalPages > 1 && (
-                                    <div className="flex items-center justify-between mt-5 pt-4 border-t border-[#E4E6EA]">
-                                        <p className="text-[12px] text-[#667085]">
+                                    <div className="flex items-center justify-between mt-5 pt-4 border-t border-line">
+                                        <p className="text-[12px] text-fg-secondary">
                                             Page {page} of {totalPages} · {sorted.length} records
                                         </p>
                                         <div className="flex items-center gap-2">
                                             <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                                                className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                                                <ChevronLeft size={15} className="text-[#667085]" />
+                                                className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                                                <ChevronLeft size={15} className="text-fg-secondary" />
                                             </button>
                                             {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                                                 <button key={p} onClick={() => setPage(p)}
-                                                    className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-[#0F50AA] text-white" : "text-[#667085] hover:bg-[#F0F1F3]"}`}>
+                                                    className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-brand text-on-brand" : "text-fg-secondary hover:bg-app"}`}>
                                                     {p}
                                                 </button>
                                             ))}
                                             <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                                                className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                                                <ChevronRight size={15} className="text-[#667085]" />
+                                                className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                                                <ChevronRight size={15} className="text-fg-secondary" />
                                             </button>
                                         </div>
                                     </div>
@@ -985,7 +990,7 @@ export default function MISWastageDashboard() {
 
             {/* Mobile Overlay */}
             {sidebarOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden" onClick={() => setSidebarOpen(false)} />
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden" onClick={() => setSidebarOpen(false)} />
             )}
         </div>
     );

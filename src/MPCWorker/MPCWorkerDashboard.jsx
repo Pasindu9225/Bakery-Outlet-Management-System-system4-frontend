@@ -10,7 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 import MPCWorkerSideBar from "../component/MPCWorkerSideBar";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 import { getApiBaseUrl } from "../utils/config";
 
@@ -18,16 +18,16 @@ const BASE_URL = getApiBaseUrl();
 
 function statusBadge(status) {
   const map = {
-    PENDING: "bg-yellow-100 text-yellow-800",
-    PENDING_ADMIN: "bg-yellow-100 text-yellow-800",
-    APPROVED: "bg-green-100 text-green-800",
-    COMPLETED: "bg-green-100 text-green-800",
-    CANCELLED: "bg-red-100 text-red-800",
+    PENDING: "bg-warning/10 text-warning",
+    PENDING_ADMIN: "bg-warning/10 text-warning",
+    APPROVED: "bg-success/10 text-success",
+    COMPLETED: "bg-success/10 text-success",
+    CANCELLED: "bg-error/10 text-error",
   };
   return (
     <span
       className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-        map[status] || "bg-gray-100 text-gray-700"
+        map[status] || "bg-hover text-fg"
       }`}
     >
       {status?.replace(/_/g, " ")}
@@ -205,8 +205,7 @@ export default function MPCWorkerDashboard() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#F0F1F3]">
-      <Toaster position="top-right" />
+    <div className="flex min-h-screen bg-app">
       <MPCWorkerSideBar
         sidebarOpen={sidebarOpen}
         activeTab={activeTab}
@@ -218,36 +217,36 @@ export default function MPCWorkerDashboard() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-[22px] font-[700] text-[#383E49] mb-1">
+            <h1 className="text-[22px] font-[700] text-fg mb-1">
               Mini Production Center (MPC) Worker Dashboard
             </h1>
-            <p className="text-[14px] text-[#667085]">
-              Welcome, <strong className="text-[#383E49]">{me?.firstName || me?.username || "MPC Worker"}</strong> | Assigned to:{" "}
-              <strong className="text-[#0F50AA]">{me?.mpcName || "MPC Outlet Center"}</strong> (Outlet: {me?.outletName || "Main Outlet"})
+            <p className="text-[14px] text-fg-secondary">
+              Welcome, <strong className="text-fg">{me?.firstName || me?.username || "MPC Worker"}</strong> | Assigned to:{" "}
+              <strong className="text-brand-fg">{me?.mpcName || "MPC Outlet Center"}</strong> (Outlet: {me?.outletName || "Main Outlet"})
             </p>
           </div>
 
           {/* TAB 1: KOT Material Request via BOM */}
           {activeTab === "requestMaterials" && (
             <div className="space-y-6">
-              <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
-                <h3 className="text-[18px] font-[600] text-[#383E49] mb-1">
+              <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+                <h3 className="text-[18px] font-[600] text-fg mb-1">
                   Request Materials: Select KOT Items
                 </h3>
-                <p className="text-[13px] text-[#667085] mb-4">
+                <p className="text-[13px] text-fg-secondary mb-4">
                   Select dishes on this MPC's menu (e.g. Milk Tea, Plain Tea) — raw material
                   requirements are computed from the Bill of Materials automatically.
                 </p>
 
                 <div className="space-y-3 mb-6">
                   {selectedPlanItems.map((item, idx) => (
-                    <div key={idx} className="flex flex-wrap items-center gap-3 p-3 bg-[#F8F9FA] border border-[#E4E6EA] rounded-lg">
+                    <div key={idx} className="flex flex-wrap items-center gap-3 p-3 bg-subtle border border-line rounded-lg">
                       <div className="flex-1 min-w-[200px]">
-                        <label className="block text-[12px] font-[500] text-[#383E49] mb-1">KOT Product</label>
+                        <label className="block text-[12px] font-[500] text-fg mb-1">KOT Product</label>
                         <select
                           value={item.productId}
                           onChange={(e) => updatePlanItem(idx, "productId", e.target.value)}
-                          className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md text-[13px] bg-white focus:ring-2 focus:ring-[#0F50AA]"
+                          className="w-full px-3 py-2 border border-line rounded-md text-[13px] bg-surface focus:ring-2 focus:ring-brand-fg"
                         >
                           <option value="">-- Choose a product --</option>
                           {kotProducts.map((p) => (
@@ -258,20 +257,20 @@ export default function MPCWorkerDashboard() {
                         </select>
                       </div>
                       <div className="w-32">
-                        <label className="block text-[12px] font-[500] text-[#383E49] mb-1">Plates</label>
+                        <label className="block text-[12px] font-[500] text-fg mb-1">Plates</label>
                         <input
                           type="number"
                           min="1"
                           value={item.plates}
                           onChange={(e) => updatePlanItem(idx, "plates", e.target.value)}
-                          className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md text-[13px] bg-white focus:ring-2 focus:ring-[#0F50AA]"
+                          className="w-full px-3 py-2 border border-line rounded-md text-[13px] bg-surface focus:ring-2 focus:ring-brand-fg"
                         />
                       </div>
                       {selectedPlanItems.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removePlanItem(idx)}
-                          className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors mt-5"
+                          className="p-2 text-error hover:bg-hover rounded-lg transition-colors mt-5"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -282,29 +281,29 @@ export default function MPCWorkerDashboard() {
                   <button
                     type="button"
                     onClick={addPlanItem}
-                    className="inline-flex items-center gap-1.5 text-[13px] text-[#0F50AA] font-[500] hover:underline"
+                    className="inline-flex items-center gap-1.5 text-[13px] text-brand-fg font-[500] hover:underline"
                   >
                     <Plus size={15} /> Add Another KOT Item
                   </button>
                 </div>
 
-                <div className="border border-[#0F50AA] bg-[#EBF8FF] rounded-lg p-5 mb-6">
-                  <h4 className="text-[15px] font-[600] text-[#383E49] mb-3 flex items-center gap-2">
-                    <Layers size={16} className="text-[#0F50AA]" />
+                <div className="border border-brand-fg bg-hover rounded-lg p-5 mb-6">
+                  <h4 className="text-[15px] font-[600] text-fg mb-3 flex items-center gap-2">
+                    <Layers size={16} className="text-brand-fg" />
                     Raw Materials This Will Request
-                    {previewLoading && <RefreshCw size={14} className="animate-spin text-[#0F50AA]" />}
+                    {previewLoading && <RefreshCw size={14} className="animate-spin text-brand-fg" />}
                   </h4>
                   {previewLines.length === 0 ? (
-                    <p className="text-[13px] text-[#667085]">
+                    <p className="text-[13px] text-fg-secondary">
                       Choose a product on this MPC's menu to see the materials it needs.
                     </p>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                       {previewLines.map((mat) => (
-                        <div key={mat.materialKey} className="bg-white border border-[#E4E6EA] rounded-lg p-3">
-                          <p className="text-[12px] text-[#667085]">Raw Material</p>
-                          <p className="text-[14px] font-[600] text-[#383E49]">{mat.rawMaterialName}</p>
-                          <p className="text-[16px] font-[700] text-[#0F50AA] mt-1">
+                        <div key={mat.materialKey} className="bg-surface border border-line rounded-lg p-3">
+                          <p className="text-[12px] text-fg-secondary">Raw Material</p>
+                          <p className="text-[14px] font-[600] text-fg">{mat.rawMaterialName}</p>
+                          <p className="text-[16px] font-[700] text-brand-fg mt-1">
                             {Number(mat.qty).toFixed(2)} {mat.unitOfMeasure}
                           </p>
                         </div>
@@ -315,7 +314,7 @@ export default function MPCWorkerDashboard() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-[13px] font-[500] text-[#383E49] mb-1">
+                    <label className="block text-[13px] font-[500] text-fg mb-1">
                       Request Notes / Remarks
                     </label>
                     <textarea
@@ -323,7 +322,7 @@ export default function MPCWorkerDashboard() {
                       value={requestNotes}
                       onChange={(e) => setRequestNotes(e.target.value)}
                       placeholder="Special instructions for Admin..."
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md text-[13px] focus:ring-2 focus:ring-[#0F50AA]"
+                      className="w-full px-3 py-2 border border-line rounded-md text-[13px] focus:ring-2 focus:ring-brand-fg"
                     />
                   </div>
 
@@ -331,7 +330,7 @@ export default function MPCWorkerDashboard() {
                     type="button"
                     onClick={handleSubmitMaterialRequest}
                     disabled={submittingRequest}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#0F50AA] text-white text-[14px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors disabled:opacity-60"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-brand text-on-brand text-[14px] font-[500] rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-60"
                   >
                     {submittingRequest ? (
                       <RefreshCw size={16} className="animate-spin" />
@@ -347,14 +346,14 @@ export default function MPCWorkerDashboard() {
 
           {/* TAB 2: Material Request History */}
           {activeTab === "deliveries" && (
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[18px] font-[600] text-[#383E49]">
+                <h3 className="text-[18px] font-[600] text-fg">
                   Material Requests
                 </h3>
                 <button
                   onClick={fetchMaterialRequests}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 border border-[#E4E6EA] text-[#667085] text-[13px] rounded-lg hover:bg-[#F8F9FA]"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 border border-line text-fg-secondary text-[13px] rounded-lg hover:bg-subtle"
                 >
                   <RefreshCw size={14} className={loadingRequests ? "animate-spin" : ""} />
                   Refresh
@@ -363,24 +362,24 @@ export default function MPCWorkerDashboard() {
 
               {materialRequests.length === 0 ? (
                 <div className="text-center py-12">
-                  <Package size={48} className="mx-auto text-[#667085] mb-3" />
-                  <p className="text-[16px] font-[500] text-[#383E49]">No material requests found</p>
+                  <Package size={48} className="mx-auto text-fg-secondary mb-3" />
+                  <p className="text-[16px] font-[500] text-fg">No material requests found</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {materialRequests.map((req) => (
-                    <div key={req.id} className="border border-[#E4E6EA] rounded-lg p-5 hover:bg-[#F8F9FA] transition-colors">
+                    <div key={req.id} className="border border-line rounded-lg p-5 hover:bg-subtle transition-colors">
                       <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
                         <div>
                           <div className="flex items-center gap-3">
-                            <h4 className="text-[16px] font-[600] text-[#383E49]">{req.requestCode}</h4>
+                            <h4 className="text-[16px] font-[600] text-fg">{req.requestCode}</h4>
                             {statusBadge(req.status)}
                           </div>
-                          <p className="text-[12px] text-[#667085] mt-1">
+                          <p className="text-[12px] text-fg-secondary mt-1">
                             MPC: {req.mpcName} | Outlet: {req.outletName} | Created: {req.createdAt ? new Date(req.createdAt).toLocaleString() : "-"}
                           </p>
                           {req.status === "APPROVED" && (
-                            <p className="text-[12px] text-[#199D26] mt-1 flex items-center gap-1">
+                            <p className="text-[12px] text-success mt-1 flex items-center gap-1">
                               <CheckCircle2 size={13} /> Delivered to your MPC store
                             </p>
                           )}
@@ -389,7 +388,7 @@ export default function MPCWorkerDashboard() {
 
                       <table className="w-full text-[13px]">
                         <thead>
-                          <tr className="border-b border-[#E4E6EA] text-left text-[#667085]">
+                          <tr className="border-b border-line text-left text-fg-secondary">
                             <th className="py-2">Raw Material</th>
                             <th className="py-2 text-center">Requested Qty</th>
                             <th className="py-2 text-center">Unit</th>
@@ -397,10 +396,10 @@ export default function MPCWorkerDashboard() {
                         </thead>
                         <tbody>
                           {(req.items || []).map((item, idx) => (
-                            <tr key={idx} className="border-b border-[#E4E6EA] last:border-0">
-                              <td className="py-2 font-[500] text-[#383E49]">{item.rawMaterialName}</td>
-                              <td className="py-2 text-center font-[600] text-[#0F50AA]">{item.requestedQty}</td>
-                              <td className="py-2 text-center text-[#667085]">{item.unitOfMeasure}</td>
+                            <tr key={idx} className="border-b border-line last:border-0">
+                              <td className="py-2 font-[500] text-fg">{item.rawMaterialName}</td>
+                              <td className="py-2 text-center font-[600] text-brand-fg">{item.requestedQty}</td>
+                              <td className="py-2 text-center text-fg-secondary">{item.unitOfMeasure}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -415,29 +414,29 @@ export default function MPCWorkerDashboard() {
           {/* TAB 3: MPC Store Inventory (real data) */}
           {activeTab === "storeInventory" && (
             <div className="space-y-6">
-              <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+              <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-[18px] font-[600] text-[#383E49]">
+                  <h3 className="text-[18px] font-[600] text-fg">
                     MPC Raw Material Stock Level
                   </h3>
                   <button
                     onClick={fetchStore}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 border border-[#E4E6EA] text-[#667085] text-[13px] rounded-lg hover:bg-[#F8F9FA]"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 border border-line text-fg-secondary text-[13px] rounded-lg hover:bg-subtle"
                   >
                     <RefreshCw size={14} className={loadingStore ? "animate-spin" : ""} />
                     Refresh
                   </button>
                 </div>
                 {store.items.length === 0 ? (
-                  <p className="text-[13px] text-[#667085]">No stock yet — approved material requests arrive here automatically.</p>
+                  <p className="text-[13px] text-fg-secondary">No stock yet — approved material requests arrive here automatically.</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     {store.items.map((item) => (
-                      <div key={item.materialKey} className="border border-[#E4E6EA] rounded-lg p-4 bg-[#F8F9FA]">
-                        <p className="text-[12px] text-[#667085]">Raw Material</p>
-                        <p className="text-[15px] font-[600] text-[#383E49] mb-1">{item.rawMaterialName}</p>
-                        <p className="text-[20px] font-[700] text-[#199D26]">
-                          {item.qty} <span className="text-[13px] font-[400] text-[#667085]">{item.unitOfMeasure}</span>
+                      <div key={item.materialKey} className="border border-line rounded-lg p-4 bg-subtle">
+                        <p className="text-[12px] text-fg-secondary">Raw Material</p>
+                        <p className="text-[15px] font-[600] text-fg mb-1">{item.rawMaterialName}</p>
+                        <p className="text-[20px] font-[700] text-success">
+                          {item.qty} <span className="text-[13px] font-[400] text-fg-secondary">{item.unitOfMeasure}</span>
                         </p>
                       </div>
                     ))}
@@ -445,30 +444,30 @@ export default function MPCWorkerDashboard() {
                 )}
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
-                <h3 className="text-[18px] font-[600] text-[#383E49] mb-1">
+              <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+                <h3 className="text-[18px] font-[600] text-fg mb-1">
                   Potential KOT Product Yield
                 </h3>
-                <p className="text-[13px] text-[#667085] mb-4">
+                <p className="text-[13px] text-fg-secondary mb-4">
                   Calculated from this MPC's current raw material stock and the Bill of Materials.
                 </p>
 
                 {store.dishes.length === 0 ? (
-                  <p className="text-[13px] text-[#667085]">
+                  <p className="text-[13px] text-fg-secondary">
                     No dishes assigned to this MPC's menu yet — ask Admin to set it up.
                   </p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     {store.dishes.map((dish) => (
-                      <div key={dish.productId} className="border border-[#0F50AA] bg-[#EBF8FF] rounded-lg p-5">
-                        <h4 className="text-[16px] font-[600] text-[#383E49] mb-2">{dish.productName}</h4>
+                      <div key={dish.productId} className="border border-brand-fg bg-hover rounded-lg p-5">
+                        <h4 className="text-[16px] font-[600] text-fg mb-2">{dish.productName}</h4>
                         {dish.problem ? (
-                          <p className="text-[12px] text-[#EF4444]">{dish.problem}</p>
+                          <p className="text-[12px] text-error">{dish.problem}</p>
                         ) : (
-                          <div className="pt-2 border-t border-[#D0E2FF]">
-                            <span className="text-[12px] text-[#667085]">Max Available Capacity:</span>
-                            <p className="text-[22px] font-[700] text-[#0F50AA]">
-                              {dish.plates} <span className="text-[13px] font-[400] text-[#383E49]">plates</span>
+                          <div className="pt-2 border-t border-brand/20">
+                            <span className="text-[12px] text-fg-secondary">Max Available Capacity:</span>
+                            <p className="text-[22px] font-[700] text-brand-fg">
+                              {dish.plates} <span className="text-[13px] font-[400] text-fg">plates</span>
                             </p>
                           </div>
                         )}
@@ -482,12 +481,12 @@ export default function MPCWorkerDashboard() {
 
           {/* TAB 4: Live KOT Queue */}
           {activeTab === "kots" && (
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[18px] font-[600] text-[#383E49]">Received KOT Tickets</h3>
+                <h3 className="text-[18px] font-[600] text-fg">Received KOT Tickets</h3>
                 <button
                   onClick={fetchKots}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 border border-[#E4E6EA] text-[#667085] text-[13px] rounded-lg hover:bg-[#F8F9FA]"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 border border-line text-fg-secondary text-[13px] rounded-lg hover:bg-subtle"
                 >
                   <RefreshCw size={14} className={loadingKots ? "animate-spin" : ""} />
                   Refresh
@@ -496,24 +495,24 @@ export default function MPCWorkerDashboard() {
 
               {kots.length === 0 ? (
                 <div className="text-center py-12">
-                  <Clock size={48} className="mx-auto text-[#667085] mb-3" />
-                  <p className="text-[16px] font-[500] text-[#383E49]">No KOTs queued at this station</p>
+                  <Clock size={48} className="mx-auto text-fg-secondary mb-3" />
+                  <p className="text-[16px] font-[500] text-fg">No KOTs queued at this station</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {kots.map((kot) => (
-                    <div key={kot.id} className="border border-[#E4E6EA] rounded-lg p-5 hover:bg-[#F8F9FA] transition-colors">
+                    <div key={kot.id} className="border border-line rounded-lg p-5 hover:bg-subtle transition-colors">
                       <div className="flex items-center justify-between mb-3">
                         <div>
-                          <span className="font-mono text-sm font-semibold text-[#0F50AA]">{kot.orderNumber}</span>
+                          <span className="font-mono text-sm font-semibold text-brand-fg">{kot.orderNumber}</span>
                           <span className="ml-3">{statusBadge(kot.status)}</span>
                         </div>
-                        <span className="text-xs text-[#667085]">{new Date(kot.orderDate || Date.now()).toLocaleString()}</span>
+                        <span className="text-xs text-fg-secondary">{new Date(kot.orderDate || Date.now()).toLocaleString()}</span>
                       </div>
 
                       <table className="w-full text-sm mb-4">
                         <thead>
-                          <tr className="text-left text-xs text-[#667085] border-b">
+                          <tr className="text-left text-xs text-fg-secondary border-b">
                             <th className="pb-1">Item</th>
                             <th className="pb-1 text-right">Qty</th>
                           </tr>
@@ -521,8 +520,8 @@ export default function MPCWorkerDashboard() {
                         <tbody>
                           {(kot.items || []).map((item, idx) => (
                             <tr key={idx} className="border-b last:border-0">
-                              <td className="py-1.5 font-medium text-[#383E49]">{item.productName}</td>
-                              <td className="py-1.5 text-right text-[#383E49]">{item.plannedQuantity}</td>
+                              <td className="py-1.5 font-medium text-fg">{item.productName}</td>
+                              <td className="py-1.5 text-right text-fg">{item.plannedQuantity}</td>
                             </tr>
                           ))}
                         </tbody>

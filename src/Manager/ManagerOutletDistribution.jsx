@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+import { confirmDialog } from "../component/ConfirmDialog";
 import {
   Calendar,
   Clock,
@@ -116,7 +118,7 @@ export default function ManagerOutletDistribution() {
 
     if (!tempOutletId || !tempQty || tempQty <= 0) {
       console.log("Validation failed: missing outlet or quantity");
-      alert("Please select outlet and enter valid quantity");
+      toast.error("Please select outlet and enter valid quantity");
       return;
     }
 
@@ -127,7 +129,7 @@ export default function ManagerOutletDistribution() {
 
     if (!selectedOutlet) {
       console.log("Outlet not found");
-      alert("Outlet not found");
+      toast.error("Outlet not found");
       return;
     }
 
@@ -137,7 +139,7 @@ export default function ManagerOutletDistribution() {
     console.log("remaining:", remaining);
 
     if (parseInt(tempQty) > remaining) {
-      alert(`Cannot exceed remaining quantity of ${remaining}`);
+      toast.error(`Cannot exceed remaining quantity of ${remaining}`);
       return;
     }
 
@@ -399,12 +401,12 @@ export default function ManagerOutletDistribution() {
 
     // Add null checks
     if (!plan) {
-      alert("Please select a production plan");
+      toast.error("Please select a production plan");
       return;
     }
     console.log(outlet);
     if (!outlet) {
-      alert("Please select an outlet");
+      toast.error("Please select an outlet");
       return;
     }
 
@@ -480,9 +482,9 @@ export default function ManagerOutletDistribution() {
       setDistributionQty({});
       setSelectedPlan("");
       setSelectedOutlet("");
-      alert("Distribution plan saved successfully!");
+      toast.success("Distribution plan saved successfully!");
     } catch (err) {
-      alert(`Error saving distribution plan: ${err.message}`);
+      toast.error(`Error saving distribution plan: ${err.message}`);
     }
   };
 
@@ -534,10 +536,10 @@ export default function ManagerOutletDistribution() {
 
       // Remove the deleted distribution from the distributions state
       setDistributions((prev) => prev.filter((dist) => dist.planId !== dpId));
-      alert("Distribution plan deleted successfully!");
+      toast.success("Distribution plan deleted successfully!");
     } catch (error) {
       console.error("Failed to delete distribution plan:", error);
-      alert("Failed to delete distribution plan. Please try again.");
+      toast.error("Failed to delete distribution plan. Please try again.");
     }
   };
 
@@ -571,12 +573,12 @@ export default function ManagerOutletDistribution() {
         )
       );
 
-      alert("Distribution plan updated successfully!");
+      toast.success("Distribution plan updated successfully!");
       setShowProductListModal(false);
       return result;
     } catch (error) {
       console.error("Failed to update distribution plan:", error);
-      alert("Failed to update distribution plan. Please try again.");
+      toast.error("Failed to update distribution plan. Please try again.");
     }
   };
 
@@ -587,16 +589,16 @@ export default function ManagerOutletDistribution() {
     if (!showProductListModal || !selectedDistributionForEdit) return null;
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-          <div className="p-6 border-b border-[#E4E6EA]">
+      <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+        <div className="bg-elevated rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+          <div className="p-6 border-b border-line">
             <div className="flex items-center justify-between">
-              <h3 className="text-[20px] font-[600] text-[#383E49]">
+              <h3 className="text-[20px] font-[600] text-fg">
                 Edit Distribution
               </h3>
               <button
                 onClick={() => setShowProductListModal(false)}
-                className="p-2 hover:bg-[#F0F1F3] rounded-lg"
+                className="p-2 hover:bg-app rounded-lg"
               >
                 <X size={20} />
               </button>
@@ -605,7 +607,7 @@ export default function ManagerOutletDistribution() {
 
           <div className="p-6">
             <div className="mb-4">
-              <div className="flex items-center gap-4 text-[14px] text-[#667085]">
+              <div className="flex items-center gap-4 text-[14px] text-fg-secondary">
                 <span>Outlet: {selectedDistributionForEdit.outletName}</span>
                 <span>Date: {selectedDistributionForEdit.date}</span>
                 <span>ID: {selectedDistributionForEdit.id}</span>
@@ -613,19 +615,19 @@ export default function ManagerOutletDistribution() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full border border-[#E4E6EA] rounded-lg">
-                <thead className="bg-[#F8F9FA]">
+              <table className="w-full border border-line rounded-lg">
+                <thead className="bg-subtle">
                   <tr>
-                    <th className="text-left py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                    <th className="text-left py-3 px-4 text-[14px] font-[500] text-fg">
                       Product Name
                     </th>
-                    <th className="text-center py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                    <th className="text-center py-3 px-4 text-[14px] font-[500] text-fg">
                       Distributed Quantity
                     </th>
-                    <th className="text-center py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                    <th className="text-center py-3 px-4 text-[14px] font-[500] text-fg">
                       Unit
                     </th>
-                    <th className="text-center py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                    <th className="text-center py-3 px-4 text-[14px] font-[500] text-fg">
                       Actions
                     </th>
                   </tr>
@@ -634,37 +636,37 @@ export default function ManagerOutletDistribution() {
                   {selectedDistributionForEdit.products.map((product) => (
                     <tr
                       key={product.id || product.productId}
-                      className="border-t border-[#E4E6EA]"
+                      className="border-t border-line"
                     >
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-[#F0F8FF]">
-                            <Package size={16} className="text-[#0F50AA]" />
+                          <div className="p-2 rounded-lg bg-subtle">
+                            <Package size={16} className="text-brand-fg" />
                           </div>
                           <div>
-                            <p className="text-[14px] font-[500] text-[#383E49]">
+                            <p className="text-[14px] font-[500] text-fg">
                               {product.productName}
                             </p>
-                            <p className="text-[12px] text-[#667085]">
+                            <p className="text-[12px] text-fg-secondary">
                               ID: {product.productId}
                             </p>
                           </div>
                         </div>
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <span className="text-[14px] font-[600] text-[#383E49]">
+                        <span className="text-[14px] font-[600] text-fg">
                           {product.distributedQty || product.quantity}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <span className="text-[14px] text-[#667085]">
+                        <span className="text-[14px] text-fg-secondary">
                           pieces
                         </span>
                       </td>
                       <td className="py-3 px-4 text-center">
                         <button
                           onClick={() => openOutletDistributionModal(product)}
-                          className="p-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors"
+                          className="p-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors"
                         >
                           <Edit size={16} />
                         </button>
@@ -715,7 +717,7 @@ export default function ManagerOutletDistribution() {
                     updateData
                   );
                 }}
-                className="px-6 py-3 bg-[#199D26] text-white rounded-lg hover:bg-[#15803D] transition-colors flex items-center gap-2"
+                className="px-6 py-3 bg-success-solid text-on-brand rounded-lg hover:bg-success-solid transition-colors flex items-center gap-2"
               >
                 <Save size={16} />
                 Update Distribution Plan
@@ -733,17 +735,17 @@ export default function ManagerOutletDistribution() {
       return null;
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-          <div className="p-6 border-b border-[#E4E6EA]">
+      <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
+        <div className="bg-elevated rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="p-6 border-b border-line">
             <div className="flex items-center justify-between">
-              <h3 className="text-[20px] font-[600] text-[#383E49]">
+              <h3 className="text-[20px] font-[600] text-fg">
                 Manage Outlet Distribution -{" "}
                 {selectedProductForOutletEdit?.productName}
               </h3>
               <button
                 onClick={() => setShowOutletDistributionModal(false)}
-                className="p-2 hover:bg-[#F0F1F3] rounded-lg"
+                className="p-2 hover:bg-app rounded-lg"
               >
                 <X size={20} />
               </button>
@@ -752,19 +754,19 @@ export default function ManagerOutletDistribution() {
 
           <div className="p-6">
             {/* Add Distribution Form */}
-            <div className="bg-[#F8F9FA] rounded-lg p-4 mb-6">
-              <h4 className="text-[16px] font-[600] text-[#383E49] mb-4">
+            <div className="bg-subtle rounded-lg p-4 mb-6">
+              <h4 className="text-[16px] font-[600] text-fg mb-4">
                 Add New Distribution
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                  <label className="block text-[14px] font-[500] text-fg mb-2">
                     Select Outlet
                   </label>
                   <select
                     value={tempOutletId}
                     onChange={(e) => setTempOutletId(e.target.value)}
-                    className="w-full px-4 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA]"
+                    className="w-full px-4 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg"
                   >
                     <option value="">Select Outlet</option>
                     {outlets.map((outlet) => (
@@ -775,7 +777,7 @@ export default function ManagerOutletDistribution() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                  <label className="block text-[14px] font-[500] text-fg mb-2">
                     Quantity
                   </label>
                   <input
@@ -790,16 +792,16 @@ export default function ManagerOutletDistribution() {
                     }
                     value={tempQty}
                     onChange={(e) => setTempQty(e.target.value)}
-                    className="w-full px-4 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA]"
+                    className="w-full px-4 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg"
                     placeholder="Enter quantity"
                   />
                 </div>
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                  <label className="block text-[14px] font-[500] text-fg mb-2">
                     Available
                   </label>
-                  <div className="flex items-center h-10 px-4 py-2 bg-white border border-[#E4E6EA] rounded-lg">
-                    <span className="text-[14px] font-[600] text-[#199D26]">
+                  <div className="flex items-center h-10 px-4 py-2 bg-surface border border-line rounded-lg">
+                    <span className="text-[14px] font-[600] text-success">
                       {selectedProductForOutletEdit
                         ? getRemainingQtyForDistribution(
                             selectedProductForOutletEdit
@@ -812,7 +814,7 @@ export default function ManagerOutletDistribution() {
                   <button
                     type="button"
                     onClick={addOutletDistribution}
-                    className="w-full px-4 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494]"
+                    className="w-full px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover"
                   >
                     Add
                   </button>
@@ -822,20 +824,20 @@ export default function ManagerOutletDistribution() {
 
             {/* Existing Distributions Table */}
             <div>
-              <h4 className="text-[16px] font-[600] text-[#383E49] mb-4">
+              <h4 className="text-[16px] font-[600] text-fg mb-4">
                 Current Distributions
               </h4>
               <div className="overflow-x-auto">
-                <table className="w-full border border-[#E4E6EA] rounded-lg">
-                  <thead className="bg-[#F8F9FA]">
+                <table className="w-full border border-line rounded-lg">
+                  <thead className="bg-subtle">
                     <tr>
-                      <th className="text-left py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-3 px-4 text-[14px] font-[500] text-fg">
                         Outlet
                       </th>
-                      <th className="text-center py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-center py-3 px-4 text-[14px] font-[500] text-fg">
                         Quantity
                       </th>
-                      <th className="text-center py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-center py-3 px-4 text-[14px] font-[500] text-fg">
                         Actions
                       </th>
                     </tr>
@@ -846,11 +848,11 @@ export default function ManagerOutletDistribution() {
                         selectedProductForOutletEdit.id ||
                           selectedProductForOutletEdit.productId
                       ]?.map((dist, index) => (
-                        <tr key={index} className="border-t border-[#E4E6EA]">
-                          <td className="py-3 px-4 text-[14px] text-[#383E49]">
+                        <tr key={index} className="border-t border-line">
+                          <td className="py-3 px-4 text-[14px] text-fg">
                             {dist.outletName}
                           </td>
-                          <td className="py-3 px-4 text-[14px] text-[#383E49] text-center">
+                          <td className="py-3 px-4 text-[14px] text-fg text-center">
                             {dist.qty}
                           </td>
                           <td className="py-3 px-4 text-center">
@@ -862,7 +864,7 @@ export default function ManagerOutletDistribution() {
                                   index
                                 )
                               }
-                              className="p-1 text-red-600 hover:bg-red-50 rounded"
+                              className="p-1 text-error hover:bg-error/10 rounded"
                             >
                               <Trash2 size={16} />
                             </button>
@@ -877,7 +879,7 @@ export default function ManagerOutletDistribution() {
                         <tr>
                           <td
                             colSpan="3"
-                            className="py-6 text-center text-[#667085]"
+                            className="py-6 text-center text-fg-secondary"
                           >
                             No distributions added yet
                           </td>
@@ -894,7 +896,7 @@ export default function ManagerOutletDistribution() {
   };
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <ManagerSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -908,10 +910,10 @@ export default function ManagerOutletDistribution() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
             <div>
-              <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+              <h1 className="text-[20px] font-[600] text-fg mb-1">
                 Outlet Distribution
               </h1>
-              <p className="text-[14px] text-[#667085]">
+              <p className="text-[14px] text-fg-secondary">
                 Distribute production quantities to various outlets
               </p>
             </div>
@@ -919,13 +921,13 @@ export default function ManagerOutletDistribution() {
 
           {/* Distribution History */}
 
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 rounded-lg bg-[#FFFBEB]">
-                  <History size={20} className="text-[#F4A100]" />
+                <div className="p-2 rounded-lg bg-hover">
+                  <History size={20} className="text-warning" />
                 </div>
-                <h3 className="text-[18px] font-[600] text-[#383E49]">
+                <h3 className="text-[18px] font-[600] text-fg">
                   Distribution History
                 </h3>
               </div>
@@ -935,13 +937,13 @@ export default function ManagerOutletDistribution() {
                   type="date"
                   value={filterDate}
                   onChange={(e) => setFilterDate(e.target.value)}
-                  className="px-4 py-2 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent outline-none text-[14px]"
+                  className="px-4 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-transparent outline-none text-[14px]"
                   placeholder="Filter by date"
                 />
                 {filterDate && (
                   <button
                     onClick={() => setFilterDate("")}
-                    className="px-3 py-2 border border-[#E4E6EA] rounded-lg text-[#667085] hover:bg-gray-50 flex items-center gap-1 transition-colors text-[13px] font-[500]"
+                    className="px-3 py-2 border border-line rounded-lg text-fg-secondary hover:bg-subtle flex items-center gap-1 transition-colors text-[13px] font-[500]"
                     title="Clear filter"
                   >
                     <X size={16} />
@@ -956,7 +958,7 @@ export default function ManagerOutletDistribution() {
                 <Loader variant="section" text="Loading distribution plans..." />
               ) : distributionsError ? (
                 <div className="text-center py-8">
-                  <div className="flex items-center justify-center gap-2 text-red-600">
+                  <div className="flex items-center justify-center gap-2 text-error">
                     <AlertTriangle size={20} />
                     <span className="text-[14px]">
                       Error loading distributions: {distributionsError}
@@ -967,24 +969,24 @@ export default function ManagerOutletDistribution() {
                 getFilteredDistributions().map((distribution) => (
                   <div
                     key={distribution.id}
-                    className="border border-[#E4E6EA] rounded-lg p-4"
+                    className="border border-line rounded-lg p-4"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3">
                       <div>
-                        <h4 className="text-[16px] font-[600] text-[#383E49]">
+                        <h4 className="text-[16px] font-[600] text-fg">
                           {distribution.planName}
                         </h4>
-                        <div className="flex items-center gap-4 text-[12px] text-[#667085] mt-1">
+                        <div className="flex items-center gap-4 text-[12px] text-fg-secondary mt-1">
                           <span>ID: {distribution.id}</span>
                           <span>Date: {distribution.date}</span>
                           <span>By: {distribution.createdBy}</span>
                           <span
                             className={`px-2 py-1 rounded-full text-[10px] font-[500] ${
                               distribution.status === "not-received"
-                                ? "bg-yellow-100 text-yellow-800"
+                                ? "bg-warning/10 text-warning"
                                 : distribution.status === "received"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-gray-100 text-gray-800"
+                                ? "bg-success/10 text-success"
+                                : "bg-hover text-fg"
                             }`}
                           >
                             {distribution.status}
@@ -995,8 +997,8 @@ export default function ManagerOutletDistribution() {
                       {/* Right-side controls */}
                       <div className="flex items-center gap-3 mt-2 sm:mt-0">
                         {/* Outlet */}
-                        <div className="flex items-center gap-2 text-[14px] font-[500] text-[#383E49]">
-                          <Store size={16} className="text-[#0F50AA]" />
+                        <div className="flex items-center gap-2 text-[14px] font-[500] text-fg">
+                          <Store size={16} className="text-brand-fg" />
                           {distribution.outletName}
                         </div>
 
@@ -1004,16 +1006,16 @@ export default function ManagerOutletDistribution() {
                         <div className="flex items-center gap-2">
                           <Edit
                             size={18}
-                            className="text-[#0F50AA] cursor-pointer"
+                            className="text-brand-fg cursor-pointer"
                             onClick={() => openProductListModal(distribution)}
                           />
                           <Trash2
                             size={18}
-                            className="text-red-500 cursor-pointer"
-                            onClick={() => {
+                            className="text-error cursor-pointer"
+                            onClick={async () => {
                               if (
-                                window.confirm(
-                                  "Are you sure you want to delete this distribution?"
+                                await confirmDialog(
+                                  "Are you sure you want to delete this distribution?", { confirmText: "Delete", danger: true }
                                 )
                               ) {
                                 deleteDistributionPlan(distribution.planId);
@@ -1024,15 +1026,15 @@ export default function ManagerOutletDistribution() {
                       </div>
                     </div>
 
-                    <div className="bg-[#F8F9FA] rounded p-3">
-                      <p className="text-[12px] text-[#667085] mb-2">
+                    <div className="bg-subtle rounded p-3">
+                      <p className="text-[12px] text-fg-secondary mb-2">
                         Distributed Products:
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {distribution.products.map((product, index) => (
                           <span
                             key={index}
-                            className="text-[12px] bg-white px-2 py-1 rounded border"
+                            className="text-[12px] bg-surface px-2 py-1 rounded border"
                           >
                             {product.productName}: {product.distributedQty}{" "}
                             pieces
@@ -1043,7 +1045,7 @@ export default function ManagerOutletDistribution() {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8 text-[#667085]">
+                <div className="text-center py-8 text-fg-secondary">
                   <p className="text-[14px]">
                     {filterDate
                       ? `No distributions found for ${new Date(
@@ -1069,7 +1071,7 @@ export default function ManagerOutletDistribution() {
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

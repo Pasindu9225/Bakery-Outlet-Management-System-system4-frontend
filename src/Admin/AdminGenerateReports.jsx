@@ -372,9 +372,9 @@ export default function AdminGenerateReports() {
         if (!reportGenerated) {
             return (
                 <div className="text-center py-20">
-                    <FileText size={64} className="mx-auto text-[#667085] mb-4" />
-                    <h3 className="text-[18px] font-[600] text-[#383E49] mb-2">No Report Generated</h3>
-                    <p className="text-[14px] text-[#667085]">
+                    <FileText size={64} className="mx-auto text-fg-secondary mb-4" />
+                    <h3 className="text-[18px] font-[600] text-fg mb-2">No Report Generated</h3>
+                    <p className="text-[14px] text-fg-secondary">
                         Select filters and click "Generate Report" to view data
                     </p>
                 </div>
@@ -384,9 +384,9 @@ export default function AdminGenerateReports() {
         if (data.length === 0) {
             return (
                 <div className="text-center py-20">
-                    <AlertTriangle size={64} className="mx-auto text-[#F4A100] mb-4" />
-                    <h3 className="text-[18px] font-[600] text-[#383E49] mb-2">No Data Available</h3>
-                    <p className="text-[14px] text-[#667085]">
+                    <AlertTriangle size={64} className="mx-auto text-warning mb-4" />
+                    <h3 className="text-[18px] font-[600] text-fg mb-2">No Data Available</h3>
+                    <p className="text-[14px] text-fg-secondary">
                         No records found for the selected filters
                     </p>
                 </div>
@@ -397,26 +397,26 @@ export default function AdminGenerateReports() {
             <div className="overflow-x-auto" ref={tableRef}>
                 <table className="w-full">
                     <thead>
-                        <tr className="border-b-2 border-[#E4E6EA]">
+                        <tr className="border-b-2 border-line">
                             {Object.keys(data[0]).map((header) => (
-                                <th key={header} className="text-left py-4 text-[14px] font-[600] text-[#383E49] ">
+                                <th key={header} className="text-left py-4 text-[14px] font-[600] text-fg ">
                                     {header.replace(/([A-Z])/g, ' $1').trim()}
                                 </th>
                             ))}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E4E6EA]">
+                    <tbody className="divide-y divide-line">
                         {data.map((row, index) => (
-                            <tr key={index} className="hover:bg-[#F8F9FA] transition-colors">
+                            <tr key={index} className="hover:bg-subtle transition-colors">
                                 {Object.entries(row).map(([key, value], i) => (
-                                    <td key={i} className="py-4 text-[14px] text-[#48505E]">
+                                    <td key={i} className="py-4 text-[14px] text-fg">
                                         {key === 'status' ? (
                                             <span className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-[500] ${
                                                 value === 'Active' || value === 'Completed' || value === 'In Stock' 
-                                                    ? 'bg-[#DDFFE0] text-[#199D26]'
+                                                    ? 'bg-hover text-success'
                                                     : value === 'Low Stock' || value === 'In Progress'
-                                                    ? 'bg-[#FFF4ED] text-[#F4A100]'
-                                                    : 'bg-[#FEE2E2] text-[#EF4444]'
+                                                    ? 'bg-hover text-warning'
+                                                    : 'bg-hover text-error'
                                             }`}>
                                                 {value}
                                             </span>
@@ -436,7 +436,7 @@ export default function AdminGenerateReports() {
     };
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             {/* Sidebar */}
             <AdminSidebar sidebarOpen={sidebarOpen} />
 
@@ -451,29 +451,29 @@ export default function AdminGenerateReports() {
                 <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
                     {/* Page Header */}
                     <div className="mb-6">
-                        <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+                        <h1 className="text-[20px] font-[600] text-fg mb-1">
                             Generate Reports
                         </h1>
-                        <p className="text-[14px] leading-[20px] font-[400] text-[#667085]">
+                        <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
                             Filter, view, and export detailed operational reports
                         </p>
                     </div>
 
                     {/* Filters & Controls Card */}
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6 mb-6">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6 mb-6">
                      
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                             {/* Report Type Selector */}
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                <label className="block text-[14px] font-[500] text-fg mb-2">
                                     Report Type
                                 </label>
                                 <div className="relative">
                                     <select
                                         value={reportType}
                                         onChange={(e) => setReportType(e.target.value)}
-                                        className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white appearance-none"
+                                        className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface appearance-none"
                                     >
                                         <option value="Sales">Sales Report</option>
                                         <option value="Stock">Stock Report</option>
@@ -482,91 +482,91 @@ export default function AdminGenerateReports() {
                                         <option value="Purchases">Purchases Report</option>
                                         <option value="Outlet Distribution">Outlet Distribution</option>
                                     </select>
-                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#667085] pointer-events-none" />
+                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-fg-secondary pointer-events-none" />
                                 </div>
                             </div>
 
                             {/* Date From */}
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                <label className="block text-[14px] font-[500] text-fg mb-2">
                                     From Date
                                 </label>
                                 <div className="relative">
-                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#667085]" />
+                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-fg-secondary" />
                                     <input
                                         type="date"
                                         value={dateFrom}
                                         onChange={(e) => setDateFrom(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface"
                                     />
                                 </div>
                             </div>
 
                             {/* Date To */}
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                <label className="block text-[14px] font-[500] text-fg mb-2">
                                     To Date
                                 </label>
                                 <div className="relative">
-                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#667085]" />
+                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-fg-secondary" />
                                     <input
                                         type="date"
                                         value={dateTo}
                                         onChange={(e) => setDateTo(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface"
                                     />
                                 </div>
                             </div>
 
                             {/* Outlet Selection */}
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                <label className="block text-[14px] font-[500] text-fg mb-2">
                                     Outlet
                                 </label>
                                 <div className="relative">
-                                    <Store className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#667085]" />
+                                    <Store className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-fg-secondary" />
                                     <select
                                         value={outlet}
                                         onChange={(e) => setOutlet(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white appearance-none"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface appearance-none"
                                     >
                                         {outlets.map((opt) => (
                                             <option key={opt} value={opt}>{opt}</option>
                                         ))}
                                     </select>
-                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#667085] pointer-events-none" />
+                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-fg-secondary pointer-events-none" />
                                 </div>
                             </div>
 
                             {/* Category Selection */}
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                <label className="block text-[14px] font-[500] text-fg mb-2">
                                     Product Category
                                 </label>
                                 <div className="relative">
-                                    <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#667085]" />
+                                    <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-fg-secondary" />
                                     <select
                                         value={category}
                                         onChange={(e) => setCategory(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white appearance-none"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface appearance-none"
                                     >
                                         {categories.map((cat) => (
                                             <option key={cat} value={cat}>{cat}</option>
                                         ))}
                                     </select>
-                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#667085] pointer-events-none" />
+                                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-fg-secondary pointer-events-none" />
                                 </div>
                             </div>
 
                             {/* Employee Selection */}
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                <label className="block text-[14px] font-[500] text-fg mb-2">
                                     Employee/User
                                 </label>
                                 <select
                                     value={employee}
                                     onChange={(e) => setEmployee(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white"
+                                    className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface"
                                 >
                                     {employees.map((emp) => (
                                         <option key={emp} value={emp}>{emp}</option>
@@ -579,13 +579,13 @@ export default function AdminGenerateReports() {
                         <div className="flex gap-3">
                             <button
                                 onClick={handleApplyFilters}
-                                className="px-6 py-2.5 bg-[#0F50AA] hover:bg-[#1366D9] text-white rounded-md text-[14px] font-[500] transition-colors"
+                                className="px-6 py-2.5 bg-brand hover:bg-brand-hover text-on-brand rounded-md text-[14px] font-[500] transition-colors"
                             >
                                 Generate Report
                             </button>
                             <button
                                 onClick={handleResetFilters}
-                                className="px-6 py-2.5 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] font-[500] hover:bg-[#F8F9FA] transition-colors"
+                                className="px-6 py-2.5 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors"
                             >
                                 Reset
                             </button>
@@ -596,14 +596,14 @@ export default function AdminGenerateReports() {
                     {reportGenerated && getCurrentData().length > 0 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                             {Object.entries(calculateSummary()).map(([key, value]) => (
-                                <div key={key} className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                                <div key={key} className="bg-surface rounded-lg shadow-sm border border-line p-6">
                                     <div className="flex items-center justify-between mb-2">
-                                        <p className="text-[14px] font-[500] text-[#667085]">{key}</p>
-                                        <div className="p-2 bg-[#EBF8FF] rounded-lg">
+                                        <p className="text-[14px] font-[500] text-fg-secondary">{key}</p>
+                                        <div className="p-2 bg-hover rounded-lg">
                                             {getReportIcon()}
                                         </div>
                                     </div>
-                                    <h3 className="text-[20px] font-[600] text-[#383E49]">
+                                    <h3 className="text-[20px] font-[600] text-fg">
                                         {value}
                                     </h3>
                                 </div>
@@ -612,17 +612,17 @@ export default function AdminGenerateReports() {
                     )}
 
                     {/* Report Preview Panel */}
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-[#EBF8FF] rounded-lg">
+                                <div className="p-2 bg-hover rounded-lg">
                                     {getReportIcon()}
                                 </div>
                                 <div>
-                                    <h3 className="text-[18px] font-[600] text-[#383E49]">
+                                    <h3 className="text-[18px] font-[600] text-fg">
                                         {reportType} Report
                                     </h3>
-                                    <p className="text-[14px] text-[#667085]">
+                                    <p className="text-[14px] text-fg-secondary">
                                         {reportGenerated 
                                             ? `Showing ${getCurrentData().length} records`
                                             : 'Configure filters to generate report'
@@ -636,7 +636,7 @@ export default function AdminGenerateReports() {
                                 <div className="flex gap-2 mt-4 sm:mt-0">
                                     <button
                                         onClick={handleExportCSV}
-                                        className="flex items-center gap-2 px-4 py-2 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] font-[500] hover:bg-[#F8F9FA] transition-colors"
+                                        className="flex items-center gap-2 px-4 py-2 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors"
                                         title="Export as CSV"
                                     >
                                         <FileText size={16} />
@@ -644,7 +644,7 @@ export default function AdminGenerateReports() {
                                     </button>
                                     <button
                                         onClick={handleExportPDF}
-                                        className="flex items-center gap-2 px-4 py-2 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] font-[500] hover:bg-[#F8F9FA] transition-colors"
+                                        className="flex items-center gap-2 px-4 py-2 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors"
                                         title="Export as PDF"
                                     >
                                         <Download size={16} />
@@ -659,8 +659,8 @@ export default function AdminGenerateReports() {
 
                         {/* Table Info Footer */}
                         {reportGenerated && getCurrentData().length > 0 && (
-                            <div className="mt-6 pt-6 border-t border-[#E4E6EA]">
-                                <p className="text-[12px] text-[#667085]">
+                            <div className="mt-6 pt-6 border-t border-line">
+                                <p className="text-[12px] text-fg-secondary">
                                     <strong>Note:</strong> This report displays data based on the selected filters. 
                                     Export options are available for further analysis and record-keeping.
                                 </p>
@@ -673,7 +673,7 @@ export default function AdminGenerateReports() {
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

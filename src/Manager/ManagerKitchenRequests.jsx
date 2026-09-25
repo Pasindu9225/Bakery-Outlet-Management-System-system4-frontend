@@ -132,21 +132,21 @@ export default function ManagerKitchenRequests() {
   const getStatusColor = (status) => {
     switch (status?.toUpperCase()) {
       case "DRAFT":
-        return "text-[#F4A100] bg-[#FFFBEB]";
+        return "text-warning bg-hover";
       case "SUBMITTED":
-        return "text-[#1366D9] bg-[#F0F8FF]";
+        return "text-brand-fg bg-subtle";
       case "APPROVED":
-        return "text-[#199D26] bg-[#F0FDF4]";
+        return "text-success bg-hover";
       case "REJECTED":
-        return "text-[#EF4444] bg-[#FEF2F2]";
+        return "text-error bg-subtle";
       case "IN_PROGRESS":
-        return "text-[#1366D9] bg-[#F0F8FF]";
+        return "text-brand-fg bg-subtle";
       case "COMPLETED":
-        return "text-[#199D26] bg-[#F0FDF4]";
+        return "text-success bg-hover";
       case "CANCELLED":
-        return "text-[#EF4444] bg-[#FEF2F2]";
+        return "text-error bg-subtle";
       default:
-        return "text-[#667085] bg-[#F8F9FA]";
+        return "text-fg-secondary bg-subtle";
     }
   };
 
@@ -206,49 +206,49 @@ export default function ManagerKitchenRequests() {
     );
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-          <div className="p-6 border-b border-[#E4E6EA]">
+      <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
+        <div className="bg-elevated rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="p-6 border-b border-line">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-[20px] font-[600] text-[#383E49]">
+                <h3 className="text-[20px] font-[600] text-fg">
                   Kitchen Request Details
                 </h3>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   Request ID: {selectedRequest.id}
                 </p>
               </div>
               <button
                 onClick={() => setShowViewModal(false)}
-                className="p-2 hover:bg-[#F0F1F3] rounded-lg transition-colors"
+                className="p-2 hover:bg-app rounded-lg transition-colors"
               >
-                <X size={20} className="text-[#667085]" />
+                <X size={20} className="text-fg-secondary" />
               </button>
             </div>
           </div>
 
           <div className="p-6">
             {/* Request Header Information */}
-            <div className="bg-gradient-to-r from-[#F8F9FA] to-[#F0F1F3] rounded-lg p-6 mb-6">
+            <div className="bg-gradient-to-r from-subtle to-hover rounded-lg p-6 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div>
-                  <p className="text-[12px] text-[#667085] mb-1">
+                  <p className="text-[12px] text-fg-secondary mb-1">
                     Request Name
                   </p>
-                  <p className="text-[14px] font-[500] text-[#383E49]">
+                  <p className="text-[14px] font-[500] text-fg">
                     {selectedRequest.requestName}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] text-[#667085] mb-1">
+                  <p className="text-[12px] text-fg-secondary mb-1">
                     Request Date
                   </p>
-                  <p className="text-[14px] font-[500] text-[#383E49]">
+                  <p className="text-[14px] font-[500] text-fg">
                     {new Date(selectedRequest.requestDate).toLocaleDateString()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] text-[#667085] mb-1">Status</p>
+                  <p className="text-[12px] text-fg-secondary mb-1">Status</p>
                   <div className="flex items-center gap-2">
                     <span
                       className={`text-[12px] px-3 py-1 rounded-full font-[500] flex items-center gap-1 ${getStatusColor(
@@ -261,17 +261,17 @@ export default function ManagerKitchenRequests() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-[12px] text-[#667085] mb-1">KOT Count</p>
+                  <p className="text-[12px] text-fg-secondary mb-1">KOT Count</p>
                   <div className="flex items-center gap-2">
-                    <Receipt size={16} className="text-[#0F50AA]" />
-                    <p className="text-[14px] font-[600] text-[#383E49]">
+                    <Receipt size={16} className="text-brand-fg" />
+                    <p className="text-[14px] font-[600] text-fg">
                       {selectedRequest.kotCount}
                     </p>
                   </div>
                 </div>
                 <div>
-                  <p className="text-[12px] text-[#667085] mb-1">Created By</p>
-                  <p className="text-[14px] font-[500] text-[#383E49]">
+                  <p className="text-[12px] text-fg-secondary mb-1">Created By</p>
+                  <p className="text-[14px] font-[500] text-fg">
                     {selectedRequest.createdBy}
                   </p>
                 </div>
@@ -281,26 +281,26 @@ export default function ManagerKitchenRequests() {
             {/* Products List */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-[18px] font-[600] text-[#383E49]">
+                <h4 className="text-[18px] font-[600] text-fg">
                   Products
                 </h4>
-                <span className="text-[12px] bg-[#F0F8FF] text-[#1366D9] px-3 py-1 rounded-full font-[500]">
+                <span className="text-[12px] bg-subtle text-brand-fg px-3 py-1 rounded-full font-[500]">
                   {selectedRequest.products.length} Items • {totalProducts}{" "}
                   Total Qty
                 </span>
               </div>
-              <div className="bg-white border border-[#E4E6EA] rounded-lg overflow-hidden">
+              <div className="bg-surface border border-line rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="bg-[#F8F9FA] border-b border-[#E4E6EA]">
-                        <th className="text-left py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                      <tr className="bg-subtle border-b border-line">
+                        <th className="text-left py-3 px-4 text-[14px] font-[500] text-fg">
                           Product Name
                         </th>
-                        <th className="text-center py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                        <th className="text-center py-3 px-4 text-[14px] font-[500] text-fg">
                           Requested Quantity
                         </th>
-                        <th className="text-center py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                        <th className="text-center py-3 px-4 text-[14px] font-[500] text-fg">
                           Unit
                         </th>
                       </tr>
@@ -309,25 +309,25 @@ export default function ManagerKitchenRequests() {
                       {selectedRequest.products.map((product, index) => (
                         <tr
                           key={index}
-                          className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                          className="border-b border-line hover:bg-subtle"
                         >
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-lg bg-green-100">
-                                <ChefHat size={16} className="text-green-600" />
+                              <div className="p-2 rounded-lg bg-success/10">
+                                <ChefHat size={16} className="text-success" />
                               </div>
-                              <span className="text-[14px] font-[500] text-[#383E49]">
+                              <span className="text-[14px] font-[500] text-fg">
                                 {product.name}
                               </span>
                             </div>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <span className="text-[14px] font-[600] text-[#383E49]">
+                            <span className="text-[14px] font-[600] text-fg">
                               {product.quantity}
                             </span>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <span className="text-[12px] text-[#667085] bg-[#F0F1F3] px-2 py-1 rounded">
+                            <span className="text-[12px] text-fg-secondary bg-app px-2 py-1 rounded">
                               {product.unit}
                             </span>
                           </td>
@@ -342,25 +342,25 @@ export default function ManagerKitchenRequests() {
             {/* Raw Materials Required */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-[18px] font-[600] text-[#383E49]">
+                <h4 className="text-[18px] font-[600] text-fg">
                   Raw Materials Required
                 </h4>
-                <span className="text-[12px] bg-[#FFFBEB] text-[#F4A100] px-3 py-1 rounded-full font-[500]">
+                <span className="text-[12px] bg-hover text-warning px-3 py-1 rounded-full font-[500]">
                   {selectedRequest.rawMaterials.length} Materials
                 </span>
               </div>
-              <div className="bg-white border border-[#E4E6EA] rounded-lg overflow-hidden">
+              <div className="bg-surface border border-line rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="bg-[#F8F9FA] border-b border-[#E4E6EA]">
-                        <th className="text-left py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                      <tr className="bg-subtle border-b border-line">
+                        <th className="text-left py-3 px-4 text-[14px] font-[500] text-fg">
                           Raw Material Name
                         </th>
-                        <th className="text-center py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                        <th className="text-center py-3 px-4 text-[14px] font-[500] text-fg">
                           Quantity Needed
                         </th>
-                        <th className="text-center py-3 px-4 text-[14px] font-[500] text-[#383E49]">
+                        <th className="text-center py-3 px-4 text-[14px] font-[500] text-fg">
                           Unit
                         </th>
                       </tr>
@@ -369,28 +369,28 @@ export default function ManagerKitchenRequests() {
                       {selectedRequest.rawMaterials.map((material, index) => (
                         <tr
                           key={index}
-                          className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                          className="border-b border-line hover:bg-subtle"
                         >
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-lg bg-purple-100">
+                              <div className="p-2 rounded-lg bg-plum/10">
                                 <Package
                                   size={16}
-                                  className="text-purple-600"
+                                  className="text-plum"
                                 />
                               </div>
-                              <span className="text-[14px] font-[500] text-[#383E49]">
+                              <span className="text-[14px] font-[500] text-fg">
                                 {material.name}
                               </span>
                             </div>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <span className="text-[14px] font-[600] text-[#383E49]">
+                            <span className="text-[14px] font-[600] text-fg">
                               {material.quantity}
                             </span>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <span className="text-[12px] text-[#667085] bg-[#F0F1F3] px-2 py-1 rounded">
+                            <span className="text-[12px] text-fg-secondary bg-app px-2 py-1 rounded">
                               {material.unit}
                             </span>
                           </td>
@@ -403,8 +403,8 @@ export default function ManagerKitchenRequests() {
             </div>
 
             {/* Created Info */}
-            <div className="mt-6 pt-6 border-t border-[#E4E6EA]">
-              <div className="flex items-center gap-4 text-[12px] text-[#667085]">
+            <div className="mt-6 pt-6 border-t border-line">
+              <div className="flex items-center gap-4 text-[12px] text-fg-secondary">
                 <span>
                   Created on{" "}
                   {new Date(selectedRequest.createdAt).toLocaleDateString()}
@@ -425,7 +425,7 @@ export default function ManagerKitchenRequests() {
   };
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <ManagerSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -439,10 +439,10 @@ export default function ManagerKitchenRequests() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
             <div>
-              <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+              <h1 className="text-[20px] font-[600] text-fg mb-1">
                 Kitchen Requests
               </h1>
-              <p className="text-[14px] text-[#667085]">
+              <p className="text-[14px] text-fg-secondary">
                 View and monitor all kitchen production requests
               </p>
             </div>
@@ -450,104 +450,104 @@ export default function ManagerKitchenRequests() {
 
           {/* Summary Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-6 gap-4 mb-6">
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
               <div className="flex items-center justify-between mb-2">
-                <ChefHat size={18} className="text-[#0F50AA]" />
-                <span className="text-[12px] text-[#199D26] bg-[#F0FDF4] px-2 py-1 rounded">
+                <ChefHat size={18} className="text-brand-fg" />
+                <span className="text-[12px] text-success bg-hover px-2 py-1 rounded">
                   Total
                 </span>
               </div>
-              <p className="text-[12px] text-[#667085] mb-1">All Requests</p>
-              <p className="text-[20px] font-[600] text-[#383E49]">
+              <p className="text-[12px] text-fg-secondary mb-1">All Requests</p>
+              <p className="text-[20px] font-[600] text-fg">
                 {summaryStats.total}
               </p>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
               <div className="flex items-center justify-between mb-2">
-                <Clock size={18} className="text-[#F4A100]" />
-                <span className="text-[12px] text-[#F4A100] bg-[#FFFBEB] px-2 py-1 rounded">
+                <Clock size={18} className="text-warning" />
+                <span className="text-[12px] text-warning bg-hover px-2 py-1 rounded">
                   {summaryStats.draft}
                 </span>
               </div>
-              <p className="text-[12px] text-[#667085] mb-1">Draft</p>
-              <p className="text-[20px] font-[600] text-[#383E49]">
+              <p className="text-[12px] text-fg-secondary mb-1">Draft</p>
+              <p className="text-[20px] font-[600] text-fg">
                 {summaryStats.draft}
               </p>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
               <div className="flex items-center justify-between mb-2">
-                <PlayCircle size={18} className="text-[#1366D9]" />
-                <span className="text-[12px] text-[#1366D9] bg-[#F0F8FF] px-2 py-1 rounded">
+                <PlayCircle size={18} className="text-brand-fg" />
+                <span className="text-[12px] text-brand-fg bg-subtle px-2 py-1 rounded">
                   {summaryStats.submitted}
                 </span>
               </div>
-              <p className="text-[12px] text-[#667085] mb-1">Submitted</p>
-              <p className="text-[20px] font-[600] text-[#383E49]">
+              <p className="text-[12px] text-fg-secondary mb-1">Submitted</p>
+              <p className="text-[20px] font-[600] text-fg">
                 {summaryStats.submitted}
               </p>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
               <div className="flex items-center justify-between mb-2">
-                <CheckCircle size={18} className="text-[#199D26]" />
-                <span className="text-[12px] text-[#199D26] bg-[#F0FDF4] px-2 py-1 rounded">
+                <CheckCircle size={18} className="text-success" />
+                <span className="text-[12px] text-success bg-hover px-2 py-1 rounded">
                   {summaryStats.approved}
                 </span>
               </div>
-              <p className="text-[12px] text-[#667085] mb-1">Approved</p>
-              <p className="text-[20px] font-[600] text-[#383E49]">
+              <p className="text-[12px] text-fg-secondary mb-1">Approved</p>
+              <p className="text-[20px] font-[600] text-fg">
                 {summaryStats.approved}
               </p>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
               <div className="flex items-center justify-between mb-2">
-                <XCircle size={18} className="text-[#EF4444]" />
-                <span className="text-[12px] text-[#EF4444] bg-[#FEF2F2] px-2 py-1 rounded">
+                <XCircle size={18} className="text-error" />
+                <span className="text-[12px] text-error bg-subtle px-2 py-1 rounded">
                   {summaryStats.rejected}
                 </span>
               </div>
-              <p className="text-[12px] text-[#667085] mb-1">Rejected</p>
-              <p className="text-[20px] font-[600] text-[#383E49]">
+              <p className="text-[12px] text-fg-secondary mb-1">Rejected</p>
+              <p className="text-[20px] font-[600] text-fg">
                 {summaryStats.rejected}
               </p>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
               <div className="flex items-center justify-between mb-2">
-                <Receipt size={18} className="text-[#B3A5FF]" />
-                <span className="text-[12px] text-[#B3A5FF] bg-[#F5F3FF] px-2 py-1 rounded">
+                <Receipt size={18} className="text-plum" />
+                <span className="text-[12px] text-plum bg-subtle px-2 py-1 rounded">
                   KOTs
                 </span>
               </div>
-              <p className="text-[12px] text-[#667085] mb-1">Total KOTs</p>
-              <p className="text-[20px] font-[600] text-[#383E49]">
+              <p className="text-[12px] text-fg-secondary mb-1">Total KOTs</p>
+              <p className="text-[20px] font-[600] text-fg">
                 {summaryStats.totalKots}
               </p>
             </div>
           </div>
 
           {/* Search Bar */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6 mb-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6 mb-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1 relative">
                 <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
                   size={20}
                 />
                 <input
                   type="text"
                   placeholder="Search by request name, product, date, or creator..."
-                  className="w-full pl-10 pr-4 py-3 border border-[#E4E6EA] rounded-lg focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent text-[14px]"
+                  className="w-full pl-10 pr-4 py-3 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-transparent text-[14px]"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               <button
                 onClick={() => setSearchTerm("")}
-                className="px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors flex items-center gap-2"
+                className="px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors flex items-center gap-2"
               >
                 <RefreshCw size={16} />
                 Clear
@@ -556,13 +556,13 @@ export default function ManagerKitchenRequests() {
           </div>
 
           {/* Requests Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-              <h3 className="text-[18px] font-[600] text-[#383E49]">
+              <h3 className="text-[18px] font-[600] text-fg">
                 Kitchen Requests List
               </h3>
               <div className="flex items-center gap-2 mt-2 sm:mt-0">
-                <span className="text-[12px] text-[#667085]">
+                <span className="text-[12px] text-fg-secondary">
                   Showing {filteredRequests.length} of {kitchenRequests.length}{" "}
                   requests
                 </span>
@@ -575,26 +575,26 @@ export default function ManagerKitchenRequests() {
               <div className="text-center py-12">
                 <AlertTriangle
                   size={48}
-                  className="mx-auto text-[#EF4444] mb-4"
+                  className="mx-auto text-error mb-4"
                 />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   Error loading requests
                 </p>
-                <p className="text-[14px] text-[#667085] mb-4">{error}</p>
+                <p className="text-[14px] text-fg-secondary mb-4">{error}</p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors"
+                  className="px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors"
                 >
                   Try Again
                 </button>
               </div>
             ) : filteredRequests.length === 0 ? (
               <div className="text-center py-12">
-                <ChefHat size={48} className="mx-auto text-[#667085] mb-4" />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <ChefHat size={48} className="mx-auto text-fg-secondary mb-4" />
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   No requests found
                 </p>
-                <p className="text-[14px] text-[#667085]">
+                <p className="text-[14px] text-fg-secondary">
                   {searchTerm
                     ? "Try adjusting your search criteria"
                     : "No kitchen requests available"}
@@ -604,26 +604,26 @@ export default function ManagerKitchenRequests() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E4E6EA]">
-                      <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                    <tr className="border-b border-line">
+                      <th className="text-left py-4 text-[14px] font-[500] text-fg">
                         Request Date
                       </th>
-                      <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-4 text-[14px] font-[500] text-fg">
                         Request Name
                       </th>
-                      <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-4 text-[14px] font-[500] text-fg">
                         Products (Full Quantity)
                       </th>
-                      <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-4 text-[14px] font-[500] text-fg">
                         Status
                       </th>
-                      <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-4 text-[14px] font-[500] text-fg">
                         KOTs
                       </th>
-                      <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-left py-4 text-[14px] font-[500] text-fg">
                         Created By
                       </th>
-                      <th className="text-center py-4 text-[14px] font-[500] text-[#383E49]">
+                      <th className="text-center py-4 text-[14px] font-[500] text-fg">
                         Action
                       </th>
                     </tr>
@@ -632,35 +632,35 @@ export default function ManagerKitchenRequests() {
                     {filteredRequests.map((request) => (
                       <tr
                         key={request.id}
-                        className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                        className="border-b border-line hover:bg-subtle"
                       >
                         <td className="py-4">
                           <div>
-                            <p className="text-[14px] font-[500] text-[#383E49]">
+                            <p className="text-[14px] font-[500] text-fg">
                               {new Date(
                                 request.requestDate
                               ).toLocaleDateString()}
                             </p>
-                            <p className="text-[12px] text-[#667085]">
+                            <p className="text-[12px] text-fg-secondary">
                               ID: {request.id}
                             </p>
                           </div>
                         </td>
                         <td className="py-4">
-                          <p className="text-[14px] font-[500] text-[#383E49]">
+                          <p className="text-[14px] font-[500] text-fg">
                             {request.requestName}
                           </p>
                         </td>
                         <td className="py-4">
                           <div>
-                            <p className="text-[14px] font-[500] text-[#383E49]">
+                            <p className="text-[14px] font-[500] text-fg">
                               {request.products.reduce(
                                 (sum, p) => sum + p.quantity,
                                 0
                               )}{" "}
                               total items
                             </p>
-                            <p className="text-[12px] text-[#667085]">
+                            <p className="text-[12px] text-fg-secondary">
                               {request.products.length} product types
                             </p>
                           </div>
@@ -677,22 +677,22 @@ export default function ManagerKitchenRequests() {
                         </td>
                         <td className="py-4">
                           <div className="flex items-center gap-2">
-                            <Receipt size={16} className="text-[#0F50AA]" />
-                            <span className="text-[14px] font-[600] text-[#383E49]">
+                            <Receipt size={16} className="text-brand-fg" />
+                            <span className="text-[14px] font-[600] text-fg">
                               {request.kotCount}
                             </span>
                           </div>
                         </td>
                         <td className="py-4">
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-[#F0F1F3] rounded-full flex items-center justify-center">
-                              <User size={14} className="text-[#667085]" />
+                            <div className="w-8 h-8 bg-app rounded-full flex items-center justify-center">
+                              <User size={14} className="text-fg-secondary" />
                             </div>
                             <div>
-                              <p className="text-[14px] font-[500] text-[#383E49]">
+                              <p className="text-[14px] font-[500] text-fg">
                                 {request.createdBy}
                               </p>
-                              <p className="text-[12px] text-[#667085]">
+                              <p className="text-[12px] text-fg-secondary">
                                 {new Date(
                                   request.createdAt
                                 ).toLocaleDateString()}
@@ -706,7 +706,7 @@ export default function ManagerKitchenRequests() {
                               setSelectedRequest(request);
                               setShowViewModal(true);
                             }}
-                            className="inline-flex items-center gap-2 px-3 py-2 bg-[#0F50AA] text-white text-[12px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors"
+                            className="inline-flex items-center gap-2 px-3 py-2 bg-brand text-on-brand text-[12px] font-[500] rounded-lg hover:bg-brand-hover transition-colors"
                           >
                             <Eye size={14} />
                             View
@@ -728,7 +728,7 @@ export default function ManagerKitchenRequests() {
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

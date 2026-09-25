@@ -86,6 +86,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import ProfilePage from "./ProfilePage";
 
 import { Toaster } from "react-hot-toast";
+import { toastOptions } from "./utils/toastTheme";
 
 function App() {
   useEffect(() => {
@@ -206,7 +207,7 @@ function App() {
 
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster toastOptions={toastOptions} position="top-right" reverseOrder={false} />
       <BrowserRouter>
         <Routes>
           {/* Module-Specific Login Portals */}

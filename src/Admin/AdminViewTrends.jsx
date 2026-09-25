@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { TrendingUp, Calendar, Download, FileText, FileSpreadsheet, Filter, BarChart3, Activity } from "lucide-react";
 import axios from "axios";
 import { Line, Bar } from 'react-chartjs-2';
+import { useTheme } from '../context/ThemeContext';
+import { themeColor } from '../utils/themeColors';
 import jsPDF from 'jspdf';
 import { logExport } from "../services/auditLog";
 import autoTable from 'jspdf-autotable';
@@ -37,6 +39,7 @@ import toast from "react-hot-toast";
 import Skeleton from "../component/Skeleton";
 
 export default function AdminViewTrends() {
+    const { theme } = useTheme();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('View Trends');
     const [isLoading, setIsLoading] = useState(true);
@@ -66,10 +69,10 @@ export default function AdminViewTrends() {
             const isPrimary = index === 0;
             return {
                 ...ds,
-                borderColor: isPrimary ? '#0F50AA' : '#B3A5FF',
-                backgroundColor: chartType === 'area' 
-                    ? (isPrimary ? 'rgba(15, 80, 170, 0.1)' : 'rgba(179, 165, 255, 0.1)') 
-                    : (isPrimary ? '#0F50AA' : '#B3A5FF'),
+                borderColor: themeColor(isPrimary ? 'brand-fg' : 'violet'),
+                backgroundColor: chartType === 'area'
+                    ? themeColor(isPrimary ? 'brand-fg' : 'violet', 0.1)
+                    : themeColor(isPrimary ? 'brand-fg' : 'violet'),
                 tension: 0.4,
                 fill: chartType === 'area'
             };
@@ -90,17 +93,17 @@ export default function AdminViewTrends() {
                         family: 'Inter',
                         size: 12
                     },
-                    color: '#383E49',
+                    color: themeColor('fg'),
                     usePointStyle: true,
                     padding: 15
                 }
             },
             tooltip: {
-                backgroundColor: '#383E49',
-                titleColor: '#FFFFFF',
-                bodyColor: '#FFFFFF',
+                backgroundColor: themeColor('elevated'),
+                titleColor: themeColor('fg'),
+                bodyColor: themeColor('fg-secondary'),
                 padding: 12,
-                borderColor: '#E4E6EA',
+                borderColor: themeColor('border'),
                 borderWidth: 1,
                 displayColors: true,
                 callbacks: {
@@ -127,7 +130,7 @@ export default function AdminViewTrends() {
                         family: 'Inter',
                         size: 11
                     },
-                    color: '#667085',
+                    color: themeColor('fg-secondary'),
                     callback: function (value) {
                         if (metric === 'Sales') {
                             return 'Rs. ' + value.toLocaleString();
@@ -136,7 +139,7 @@ export default function AdminViewTrends() {
                     }
                 },
                 grid: {
-                    color: '#F0F1F3',
+                    color: themeColor('border'),
                     drawBorder: false
                 }
             },
@@ -146,7 +149,7 @@ export default function AdminViewTrends() {
                         family: 'Inter',
                         size: 11
                     },
-                    color: '#667085'
+                    color: themeColor('fg-secondary')
                 },
                 grid: {
                     display: false
@@ -395,13 +398,13 @@ export default function AdminViewTrends() {
         const data = generateChartData();
 
         if (chartType === 'bar') {
-            return <Bar ref={chartRef} data={data} options={chartOptions} />;
+            return <Bar key={theme} ref={chartRef} data={data} options={chartOptions} />;
         }
-        return <Line ref={chartRef} data={data} options={chartOptions} />;
+        return <Line key={theme} ref={chartRef} data={data} options={chartOptions} />;
     };
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             {/* Sidebar */}
             <AdminSidebar sidebarOpen={sidebarOpen} />
 
@@ -416,30 +419,30 @@ export default function AdminViewTrends() {
                 <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
                     {/* Page Header */}
                     <div className="mb-6">
-                        <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+                        <h1 className="text-[20px] font-[600] text-fg mb-1">
                             Performance Trends
                         </h1>
-                        <p className="text-[14px] leading-[20px] font-[400] text-[#667085]">
+                        <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
                             Analyze daily, weekly, and monthly trends for informed decisions
                         </p>
                     </div>
 
                     {/* Filters & Controls Card */}
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6 mb-6">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6 mb-6">
 
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                             {/* Date Range Selector */}
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                <label className="block text-[14px] font-[500] text-fg mb-2">
                                     Date Range
                                 </label>
                                 <div className="relative">
-                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#667085]" />
+                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-fg-secondary" />
                                     <select
                                         value={dateRange}
                                         onChange={(e) => handleDateRangeChange(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface"
                                     >
                                         <option value="Last 7 Days">Last 7 Days</option>
                                         <option value="Last 30 Days">Last 30 Days</option>
@@ -452,13 +455,13 @@ export default function AdminViewTrends() {
 
                             {/* Metric Selector */}
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                <label className="block text-[14px] font-[500] text-fg mb-2">
                                     Metric
                                 </label>
                                 <select
                                     value={metric}
                                     onChange={(e) => setMetric(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white"
+                                    className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface"
                                 >
                                     <option value="Sales">Sales</option>
                                     <option value="Production">Production</option>
@@ -470,15 +473,15 @@ export default function AdminViewTrends() {
 
                             {/* Chart Type Selector */}
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                <label className="block text-[14px] font-[500] text-fg mb-2">
                                     Chart Type
                                 </label>
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => setChartType('line')}
                                         className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-md text-[14px] font-[500] transition-colors ${chartType === 'line'
-                                            ? 'bg-[#0F50AA] text-white'
-                                            : 'bg-[#F8F9FA] text-[#48505E] hover:bg-[#E4E6EA]'
+                                            ? 'bg-brand text-on-brand'
+                                            : 'bg-subtle text-fg hover:bg-line'
                                             }`}
                                         title="Line Chart"
                                     >
@@ -487,8 +490,8 @@ export default function AdminViewTrends() {
                                     <button
                                         onClick={() => setChartType('bar')}
                                         className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-md text-[14px] font-[500] transition-colors ${chartType === 'bar'
-                                            ? 'bg-[#0F50AA] text-white'
-                                            : 'bg-[#F8F9FA] text-[#48505E] hover:bg-[#E4E6EA]'
+                                            ? 'bg-brand text-on-brand'
+                                            : 'bg-subtle text-fg hover:bg-line'
                                             }`}
                                         title="Bar Chart"
                                     >
@@ -497,8 +500,8 @@ export default function AdminViewTrends() {
                                     <button
                                         onClick={() => setChartType('area')}
                                         className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-md text-[14px] font-[500] transition-colors ${chartType === 'area'
-                                            ? 'bg-[#0F50AA] text-white'
-                                            : 'bg-[#F8F9FA] text-[#48505E] hover:bg-[#E4E6EA]'
+                                            ? 'bg-brand text-on-brand'
+                                            : 'bg-subtle text-fg hover:bg-line'
                                             }`}
                                         title="Area Chart"
                                     >
@@ -509,17 +512,17 @@ export default function AdminViewTrends() {
 
                             {/* Comparison Toggle */}
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                <label className="block text-[14px] font-[500] text-fg mb-2">
                                     Comparison
                                 </label>
-                                <label className="flex items-center gap-3 px-4 py-2.5 border border-[#E4E6EA] rounded-md bg-white cursor-pointer hover:bg-[#F8F9FA] transition-colors">
+                                <label className="flex items-center gap-3 px-4 py-2.5 border border-line rounded-md bg-surface cursor-pointer hover:bg-subtle transition-colors">
                                     <input
                                         type="checkbox"
                                         checked={compareEnabled}
                                         onChange={(e) => setCompareEnabled(e.target.checked)}
-                                        className="w-4 h-4 text-[#0F50AA] border-[#E4E6EA] rounded focus:ring-2 focus:ring-[#0F50AA]"
+                                        className="w-4 h-4 text-brand-fg border-line rounded focus:ring-2 focus:ring-brand-fg"
                                     />
-                                    <span className="text-[14px] text-[#48505E]">
+                                    <span className="text-[14px] text-fg">
                                         With previous period
                                     </span>
                                 </label>
@@ -528,27 +531,27 @@ export default function AdminViewTrends() {
 
                         {/* Custom Date Range */}
                         {showCustomDate && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 p-4 bg-[#F8F9FA] rounded-md">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 p-4 bg-subtle rounded-md">
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                    <label className="block text-[14px] font-[500] text-fg mb-2">
                                         From Date
                                     </label>
                                     <input
                                         type="date"
                                         value={customDateFrom}
                                         onChange={(e) => setCustomDateFrom(e.target.value)}
-                                        className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white"
+                                        className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                    <label className="block text-[14px] font-[500] text-fg mb-2">
                                         To Date
                                     </label>
                                     <input
                                         type="date"
                                         value={customDateTo}
                                         onChange={(e) => setCustomDateTo(e.target.value)}
-                                        className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] bg-white"
+                                        className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg bg-surface"
                                     />
                                 </div>
                             </div>
@@ -558,13 +561,13 @@ export default function AdminViewTrends() {
                         <div className="flex gap-3">
                             <button
                                 onClick={handleApplyFilters}
-                                className="px-6 py-2.5 bg-[#0F50AA] hover:bg-[#1366D9] text-white rounded-md text-[14px] font-[500] transition-colors"
+                                className="px-6 py-2.5 bg-brand hover:bg-brand-hover text-on-brand rounded-md text-[14px] font-[500] transition-colors"
                             >
                                 Apply Filters
                             </button>
                             <button
                                 onClick={handleResetFilters}
-                                className="px-6 py-2.5 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] font-[500] hover:bg-[#F8F9FA] transition-colors"
+                                className="px-6 py-2.5 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors"
                             >
                                 Reset
                             </button>
@@ -574,65 +577,65 @@ export default function AdminViewTrends() {
                     {/* Summary Statistics Panel */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         {/* Total Sales Card */}
-                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                        <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                             <div className="flex items-center justify-between mb-2">
-                                <p className="text-[14px] font-[500] text-[#667085]">Total Sales</p>
-                                <div className="p-2 bg-[#EBF8FF] rounded-lg">
-                                    <TrendingUp className="w-5 h-5 text-[#0F50AA]" />
+                                <p className="text-[14px] font-[500] text-fg-secondary">Total Sales</p>
+                                <div className="p-2 bg-hover rounded-lg">
+                                    <TrendingUp className="w-5 h-5 text-brand-fg" />
                                 </div>
                             </div>
-                            <h3 className="text-[24px] font-[600] text-[#383E49] mb-1">
+                            <h3 className="text-[24px] font-[600] text-fg mb-1">
                                 Rs. {chartData.summary?.totalValue?.toLocaleString() || '0'}
                             </h3>
                             <div className="flex items-center gap-2">
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-[#DDFFE0] text-[#199D26]">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-success">
                                     {chartData.summary?.percentageChange || '+0%'}
                                 </span>
-                                <span className="text-[12px] text-[#667085]">from last period</span>
+                                <span className="text-[12px] text-fg-secondary">from last period</span>
                             </div>
                         </div>
 
                         {/* Peak Day Card */}
-                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                        <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                             <div className="flex items-center justify-between mb-2">
-                                <p className="text-[14px] font-[500] text-[#667085]">Peak Day</p>
-                                <div className="p-2 bg-[#FFF4ED] rounded-lg">
-                                    <Calendar className="w-5 h-5 text-[#F97316]" />
+                                <p className="text-[14px] font-[500] text-fg-secondary">Peak Day</p>
+                                <div className="p-2 bg-hover rounded-lg">
+                                    <Calendar className="w-5 h-5 text-warning" />
                                 </div>
                             </div>
-                            <h3 className="text-[24px] font-[600] text-[#383E49] mb-1">
+                            <h3 className="text-[24px] font-[600] text-fg mb-1">
                                 {chartData.summary?.peakDay || '-'}
                             </h3>
-                            <p className="text-[12px] text-[#667085]">
+                            <p className="text-[12px] text-fg-secondary">
                                 {chartData.summary?.peakValue?.toLocaleString() || '0'} units
                             </p>
                         </div>
 
                         {/* Average Daily Sales Card */}
-                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                        <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                             <div className="flex items-center justify-between mb-2">
-                                <p className="text-[14px] font-[500] text-[#667085]">Average Daily Sales</p>
-                                <div className="p-2 bg-[#F0F9FF] rounded-lg">
-                                    <BarChart3 className="w-5 h-5 text-[#60A5FA]" />
+                                <p className="text-[14px] font-[500] text-fg-secondary">Average Daily Sales</p>
+                                <div className="p-2 bg-subtle rounded-lg">
+                                    <BarChart3 className="w-5 h-5 text-brand-fg" />
                                 </div>
                             </div>
-                            <h3 className="text-[24px] font-[600] text-[#383E49] mb-1">
+                            <h3 className="text-[24px] font-[600] text-fg mb-1">
                                 Rs. {chartData.summary?.averageDaily?.toLocaleString() || '0'}
                             </h3>
-                            <p className="text-[12px] text-[#667085]">
+                            <p className="text-[12px] text-fg-secondary">
                                 Based on selected period
                             </p>
                         </div>
                     </div>
 
                     {/* Trend Visualization Area */}
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
                             <div>
-                                <h3 className="text-[18px] font-[600] text-[#383E49] mb-1">
+                                <h3 className="text-[18px] font-[600] text-fg mb-1">
                                     {metric} Trend
                                 </h3>
-                                <p className="text-[14px] text-[#667085]">
+                                <p className="text-[14px] text-fg-secondary">
                                     {dateRange} • {chartType === 'line' ? 'Line Chart' : chartType === 'bar' ? 'Bar Chart' : 'Area Chart'}
                                 </p>
                             </div>
@@ -641,7 +644,7 @@ export default function AdminViewTrends() {
                             <div className="flex gap-2 mt-4 sm:mt-0">
                                 <button
                                     onClick={handleExportCSV}
-                                    className="flex items-center gap-2 px-4 py-2 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] font-[500] hover:bg-[#F8F9FA] transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors"
                                     title="Export as CSV"
                                 >
                                     <FileText size={16} />
@@ -650,7 +653,7 @@ export default function AdminViewTrends() {
                                 
                                 <button
                                     onClick={handleExportPDF}
-                                    className="flex items-center gap-2 px-4 py-2 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] font-[500] hover:bg-[#F8F9FA] transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors"
                                     title="Export as PDF"
                                 >
                                     <Download size={16} />
@@ -665,8 +668,8 @@ export default function AdminViewTrends() {
                         </div>
 
                         {/* Chart Legend and Info */}
-                        <div className="mt-6 pt-6 border-t border-[#E4E6EA]">
-                            <p className="text-[12px] text-[#667085]">
+                        <div className="mt-6 pt-6 border-t border-line">
+                            <p className="text-[12px] text-fg-secondary">
                                 <strong>Note:</strong> Hover over data points to view detailed information.
                                 {compareEnabled && ' Comparison data shows the previous equivalent period.'}
                             </p>
@@ -678,7 +681,7 @@ export default function AdminViewTrends() {
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import toast from "react-hot-toast";
 import {
     Search,
     Filter,
@@ -108,7 +109,7 @@ export default function POSReturnToStore() {
             setAvailableStock(mappedStock);
         } catch (error) {
             console.error("Error fetching stock:", error);
-            alert("Failed to fetch available stock.");
+            toast.error("Failed to fetch available stock.");
         } finally {
             setLoading(false);
         }
@@ -245,10 +246,10 @@ export default function POSReturnToStore() {
     const handleSubmitReturn = () => {
         if (!isFormValid()) {
             if (!selectedOutletId) {
-                alert('Please select an outlet first');
+                toast.error('Please select an outlet first');
                 return;
             }
-            alert('Please ensure all selected items have valid quantities and reasons');
+            toast.error('Please ensure all selected items have valid quantities and reasons');
             return;
         }
         setShowConfirmModal(true);
@@ -258,7 +259,7 @@ export default function POSReturnToStore() {
     const confirmReturn = async () => {
         const initiatorId = localStorage.getItem("userId");
         if (!initiatorId) {
-            alert("User session expired. Please log in again.");
+            toast.error("User session expired. Please log in again.");
             return;
         }
 
@@ -288,7 +289,7 @@ export default function POSReturnToStore() {
             await fetchStock();
         } catch (error) {
             console.error('Return submission failed:', error);
-            alert(error.response?.data?.message || "Failed to submit return request. Please try again.");
+            toast.error(error.response?.data?.message || "Failed to submit return request. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -306,7 +307,7 @@ export default function POSReturnToStore() {
     };
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             <POSSidebar sidebarOpen={sidebarOpen} />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -324,10 +325,10 @@ export default function POSReturnToStore() {
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
                                         <div className="min-w-0 flex-1">
-                                            <h1 className="text-base sm:text-lg md:text-xl font-semibold text-[#383E49] truncate">
+                                            <h1 className="text-base sm:text-lg md:text-xl font-semibold text-fg truncate">
                                                 Return to Store
                                             </h1>
-                                            <p className="text-xs sm:text-sm text-[#667085] truncate">
+                                            <p className="text-xs sm:text-sm text-fg-secondary truncate">
                                                 <span className="hidden sm:inline">Processing return - </span>
                                                 Step to Store
                                             </p>
@@ -336,15 +337,15 @@ export default function POSReturnToStore() {
                                 </div>
 
                                 {/* Outlet Selection */}
-                                <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 mb-4">
+                                <div className="bg-surface rounded-lg shadow-sm border border-line p-4 mb-4">
                                     <div className="flex items-center gap-2 mb-3">
-                                        <Building2 size={18} className="text-[#0F50AA]" />
-                                        <h3 className="text-[16px] font-[600] text-[#383E49]">Select Outlet</h3>
+                                        <Building2 size={18} className="text-brand-fg" />
+                                        <h3 className="text-[16px] font-[600] text-fg">Select Outlet</h3>
                                     </div>
                                     <select
                                         value={selectedOutletId}
                                         onChange={(e) => handleOutletSelection(e.target.value)}
-                                        className="w-full px-4 py-3 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10"
+                                        className="w-full px-4 py-3 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                     >
                                         <option value="">Choose an outlet...</option>
                                         {outlets.map((outlet) => (
@@ -357,23 +358,23 @@ export default function POSReturnToStore() {
 
                                 {/* Outlet Information */}
                                 {selectedOutletId && (
-                                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 xl:mb-6 mb-0">
+                                    <div className="bg-surface rounded-lg shadow-sm border border-line p-4 xl:mb-6 mb-0">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                             <div>
-                                                <p className="text-[12px] text-[#667085] mb-1">Outlet Name</p>
-                                                <p className="text-[14px] font-[500] text-[#383E49]">{outletInfo.name}</p>
+                                                <p className="text-[12px] text-fg-secondary mb-1">Outlet Name</p>
+                                                <p className="text-[14px] font-[500] text-fg">{outletInfo.name}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[12px] text-[#667085] mb-1">Outlet Code</p>
-                                                <p className="text-[14px] font-[500] text-[#383E49]">{outletInfo.code}</p>
+                                                <p className="text-[12px] text-fg-secondary mb-1">Outlet Code</p>
+                                                <p className="text-[14px] font-[500] text-fg">{outletInfo.code}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[12px] text-[#667085] mb-1">Manager</p>
-                                                <p className="text-[14px] font-[500] text-[#383E49]">{outletInfo.cashier}</p>
+                                                <p className="text-[12px] text-fg-secondary mb-1">Manager</p>
+                                                <p className="text-[14px] font-[500] text-fg">{outletInfo.cashier}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[12px] text-[#667085] mb-1">Date & Time</p>
-                                                <p className="text-[14px] font-[500] text-[#383E49]">{outletInfo.date} {outletInfo.time}</p>
+                                                <p className="text-[12px] text-fg-secondary mb-1">Date & Time</p>
+                                                <p className="text-[14px] font-[500] text-fg">{outletInfo.date} {outletInfo.time}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -382,9 +383,9 @@ export default function POSReturnToStore() {
 
                             {!selectedOutletId && (
                                 <div className="flex flex-col items-center justify-center py-20 text-center">
-                                    <Building2 size={64} className="text-[#E4E6EA] mb-4" />
-                                    <h3 className="text-[18px] font-[600] text-[#383E49] mb-2">Select an Outlet</h3>
-                                    <p className="text-[14px] text-[#667085] max-w-md">
+                                    <Building2 size={64} className="text-fg-muted mb-4" />
+                                    <h3 className="text-[18px] font-[600] text-fg mb-2">Select an Outlet</h3>
+                                    <p className="text-[14px] text-fg-secondary max-w-md">
                                         Please select an outlet from the dropdown above to view available stock and create a return request.
                                     </p>
                                 </div>
@@ -395,21 +396,21 @@ export default function POSReturnToStore() {
                                     {/* Stock Selection Area */}
                                     <div className="xl:col-span-2 space-y-4 xl:space-y-6">
                                         {/* Search and Filters */}
-                                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+                                        <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
                                             <div className="flex flex-col sm:flex-row gap-3 mb-4">
                                                 <div className="flex-1 relative">
-                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={18} />
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary" size={18} />
                                                     <input
                                                         type="text"
                                                         placeholder="Search by product name or code..."
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10"
+                                                        className="w-full pl-10 pr-4 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                                     />
                                                 </div>
                                                 <button
                                                     onClick={() => setShowFilters(!showFilters)}
-                                                    className="px-4 py-2 border border-[#E4E6EA] rounded-lg text-[#667085] hover:bg-[#F8F9FA] transition-colors flex items-center gap-2"
+                                                    className="px-4 py-2 border border-line rounded-lg text-fg-secondary hover:bg-subtle transition-colors flex items-center gap-2"
                                                 >
                                                     <Filter size={16} />
                                                     Filters
@@ -418,13 +419,13 @@ export default function POSReturnToStore() {
                                             </div>
 
                                             {showFilters && (
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-[#F8F9FA] rounded-lg">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-subtle rounded-lg">
                                                     <div>
-                                                        <label className="block text-[12px] font-[500] text-[#383E49] mb-1">Product Type</label>
+                                                        <label className="block text-[12px] font-[500] text-fg mb-1">Product Type</label>
                                                         <select
                                                             value={productTypeFilter}
                                                             onChange={(e) => setProductTypeFilter(e.target.value)}
-                                                            className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none bg-white"
+                                                            className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none bg-surface"
                                                         >
                                                             <option value="">All Types</option>
                                                             <option value="Raw Material">Raw Material</option>
@@ -433,13 +434,13 @@ export default function POSReturnToStore() {
                                                         </select>
                                                     </div>
                                                     <div>
-                                                        <label className="block text-[12px] font-[500] text-[#383E49] mb-1">Batch/Lot</label>
+                                                        <label className="block text-[12px] font-[500] text-fg mb-1">Batch/Lot</label>
                                                         <input
                                                             type="text"
                                                             placeholder="Search batch number"
                                                             value={batchFilter}
                                                             onChange={(e) => setBatchFilter(e.target.value)}
-                                                            className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                                            className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                                         />
                                                     </div>
                                                 </div>
@@ -447,9 +448,9 @@ export default function POSReturnToStore() {
                                         </div>
 
                                         {/* Stock Table */}
-                                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA]">
-                                            <div className="p-4 border-b border-[#E4E6EA]">
-                                                <h3 className="text-[16px] font-[600] text-[#383E49] flex items-center gap-2">
+                                        <div className="bg-surface rounded-lg shadow-sm border border-line">
+                                            <div className="p-4 border-b border-line">
+                                                <h3 className="text-[16px] font-[600] text-fg flex items-center gap-2">
                                                     <Package size={18} />
                                                     Available Stock ({filteredStock.length} items)
                                                 </h3>
@@ -458,60 +459,60 @@ export default function POSReturnToStore() {
                                             <div className="px-2">
                                                 <div className="overflow-x-auto">
                                                     <table className="w-full">
-                                                        <thead className="bg-[#F8F9FA]">
+                                                        <thead className="bg-subtle">
                                                             <tr>
-                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-[#383E49]">Select</th>
-                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-[#383E49]">Product</th>
-                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-[#383E49]">Type</th>
-                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-[#383E49]">Batch</th>
-                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-[#383E49]">Expiry</th>
-                                                                <th className="text-right px-4 py-3 text-[12px] font-[600] text-[#383E49]">Available</th>
-                                                                <th className="text-center px-4 py-3 text-[12px] font-[600] text-[#383E49]">Return Qty</th>
-                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-[#383E49]">Reason</th>
-                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-[#383E49]">Remarks</th>
+                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-fg">Select</th>
+                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-fg">Product</th>
+                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-fg">Type</th>
+                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-fg">Batch</th>
+                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-fg">Expiry</th>
+                                                                <th className="text-right px-4 py-3 text-[12px] font-[600] text-fg">Available</th>
+                                                                <th className="text-center px-4 py-3 text-[12px] font-[600] text-fg">Return Qty</th>
+                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-fg">Reason</th>
+                                                                <th className="text-left px-4 py-3 text-[12px] font-[600] text-fg">Remarks</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
                                                             {filteredStock.map((item) => (
-                                                                <tr key={item.id} className={`border-b border-[#E4E6EA] hover:bg-[#F8F9FA] ${item.selected ? 'bg-[#0F50AA]/5' : ''}`}>
+                                                                <tr key={item.id} className={`border-b border-line hover:bg-subtle ${item.selected ? 'bg-brand/5' : ''}`}>
                                                                     <td className="px-2 py-2">
                                                                         <input
                                                                             type="checkbox"
                                                                             checked={item.selected}
                                                                             onChange={() => toggleItemSelection(item.id)}
-                                                                            className="rounded border-[#E4E6EA] text-[#0F50AA] focus:ring-[#0F50AA]/10"
+                                                                            className="rounded border-line text-brand-fg focus:ring-brand-fg/10"
                                                                         />
                                                                     </td>
                                                                     <td className="px-2 py-2 min-w-[100px]">
                                                                         <div>
-                                                                            <p className="text-[14px] font-[500] text-[#383E49]">{item.name}</p>
-                                                                            <p className="text-[12px] text-[#667085]">{item.code}</p>
+                                                                            <p className="text-[14px] font-[500] text-fg">{item.name}</p>
+                                                                            <p className="text-[12px] text-fg-secondary">{item.code}</p>
                                                                         </div>
                                                                     </td>
                                                                     <td className="px-2 py-2 min-w-[110px]">
                                                                         <span className={`inline-flex px-2 py-1 text-[10px] font-[500] rounded-full ${item.type === 'Raw Material'
-                                                                                ? 'bg-[#0F50AA]/10 text-[#0F50AA]'
+                                                                                ? 'bg-brand/10 text-brand-fg'
                                                                                 : item.type === 'Semi-Finished'
-                                                                                    ? 'bg-[#B3A5FF]/10 text-[#B3A5FF]'
-                                                                                    : 'bg-[#10B981]/10 text-[#10B981]'
+                                                                                    ? 'bg-plum/20 text-plum'
+                                                                                    : 'bg-success/10 text-success'
                                                                             }`}>
                                                                             {item.type}
                                                                         </span>
                                                                     </td>
                                                                     <td className="px-2 py-2 min-w-[100px]">
-                                                                        <span className="text-[12px] text-[#667085] font-mono">{item.batch}</span>
+                                                                        <span className="text-[12px] text-fg-secondary font-mono">{item.batch}</span>
                                                                     </td>
                                                                     <td className="px-2 py-2 min-w-[100px]">
-                                                                        <div className="text-[12px] text-[#667085]">{item.expiryDate}</div>
+                                                                        <div className="text-[12px] text-fg-secondary">{item.expiryDate}</div>
                                                                         {new Date(item.expiryDate) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) && (
-                                                                            <div className="flex items-center gap-1 text-[10px] text-[#F4A100] mt-1">
+                                                                            <div className="flex items-center gap-1 text-[10px] text-warning mt-1">
                                                                                 <AlertTriangle size={10} />
                                                                                 <span>Expiring Soon</span>
                                                                             </div>
                                                                         )}
                                                                     </td>
                                                                     <td className="px-2 py-2 text-right">
-                                                                        <span className="text-[14px] font-[500] text-[#383E49]">
+                                                                        <span className="text-[14px] font-[500] text-fg">
                                                                             {item.availableQty} {item.uom}
                                                                         </span>
                                                                     </td>
@@ -519,7 +520,7 @@ export default function POSReturnToStore() {
                                                                         <div className="flex items-center justify-center gap-1">
                                                                             <button
                                                                                 onClick={() => updateReturnQuantity(item.id, item.returnQty - 1)}
-                                                                                className="w-6 h-6 flex items-center justify-center border border-[#E4E6EA] rounded text-[#667085] hover:bg-[#F8F9FA] disabled:opacity-50"
+                                                                                className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle disabled:opacity-50"
                                                                                 disabled={item.returnQty <= 0}
                                                                             >
                                                                                 <Minus size={12} />
@@ -530,17 +531,17 @@ export default function POSReturnToStore() {
                                                                                 max={item.availableQty}
                                                                                 value={item.returnQty}
                                                                                 onChange={(e) => updateReturnQuantity(item.id, e.target.value)}
-                                                                                className="w-16 text-center py-1 border border-[#E4E6EA] rounded text-[12px] focus:border-[#0F50AA] focus:outline-none"
+                                                                                className="w-16 text-center py-1 border border-line rounded text-[12px] focus:border-brand-fg focus:outline-none"
                                                                             />
                                                                             <button
                                                                                 onClick={() => updateReturnQuantity(item.id, item.returnQty + 1)}
-                                                                                className="w-6 h-6 flex items-center justify-center border border-[#E4E6EA] rounded text-[#667085] hover:bg-[#F8F9FA] disabled:opacity-50"
+                                                                                className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle disabled:opacity-50"
                                                                                 disabled={item.returnQty >= item.availableQty}
                                                                             >
                                                                                 <Plus size={12} />
                                                                             </button>
                                                                         </div>
-                                                                        <div className="text-center text-[10px] text-[#667085] mt-1">
+                                                                        <div className="text-center text-[10px] text-fg-secondary mt-1">
                                                                             {item.uom}
                                                                         </div>
                                                                     </td>
@@ -549,7 +550,7 @@ export default function POSReturnToStore() {
                                                                             value={item.reason}
                                                                             onChange={(e) => updateReturnReason(item.id, e.target.value)}
                                                                             disabled={!item.selected}
-                                                                            className="w-full px-2 py-1 border border-[#E4E6EA] rounded text-[12px] focus:border-[#0F50AA] focus:outline-none disabled:bg-[#F8F9FA] disabled:text-[#667085]"
+                                                                            className="w-full px-2 py-1 border border-line rounded text-[12px] focus:border-brand-fg focus:outline-none disabled:bg-subtle disabled:text-fg-secondary"
                                                                         >
                                                                             {returnReasons.map(reason => (
                                                                                 <option key={reason.value} value={reason.value}>
@@ -565,7 +566,7 @@ export default function POSReturnToStore() {
                                                                             value={item.remarks}
                                                                             onChange={(e) => updateItemRemarks(item.id, e.target.value)}
                                                                             disabled={!item.selected}
-                                                                            className="w-full px-2 py-1 border border-[#E4E6EA] rounded text-[12px] focus:border-[#0F50AA] focus:outline-none disabled:bg-[#F8F9FA] disabled:text-[#667085]"
+                                                                            className="w-full px-2 py-1 border border-line rounded text-[12px] focus:border-brand-fg focus:outline-none disabled:bg-subtle disabled:text-fg-secondary"
                                                                         />
                                                                     </td>
                                                                 </tr>
@@ -575,9 +576,9 @@ export default function POSReturnToStore() {
 
                                                     {filteredStock.length === 0 && (
                                                         <div className="text-center py-12">
-                                                            <Package size={48} className="text-[#E4E6EA] mx-auto mb-3" />
-                                                            <p className="text-[14px] text-[#667085]">No stock items found</p>
-                                                            <p className="text-[12px] text-[#667085] mt-1">Try adjusting your search or filters</p>
+                                                            <Package size={48} className="text-fg-muted mx-auto mb-3" />
+                                                            <p className="text-[14px] text-fg-secondary">No stock items found</p>
+                                                            <p className="text-[12px] text-fg-secondary mt-1">Try adjusting your search or filters</p>
                                                         </div>
                                                     )}
                                                 </div>
@@ -589,39 +590,39 @@ export default function POSReturnToStore() {
                                     <div className="xl:col-span-1">
                                         <div className="sticky top-0 space-y-4 xl:space-y-6">
                                             {/* Return Summary */}
-                                            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
-                                                <h3 className="text-[16px] font-[600] text-[#383E49] mb-4 flex items-center gap-2">
+                                            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
+                                                <h3 className="text-[16px] font-[600] text-fg mb-4 flex items-center gap-2">
                                                     <ShoppingCart size={18} />
                                                     Return Summary
                                                 </h3>
 
                                                 <div className="space-y-3 mb-4">
                                                     <div className="flex justify-between text-[14px]">
-                                                        <span className="text-[#667085]">Selected Items:</span>
-                                                        <span className="font-[500] text-[#383E49]">{totalSelectedItems}</span>
+                                                        <span className="text-fg-secondary">Selected Items:</span>
+                                                        <span className="font-[500] text-fg">{totalSelectedItems}</span>
                                                     </div>
                                                     <div className="flex justify-between text-[14px]">
-                                                        <span className="text-[#667085]">Total Quantity:</span>
-                                                        <span className="font-[500] text-[#383E49]">{totalReturnQuantity} units</span>
+                                                        <span className="text-fg-secondary">Total Quantity:</span>
+                                                        <span className="font-[500] text-fg">{totalReturnQuantity} units</span>
                                                     </div>
                                                 </div>
 
                                                 {selectedItemsData.length > 0 && (
-                                                    <div className="border-t border-[#E4E6EA] pt-4">
-                                                        <h4 className="text-[14px] font-[500] text-[#383E49] mb-3">Selected Items:</h4>
+                                                    <div className="border-t border-line pt-4">
+                                                        <h4 className="text-[14px] font-[500] text-fg mb-3">Selected Items:</h4>
                                                         <div className="space-y-2 max-h-40 overflow-y-auto">
                                                             {selectedItemsData.map((item) => (
-                                                                <div key={item.id} className="p-2 bg-[#F8F9FA] rounded border border-[#E4E6EA]">
+                                                                <div key={item.id} className="p-2 bg-subtle rounded border border-line">
                                                                     <div className="flex justify-between items-start">
                                                                         <div className="flex-1">
-                                                                            <p className="text-[12px] font-[500] text-[#383E49]">{item.name}</p>
-                                                                            <p className="text-[10px] text-[#667085]">{item.code}</p>
+                                                                            <p className="text-[12px] font-[500] text-fg">{item.name}</p>
+                                                                            <p className="text-[10px] text-fg-secondary">{item.code}</p>
                                                                         </div>
                                                                         <div className="text-right">
-                                                                            <p className="text-[12px] font-[500] text-[#0F50AA]">
+                                                                            <p className="text-[12px] font-[500] text-brand-fg">
                                                                                 {item.returnQty} {item.uom}
                                                                             </p>
-                                                                            <p className="text-[10px] text-[#667085]">{item.reason}</p>
+                                                                            <p className="text-[10px] text-fg-secondary">{item.reason}</p>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -632,15 +633,15 @@ export default function POSReturnToStore() {
 
                                                 {selectedItemsData.length === 0 && (
                                                     <div className="text-center py-6">
-                                                        <ShoppingCart size={32} className="text-[#E4E6EA] mx-auto mb-2" />
-                                                        <p className="text-[12px] text-[#667085]">No items selected</p>
+                                                        <ShoppingCart size={32} className="text-fg-muted mx-auto mb-2" />
+                                                        <p className="text-[12px] text-fg-secondary">No items selected</p>
                                                     </div>
                                                 )}
                                             </div>
 
                                             {/* Return Remarks */}
-                                            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
-                                                <h3 className="text-[16px] font-[600] text-[#383E49] mb-4 flex items-center gap-2">
+                                            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
+                                                <h3 className="text-[16px] font-[600] text-fg mb-4 flex items-center gap-2">
                                                     <FileText size={18} />
                                                     Return Remarks
                                                 </h3>
@@ -649,7 +650,7 @@ export default function POSReturnToStore() {
                                                     placeholder="Add optional remarks for this return note..."
                                                     value={returnRemarks}
                                                     onChange={(e) => setReturnRemarks(e.target.value)}
-                                                    className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none resize-none"
+                                                    className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none resize-none"
                                                     rows="4"
                                                 />
                                             </div>
@@ -659,7 +660,7 @@ export default function POSReturnToStore() {
                                                 <button
                                                     onClick={handleSubmitReturn}
                                                     disabled={!isFormValid()}
-                                                    className="w-full px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500] flex items-center justify-center gap-2"
+                                                    className="w-full px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500] flex items-center justify-center gap-2"
                                                 >
                                                     <Send size={16} />
                                                     Submit Return
@@ -667,7 +668,7 @@ export default function POSReturnToStore() {
 
                                                 <button
                                                     onClick={resetForm}
-                                                    className="w-full px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors text-[14px] font-[500] flex items-center justify-center gap-2"
+                                                    className="w-full px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors text-[14px] font-[500] flex items-center justify-center gap-2"
                                                 >
                                                     <RotateCcw size={16} />
                                                     Clear Selection
@@ -684,44 +685,44 @@ export default function POSReturnToStore() {
 
             {/* Confirmation Modal */}
             {showConfirmModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="text-center mb-6">
-                                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <AlertTriangle size={32} className="text-orange-600" />
+                                <div className="w-16 h-16 bg-warning/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <AlertTriangle size={32} className="text-warning" />
                                 </div>
-                                <h3 className="text-[18px] font-[600] text-[#383E49] mb-2">Confirm Return Submission</h3>
-                                <p className="text-[14px] text-[#667085]">
+                                <h3 className="text-[18px] font-[600] text-fg mb-2">Confirm Return Submission</h3>
+                                <p className="text-[14px] text-fg-secondary">
                                     Please review the return details before submitting to the main store
                                 </p>
                             </div>
 
                             <div className="space-y-4 mb-6">
-                                <div className="p-4 bg-[#F8F9FA] rounded-lg">
-                                    <h4 className="text-[14px] font-[500] text-[#383E49] mb-3">Return Summary</h4>
+                                <div className="p-4 bg-subtle rounded-lg">
+                                    <h4 className="text-[14px] font-[500] text-fg mb-3">Return Summary</h4>
                                     <div className="space-y-2 text-[14px]">
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Selected Items:</span>
-                                            <span className="font-[500] text-[#383E49]">{totalSelectedItems}</span>
+                                            <span className="text-fg-secondary">Selected Items:</span>
+                                            <span className="font-[500] text-fg">{totalSelectedItems}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Total Quantity:</span>
-                                            <span className="font-[500] text-[#383E49]">{totalReturnQuantity} units</span>
+                                            <span className="text-fg-secondary">Total Quantity:</span>
+                                            <span className="font-[500] text-fg">{totalReturnQuantity} units</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Outlet:</span>
-                                            <span className="font-[500] text-[#383E49]">{outletInfo.code}</span>
+                                            <span className="text-fg-secondary">Outlet:</span>
+                                            <span className="font-[500] text-fg">{outletInfo.code}</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="p-4 bg-[#FEF2F2] border border-[#FCA5A5] rounded-lg">
+                                <div className="p-4 bg-subtle border border-error/30 rounded-lg">
                                     <div className="flex items-start gap-2">
-                                        <AlertTriangle size={16} className="text-[#EF4444] mt-0.5 flex-shrink-0" />
+                                        <AlertTriangle size={16} className="text-error mt-0.5 flex-shrink-0" />
                                         <div>
-                                            <h4 className="text-[14px] font-[500] text-[#EF4444] mb-1">Important Notice</h4>
-                                            <p className="text-[12px] text-[#EF4444]">
+                                            <h4 className="text-[14px] font-[500] text-error mb-1">Important Notice</h4>
+                                            <p className="text-[12px] text-error">
                                                 Once submitted, this return cannot be modified. Ensure all quantities and reasons are correct.
                                             </p>
                                         </div>
@@ -732,14 +733,14 @@ export default function POSReturnToStore() {
                             <div className="flex flex-col sm:flex-row gap-3">
                                 <button
                                     onClick={() => setShowConfirmModal(false)}
-                                    className="flex-1 px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors w-full"
+                                    className="flex-1 px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors w-full"
                                 >
                                     Cancel
                                 </button>
 
                                 <button
                                     onClick={confirmReturn}
-                                    className="flex-1 px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors flex items-center justify-center gap-2 w-full"
+                                    className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors flex items-center justify-center gap-2 w-full"
                                 >
                                     <Send size={16} />
                                     Submit Return
@@ -753,38 +754,38 @@ export default function POSReturnToStore() {
 
             {/* Success Modal */}
             {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="text-center mb-6">
-                                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Check size={40} className="text-green-600" />
+                                <div className="w-20 h-20 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Check size={40} className="text-success" />
                                 </div>
-                                <h3 className="text-[20px] font-[600] text-[#383E49] mb-2">Return Submitted Successfully!</h3>
-                                <p className="text-[14px] text-[#667085] mb-4">
+                                <h3 className="text-[20px] font-[600] text-fg mb-2">Return Submitted Successfully!</h3>
+                                <p className="text-[14px] text-fg-secondary mb-4">
                                     Your return request has been sent to the main store for processing
                                 </p>
-                                <div className="bg-[#F0F8FF] border border-[#0F50AA] rounded-lg p-4">
-                                    <p className="text-[12px] text-[#667085] mb-1">Return Note ID</p>
-                                    <p className="text-[18px] font-[600] text-[#0F50AA]">{generatedReturnId}</p>
+                                <div className="bg-subtle border border-brand-fg rounded-lg p-4">
+                                    <p className="text-[12px] text-fg-secondary mb-1">Return Note ID</p>
+                                    <p className="text-[18px] font-[600] text-brand-fg">{generatedReturnId}</p>
                                 </div>
                             </div>
 
                             <div className="space-y-4 mb-6">
-                                <div className="p-4 bg-[#F8F9FA] rounded-lg">
-                                    <h4 className="text-[14px] font-[500] text-[#383E49] mb-3">Return Details</h4>
+                                <div className="p-4 bg-subtle rounded-lg">
+                                    <h4 className="text-[14px] font-[500] text-fg mb-3">Return Details</h4>
                                     <div className="space-y-2 text-[14px]">
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Items Returned:</span>
-                                            <span className="font-[500] text-[#383E49]">{totalSelectedItems}</span>
+                                            <span className="text-fg-secondary">Items Returned:</span>
+                                            <span className="font-[500] text-fg">{totalSelectedItems}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Total Quantity:</span>
-                                            <span className="font-[500] text-[#383E49]">{totalReturnQuantity} units</span>
+                                            <span className="text-fg-secondary">Total Quantity:</span>
+                                            <span className="font-[500] text-fg">{totalReturnQuantity} units</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Submitted At:</span>
-                                            <span className="font-[500] text-[#383E49]">{new Date().toLocaleString()}</span>
+                                            <span className="text-fg-secondary">Submitted At:</span>
+                                            <span className="font-[500] text-fg">{new Date().toLocaleString()}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -796,13 +797,13 @@ export default function POSReturnToStore() {
                                         setShowSuccessModal(false);
                                         resetForm();
                                     }}
-                                    className="flex-1 px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                    className="flex-1 px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors"
                                 >
                                     Close
                                 </button>
                                 <button
                                     onClick={resetForm}
-                                    className="flex-1 px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors flex items-center justify-center gap-2"
+                                    className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors flex items-center justify-center gap-2"
                                 >
                                     <Plus size={16} />
                                     New Return
@@ -815,7 +816,7 @@ export default function POSReturnToStore() {
 
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

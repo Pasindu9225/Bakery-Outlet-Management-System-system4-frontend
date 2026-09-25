@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import {
   Search,
   Filter,
@@ -555,28 +555,28 @@ export default function ManagerApprovalRequests() {
     switch (status) {
       case "Pending":
       case "Pending Manager Approval":
-        return "bg-[#FFF4E6] text-[#F4A100]";
+        return "bg-hover text-warning";
       case "NOT_APPROVED":
-        return "bg-[#FFF4E6] text-[#F4A100]";
+        return "bg-hover text-warning";
       case "Approved":
-        return "bg-[#DDFFE0] text-[#199D26]";
+        return "bg-hover text-success";
       case "Rejected":
-        return "bg-[#FEE2E2] text-[#EF4444]";
+        return "bg-hover text-error";
       default:
-        return "bg-[#F0F1F3] text-[#667085]";
+        return "bg-app text-fg-secondary";
     }
   };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "High":
-        return "bg-[#FEE2E2] text-[#EF4444]";
+        return "bg-hover text-error";
       case "Medium":
-        return "bg-[#FFF4E6] text-[#F4A100]";
+        return "bg-hover text-warning";
       case "Low":
-        return "bg-[#DDFFE0] text-[#199D26]";
+        return "bg-hover text-success";
       default:
-        return "bg-[#F0F1F3] text-[#667085]";
+        return "bg-app text-fg-secondary";
     }
   };
 
@@ -601,8 +601,7 @@ export default function ManagerApprovalRequests() {
   const statusCounts = getStatusCounts();
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
-      <Toaster position="top-right" reverseOrder={false} />
+    <div className="flex bg-app h-screen overflow-hidden">
       <ManagerSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -616,24 +615,24 @@ export default function ManagerApprovalRequests() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+            <h1 className="text-[20px] font-[600] text-fg mb-1">
               Approval Requests
             </h1>
-            <p className="text-[14px] text-[#667085]">
+            <p className="text-[14px] text-fg-secondary">
               Review and approve storekeeper requests for purchase orders,
               returns, and stock adjustments
             </p>
           </div>
 
           {/* Tab Navigation */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] mb-6">
-            <div className="flex flex-wrap border-b border-[#E4E6EA]">
+          <div className="bg-surface rounded-lg shadow-sm border border-line mb-6">
+            <div className="flex flex-wrap border-b border-line">
               <button
                 onClick={() => setActiveTab("purchaseOrders")}
                 className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-[14px] font-[500] border-b-2 transition-colors ${
                   activeTab === "purchaseOrders"
-                    ? "border-[#0F50AA] text-[#0F50AA] bg-[#EBF8FF]"
-                    : "border-transparent text-[#667085] hover:text-[#383E49]"
+                    ? "border-brand-fg text-brand-fg bg-hover"
+                    : "border-transparent text-fg-secondary hover:text-fg"
                 }`}
               >
                 <FileText size={16} />
@@ -643,8 +642,8 @@ export default function ManagerApprovalRequests() {
                 onClick={() => setActiveTab("returnMaterials")}
                 className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-[14px] font-[500] border-b-2 transition-colors ${
                   activeTab === "returnMaterials"
-                    ? "border-[#0F50AA] text-[#0F50AA] bg-[#EBF8FF]"
-                    : "border-transparent text-[#667085] hover:text-[#383E49]"
+                    ? "border-brand-fg text-brand-fg bg-hover"
+                    : "border-transparent text-fg-secondary hover:text-fg"
                 }`}
               >
                 <RotateCcw size={16} />
@@ -654,8 +653,8 @@ export default function ManagerApprovalRequests() {
                 onClick={() => setActiveTab("stockAdjustments")}
                 className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-[14px] font-[500] border-b-2 transition-colors ${
                   activeTab === "stockAdjustments"
-                    ? "border-[#0F50AA] text-[#0F50AA] bg-[#EBF8FF]"
-                    : "border-transparent text-[#667085] hover:text-[#383E49]"
+                    ? "border-brand-fg text-brand-fg bg-hover"
+                    : "border-transparent text-fg-secondary hover:text-fg"
                 }`}
               >
                 <Package size={16} />
@@ -665,8 +664,8 @@ export default function ManagerApprovalRequests() {
                 onClick={() => setActiveTab("outletReturns")}
                 className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-[14px] font-[500] border-b-2 transition-colors ${
                   activeTab === "outletReturns"
-                    ? "border-[#0F50AA] text-[#0F50AA] bg-[#EBF8FF]"
-                    : "border-transparent text-[#667085] hover:text-[#383E49]"
+                    ? "border-brand-fg text-brand-fg bg-hover"
+                    : "border-transparent text-fg-secondary hover:text-fg"
                 }`}
               >
                 <Warehouse size={16} />
@@ -676,12 +675,12 @@ export default function ManagerApprovalRequests() {
           </div>
 
           {/* Controls */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 mb-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-4 mb-6">
             <div className="flex flex-col lg:flex-row gap-4">
               {/* Search Bar */}
               <div className="flex-1 relative">
                 <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
                   size={16}
                 />
                 <input
@@ -689,7 +688,7 @@ export default function ManagerApprovalRequests() {
                   placeholder="Search by request ID, supplier, or requester..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent text-[14px]"
+                  className="w-full pl-10 pr-4 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent text-[14px]"
                 />
               </div>
 
@@ -698,7 +697,7 @@ export default function ManagerApprovalRequests() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full lg:w-auto px-4 py-2 border border-[#E4E6EA] rounded-md text-[14px] text-[#667085] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent bg-white"
+                  className="w-full lg:w-auto px-4 py-2 border border-line rounded-md text-[14px] text-fg-secondary focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent bg-surface"
                 >
                   <option value="All">All Status</option>
                   <option value="Pending">Pending</option>
@@ -711,16 +710,16 @@ export default function ManagerApprovalRequests() {
           </div>
 
           {/* Requests Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-              <h3 className="text-[18px] font-[600] text-[#383E49]">
+              <h3 className="text-[18px] font-[600] text-fg">
                 {activeTab === "purchaseOrders" && "Purchase Order Requests"}
                 {activeTab === "returnMaterials" && "Return Material Requests"}
                 {activeTab === "stockAdjustments" &&
                   "Stock Adjustment Requests"}
                 {activeTab === "outletReturns" && "POS Outlet Return Requests"}
               </h3>
-              <span className="text-[12px] text-[#667085] mt-2 sm:mt-0">
+              <span className="text-[12px] text-fg-secondary mt-2 sm:mt-0">
                 Showing {filteredData.length} requests
               </span>
             </div>
@@ -731,26 +730,26 @@ export default function ManagerApprovalRequests() {
               <div className="text-center py-12">
                 <AlertTriangle
                   size={48}
-                  className="mx-auto text-[#EF4444] mb-4"
+                  className="mx-auto text-error mb-4"
                 />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   Error loading requests
                 </p>
-                <p className="text-[14px] text-[#667085] mb-4">{error}</p>
+                <p className="text-[14px] text-fg-secondary mb-4">{error}</p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors"
+                  className="px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors"
                 >
                   Try Again
                 </button>
               </div>
             ) : filteredData.length === 0 ? (
               <div className="text-center py-12">
-                <FileText size={48} className="mx-auto text-[#667085] mb-4" />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <FileText size={48} className="mx-auto text-fg-secondary mb-4" />
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   No requests found
                 </p>
-                <p className="text-[14px] text-[#667085]">
+                <p className="text-[14px] text-fg-secondary">
                   {searchTerm || statusFilter !== "All"
                     ? "Try adjusting your search criteria"
                     : "No requests match the selected filter"}
@@ -760,32 +759,32 @@ export default function ManagerApprovalRequests() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E4E6EA]">
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                    <tr className="border-b border-line">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Request ID
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         {activeTab === "purchaseOrders" && "Supplier"}
                         {activeTab === "returnMaterials" && "Supplier"}
                         {activeTab === "stockAdjustments" && "Material"}
                         {activeTab === "outletReturns" && "Branch/Outlet"}
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         {activeTab === "purchaseOrders" && "Items & Cost"}
                         {activeTab === "returnMaterials" && "Items & Cost"}
                         {activeTab === "stockAdjustments" && "Adjustment"}
                         {activeTab === "outletReturns" && "Return Details"}
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Requested By
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Priority
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Status
                       </th>
-                      <th className="text-center py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-center py-3 text-[12px] font-[600] text-fg uppercase">
                         Actions
                       </th>
                     </tr>
@@ -794,14 +793,14 @@ export default function ManagerApprovalRequests() {
                     {filteredData.map((request) => (
                       <tr
                         key={request.id}
-                        className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                        className="border-b border-line hover:bg-subtle"
                       >
                         <td className="py-4">
                           <div>
-                            <p className="text-[14px] font-[600] text-[#383E49]">
+                            <p className="text-[14px] font-[600] text-fg">
                               {request.requestId}
                             </p>
-                            <p className="text-[12px] text-[#667085]">
+                            <p className="text-[12px] text-fg-secondary">
                               {new Date(
                                 request.requestDate
                               ).toLocaleDateString()}
@@ -811,31 +810,31 @@ export default function ManagerApprovalRequests() {
                         <td className="py-4">
                           {activeTab === "purchaseOrders" ? (
                             <div className="flex items-center gap-2">
-                              <Building size={16} className="text-[#667085]" />
-                              <p className="text-[14px] font-[500] text-[#383E49]">
+                              <Building size={16} className="text-fg-secondary" />
+                              <p className="text-[14px] font-[500] text-fg">
                                 {request.supplierName}
                               </p>
                             </div>
                           ) : activeTab === "returnMaterials" ? (
                             <div className="flex items-center gap-2">
-                              <Building size={16} className="text-[#667085]" />
-                              <p className="text-[14px] font-[500] text-[#383E49]">
+                              <Building size={16} className="text-fg-secondary" />
+                              <p className="text-[14px] font-[500] text-fg">
                                 {request.supplierName}
                               </p>
                             </div>
                           ) : activeTab === "stockAdjustments" ? (
                             <div>
-                              <p className="text-[14px] font-[500] text-[#383E49]">
+                              <p className="text-[14px] font-[500] text-fg">
                                 {request.materialName}
                               </p>
-                              <p className="text-[12px] text-[#667085]">
+                              <p className="text-[12px] text-fg-secondary">
                                 Code: {request.materialCode}
                               </p>
                             </div>
                           ) : (
                             <div className="flex items-center gap-2">
-                              <Building size={16} className="text-[#667085]" />
-                              <p className="text-[14px] font-[500] text-[#383E49]">
+                              <Building size={16} className="text-fg-secondary" />
+                              <p className="text-[14px] font-[500] text-fg">
                                 {request.outletName}
                               </p>
                             </div>
@@ -844,16 +843,16 @@ export default function ManagerApprovalRequests() {
                         <td className="py-4">
                           {activeTab === "purchaseOrders" ? (
                             <div>
-                              <p className="text-[14px] font-[600] text-[#199D26]">
+                              <p className="text-[14px] font-[600] text-success">
                                 Rs.{request.totalCost.toFixed(2)}
                               </p>
-                              <p className="text-[12px] text-[#667085]">
+                              <p className="text-[12px] text-fg-secondary">
                                 {request.totalItems} items
                               </p>
                             </div>
                           ) : activeTab === "returnMaterials" ? (
                             <div>
-                              <p className="text-[14px] font-[600] text-[#199D26]">
+                              <p className="text-[14px] font-[600] text-success">
                                 Rs.{request.totalCost.toFixed(2)}
                               </p>
                             </div>
@@ -863,39 +862,39 @@ export default function ManagerApprovalRequests() {
                                 {request.adjustmentQty > 0 ? (
                                   <TrendingUp
                                     size={16}
-                                    className="text-[#51CC5D]"
+                                    className="text-success"
                                   />
                                 ) : request.adjustmentQty < 0 ? (
                                   <TrendingDown
                                     size={16}
-                                    className="text-[#EF4444]"
+                                    className="text-error"
                                   />
                                 ) : (
-                                  <Minus size={16} className="text-[#667085]" />
+                                  <Minus size={16} className="text-fg-secondary" />
                                 )}
                                 <span
                                   className={`text-[14px] font-[600] ${
                                     request.adjustmentQty > 0
-                                      ? "text-[#51CC5D]"
+                                      ? "text-success"
                                       : request.adjustmentQty < 0
-                                      ? "text-[#EF4444]"
-                                      : "text-[#667085]"
+                                      ? "text-error"
+                                      : "text-fg-secondary"
                                   }`}
                                 >
                                   {request.adjustmentQty > 0 ? "+" : ""}
                                   {formatQuantity(request.adjustmentQty)}
                                 </span>
                               </div>
-                              <p className="text-[12px] text-[#667085]">
+                              <p className="text-[12px] text-fg-secondary">
                                 {request.adjustmentType}
                               </p>
                             </div>
                           ) : (
                             <div>
-                               <p className="text-[14px] font-[600] text-[#0F50AA]">
+                               <p className="text-[14px] font-[600] text-brand-fg">
                                   {request.totalItems} Items
                                </p>
-                               <p className="text-[12px] text-[#667085]">
+                               <p className="text-[12px] text-fg-secondary">
                                   Reason: {request.reason}
                                </p>
                             </div>
@@ -903,12 +902,12 @@ export default function ManagerApprovalRequests() {
                         </td>
                         <td className="py-4">
                           <div className="flex items-center gap-2">
-                            <User size={16} className="text-[#667085]" />
+                            <User size={16} className="text-fg-secondary" />
                             <div>
-                              <p className="text-[14px] font-[500] text-[#383E49]">
+                              <p className="text-[14px] font-[500] text-fg">
                                 {request.requestedBy}
                               </p>
-                              <p className="text-[12px] text-[#667085]">
+                              <p className="text-[12px] text-fg-secondary">
                                 {new Date(
                                   request.createdAt
                                 ).toLocaleDateString()}
@@ -948,7 +947,7 @@ export default function ManagerApprovalRequests() {
                           <div className="flex items-center justify-center gap-2">
                             <button
                               onClick={() => handleViewDetails(request)}
-                              className="p-2 text-[#0F50AA] hover:bg-[#EBF8FF] rounded-lg transition-colors"
+                              className="p-2 text-brand-fg hover:bg-hover rounded-lg transition-colors"
                               title="View Details"
                             >
                               <Eye size={16} />
@@ -964,7 +963,7 @@ export default function ManagerApprovalRequests() {
                                   disabled={
                                     processingAction === `approve-${request.id}`
                                   }
-                                  className="p-2 text-[#199D26] hover:bg-[#F0FDF4] rounded-lg transition-colors disabled:text-[#94D3A2] disabled:cursor-not-allowed"
+                                  className="p-2 text-success hover:bg-hover rounded-lg transition-colors disabled:text-success disabled:cursor-not-allowed"
                                   title="Approve"
                                 >
                                   {processingAction ===
@@ -985,7 +984,7 @@ export default function ManagerApprovalRequests() {
                                   disabled={
                                     processingAction === `reject-${request.id}`
                                   }
-                                  className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors disabled:text-[#FCA5A5] disabled:cursor-not-allowed"
+                                  className="p-2 text-error hover:bg-hover rounded-lg transition-colors disabled:text-error disabled:cursor-not-allowed"
                                   title="Reject"
                                 >
                                   {processingAction ===
@@ -1011,15 +1010,15 @@ export default function ManagerApprovalRequests() {
 
       {/* Details Modal */}
       {showDetailsModal && selectedRequest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-6 border-b border-[#E4E6EA] gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-6 border-b border-line gap-4">
               <div className="text-center sm:text-left">
-                <h2 className="text-[20px] font-[600] text-[#383E49]">
+                <h2 className="text-[20px] font-[600] text-fg">
                   {selectedRequest.type} Details
                 </h2>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   {selectedRequest.requestId} •{" "}
                   {new Date(selectedRequest.requestDate).toLocaleDateString()}
                 </p>
@@ -1028,9 +1027,9 @@ export default function ManagerApprovalRequests() {
               <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2">
                 <button
                   onClick={() => setShowDetailsModal(false)}
-                  className="p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                  className="p-2 hover:bg-subtle rounded-lg transition-colors"
                 >
-                  <X size={20} className="text-[#667085]" />
+                  <X size={20} className="text-fg-secondary" />
                 </button>
               </div>
             </div>
@@ -1042,35 +1041,35 @@ export default function ManagerApprovalRequests() {
                 className={`p-4 rounded-lg mb-6 ${
                   selectedRequest.status === "Pending" ||
                   selectedRequest.status === "Pending Manager Approval"
-                    ? "bg-[#FFF4E6] border border-[#F4A100]"
+                    ? "bg-hover border border-warning"
                     : selectedRequest.status === "Approved"
-                    ? "bg-[#DDFFE0] border border-[#199D26]"
+                    ? "bg-hover border border-success"
                     : selectedRequest.status === "Rejected"
-                    ? "bg-[#FEE2E2] border border-[#EF4444]"
-                    : "bg-[#F8F9FA] border border-[#E4E6EA]"
+                    ? "bg-hover border border-error"
+                    : "bg-subtle border border-line"
                 }`}
               >
                 <div className="flex items-center gap-2">
                   {(selectedRequest.status === "Pending" ||
                     selectedRequest.status === "Pending Manager Approval") && (
-                    <Clock size={20} className="text-[#F4A100]" />
+                    <Clock size={20} className="text-warning" />
                   )}
                   {selectedRequest.status === "Approved" && (
-                    <CheckCircle2 size={20} className="text-[#199D26]" />
+                    <CheckCircle2 size={20} className="text-success" />
                   )}
                   {selectedRequest.status === "Rejected" && (
-                    <AlertTriangle size={20} className="text-[#EF4444]" />
+                    <AlertTriangle size={20} className="text-error" />
                   )}
                   <span
                     className={`text-[16px] font-[600] ${
                       selectedRequest.status === "Pending" ||
                       selectedRequest.status === "Pending Manager Approval"
-                        ? "text-[#F4A100]"
+                        ? "text-warning"
                         : selectedRequest.status === "Approved"
-                        ? "text-[#199D26]"
+                        ? "text-success"
                         : selectedRequest.status === "Rejected"
-                        ? "text-[#EF4444]"
-                        : "text-[#667085]"
+                        ? "text-error"
+                        : "text-fg-secondary"
                     }`}
                   >
                     {selectedRequest.status}
@@ -1083,7 +1082,7 @@ export default function ManagerApprovalRequests() {
                     {selectedRequest.priority} Priority
                   </span>
                 </div>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   {(selectedRequest.status === "Pending" ||
                     selectedRequest.status === "Pending Manager Approval") &&
                     "This request is awaiting your approval"}
@@ -1095,28 +1094,28 @@ export default function ManagerApprovalRequests() {
               </div>
 
               {/* Request Summary */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-[#F8F9FA] rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-subtle rounded-lg">
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Request Type
                   </p>
-                  <p className="text-[14px] font-[600] text-[#383E49]">
+                  <p className="text-[14px] font-[600] text-fg">
                     {selectedRequest.type}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Requested By
                   </p>
-                  <p className="text-[14px] font-[600] text-[#383E49]">
+                  <p className="text-[14px] font-[600] text-fg">
                     {selectedRequest.requestedBy}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                  <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                     Request Date
                   </p>
-                  <p className="text-[14px] font-[600] text-[#383E49]">
+                  <p className="text-[14px] font-[600] text-fg">
                     {new Date(selectedRequest.requestDate).toLocaleDateString()}
                   </p>
                 </div>
@@ -1127,25 +1126,25 @@ export default function ManagerApprovalRequests() {
                 <div>
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-4">
-                      <Building size={20} className="text-[#0F50AA]" />
-                      <h4 className="text-[16px] font-[600] text-[#383E49]">
+                      <Building size={20} className="text-brand-fg" />
+                      <h4 className="text-[16px] font-[600] text-fg">
                         Supplier Information
                       </h4>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-[#EBF8FF] rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-hover rounded-lg">
                       <div>
-                        <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                        <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                           Supplier Name
                         </span>
-                        <p className="text-[14px] font-[600] text-[#383E49]">
+                        <p className="text-[14px] font-[600] text-fg">
                           {selectedRequest.supplierName}
                         </p>
                       </div>
                       <div>
-                        <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                        <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                           Expected Delivery
                         </span>
-                        <p className="text-[14px] font-[600] text-[#383E49]">
+                        <p className="text-[14px] font-[600] text-fg">
                           {selectedRequest.expectedDelivery
                             ? new Date(
                                 selectedRequest.expectedDelivery
@@ -1158,55 +1157,55 @@ export default function ManagerApprovalRequests() {
 
                   {selectedRequest.items &&
                     selectedRequest.items.length > 0 && (
-                      <div className="border border-[#E4E6EA] rounded-lg">
-                        <div className="bg-[#F8F9FA] px-4 py-3 border-b border-[#E4E6EA]">
-                          <h4 className="text-[16px] font-[600] text-[#383E49]">
+                      <div className="border border-line rounded-lg">
+                        <div className="bg-subtle px-4 py-3 border-b border-line">
+                          <h4 className="text-[16px] font-[600] text-fg">
                             Order Items ({selectedRequest.items.length})
                           </h4>
                         </div>
                         <div className="overflow-x-auto">
                           <table className="w-full">
-                            <thead className="bg-[#F8F9FA]">
+                            <thead className="bg-subtle">
                               <tr>
-                                <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                                <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                                   Material
                                 </th>
-                                <th className="text-center py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                                <th className="text-center py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                                   Required Qty
                                 </th>
-                                <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                                <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                                   Estimated Cost
                                 </th>
-                                <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                                <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                                   Actual Cost
                                 </th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#E4E6EA]">
+                            <tbody className="divide-y divide-line">
                               {selectedRequest.items.map((item, index) => (
-                                <tr key={index} className="hover:bg-[#F8F9FA]">
+                                <tr key={index} className="hover:bg-subtle">
                                   <td className="py-3 px-4">
                                     <div>
-                                      <p className="text-[14px] font-[500] text-[#383E49]">
+                                      <p className="text-[14px] font-[500] text-fg">
                                         {item.rawMaterialName}
                                       </p>
-                                      <p className="text-[12px] text-[#667085]">
+                                      <p className="text-[12px] text-fg-secondary">
                                         ID: {item.rawMaterialId}
                                       </p>
                                     </div>
                                   </td>
                                   <td className="py-3 px-4 text-center">
-                                    <p className="text-[14px] font-[600] text-[#383E49]">
+                                    <p className="text-[14px] font-[600] text-fg">
                                       {item.requiredQty} {item.unitOfMeasure}
                                     </p>
                                   </td>
                                   <td className="py-3 px-4 text-right">
-                                    <p className="text-[14px] text-[#383E49]">
+                                    <p className="text-[14px] text-fg">
                                       Rs.{item.estimatedCost.toFixed(2)}
                                     </p>
                                   </td>
                                   <td className="py-3 px-4 text-right">
-                                    <p className="text-[14px] font-[600] text-[#199D26]">
+                                    <p className="text-[14px] font-[600] text-success">
                                       Rs.{item.actualCost.toFixed(2)}
                                     </p>
                                   </td>
@@ -1215,12 +1214,12 @@ export default function ManagerApprovalRequests() {
                             </tbody>
                           </table>
                         </div>
-                        <div className="bg-[#F8F9FA] px-4 py-3 border-t border-[#E4E6EA]">
+                        <div className="bg-subtle px-4 py-3 border-t border-line">
                           <div className="flex justify-between items-center">
-                            <span className="text-[14px] font-[600] text-[#383E49]">
+                            <span className="text-[14px] font-[600] text-fg">
                               Total Cost:
                             </span>
-                            <span className="text-[18px] font-[700] text-[#199D26]">
+                            <span className="text-[18px] font-[700] text-success">
                               Rs.{selectedRequest.totalCost.toFixed(2)}
                             </span>
                           </div>
@@ -1235,25 +1234,25 @@ export default function ManagerApprovalRequests() {
                 <div>
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-4">
-                      <RotateCcw size={20} className="text-[#0F50AA]" />
-                      <h4 className="text-[16px] font-[600] text-[#383E49]">
+                      <RotateCcw size={20} className="text-brand-fg" />
+                      <h4 className="text-[16px] font-[600] text-fg">
                         Return Information
                       </h4>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-[#EBF8FF] rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-hover rounded-lg">
                       <div>
-                        <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                        <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                           Supplier Name
                         </span>
-                        <p className="text-[14px] font-[600] text-[#383E49]">
+                        <p className="text-[14px] font-[600] text-fg">
                           {selectedRequest.supplierName}
                         </p>
                       </div>
                       <div>
-                        <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                        <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                           Total Return Value
                         </span>
-                        <p className="text-[14px] font-[600] text-[#EF4444]">
+                        <p className="text-[14px] font-[600] text-error">
                           Rs.{selectedRequest.totalCost.toFixed(2)}
                         </p>
                       </div>
@@ -1262,71 +1261,71 @@ export default function ManagerApprovalRequests() {
 
                   {selectedRequest.items &&
                     selectedRequest.items.length > 0 && (
-                      <div className="border border-[#E4E6EA] rounded-lg">
-                        <div className="bg-[#F8F9FA] px-4 py-3 border-b border-[#E4E6EA]">
-                          <h4 className="text-[16px] font-[600] text-[#383E49]">
+                      <div className="border border-line rounded-lg">
+                        <div className="bg-subtle px-4 py-3 border-b border-line">
+                          <h4 className="text-[16px] font-[600] text-fg">
                             Return Items ({selectedRequest.items.length})
                           </h4>
                         </div>
                         <div className="overflow-x-auto">
                           <table className="w-full">
-                            <thead className="bg-[#F8F9FA]">
+                            <thead className="bg-subtle">
                               <tr>
-                                <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                                <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                                   Material
                                 </th>
-                                <th className="text-center py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                                <th className="text-center py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                                   Quantity
                                 </th>
-                                <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                                <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                                   Unit Price
                                 </th>
-                                <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                                <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                                   Total Price
                                 </th>
-                                <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                                <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                                   Reason
                                 </th>
-                                <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                                <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                                   Status
                                 </th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#E4E6EA]">
+                            <tbody className="divide-y divide-line">
                               {selectedRequest.items.map((item, index) => (
-                                <tr key={index} className="hover:bg-[#F8F9FA]">
+                                <tr key={index} className="hover:bg-subtle">
                                   <td className="py-3 px-4">
                                     <div>
-                                      <p className="text-[14px] font-[500] text-[#383E49]">
+                                      <p className="text-[14px] font-[500] text-fg">
                                         {item.name}
                                       </p>
-                                      <p className="text-[12px] text-[#667085]">
+                                      <p className="text-[12px] text-fg-secondary">
                                         ID: {item.rawMaterialId}
                                       </p>
                                     </div>
                                   </td>
                                   <td className="py-3 px-4 text-center">
-                                    <p className="text-[14px] font-[600] text-[#383E49]">
+                                    <p className="text-[14px] font-[600] text-fg">
                                       {item.returnQuantity} {item.unit}
                                     </p>
                                   </td>
                                   <td className="py-3 px-4 text-right">
-                                    <p className="text-[14px] text-[#383E49]">
+                                    <p className="text-[14px] text-fg">
                                       Rs.{Number(item.unitPrice).toFixed(2)}
                                     </p>
                                   </td>
                                   <td className="py-3 px-4 text-right">
-                                    <p className="text-[14px] font-[600] text-[#EF4444]">
+                                    <p className="text-[14px] font-[600] text-error">
                                       Rs.{Number(item.totalPrice).toFixed(2)}
                                     </p>
                                   </td>
                                   <td className="py-3 px-4">
-                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-[#FFF4E6] text-[#F4A100]">
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-warning">
                                       {item.reason}
                                     </span>
                                   </td>
                                   <td className="py-3 px-4">
-                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-[#F0F1F3] text-[#667085]">
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-app text-fg-secondary">
                                       {item.status}
                                     </span>
                                   </td>
@@ -1345,43 +1344,43 @@ export default function ManagerApprovalRequests() {
                 <div>
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-4">
-                      <Building size={20} className="text-[#0F50AA]" />
-                      <h4 className="text-[16px] font-[600] text-[#383E49]">
+                      <Building size={20} className="text-brand-fg" />
+                      <h4 className="text-[16px] font-[600] text-fg">
                         Outlet Information
                       </h4>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-[#EBF8FF] rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-hover rounded-lg">
                       <div>
-                        <span className="text-[12px] font-[500] text-[#667085] uppercase">Outlet Name</span>
-                        <p className="text-[14px] font-[600] text-[#383E49]">{selectedRequest.outletName}</p>
+                        <span className="text-[12px] font-[500] text-fg-secondary uppercase">Outlet Name</span>
+                        <p className="text-[14px] font-[600] text-fg">{selectedRequest.outletName}</p>
                       </div>
                       <div>
-                        <span className="text-[12px] font-[500] text-[#667085] uppercase">Remarks</span>
-                        <p className="text-[14px] text-[#383E49]">{selectedRequest.remarks || "No remarks provided"}</p>
+                        <span className="text-[12px] font-[500] text-fg-secondary uppercase">Remarks</span>
+                        <p className="text-[14px] text-fg">{selectedRequest.remarks || "No remarks provided"}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="border border-[#E4E6EA] rounded-lg overflow-hidden">
+                  <div className="border border-line rounded-lg overflow-hidden">
                     <table className="w-full">
-                      <thead className="bg-[#F8F9FA]">
+                      <thead className="bg-subtle">
                         <tr>
-                          <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">Product</th>
-                          <th className="text-center py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">Return Qty</th>
-                          <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">Reason</th>
+                          <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">Product</th>
+                          <th className="text-center py-3 px-4 text-[12px] font-[600] text-fg uppercase">Return Qty</th>
+                          <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">Reason</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#E4E6EA]">
+                      <tbody className="divide-y divide-line">
                         {(selectedRequest.items || []).map((item, index) => (
-                          <tr key={index} className="hover:bg-[#F8F9FA]">
+                          <tr key={index} className="hover:bg-subtle">
                             <td className="py-3 px-4">
-                              <p className="text-[14px] font-[500] text-[#383E49]">{item.name}</p>
+                              <p className="text-[14px] font-[500] text-fg">{item.name}</p>
                             </td>
                             <td className="py-3 px-4 text-center">
-                              <p className="text-[14px] font-[600] text-[#383E49]">{item.returnQuantity} {item.unit}</p>
+                              <p className="text-[14px] font-[600] text-fg">{item.returnQuantity} {item.unit}</p>
                             </td>
                             <td className="py-3 px-4">
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-[#FFF4E6] text-[#F4A100]">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-warning">
                                 {item.reason}
                               </span>
                             </td>
@@ -1397,84 +1396,84 @@ export default function ManagerApprovalRequests() {
                 <div>
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-4">
-                      <Package size={20} className="text-[#0F50AA]" />
-                      <h4 className="text-[16px] font-[600] text-[#383E49]">
+                      <Package size={20} className="text-brand-fg" />
+                      <h4 className="text-[16px] font-[600] text-fg">
                         Adjustment Information
                       </h4>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-[#EBF8FF] rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-hover rounded-lg">
                       <div>
-                        <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                        <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                           Material Name
                         </span>
-                        <p className="text-[14px] font-[600] text-[#383E49]">
+                        <p className="text-[14px] font-[600] text-fg">
                           {selectedRequest.materialName}
                         </p>
-                        <p className="text-[12px] text-[#667085]">
+                        <p className="text-[12px] text-fg-secondary">
                           Code: {selectedRequest.materialCode}
                         </p>
                       </div>
                       <div>
-                        <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                        <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                           Adjustment Reason
                         </span>
-                        <p className="text-[14px] font-[600] text-[#383E49]">
+                        <p className="text-[14px] font-[600] text-fg">
                           {selectedRequest.reason}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-[#F8F9FA] p-4 rounded-lg mb-6">
-                    <h4 className="text-[16px] font-[600] text-[#383E49] mb-4">
+                  <div className="bg-subtle p-4 rounded-lg mb-6">
+                    <h4 className="text-[16px] font-[600] text-fg mb-4">
                       Adjustment Summary
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="text-center">
-                        <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                        <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                           System Quantity
                         </span>
-                        <p className="text-[24px] font-[700] text-[#383E49]">
+                        <p className="text-[24px] font-[700] text-fg">
                           {formatQuantity(selectedRequest.systemQty)}
                         </p>
                       </div>
                       <div className="text-center">
-                        <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                        <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                           Physical Quantity
                         </span>
-                        <p className="text-[24px] font-[700] text-[#383E49]">
+                        <p className="text-[24px] font-[700] text-fg">
                           {formatQuantity(Math.max(0, selectedRequest.physicalQty))}
                         </p>
                       </div>
                       <div className="text-center">
-                        <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                        <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                           Adjustment
                         </span>
                         <div className="flex items-center justify-center gap-2">
                           {selectedRequest.adjustmentQty > 0 ? (
-                            <TrendingUp size={20} className="text-[#51CC5D]" />
+                            <TrendingUp size={20} className="text-success" />
                           ) : selectedRequest.adjustmentQty < 0 ? (
                             <TrendingDown
                               size={20}
-                              className="text-[#EF4444]"
+                              className="text-error"
                             />
                           ) : (
-                            <Minus size={20} className="text-[#667085]" />
+                            <Minus size={20} className="text-fg-secondary" />
                           )}
                           <span
                             className={`text-[24px] font-[700] ${
                               selectedRequest.adjustmentQty > 0
-                                ? "text-[#51CC5D]"
+                                ? "text-success"
                                 : selectedRequest.adjustmentQty < 0
-                                ? "text-[#EF4444]"
-                                : "text-[#667085]"
+                                ? "text-error"
+                                : "text-fg-secondary"
                             }`}
                           >
                             {selectedRequest.adjustmentQty > 0 ? "+" : ""}
                             {formatQuantity(selectedRequest.adjustmentQty)}
                           </span>
                         </div>
-                        <p className="text-[12px] text-[#667085] mt-1">
+                        <p className="text-[12px] text-fg-secondary mt-1">
                           {selectedRequest.adjustmentType}
                         </p>
                       </div>
@@ -1483,11 +1482,11 @@ export default function ManagerApprovalRequests() {
 
                   {selectedRequest.remarks && (
                     <div className="mb-6">
-                      <h4 className="text-[16px] font-[600] text-[#383E49] mb-2">
+                      <h4 className="text-[16px] font-[600] text-fg mb-2">
                         Storekeeper Remarks
                       </h4>
-                      <div className="bg-[#F8F9FA] p-4 rounded-lg">
-                        <p className="text-[14px] text-[#383E49]">
+                      <div className="bg-subtle p-4 rounded-lg">
+                        <p className="text-[14px] text-fg">
                           {selectedRequest.remarks}
                         </p>
                       </div>
@@ -1499,7 +1498,7 @@ export default function ManagerApprovalRequests() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex justify-between items-center p-6 border-t border-[#E4E6EA]">
+            <div className="flex justify-between items-center p-6 border-t border-line">
               {selectedRequest.status === "Pending" ||
               selectedRequest.status === "Pending Manager Approval" ? (
                 <div className="flex gap-3">
@@ -1508,7 +1507,7 @@ export default function ManagerApprovalRequests() {
                     disabled={
                       processingAction === `approve-${selectedRequest.id}`
                     }
-                    className="flex items-center gap-2 px-6 py-3 text-[14px] font-[500] text-white bg-[#199D26] hover:bg-[#15803D] disabled:bg-[#94D3A2] disabled:cursor-not-allowed rounded-md transition-colors"
+                    className="flex items-center gap-2 px-6 py-3 text-[14px] font-[500] text-on-brand bg-success-solid hover:bg-success-solid disabled:bg-success-solid disabled:cursor-not-allowed rounded-md transition-colors"
                   >
                     {processingAction === `approve-${selectedRequest.id}` ? (
                       <>
@@ -1533,7 +1532,7 @@ export default function ManagerApprovalRequests() {
                     disabled={
                       processingAction === `reject-${selectedRequest.id}`
                     }
-                    className="flex items-center gap-2 px-6 py-3 text-[14px] font-[500] text-white bg-[#EF4444] hover:bg-[#DC2626] disabled:bg-[#FCA5A2] disabled:cursor-not-allowed rounded-md transition-colors"
+                    className="flex items-center gap-2 px-6 py-3 text-[14px] font-[500] text-on-brand bg-error-solid hover:bg-error-solid disabled:bg-error/20 disabled:cursor-not-allowed rounded-md transition-colors"
                   >
                     {processingAction === `reject-${selectedRequest.id}` ? (
                       <>
@@ -1550,7 +1549,7 @@ export default function ManagerApprovalRequests() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span className="text-[14px] text-[#667085]">
+                  <span className="text-[14px] text-fg-secondary">
                     {selectedRequest.status === "Approved" &&
                       "This order has been approved"}
                     {selectedRequest.status === "Rejected" &&
@@ -1561,7 +1560,7 @@ export default function ManagerApprovalRequests() {
 
               <button
                 onClick={() => setShowDetailsModal(false)}
-                className="px-6 py-3 text-[14px] font-[500] text-[#667085] bg-white border border-[#E4E6EA] hover:bg-[#F8F9FA] rounded-md transition-colors"
+                className="px-6 py-3 text-[14px] font-[500] text-fg-secondary bg-surface border border-line hover:bg-subtle rounded-md transition-colors"
               >
                 Close
               </button>
@@ -1573,7 +1572,7 @@ export default function ManagerApprovalRequests() {
       {/* Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

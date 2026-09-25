@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { confirmDialog } from "../component/ConfirmDialog";
 import {
   Truck,
   Mail,
@@ -543,7 +544,7 @@ export default function AdminManageSuppliers() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this supplier?")) {
+    if (await confirmDialog("Are you sure you want to delete this supplier?", { confirmText: "Delete", danger: true })) {
       try {
         const response = await axiosInstance.delete(
           `/ADMIN/v1/suppliers/${id}`
@@ -670,7 +671,7 @@ export default function AdminManageSuppliers() {
   const filteredSuppliers = getFilteredSuppliers();
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       {/* Sidebar */}
       <AdminSidebar sidebarOpen={sidebarOpen} />
 
@@ -685,23 +686,23 @@ export default function AdminManageSuppliers() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
           {/* Page Header */}
           <div className="mb-6">
-            <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+            <h1 className="text-[20px] font-[600] text-fg mb-1">
               Supplier Management
             </h1>
-            <p className="text-[14px] leading-[20px] font-[400] text-[#667085]">
+            <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
               View, add, edit, and manage supplier details
             </p>
           </div>
 
           {/* Supplier List Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-              <h3 className="text-[18px] font-[600] text-[#383E49]">
+              <h3 className="text-[18px] font-[600] text-fg">
                 Supplier List
               </h3>
               <button
                 onClick={handleCreateNew}
-                className="flex items-center gap-2 bg-[#0F50AA] hover:bg-[#1366D9] text-white px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors mt-2 sm:mt-0"
+                className="flex items-center gap-2 bg-brand hover:bg-brand-hover text-on-brand px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors mt-2 sm:mt-0"
               >
                 <Truck className="w-5 h-5" />
                 Add New Supplier
@@ -714,7 +715,7 @@ export default function AdminManageSuppliers() {
                 {/* Search Bar */}
                 <div className="relative md:col-span-2">
                   <Search
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]"
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
                     size={16}
                   />
                   <input
@@ -722,7 +723,7 @@ export default function AdminManageSuppliers() {
                     placeholder="Search by supplier name, email, contact, or materials..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                    className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                   />
                 </div>
 
@@ -731,7 +732,7 @@ export default function AdminManageSuppliers() {
                   <select
                     value={vatFilter}
                     onChange={(e) => setVatFilter(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white appearance-none cursor-pointer"
+                    className="w-full px-4 py-2.5 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface appearance-none cursor-pointer"
                   >
                     <option value="All">All VAT Status</option>
                     <option value="Registered">VAT Registered</option>
@@ -739,7 +740,7 @@ export default function AdminManageSuppliers() {
                   </select>
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                     <svg
-                      className="w-4 h-4 text-[#667085]"
+                      className="w-4 h-4 text-fg-secondary"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -761,95 +762,95 @@ export default function AdminManageSuppliers() {
               <Loader variant="section" text="Loading suppliers..." />
             ) : error ? (
               <div className="text-center py-12">
-                <Truck size={48} className="mx-auto text-[#EF4444] mb-4" />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <Truck size={48} className="mx-auto text-error mb-4" />
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   Error loading suppliers
                 </p>
-                <p className="text-[14px] text-[#667085]">{error}</p>
+                <p className="text-[14px] text-fg-secondary">{error}</p>
               </div>
             ) : filteredSuppliers.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E4E6EA]">
-                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-[#383E49] whitespace-nowrap">
+                    <tr className="border-b border-line">
+                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-fg whitespace-nowrap">
                         Supplier Name
                       </th>
-                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-[#383E49] whitespace-nowrap">
+                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-fg whitespace-nowrap">
                         Email
                       </th>
-                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-[#383E49] whitespace-nowrap">
+                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-fg whitespace-nowrap">
                         Supplier Contact
                       </th>
-                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-[#383E49] whitespace-nowrap">
+                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-fg whitespace-nowrap">
                         REP Name
                       </th>
-                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-[#383E49] whitespace-nowrap">
+                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-fg whitespace-nowrap">
                         REP Contact
                       </th>
-                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-[#383E49] whitespace-nowrap">
+                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-fg whitespace-nowrap">
                         Address
                       </th>
-                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-[#383E49] whitespace-nowrap">
+                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-fg whitespace-nowrap">
                         Bank Details
                       </th>
-                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-[#383E49] whitespace-nowrap">
+                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-fg whitespace-nowrap">
                         VAT Status
                       </th>
-                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-[#383E49] whitespace-nowrap">
+                      <th className="text-left py-4 px-2 text-[13px] font-[500] text-fg whitespace-nowrap">
                         Supplied Materials
                       </th>
-                      <th className="text-center py-4 px-2 text-[13px] font-[500] text-[#383E49] whitespace-nowrap">
+                      <th className="text-center py-4 px-2 text-[13px] font-[500] text-fg whitespace-nowrap">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E4E6EA]">
+                  <tbody className="divide-y divide-line">
                     {filteredSuppliers.map((supplier) => (
                       <tr
                         key={supplier.id}
-                        className="hover:bg-[#F8F9FA] transition-colors"
+                        className="hover:bg-subtle transition-colors"
                       >
                         <td className="py-4 px-2">
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-[#EBF8FF] rounded-full flex items-center justify-center flex-shrink-0">
-                              <Truck className="w-4 h-4 text-[#0F50AA]" />
+                            <div className="w-8 h-8 bg-hover rounded-full flex items-center justify-center flex-shrink-0">
+                              <Truck className="w-4 h-4 text-brand-fg" />
                             </div>
-                            <p className="text-[13px] font-[600] text-[#383E49] whitespace-nowrap">
+                            <p className="text-[13px] font-[600] text-fg whitespace-nowrap">
                               {supplier.name}
                             </p>
                           </div>
                         </td>
                         <td className="py-4 px-2">
-                          <p className="text-[13px] text-[#48505E] whitespace-nowrap">
+                          <p className="text-[13px] text-fg whitespace-nowrap">
                             {supplier.email || "-"}
                           </p>
                         </td>
                         <td className="py-4 px-2">
-                          <p className="text-[13px] text-[#48505E] whitespace-nowrap">
+                          <p className="text-[13px] text-fg whitespace-nowrap">
                             {supplier.supplierContactNumber || "-"}
                           </p>
                         </td>
                         <td className="py-4 px-2">
-                          <p className="text-[13px] text-[#48505E] whitespace-nowrap">
+                          <p className="text-[13px] text-fg whitespace-nowrap">
                             {supplier.repName || "-"}
                           </p>
                         </td>
                         <td className="py-4 px-2">
-                          <p className="text-[13px] text-[#48505E] whitespace-nowrap">
+                          <p className="text-[13px] text-fg whitespace-nowrap">
                             {supplier.repContactNumber || "-"}
                           </p>
                         </td>
                         <td className="py-4 px-2">
-                          <p className="text-[13px] text-[#48505E] min-w-[100px]">
+                          <p className="text-[13px] text-fg min-w-[100px]">
                             {supplier.address || "-"}
                           </p>
                         </td>
                         <td className="py-4 px-2">
-                          <div className="text-[13px] text-[#48505E] min-w-[180px]">
+                          <div className="text-[13px] text-fg min-w-[180px]">
                             {supplier.bankName ? (
                               <>
-                                <p className="font-[600] text-[#383E49]">
+                                <p className="font-[600] text-fg">
                                   {supplier.bankName}
                                 </p>
                                 {supplier.accountNumber && (
@@ -863,7 +864,7 @@ export default function AdminManageSuppliers() {
                                   </p>
                                 )}
                                 {supplier.branch && (
-                                  <p className="text-[12px] text-[#667085]">
+                                  <p className="text-[12px] text-fg-secondary">
                                     {supplier.branch}
                                   </p>
                                 )}
@@ -877,15 +878,15 @@ export default function AdminManageSuppliers() {
                           <div className="min-w-[120px]">
                             {supplier.isVatRegistered ? (
                               <div>
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-[#DCFCE7] text-[#16A34A] mb-1">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-line text-success mb-1">
                                   Registered
                                 </span>
-                                <p className="text-[12px] text-[#48505E]">
+                                <p className="text-[12px] text-fg">
                                   {supplier.vatNumber}
                                 </p>
                               </div>
                             ) : (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-[#F3F4F6] text-[#6B7280]">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-hover text-fg-secondary">
                                 Not Registered
                               </span>
                             )}
@@ -903,20 +904,20 @@ export default function AdminManageSuppliers() {
                               });
                               const uniqueGenerics = Array.from(generics);
                               
-                              if (uniqueGenerics.length === 0) return <span className="text-gray-400">-</span>;
+                              if (uniqueGenerics.length === 0) return <span className="text-fg-muted">-</span>;
 
                               return (
                                 <>
                                   {uniqueGenerics.slice(0, 2).map((gen, idx) => (
                                     <span
                                       key={idx}
-                                      className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-[#EBF8FF] text-[#0F50AA]"
+                                      className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-hover text-brand-fg"
                                     >
                                       {gen}
                                     </span>
                                   ))}
                                   {uniqueGenerics.length > 2 && (
-                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-[#F8F9FA] text-[#667085]">
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-subtle text-fg-secondary">
                                       +{uniqueGenerics.length - 2} more
                                     </span>
                                   )}
@@ -929,14 +930,14 @@ export default function AdminManageSuppliers() {
                           <div className="flex items-center justify-center gap-2">
                             <button
                               onClick={() => handleEdit(supplier)}
-                              className="p-2 text-[#0F50AA] hover:bg-[#EBF8FF] rounded-lg transition-colors"
+                              className="p-2 text-brand-fg hover:bg-hover rounded-lg transition-colors"
                               title="Edit Supplier"
                             >
                               <Edit size={16} />
                             </button>
                             <button
                               onClick={() => handleDelete(supplier.id)}
-                              className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors"
+                              className="p-2 text-error hover:bg-hover rounded-lg transition-colors"
                               title="Delete Supplier"
                             >
                               <Trash2 size={16} />
@@ -950,11 +951,11 @@ export default function AdminManageSuppliers() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <Truck size={48} className="mx-auto text-[#667085] mb-4" />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <Truck size={48} className="mx-auto text-fg-secondary mb-4" />
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   No suppliers found
                 </p>
-                <p className="text-[14px] text-[#667085]">
+                <p className="text-[14px] text-fg-secondary">
                   {searchTerm || vatFilter !== "All"
                     ? "Try adjusting your search or filter criteria"
                     : "Click 'Add New Supplier' to add your first supplier"}
@@ -967,15 +968,15 @@ export default function AdminManageSuppliers() {
 
       {/* Supplier Form Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA] sticky top-0 bg-white z-10">
+            <div className="flex items-center justify-between p-6 border-b border-line sticky top-0 bg-surface z-10">
               <div>
-                <h2 className="text-[20px] leading-[30px] font-[600] text-[#383E49]">
+                <h2 className="text-[20px] leading-[30px] font-[600] text-fg">
                   {isEditMode ? "Edit Supplier" : "Add New Supplier"}
                 </h2>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   {isEditMode
                     ? "Update supplier information and materials"
                     : "Fill in the details to add a new supplier"}
@@ -983,7 +984,7 @@ export default function AdminManageSuppliers() {
               </div>
               <button
                 onClick={handleCancel}
-                className="p-2 text-[#667085] hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -994,15 +995,15 @@ export default function AdminManageSuppliers() {
               <div className="space-y-6">
                 {/* Basic Information Section */}
                 <div>
-                  <h3 className="text-[16px] font-[600] text-[#383E49] mb-4 flex items-center gap-2">
+                  <h3 className="text-[16px] font-[600] text-fg mb-4 flex items-center gap-2">
                     <Truck className="w-5 h-5" />
                     Basic Information
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Supplier Name */}
                     <div>
-                      <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                        Supplier Name <span className="text-[#EF4444]">*</span>
+                      <label className="block text-[14px] font-[500] text-fg mb-1">
+                        Supplier Name <span className="text-error">*</span>
                       </label>
                       <input
                         type="text"
@@ -1010,11 +1011,11 @@ export default function AdminManageSuppliers() {
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="Enter supplier name"
-                        className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.name ? "border-[#EF4444]" : "border-[#E4E6EA]"
+                        className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.name ? "border-error" : "border-line"
                           }`}
                       />
                       {errors.name && (
-                        <p className="text-[#EF4444] text-[12px] mt-1">
+                        <p className="text-error text-[12px] mt-1">
                           {errors.name}
                         </p>
                       )}
@@ -1022,25 +1023,25 @@ export default function AdminManageSuppliers() {
 
                     {/* Email */}
                     <div>
-                      <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                      <label className="block text-[14px] font-[500] text-fg mb-1">
                         Email Address
                       </label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                         <input
                           type="email"
                           name="email"
                           value={formData.email}
                           onChange={handleChange}
                           placeholder="Enter email address"
-                          className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.email
-                              ? "border-[#EF4444]"
-                              : "border-[#E4E6EA]"
+                          className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.email
+                              ? "border-error"
+                              : "border-line"
                             }`}
                         />
                       </div>
                       {errors.email && (
-                        <p className="text-[#EF4444] text-[12px] mt-1">
+                        <p className="text-error text-[12px] mt-1">
                           {errors.email}
                         </p>
                       )}
@@ -1048,22 +1049,22 @@ export default function AdminManageSuppliers() {
 
                     {/* Supplier Contact Number */}
                     <div>
-                      <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                      <label className="block text-[14px] font-[500] text-fg mb-1">
                         Supplier Contact Number
                       </label>
                       <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                         <input
                           type="tel"
                           name="supplierContactNumber"
                           value={formData.supplierContactNumber}
                           onChange={handleChange}
                           placeholder="Enter supplier contact number"
-                          className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.supplierContactNumber ? "border-[#EF4444]" : "border-[#E4E6EA]"}`}
+                          className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.supplierContactNumber ? "border-error" : "border-line"}`}
                         />
                       </div>
                       {errors.supplierContactNumber && (
-                        <p className="text-[#EF4444] text-[12px] mt-1">
+                        <p className="text-error text-[12px] mt-1">
                           {errors.supplierContactNumber}
                         </p>
                       )}
@@ -1071,18 +1072,18 @@ export default function AdminManageSuppliers() {
 
                     {/* Address */}
                     <div>
-                      <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                      <label className="block text-[14px] font-[500] text-fg mb-1">
                         Address
                       </label>
                       <div className="relative">
-                        <MapPin className="absolute left-3 top-3 w-5 h-5 text-[#667085]" />
+                        <MapPin className="absolute left-3 top-3 w-5 h-5 text-fg-secondary" />
                         <textarea
                           name="address"
                           value={formData.address}
                           onChange={handleChange}
                           placeholder="Enter supplier address"
                           rows="3"
-                          className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] resize-none"
+                          className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg resize-none"
                         />
                       </div>
                     </div>
@@ -1091,14 +1092,14 @@ export default function AdminManageSuppliers() {
 
                 {/* REP Information Section */}
                 <div>
-                  <h3 className="text-[16px] font-[600] text-[#383E49] mb-4 flex items-center gap-2">
+                  <h3 className="text-[16px] font-[600] text-fg mb-4 flex items-center gap-2">
                     <User className="w-5 h-5" />
                     REP Information
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* REP Name */}
                     <div>
-                      <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                      <label className="block text-[14px] font-[500] text-fg mb-1">
                         REP Name
                       </label>
                       <input
@@ -1107,24 +1108,24 @@ export default function AdminManageSuppliers() {
                         value={formData.repName}
                         onChange={handleChange}
                         placeholder="Enter rep name"
-                        className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                        className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                       />
                     </div>
 
                     {/* REP Contact Number */}
                     <div>
-                      <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                      <label className="block text-[14px] font-[500] text-fg mb-1">
                         REP Contact Number
                       </label>
                       <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                         <input
                           type="tel"
                           name="repContactNumber"
                           value={formData.repContactNumber}
                           onChange={handleChange}
                           placeholder="Enter rep contact number"
-                          className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                          className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                         />
                       </div>
                     </div>
@@ -1133,14 +1134,14 @@ export default function AdminManageSuppliers() {
 
                 {/* Bank Information Section */}
                 <div>
-                  <h3 className="text-[16px] font-[600] text-[#383E49] mb-4 flex items-center gap-2">
+                  <h3 className="text-[16px] font-[600] text-fg mb-4 flex items-center gap-2">
                     <Building2 className="w-5 h-5" />
                     Bank Account Details
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Bank Name */}
                     <div>
-                      <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                      <label className="block text-[14px] font-[500] text-fg mb-1">
                         Bank Name
                       </label>
                       <input
@@ -1149,31 +1150,31 @@ export default function AdminManageSuppliers() {
                         value={formData.bankName}
                         onChange={handleChange}
                         placeholder="Enter bank name"
-                        className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                        className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                       />
                     </div>
 
                     {/* Account Number */}
                     <div>
-                      <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                      <label className="block text-[14px] font-[500] text-fg mb-1">
                         Account Number
                       </label>
                       <div className="relative">
-                        <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                        <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                         <input
                           type="text"
                           name="accountNumber"
                           value={formData.accountNumber}
                           onChange={handleChange}
                           placeholder="Enter account number"
-                          className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                          className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                         />
                       </div>
                     </div>
 
                     {/* Account Name */}
                     <div>
-                      <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                      <label className="block text-[14px] font-[500] text-fg mb-1">
                         Account Name
                       </label>
                       <input
@@ -1182,13 +1183,13 @@ export default function AdminManageSuppliers() {
                         value={formData.accountName}
                         onChange={handleChange}
                         placeholder="Enter account name"
-                        className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                        className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                       />
                     </div>
 
                     {/* Branch */}
                     <div>
-                      <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                      <label className="block text-[14px] font-[500] text-fg mb-1">
                         Branch
                       </label>
                       <input
@@ -1197,7 +1198,7 @@ export default function AdminManageSuppliers() {
                         value={formData.branch}
                         onChange={handleChange}
                         placeholder="Enter branch name"
-                        className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                        className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                       />
                     </div>
                   </div>
@@ -1205,7 +1206,7 @@ export default function AdminManageSuppliers() {
 
                 {/* VAT Information Section */}
                 <div>
-                  <h3 className="text-[16px] font-[600] text-[#383E49] mb-4">
+                  <h3 className="text-[16px] font-[600] text-fg mb-4">
                     VAT Registration
                   </h3>
                   <div className="space-y-4">
@@ -1217,11 +1218,11 @@ export default function AdminManageSuppliers() {
                         name="isVatRegistered"
                         checked={formData.isVatRegistered}
                         onChange={handleChange}
-                        className="w-4 h-4 text-[#0F50AA] border-[#E4E6EA] rounded focus:ring-2 focus:ring-[#0F50AA]"
+                        className="w-4 h-4 text-brand-fg border-line rounded focus:ring-2 focus:ring-brand-fg"
                       />
                       <label
                         htmlFor="isVatRegistered"
-                        className="text-[14px] font-[500] text-[#383E49] cursor-pointer"
+                        className="text-[14px] font-[500] text-fg cursor-pointer"
                       >
                         Is VAT Registered
                       </label>
@@ -1230,8 +1231,8 @@ export default function AdminManageSuppliers() {
                     {/* VAT Number - Only show if registered */}
                     {formData.isVatRegistered && (
                       <div>
-                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                          VAT Number <span className="text-[#EF4444]">*</span>
+                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                          VAT Number <span className="text-error">*</span>
                         </label>
                         <input
                           type="text"
@@ -1239,13 +1240,13 @@ export default function AdminManageSuppliers() {
                           value={formData.vatNumber}
                           onChange={handleChange}
                           placeholder="Enter VAT number"
-                          className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.vatNumber
-                              ? "border-[#EF4444]"
-                              : "border-[#E4E6EA]"
+                          className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.vatNumber
+                              ? "border-error"
+                              : "border-line"
                             }`}
                         />
                         {errors.vatNumber && (
-                          <p className="text-[#EF4444] text-[12px] mt-1">
+                          <p className="text-error text-[12px] mt-1">
                             {errors.vatNumber}
                           </p>
                         )}
@@ -1256,57 +1257,57 @@ export default function AdminManageSuppliers() {
 
                 {/* Supplied Materials Section */}
                 <div>
-                  <h3 className="text-[16px] font-[600] text-[#383E49] mb-4 flex items-center gap-2">
+                  <h3 className="text-[16px] font-[600] text-fg mb-4 flex items-center gap-2">
                     <Package className="w-5 h-5" />
                     Supplied Materials
                   </h3>
                   <div>
-                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                      Select Materials <span className="text-[#EF4444]">*</span>
+                    <label className="block text-[14px] font-[500] text-fg mb-1">
+                      Select Materials <span className="text-error">*</span>
                     </label>
                     <button
                       type="button"
                       onClick={handleOpenMaterialsModal}
-                      className={`w-full px-4 py-2.5 border rounded-md text-[14px] text-left hover:bg-[#F8F9FA] transition-colors flex items-center justify-between ${errors.suppliedMaterials
-                          ? "border-[#EF4444]"
-                          : "border-[#E4E6EA]"
+                      className={`w-full px-4 py-2.5 border rounded-md text-[14px] text-left hover:bg-subtle transition-colors flex items-center justify-between ${errors.suppliedMaterials
+                          ? "border-error"
+                          : "border-line"
                         }`}
                     >
-                      <span className="text-[#667085]">
+                      <span className="text-fg-secondary">
                         {formData.suppliedMaterials.length > 0
                           ? `${formData.suppliedMaterials.length} material(s) selected`
                           : "Select materials"}
                       </span>
-                      <Package className="w-5 h-5 text-[#667085]" />
+                      <Package className="w-5 h-5 text-fg-secondary" />
                     </button>
                     {errors.suppliedMaterials && (
-                      <p className="text-[#EF4444] text-[12px] mt-1">
+                      <p className="text-error text-[12px] mt-1">
                         {errors.suppliedMaterials}
                       </p>
                     )}
 
                     {/* Selected Materials Display */}
                     {formData.suppliedMaterials.length > 0 && (
-                      <div className="mt-3 p-3 bg-[#F8F9FA] rounded-md">
-                        <p className="text-[12px] font-[500] text-[#667085] mb-2">
+                      <div className="mt-3 p-3 bg-subtle rounded-md">
+                        <p className="text-[12px] font-[500] text-fg-secondary mb-2">
                           Selected Materials:
                         </p>
                         <div className="flex flex-wrap gap-2">
                           {formData.suppliedMaterials.map((material) => (
                             <div
                               key={material.id}
-                              className="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-md border border-[#E4E6EA]"
+                              className="inline-flex items-center gap-2 px-3 py-1.5 bg-surface rounded-md border border-line"
                             >
                               <div className="flex flex-col">
-                                <span className="text-[12px] font-[500] text-[#383E49]">
+                                <span className="text-[12px] font-[500] text-fg">
                                   {material.name}
                                 </span>
                                 <div className="flex items-center gap-1">
-                                  <span className="text-[10px] text-[#667085]">
+                                  <span className="text-[10px] text-fg-secondary">
                                     {material.code}
                                   </span>
                                   {material.brand && (
-                                    <span className="text-[10px] font-[500] text-[#0F50AA] bg-[#EBF8FF] px-1 rounded">
+                                    <span className="text-[10px] font-[500] text-brand-fg bg-hover px-1 rounded">
                                       {material.brand}
                                     </span>
                                   )}
@@ -1317,7 +1318,7 @@ export default function AdminManageSuppliers() {
                                 onClick={() =>
                                   handleRemoveMaterial(material.id)
                                 }
-                                className="text-[#EF4444] hover:bg-[#FEE2E2] rounded-full p-0.5"
+                                className="text-error hover:bg-hover rounded-full p-0.5"
                               >
                                 <X size={14} />
                               </button>
@@ -1331,12 +1332,12 @@ export default function AdminManageSuppliers() {
               </div>
 
               {/* Modal Footer */}
-              <div className="flex gap-3 mt-6 pt-6 border-t border-[#E4E6EA]">
+              <div className="flex gap-3 mt-6 pt-6 border-t border-line">
                 <button
                   type="button"
                   onClick={handleCancel}
                   disabled={submitting}
-                  className="flex-1 px-4 py-2.5 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] font-[500] hover:bg-[#F8F9FA] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2.5 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
@@ -1344,11 +1345,11 @@ export default function AdminManageSuppliers() {
                   type="button"
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="flex-1 px-4 py-2.5 bg-[#0F50AA] hover:bg-[#1366D9] text-white rounded-md text-[14px] font-[500] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2.5 bg-brand hover:bg-brand-hover text-on-brand rounded-md text-[14px] font-[500] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <>
-                      <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-line"></div>
                       <span>Saving...</span>
                     </>
                   ) : (
@@ -1365,33 +1366,33 @@ export default function AdminManageSuppliers() {
 
       {/* Materials Selection Modal */}
       {showMaterialsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[10000] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[10000] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 pb-2 border-b border-[#E4E6EA]">
+            <div className="flex items-center justify-between p-6 pb-2 border-b border-line">
               <div>
-                <h3 className="text-[18px] font-[600] text-[#383E49]">
+                <h3 className="text-[18px] font-[600] text-fg">
                   Select Supplied Materials
                 </h3>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   Choose which raw materials this supplier provides
                 </p>
               </div>
               <button
                 onClick={() => setShowMaterialsModal(false)}
-                className="p-2 text-[#667085] hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
 
             {/* Search and Filter Section */}
-            <div className="px-6 py-2 border-b border-[#E4E6EA] bg-[#F8F9FA]">
+            <div className="px-6 py-2 border-b border-line bg-subtle">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {/* Search Bar */}
                 <div className="relative">
                   <Search
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]"
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
                     size={16}
                   />
                   <input
@@ -1399,7 +1400,7 @@ export default function AdminManageSuppliers() {
                     placeholder="Search by material name or code..."
                     value={materialSearchTerm}
                     onChange={(e) => setMaterialSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                    className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                   />
                 </div>
 
@@ -1408,7 +1409,7 @@ export default function AdminManageSuppliers() {
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white appearance-none cursor-pointer"
+                    className="w-full px-4 py-2.5 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface appearance-none cursor-pointer"
                   >
                     {getCategories().map((category) => (
                       <option key={category} value={category}>
@@ -1418,7 +1419,7 @@ export default function AdminManageSuppliers() {
                   </select>
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                     <svg
-                      className="w-4 h-4 text-[#667085]"
+                      className="w-4 h-4 text-fg-secondary"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1448,8 +1449,8 @@ export default function AdminManageSuppliers() {
                     return acc;
                   }, {})
                 ).map(([genericName, brandsObj]) => (
-                  <div key={genericName} className="border border-[#E4E6EA] rounded-lg p-4 bg-white relative">
-                    <h4 className="text-[16px] font-[600] text-[#383E49] mb-3 pb-2 border-b">
+                  <div key={genericName} className="border border-line rounded-lg p-4 bg-surface relative">
+                    <h4 className="text-[16px] font-[600] text-fg mb-3 pb-2 border-b">
                       {genericName}
                     </h4>
                     <div className="grid grid-cols-1 gap-3">
@@ -1479,37 +1480,37 @@ export default function AdminManageSuppliers() {
                               onClick={handleBrandToggle}
                               className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
                                 allSelected
-                                  ? "border-[#0F50AA] bg-[#EBF8FF]"
-                                  : "border-[#E4E6EA] hover:border-[#B3A5FF] hover:bg-[#F8F9FA]"
+                                  ? "border-brand-fg bg-hover"
+                                  : "border-line hover:border-plum/30 hover:bg-subtle"
                               }`}
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                   <div
                                     className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                      allSelected ? "bg-[#0F50AA]" : "bg-[#F0F1F3]"
+                                      allSelected ? "bg-brand" : "bg-app"
                                     }`}
                                   >
                                     <Package
                                       className={`w-5 h-5 ${
-                                        allSelected ? "text-white" : "text-[#667085]"
+                                        allSelected ? "text-on-brand" : "text-fg-secondary"
                                       }`}
                                     />
                                   </div>
                                   <div>
-                                    <p className="text-[14px] font-[600] text-[#383E49]">{brandName}</p>
-                                    <p className="text-[12px] text-[#667085]">Click to select all {materialsInBrand.length} variant(s)</p>
+                                    <p className="text-[14px] font-[600] text-fg">{brandName}</p>
+                                    <p className="text-[12px] text-fg-secondary">Click to select all {materialsInBrand.length} variant(s)</p>
                                   </div>
                                 </div>
                                 <div
                                   className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
                                     allSelected
-                                      ? "border-[#0F50AA] bg-[#0F50AA]"
-                                      : "border-[#E4E6EA]"
+                                      ? "border-brand-fg bg-brand"
+                                      : "border-line"
                                   }`}
                                 >
                                   {allSelected && (
-                                    <Check className="w-3 h-3 text-white" />
+                                    <Check className="w-3 h-3 text-on-brand" />
                                   )}
                                 </div>
                               </div>
@@ -1525,16 +1526,16 @@ export default function AdminManageSuppliers() {
                                     onClick={() => handleMaterialToggle(material)}
                                     className={`p-2 border rounded-md cursor-pointer flex items-center justify-between transition-colors ${
                                       isSelected 
-                                        ? "border-[#0F50AA] bg-[#F0F7FF]" 
-                                        : "border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                                        ? "border-brand-fg bg-subtle" 
+                                        : "border-line hover:bg-subtle"
                                     }`}
                                   >
                                     <div className="flex flex-col">
-                                      <span className="text-[13px] font-[500] text-[#383E49]">{material.name}</span>
-                                      <span className="text-[11px] text-[#667085]">{material.code}</span>
+                                      <span className="text-[13px] font-[500] text-fg">{material.name}</span>
+                                      <span className="text-[11px] text-fg-secondary">{material.code}</span>
                                     </div>
-                                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? "border-[#0F50AA] bg-[#0F50AA]" : "border-[#E4E6EA]"}`}>
-                                      {isSelected && <Check className="w-3 h-3 text-white" />}
+                                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? "border-brand-fg bg-brand" : "border-line"}`}>
+                                      {isSelected && <Check className="w-3 h-3 text-on-brand" />}
                                     </div>
                                   </div>
                                 );
@@ -1550,11 +1551,11 @@ export default function AdminManageSuppliers() {
                 {/* No Results Message */}
                 {getFilteredMaterials().length === 0 && (
                   <div className="text-center py-12">
-                    <Package size={48} className="mx-auto text-[#667085] mb-4" />
-                    <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                    <Package size={48} className="mx-auto text-fg-secondary mb-4" />
+                    <p className="text-[16px] font-[500] text-fg mb-2">
                       No materials found
                     </p>
-                    <p className="text-[14px] text-[#667085]">
+                    <p className="text-[14px] text-fg-secondary">
                       Try adjusting your search or filter criteria
                     </p>
                   </div>
@@ -1563,10 +1564,10 @@ export default function AdminManageSuppliers() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-6 pt-2 border-t border-[#E4E6EA] bg-[#F8F9FA]">
+            <div className="p-6 pt-2 border-t border-line bg-subtle">
               <div className="flex items-center justify-between mb-4">
-                <p className="text-[14px] text-[#667085]">
-                  <span className="font-[600] text-[#383E49]">
+                <p className="text-[14px] text-fg-secondary">
+                  <span className="font-[600] text-fg">
                     {tempSelectedMaterials.length}
                   </span>{" "}
                   material(s) selected
@@ -1574,7 +1575,7 @@ export default function AdminManageSuppliers() {
                 {tempSelectedMaterials.length > 0 && (
                   <button
                     onClick={() => setTempSelectedMaterials([])}
-                    className="text-[14px] text-[#EF4444] hover:underline"
+                    className="text-[14px] text-error hover:underline"
                   >
                     Clear all
                   </button>
@@ -1584,14 +1585,14 @@ export default function AdminManageSuppliers() {
                 <button
                   type="button"
                   onClick={() => setShowMaterialsModal(false)}
-                  className="flex-1 px-4 py-2.5 border border-[#E4E6EA] bg-white text-[#48505E] rounded-md text-[14px] font-[500] hover:bg-[#F8F9FA] transition-colors"
+                  className="flex-1 px-4 py-2.5 border border-line bg-surface text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmMaterials}
-                  className="flex-1 px-4 py-2.5 bg-[#0F50AA] hover:bg-[#1366D9] text-white rounded-md text-[14px] font-[500] transition-colors"
+                  className="flex-1 px-4 py-2.5 bg-brand hover:bg-brand-hover text-on-brand rounded-md text-[14px] font-[500] transition-colors"
                 >
                   Confirm Selection
                 </button>
@@ -1603,21 +1604,21 @@ export default function AdminManageSuppliers() {
 
       {/* View Materials Modal */}
       {showViewMaterialsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[10000] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[10000] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+            <div className="flex items-center justify-between p-6 border-b border-line">
               <div>
-                <h3 className="text-[18px] font-[600] text-[#383E49]">
+                <h3 className="text-[18px] font-[600] text-fg">
                   Supplied Materials
                 </h3>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   Materials supplied by {viewingSupplierName}
                 </p>
               </div>
               <button
                 onClick={() => setShowViewMaterialsModal(false)}
-                className="p-2 text-[#667085] hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -1629,24 +1630,24 @@ export default function AdminManageSuppliers() {
                 {viewingSupplierMaterials.map((material) => (
                   <div
                     key={material.id}
-                    className="p-4 border border-[#E4E6EA] rounded-lg bg-[#F8F9FA]"
+                    className="p-4 border border-line rounded-lg bg-subtle"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#EBF8FF] rounded-lg flex items-center justify-center">
-                        <Package className="w-5 h-5 text-[#0F50AA]" />
+                      <div className="w-10 h-10 bg-hover rounded-lg flex items-center justify-center">
+                        <Package className="w-5 h-5 text-brand-fg" />
                       </div>
                       <div>
-                        <p className="text-[14px] font-[600] text-[#383E49]">
+                        <p className="text-[14px] font-[600] text-fg">
                           {material.name}
                         </p>
                         <div className="flex items-center gap-2">
-                          <p className="text-[12px] text-[#667085]">
+                          <p className="text-[12px] text-fg-secondary">
                             {material.code}
                           </p>
                           {material.brand && (
                             <>
-                              <span className="text-[#D1D5DB]">•</span>
-                              <p className="text-[12px] font-[500] text-[#0F50AA] bg-[#EBF8FF] px-2 rounded">
+                              <span className="text-fg-muted">•</span>
+                              <p className="text-[12px] font-[500] text-brand-fg bg-hover px-2 rounded">
                                 {material.brand}
                               </p>
                             </>
@@ -1660,11 +1661,11 @@ export default function AdminManageSuppliers() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-6 border-t border-[#E4E6EA] bg-[#F8F9FA]">
+            <div className="p-6 border-t border-line bg-subtle">
               <button
                 type="button"
                 onClick={() => setShowViewMaterialsModal(false)}
-                className="w-full px-4 py-2.5 bg-[#0F50AA] hover:bg-[#1366D9] text-white rounded-md text-[14px] font-[500] transition-colors"
+                className="w-full px-4 py-2.5 bg-brand hover:bg-brand-hover text-on-brand rounded-md text-[14px] font-[500] transition-colors"
               >
                 Close
               </button>
@@ -1676,11 +1677,11 @@ export default function AdminManageSuppliers() {
       {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-4 right-4 z-[10001] animate-fade-in">
-          <div className="bg-white border-l-4 border-[#51CC5D] rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
-            <div className="flex-shrink-0 w-8 h-8 bg-[#51CC5D] bg-opacity-10 rounded-full flex items-center justify-center">
-              <Check className="w-5 h-5 text-[#199D26]" />
+          <div className="bg-surface border-l-4 border-success rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
+            <div className="flex-shrink-0 w-8 h-8 bg-success-solid bg-opacity-10 rounded-full flex items-center justify-center">
+              <Check className="w-5 h-5 text-success" />
             </div>
-            <p className="text-[14px] text-[#383E49] font-[500]">
+            <p className="text-[14px] text-fg font-[500]">
               {toastMessage}
             </p>
           </div>
@@ -1690,7 +1691,7 @@ export default function AdminManageSuppliers() {
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

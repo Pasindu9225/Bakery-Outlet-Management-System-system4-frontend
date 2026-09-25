@@ -231,38 +231,38 @@ const SignIn = ({ targetModule }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand/10 to-plum/10 flex items-center justify-center p-4">
       {isLoading && <Loader variant="fullScreen" text="Verifying credentials..." />}
       <div className="w-full max-w-md">
         {/* Logo and Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-lg mb-4">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">B</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-surface rounded-full shadow-lg mb-4">
+            <div className="w-8 h-8 bg-gradient-to-br from-brand to-brand rounded-lg flex items-center justify-center">
+              <span className="text-on-brand font-bold text-sm">B</span>
             </div>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          <h1 className="text-2xl font-semibold text-fg-strong mb-2">
             Bakery & Outlet Management System
           </h1>
-          <p className="text-gray-600 text-sm">
+          <p className="text-fg-secondary text-sm">
             {moduleInfo ? `Welcome back! Please sign in to the ${moduleInfo.title}` : "Welcome back! Please sign in to your account"}
           </p>
         </div>
 
         {/* Login Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-elevated rounded-2xl shadow-xl p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Field */}
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-fg"
               >
                 Username
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+                  <User className="h-5 w-5 text-fg-muted" />
                 </div>
                 <input
                   id="email"
@@ -272,7 +272,7 @@ const SignIn = ({ targetModule }) => {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-sm"
+                  className="block w-full pl-10 pr-3 py-3 border border-line-strong rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg transition-colors duration-200 text-sm"
                   placeholder="Enter your username"
                   disabled={isLoading}
                 />
@@ -283,13 +283,13 @@ const SignIn = ({ targetModule }) => {
             <div className="space-y-2">
               <label
                 htmlFor="hashedPassword"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-fg"
               >
                 Password
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-5 w-5 text-fg-muted" />
                 </div>
                 <input
                   id="hashedPassword"
@@ -299,7 +299,7 @@ const SignIn = ({ targetModule }) => {
                   required
                   value={formData.hashedPassword}
                   onChange={handleInputChange}
-                  className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 text-sm"
+                  className="block w-full pl-10 pr-12 py-3 border border-line-strong rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg transition-colors duration-200 text-sm"
                   placeholder="Enter your password"
                   disabled={isLoading}
                 />
@@ -310,9 +310,9 @@ const SignIn = ({ targetModule }) => {
                   disabled={isLoading}
                 >
                   {showhashedPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
+                    <EyeOff className="h-5 w-5 text-fg-muted hover:text-fg-secondary transition-colors" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600 transition-colors" />
+                    <Eye className="h-5 w-5 text-fg-muted hover:text-fg-secondary transition-colors" />
                   )}
                 </button>
               </div>
@@ -320,9 +320,9 @@ const SignIn = ({ targetModule }) => {
 
             {/* Error Message */}
             {error && (
-              <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
-                <span className="text-sm text-red-700">{error}</span>
+              <div className="flex items-center space-x-2 p-3 bg-error/10 border border-error/30 rounded-lg">
+                <AlertCircle className="h-5 w-5 text-error flex-shrink-0" />
+                <span className="text-sm text-error">{error}</span>
               </div>
             )}
 
@@ -330,7 +330,7 @@ const SignIn = ({ targetModule }) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-on-brand bg-brand hover:bg-brand-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-fg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
               {isLoading ? (
                 <>
@@ -346,7 +346,7 @@ const SignIn = ({ targetModule }) => {
 
         {/* Footer */}
         <div className="text-center mt-8">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-fg-secondary">
             © 2025 Bakery & Outlet Management System. All rights reserved.
           </p>
         </div>

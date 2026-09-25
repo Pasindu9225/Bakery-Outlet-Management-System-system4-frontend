@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { confirmDialog } from "../component/ConfirmDialog";
 import {
     ShoppingCart,
     Search,
@@ -861,8 +862,8 @@ export default function POSSales() {
         setOtp('');
     };
 
-    const handleRemoveCustomer = () => {
-        const isConfirmed = window.confirm("Are you sure you want to remove this customer?");
+    const handleRemoveCustomer = async () => {
+        const isConfirmed = await confirmDialog("Are you sure you want to remove this customer?", { confirmText: "Remove", danger: true });
         if (isConfirmed) {
             setCustomer(null);
             setCustomerPhone('');
@@ -987,13 +988,13 @@ export default function POSSales() {
     const getPaymentConfig = (name) => {
         const upperName = (name || '').toUpperCase();
         const configs = {
-            'CASH': { key: 'cash', icon: Banknote, color: 'text-[#51CC5D]' },
-            'CARD': { key: 'card', icon: CreditCard, color: 'text-[#1366D9]' },
-            'BANK TRANSFER': { key: 'bank', icon: Building2, color: 'text-[#B3A5FF]' },
-            'ONLINE TRANSFER': { key: 'bank', icon: Building2, color: 'text-[#B3A5FF]' },
-            'FREE MEAL': { key: 'free', icon: Gift, color: 'text-[#F97316]' },
-            'STAFF MEAL': { key: 'staff', icon: Users, color: 'text-[#60A5FA]' },
-            'CREDIT': { key: 'credit', icon: Receipt, color: 'text-[#E09400]' }
+            'CASH': { key: 'cash', icon: Banknote, color: 'text-success' },
+            'CARD': { key: 'card', icon: CreditCard, color: 'text-brand-fg' },
+            'BANK TRANSFER': { key: 'bank', icon: Building2, color: 'text-plum' },
+            'ONLINE TRANSFER': { key: 'bank', icon: Building2, color: 'text-plum' },
+            'FREE MEAL': { key: 'free', icon: Gift, color: 'text-warning' },
+            'STAFF MEAL': { key: 'staff', icon: Users, color: 'text-brand-fg' },
+            'CREDIT': { key: 'credit', icon: Receipt, color: 'text-warning' }
         };
 
         // Find match by key
@@ -1005,11 +1006,11 @@ export default function POSSales() {
         if (upperName.includes('BANK') || upperName.includes('ONLINE')) return configs['BANK TRANSFER'];
         if (upperName.includes('CREDIT')) return configs['CREDIT'];
 
-        return { key: 'other', icon: Receipt, color: 'text-[#667085]' };
+        return { key: 'other', icon: Receipt, color: 'text-fg-secondary' };
     };
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             <POSSidebar sidebarOpen={sidebarOpen} />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -1024,24 +1025,24 @@ export default function POSSales() {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
                         {/* Left Panel - Product Search & Selection */}
-                        <div className="lg:col-span-8 bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 flex flex-col">
+                        <div className="lg:col-span-8 bg-surface rounded-lg shadow-sm border border-line p-4 flex flex-col">
 
                             {/* Search Header */}
                             <div className="mb-4">
                                 <div className="flex items-center justify-between gap-3 mb-3">
-                                    <h2 className="text-[20px] font-[600] text-[#383E49]">Product Selection</h2>
+                                    <h2 className="text-[20px] font-[600] text-fg">Product Selection</h2>
                                     <button
                                         onClick={() => setShowWaiterPanel(true)}
-                                        className="flex items-center gap-2 px-3 py-2 bg-[#F8F9FA] border border-[#E4E6EA] rounded-lg text-[13px] font-[500] text-[#383E49] hover:bg-[#E4E6EA]"
+                                        className="flex items-center gap-2 px-3 py-2 bg-subtle border border-line rounded-lg text-[13px] font-[500] text-fg hover:bg-line"
                                     >
-                                        <Users size={16} className="text-[#0F50AA]" />
+                                        <Users size={16} className="text-brand-fg" />
                                         Waiter Billing
-                                        {selectedWaiter && <span className="text-[#0F50AA]">({selectedWaiter.name})</span>}
+                                        {selectedWaiter && <span className="text-brand-fg">({selectedWaiter.name})</span>}
                                     </button>
                                 </div>
                                 {/* Search Input */}
                                 <div className="relative mb-3">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={20} />
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary" size={20} />
                                     <input
                                         ref={searchInputRef}
                                         type="text"
@@ -1051,7 +1052,7 @@ export default function POSSales() {
                                             setSearchQuery(e.target.value);
                                             setHighlightedSearchIndex(-1);
                                         }}
-                                        className="w-full pl-10 pr-4 py-3 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10"
+                                        className="w-full pl-10 pr-4 py-3 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                         autoComplete="off"
                                         onKeyDown={(e) => {
                                             if (e.key === 'ArrowDown') {
@@ -1081,7 +1082,7 @@ export default function POSSales() {
                                                 setSearchResults([]);
                                                 searchInputRef.current?.focus();
                                             }}
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085] hover:text-[#383E49]"
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-fg-secondary hover:text-fg"
                                         >
                                             <X size={16} />
                                         </button>
@@ -1104,8 +1105,8 @@ export default function POSSales() {
                                                 }
                                             }}
                                             className={`px-3 py-1 text-[12px] rounded-full transition-colors ${selectedCategory === category.id
-                                                ? 'bg-[#0F50AA] text-white'
-                                                : 'bg-[#F8F9FA] text-[#667085] hover:bg-[#E4E6EA]'
+                                                ? 'bg-brand text-on-brand'
+                                                : 'bg-subtle text-fg-secondary hover:bg-line'
                                                 }`}>
                                             <div className="flex items-center gap-1">
                                                 <Grid3X3 size={12} />
@@ -1119,7 +1120,7 @@ export default function POSSales() {
                             {/* Search Results */}
                             {searchResults.length > 0 && (
                                 <div className="mb-4">
-                                    <h3 className="text-[14px] font-[500] text-[#383E49] mb-2 flex items-center gap-2">
+                                    <h3 className="text-[14px] font-[500] text-fg mb-2 flex items-center gap-2">
                                         <Search size={16} />
                                         Search Results ({searchResults.length})
                                     </h3>
@@ -1128,29 +1129,29 @@ export default function POSSales() {
                                             <div
                                                 key={product.id}
                                                 onClick={() => openQtyModal(product)}
-                                                className={`p-3 rounded-lg cursor-pointer transition-colors border-l-4 border-[#0F50AA] ${searchResults.indexOf(product) === highlightedSearchIndex
-                                                    ? 'bg-[#0F50AA]/10 ring-1 ring-[#0F50AA]'
-                                                    : 'bg-[#F8F9FA] hover:bg-[#E4E6EA]'
+                                                className={`p-3 rounded-lg cursor-pointer transition-colors border-l-4 border-brand-fg ${searchResults.indexOf(product) === highlightedSearchIndex
+                                                    ? 'bg-brand/10 ring-1 ring-brand-fg'
+                                                    : 'bg-subtle hover:bg-line'
                                                     }`}
                                             >
                                                 <div className="flex justify-between items-start">
                                                     <div className="flex-1">
-                                                        <p className="text-[14px] font-[500] text-[#383E49]">{product.name}</p>
-                                                        <p className="text-[12px] text-[#667085]">{product.code}</p>
+                                                        <p className="text-[14px] font-[500] text-fg">{product.name}</p>
+                                                        <p className="text-[12px] text-fg-secondary">{product.code}</p>
                                                         {["EXPIRED", "EXPIRING"].includes(expiryStatus(product.expiryDate, 1)) && (
                                                             <ExpiryTag expiryDate={product.expiryDate} warnDays={1} />
                                                         )}
-                                                        <p className="text-[14px] font-[600] text-[#0F50AA]">Rs. {product.price}</p>
+                                                        <p className="text-[14px] font-[600] text-brand-fg">Rs. {product.price}</p>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="text-[10px] text-[#667085]">Received QTY: {product.receivedQty}</p>
-                                                        <p className="text-[10px] text-[#667085]">Current QTY: {product.currentQty}</p>
+                                                        <p className="text-[10px] text-fg-secondary">Received QTY: {product.receivedQty}</p>
+                                                        <p className="text-[10px] text-fg-secondary">Current QTY: {product.currentQty}</p>
                                                     </div>
                                                 </div>
                                                 {product.dayProductionItemId && product.stock > 0 && !product.isMpcDish && (
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); openWastageReport(product); }}
-                                                        className="mt-1 w-full text-[11px] text-red-600 hover:underline"
+                                                        className="mt-1 w-full text-[11px] text-error hover:underline"
                                                     >
                                                         Report wastage
                                                     </button>
@@ -1163,8 +1164,8 @@ export default function POSSales() {
 
                             {/* Fast Moving Products */}
                             <div className="flex-1 overflow-y-auto">
-                                <h3 className="text-[14px] font-[500] text-[#383E49] mb-3 flex items-center gap-2">
-                                    <Zap size={16} className="text-[#F4A100]" />
+                                <h3 className="text-[14px] font-[500] text-fg mb-3 flex items-center gap-2">
+                                    <Zap size={16} className="text-warning" />
                                     {selectedCategory === 'all' ? 'All Items' : 'Fast Moving Products'}
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -1172,29 +1173,29 @@ export default function POSSales() {
                                         <div
                                             key={product.id}
                                             onClick={() => openQtyModal(product)}
-                                            className="p-4 bg-[#F8F9FA] rounded-lg cursor-pointer hover:bg-[#E4E6EA] transition-all hover:shadow-sm border"
+                                            className="p-4 bg-subtle rounded-lg cursor-pointer hover:bg-line transition-all hover:shadow-sm border"
                                         >
                                             <div className="flex justify-between items-start mb-2">
-                                                <h4 className="text-[14px] font-[500] text-[#383E49] leading-tight">{product.name}</h4>
+                                                <h4 className="text-[14px] font-[500] text-fg leading-tight">{product.name}</h4>
                                                 {product.fastMoving && (
-                                                    <span className="text-[10px] bg-[#F4A100] text-white px-2 py-1 rounded-full">FAST</span>
+                                                    <span className="text-[10px] bg-warning-solid text-on-brand px-2 py-1 rounded-full">FAST</span>
                                                 )}
                                             </div>
-                                            <p className="text-[12px] text-[#667085] mb-1">{product.code}</p>
+                                            <p className="text-[12px] text-fg-secondary mb-1">{product.code}</p>
                                             {["EXPIRED", "EXPIRING"].includes(expiryStatus(product.expiryDate, 1)) && (
                                                 <div className="mb-1"><ExpiryTag expiryDate={product.expiryDate} warnDays={1} /></div>
                                             )}
-                                            <div className="flex border-t border-[#E4E6EA] mt-2 pt-2 justify-between items-center">
-                                                <p className="text-[16px] font-[600] text-[#0F50AA]">Rs. {product.price}</p>
+                                            <div className="flex border-t border-line mt-2 pt-2 justify-between items-center">
+                                                <p className="text-[16px] font-[600] text-brand-fg">Rs. {product.price}</p>
                                                 <div className="text-right">
-                                                    <p className="text-[10px] text-[#667085]">Received QTY: {product.receivedQty}</p>
-                                                    <p className="text-[10px] text-[#667085]">Current QTY: {product.currentQty}</p>
+                                                    <p className="text-[10px] text-fg-secondary">Received QTY: {product.receivedQty}</p>
+                                                    <p className="text-[10px] text-fg-secondary">Current QTY: {product.currentQty}</p>
                                                 </div>
                                             </div>
                                             {product.dayProductionItemId && product.stock > 0 && !product.isMpcDish && (
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); openWastageReport(product); }}
-                                                    className="mt-1 w-full text-[11px] text-red-600 hover:underline"
+                                                    className="mt-1 w-full text-[11px] text-error hover:underline"
                                                 >
                                                     Report wastage
                                                 </button>
@@ -1208,31 +1209,31 @@ export default function POSSales() {
 
                             {/* Waiter Current Order */}
                             {showWaiterPanel && (
-                                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                                    <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                                         <div className="p-6">
                                             <div className="flex items-center justify-between mb-4">
-                                                <h3 className="text-[18px] font-[600] text-[#383E49]">Waiter Billing</h3>
-                                                <button onClick={() => setShowWaiterPanel(false)} className="p-1 text-[#667085] hover:bg-[#F8F9FA] rounded">
+                                                <h3 className="text-[18px] font-[600] text-fg">Waiter Billing</h3>
+                                                <button onClick={() => setShowWaiterPanel(false)} className="p-1 text-fg-secondary hover:bg-subtle rounded">
                                                     <X size={20} />
                                                 </button>
                                             </div>
 
                                             {/* Waiter Selection Grid */}
                                             <div className="mb-4">
-                                                <h4 className="text-[13px] font-[500] text-[#383E49] mb-2">Select Waiter</h4>
+                                                <h4 className="text-[13px] font-[500] text-fg mb-2">Select Waiter</h4>
                                                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                                                     {waiters.map(w => (
                                                         <button
                                                             key={w.id}
                                                             onClick={() => handleWaiterClick(w)}
                                                             className={`p-2 rounded-lg border-2 transition-all text-left ${selectedWaiter?.userId === w.userId
-                                                                ? 'border-[#0F50AA] bg-[#0F50AA]/5'
-                                                                : 'border-[#E4E6EA] hover:border-[#0F50AA]/30'
+                                                                ? 'border-brand-fg bg-brand/5'
+                                                                : 'border-line hover:border-brand-fg/30'
                                                                 }`}
                                                         >
-                                                            <p className="text-[13px] font-[600] text-[#383E49] truncate">{w.name}</p>
-                                                            <p className="text-[10px] text-[#667085] truncate">@{w.username}</p>
+                                                            <p className="text-[13px] font-[600] text-fg truncate">{w.name}</p>
+                                                            <p className="text-[10px] text-fg-secondary truncate">@{w.username}</p>
                                                         </button>
                                                     ))}
                                                 </div>
@@ -1245,7 +1246,7 @@ export default function POSSales() {
                                                             <select
                                                                 value={targetWaiterId}
                                                                 onChange={(e) => setTargetWaiterId(e.target.value)}
-                                                                className="flex-1 px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px]"
+                                                                className="flex-1 px-3 py-2 border border-line rounded-lg text-[14px]"
                                                             >
                                                                 <option value="">Transfer to Waiter...</option>
                                                                 {waiters.filter(w => w.userId !== selectedWaiter.userId).map(w => (
@@ -1255,7 +1256,7 @@ export default function POSSales() {
                                                             <button
                                                                 onClick={handleTransferWaiter}
                                                                 disabled={!targetWaiterId}
-                                                                className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg disabled:opacity-50 transition-colors text-[14px]"
+                                                                className="px-4 py-2 bg-brand text-on-brand rounded-lg disabled:opacity-50 transition-colors text-[14px]"
                                                             >
                                                                 Transfer
                                                             </button>
@@ -1264,7 +1265,7 @@ export default function POSSales() {
 
                                                     {waiterDetails && waiterDetails.unpaidItems.length > 0 && (
                                                         <div className="flex items-center justify-between mb-3 px-1">
-                                                            <label className="flex items-center gap-2 cursor-pointer text-[14px] text-[#383E49] font-[500]">
+                                                            <label className="flex items-center gap-2 cursor-pointer text-[14px] text-fg font-[500]">
                                                                 <input
                                                                     type="checkbox"
                                                                     checked={selectedWaiterItemIds.length === waiterDetails.unpaidItems.length}
@@ -1275,11 +1276,11 @@ export default function POSSales() {
                                                                             setSelectedWaiterItemIds([]);
                                                                         }
                                                                     }}
-                                                                    className="w-4 h-4 text-[#0F50AA] border-[#E4E6EA] rounded focus:ring-[#0F50AA] cursor-pointer"
+                                                                    className="w-4 h-4 text-brand-fg border-line rounded focus:ring-brand-fg cursor-pointer"
                                                                 />
                                                                 Select All ({waiterDetails.unpaidItems.length})
                                                             </label>
-                                                            <span className="text-[12px] text-[#667085]">
+                                                            <span className="text-[12px] text-fg-secondary">
                                                                 {selectedWaiterItemIds.length} selected
                                                             </span>
                                                         </div>
@@ -1287,7 +1288,7 @@ export default function POSSales() {
 
                                                     <div className="mb-4">
                                                         {!waiterDetails || waiterDetails.unpaidItems.length === 0 ? (
-                                                            <p className="text-[#667085] text-[14px] text-center py-4">No active items.</p>
+                                                            <p className="text-fg-secondary text-[14px] text-center py-4">No active items.</p>
                                                         ) : (() => {
                                                             const groupedBills = {};
                                                             waiterDetails.unpaidItems.forEach(item => {
@@ -1308,10 +1309,10 @@ export default function POSSales() {
                                                                             : billKey === "UNGROUPED" ? "Separate Items" : billKey;
 
                                                                         return (
-                                                                            <div key={billKey} className="border border-[#E4E6EA] rounded-xl bg-white shadow-sm overflow-hidden">
+                                                                            <div key={billKey} className="border border-line rounded-xl bg-surface shadow-sm overflow-hidden">
                                                                                 {/* Bill Header */}
-                                                                                <div className="flex items-center justify-between border-b border-[#E4E6EA] p-3 bg-[#F8F9FA]">
-                                                                                    <label className="flex items-center gap-2 cursor-pointer font-[600] text-[#383E49] text-[14px]">
+                                                                                <div className="flex items-center justify-between border-b border-line p-3 bg-subtle">
+                                                                                    <label className="flex items-center gap-2 cursor-pointer font-[600] text-fg text-[14px]">
                                                                                         <input
                                                                                             type="checkbox"
                                                                                             checked={allSelected}
@@ -1323,22 +1324,22 @@ export default function POSSales() {
                                                                                                     setSelectedWaiterItemIds(prev => prev.filter(id => !itemIds.includes(id)));
                                                                                                 }
                                                                                             }}
-                                                                                            className="w-4 h-4 text-[#0F50AA] border-[#E4E6EA] rounded focus:ring-[#0F50AA] cursor-pointer"
+                                                                                            className="w-4 h-4 text-brand-fg border-line rounded focus:ring-brand-fg cursor-pointer"
                                                                                         />
                                                                                         {displayTitle} ({items.length} {items.length === 1 ? 'item' : 'items'})
                                                                                     </label>
-                                                                                    <span className="text-[14px] font-[700] text-[#0F50AA]">Rs. {billSubTotal.toLocaleString()}</span>
+                                                                                    <span className="text-[14px] font-[700] text-brand-fg">Rs. {billSubTotal.toLocaleString()}</span>
                                                                                 </div>
 
                                                                                 {/* Bill Items */}
-                                                                                <div className="space-y-1.5 p-2 bg-white">
+                                                                                <div className="space-y-1.5 p-2 bg-surface">
                                                                                     {items.map(item => {
                                                                                         const isChecked = selectedWaiterItemIds.includes(item.id);
                                                                                         return (
                                                                                             <div
                                                                                                 key={item.id}
                                                                                                 onClick={() => toggleWaiterItemSelection(item.id)}
-                                                                                                className={`flex justify-between p-2.5 rounded-lg items-center cursor-pointer transition-colors border ${isChecked ? 'bg-[#0F50AA]/5 border-[#0F50AA]' : 'bg-[#F8F9FA] border-transparent hover:border-[#E4E6EA]'
+                                                                                                className={`flex justify-between p-2.5 rounded-lg items-center cursor-pointer transition-colors border ${isChecked ? 'bg-brand/5 border-brand-fg' : 'bg-subtle border-transparent hover:border-line'
                                                                                                     }`}
                                                                                             >
                                                                                                 <div className="flex items-center gap-2.5">
@@ -1346,14 +1347,14 @@ export default function POSSales() {
                                                                                                         type="checkbox"
                                                                                                         checked={isChecked}
                                                                                                         onChange={() => { }}
-                                                                                                        className="w-3.5 h-3.5 text-[#0F50AA] border-gray-300 rounded focus:ring-[#0F50AA] cursor-pointer"
+                                                                                                        className="w-3.5 h-3.5 text-brand-fg border-line-strong rounded focus:ring-brand-fg cursor-pointer"
                                                                                                     />
                                                                                                     <div>
-                                                                                                        <p className="text-[13px] font-[500] text-[#383E49]">{item.productName}</p>
-                                                                                                        <p className="text-[11px] text-[#667085]">{item.qty || item.quantity} x Rs. {item.unitPrice}</p>
+                                                                                                        <p className="text-[13px] font-[500] text-fg">{item.productName}</p>
+                                                                                                        <p className="text-[11px] text-fg-secondary">{item.qty || item.quantity} x Rs. {item.unitPrice}</p>
                                                                                                     </div>
                                                                                                 </div>
-                                                                                                <p className="text-[14px] font-[600] text-[#0F50AA]">Rs. {item.totalPrice}</p>
+                                                                                                <p className="text-[14px] font-[600] text-brand-fg">Rs. {item.totalPrice}</p>
                                                                                             </div>
                                                                                         );
                                                                                     })}
@@ -1367,30 +1368,30 @@ export default function POSSales() {
                                                     </div>
 
                                                     {waiterDetails && waiterDetails.unpaidItems.length > 0 && (
-                                                        <div className="border-t border-[#E4E6EA] pt-4 mt-auto">
+                                                        <div className="border-t border-line pt-4 mt-auto">
                                                             <div className="space-y-1.5 mb-4">
-                                                                <div className="flex justify-between text-[14px] text-[#667085]">
+                                                                <div className="flex justify-between text-[14px] text-fg-secondary">
                                                                     <span>Subtotal Selected:</span>
                                                                     <span>Rs. {selectedSubTotal.toLocaleString()}</span>
                                                                 </div>
                                                                 {parseFloat(waiterDiscountAmount) > 0 && (
-                                                                    <div className="flex justify-between text-[14px] text-[#D97706] font-[500]">
+                                                                    <div className="flex justify-between text-[14px] text-warning font-[500]">
                                                                         <span>Discount ({waiterDiscountReason || "No Reason"}):</span>
                                                                         <span>- Rs. {parseFloat(waiterDiscountAmount).toLocaleString()}</span>
                                                                     </div>
                                                                 )}
-                                                                <div className="flex justify-between text-[18px] font-[600] text-[#383E49] border-t border-dashed pt-1">
+                                                                <div className="flex justify-between text-[18px] font-[600] text-fg border-t border-dashed pt-1">
                                                                     <span>Total Selected:</span>
-                                                                    <span className="text-[#EF4444]">Rs. {(selectedSubTotal - (parseFloat(waiterDiscountAmount) || 0)).toLocaleString()}</span>
+                                                                    <span className="text-error">Rs. {(selectedSubTotal - (parseFloat(waiterDiscountAmount) || 0)).toLocaleString()}</span>
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-center justify-between gap-3 mb-4">
                                                                 <div className="flex items-center gap-3">
-                                                                    <span className="text-sm font-[500] text-[#383E49]">Pay Type:</span>
+                                                                    <span className="text-sm font-[500] text-fg">Pay Type:</span>
                                                                     <select
                                                                         value={waiterPaymentType}
                                                                         onChange={(e) => setWaiterPaymentType(e.target.value)}
-                                                                        className="px-3 py-1.5 border border-[#E4E6EA] rounded-lg text-sm bg-white"
+                                                                        className="px-3 py-1.5 border border-line rounded-lg text-sm bg-surface"
                                                                     >
                                                                         <option value="CASH">Cash</option>
                                                                         <option value="CARD">Card</option>
@@ -1400,7 +1401,7 @@ export default function POSSales() {
                                                                 </div>
                                                                 <button
                                                                     onClick={() => setShowWaiterDiscountModal(true)}
-                                                                    className="px-3 py-1.5 bg-[#EFF6FF] text-[#0F50AA] hover:bg-[#DBEAFE] border border-[#BFDBFE] rounded-lg text-sm font-[500] transition-colors"
+                                                                    className="px-3 py-1.5 bg-hover text-brand-fg hover:bg-line border border-brand/20 rounded-lg text-sm font-[500] transition-colors"
                                                                 >
                                                                     Discount
                                                                 </button>
@@ -1410,7 +1411,7 @@ export default function POSSales() {
                                                                     disabled={selectedWaiterItemIds.length === 0}
                                                                     onClick={async () => {
                                                                         const discountVal = parseFloat(waiterDiscountAmount) || 0;
-                                                                        if (window.confirm(`Process payment and complete sale (without printing) for the ${selectedWaiterItemIds.length} selected items?`)) {
+                                                                        if (await confirmDialog(`Process payment and complete sale (without printing) for the ${selectedWaiterItemIds.length} selected items?`, { confirmText: "Process payment" })) {
                                                                             try {
                                                                                 const payload = {
                                                                                     waiterId: selectedWaiter.userId,
@@ -1434,7 +1435,7 @@ export default function POSSales() {
                                                                             }
                                                                         }
                                                                     }}
-                                                                    className="w-full py-3 bg-[#4F46E5] text-white rounded-lg hover:bg-[#4338CA] disabled:opacity-50 disabled:cursor-not-allowed font-[500] flex justify-center items-center gap-2"
+                                                                    className="w-full py-3 bg-plum-solid text-on-brand rounded-lg hover:bg-plum-solid disabled:opacity-50 disabled:cursor-not-allowed font-[500] flex justify-center items-center gap-2"
                                                                 >
                                                                     Complete Sale
                                                                 </button>
@@ -1442,7 +1443,7 @@ export default function POSSales() {
                                                                     disabled={selectedWaiterItemIds.length === 0}
                                                                     onClick={async () => {
                                                                         const discountVal = parseFloat(waiterDiscountAmount) || 0;
-                                                                        if (window.confirm(`Process payment and print invoice for the ${selectedWaiterItemIds.length} selected items?`)) {
+                                                                        if (await confirmDialog(`Process payment and print invoice for the ${selectedWaiterItemIds.length} selected items?`, { confirmText: "Process payment" })) {
                                                                             try {
                                                                                 const selectedItems = waiterDetails.unpaidItems.filter(item => selectedWaiterItemIds.includes(item.id));
                                                                                 const payload = {
@@ -1487,7 +1488,7 @@ export default function POSSales() {
                                                                             }
                                                                         }
                                                                     }}
-                                                                    className="w-full py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] disabled:opacity-50 disabled:cursor-not-allowed font-[500] flex justify-center items-center gap-2"
+                                                                    className="w-full py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed font-[500] flex justify-center items-center gap-2"
                                                                 >
                                                                     Print Invoice
                                                                 </button>
@@ -1504,18 +1505,18 @@ export default function POSSales() {
                         </div>
 
                         {/* Right Panel - Shopping Cart */}
-                        <div className="lg:col-span-4 bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 flex flex-col h-fit">
+                        <div className="lg:col-span-4 bg-surface rounded-lg shadow-sm border border-line p-4 flex flex-col h-fit">
 
                             {/* Cart Header */}
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-[18px] font-[600] text-[#383E49] flex items-center gap-2">
+                                <h2 className="text-[18px] font-[600] text-fg flex items-center gap-2">
                                     <ShoppingCart size={20} />
                                     Cart ({cart.length})
                                 </h2>
                                 {cart.length > 0 && (
                                     <button
                                         onClick={clearCart}
-                                        className="text-[12px] text-[#EF4444] hover:underline"
+                                        className="text-[12px] text-error hover:underline"
                                     >
                                         Clear All
                                     </button>
@@ -1525,25 +1526,25 @@ export default function POSSales() {
                             {/* Promo Code Entry */}
                             {cart.length > 0 && (
                                 <div className="mb-3">
-                                    <label className="block text-[14px] text-[#383E49] mb-1">Promo Code</label>
+                                    <label className="block text-[14px] text-fg mb-1">Promo Code</label>
                                     <div className="flex gap-2">
                                         <input
                                             type="text"
                                             value={promoCode}
                                             onChange={(e) => setPromoCode(e.target.value)}
                                             placeholder="Enter code"
-                                            className="flex-1 px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px]"
+                                            className="flex-1 px-3 py-2 border border-line rounded-lg text-[14px]"
                                         />
                                         <button
                                             onClick={verifyPromo}
-                                            className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494]"
+                                            className="px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover"
                                         >
                                             Apply
                                         </button>
                                     </div>
 
                                     {appliedPromo && (
-                                        <div className="mt-2 p-2 bg-[#EFF6FF] rounded-lg flex items-center justify-between">
+                                        <div className="mt-2 p-2 bg-hover rounded-lg flex items-center justify-between">
                                             <div className="text-[13px]">
                                                 <strong>{appliedPromo.code}</strong> applied{' '}
                                                 {appliedPromo.type === 'PERCENTAGE'
@@ -1552,12 +1553,12 @@ export default function POSSales() {
                                                         ? `(Rs.${appliedPromo.value} off)`
                                                         : ''}
                                                 {appliedPromo.maxCap != null && (
-                                                    <span className="ml-1 text-[#D97706] font-[500]">
+                                                    <span className="ml-1 text-warning font-[500]">
                                                         · max cap Rs. {appliedPromo.maxCap}
                                                     </span>
                                                 )}
                                             </div>
-                                            <button onClick={removePromo} className="text-[12px] text-[#EF4444]">Remove</button>
+                                            <button onClick={removePromo} className="text-[12px] text-error">Remove</button>
                                         </div>
                                     )}
                                 </div>
@@ -1567,23 +1568,23 @@ export default function POSSales() {
                             <div className="flex-1 overflow-y-auto mb-4">
                                 {cart.length === 0 ? (
                                     <div className="text-center py-12">
-                                        <ShoppingCart size={48} className="text-[#E4E6EA] mx-auto mb-3" />
-                                        <p className="text-[#667085] text-[14px]">Cart is empty</p>
-                                        <p className="text-[#667085] text-[12px]">Search and add products to get started</p>
+                                        <ShoppingCart size={48} className="text-fg-muted mx-auto mb-3" />
+                                        <p className="text-fg-secondary text-[14px]">Cart is empty</p>
+                                        <p className="text-fg-secondary text-[12px]">Search and add products to get started</p>
                                     </div>
                                 ) : (
                                     <div className="space-y-3">
                                         {cart.map((item) => (
-                                            <div key={item.id} className={`p-3 rounded-lg transition-all ${highlightedItemId === item.id ? 'pulse-item bg-[#0F50AA]/10 border border-[#0F50AA]' : 'bg-[#F8F9FA]'}`}>
+                                            <div key={item.id} className={`p-3 rounded-lg transition-all ${highlightedItemId === item.id ? 'pulse-item bg-brand/10 border border-brand-fg' : 'bg-subtle'}`}>
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div className="flex-1">
-                                                        <p className="text-[14px] font-[500] text-[#383E49]">{item.name}</p>
-                                                        <p className="text-[12px] text-[#667085]">{item.code}</p>
-                                                        <p className="text-[14px] font-[600] text-[#0F50AA]">Rs. {item.price} each</p>
+                                                        <p className="text-[14px] font-[500] text-fg">{item.name}</p>
+                                                        <p className="text-[12px] text-fg-secondary">{item.code}</p>
+                                                        <p className="text-[14px] font-[600] text-brand-fg">Rs. {item.price} each</p>
                                                     </div>
                                                     <button
                                                         onClick={() => removeFromCart(item.id)}
-                                                        className="p-1 text-[#EF4444] hover:bg-red-100 rounded"
+                                                        className="p-1 text-error hover:bg-error/10 rounded"
                                                     >
                                                         <Trash2 size={14} />
                                                     </button>
@@ -1593,19 +1594,19 @@ export default function POSSales() {
                                                     <div className="flex items-center gap-2">
                                                         <button
                                                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                                            className="p-1 text-[#667085] hover:bg-white rounded"
+                                                            className="p-1 text-fg-secondary hover:bg-surface rounded"
                                                         >
                                                             <Minus size={16} />
                                                         </button>
                                                         <span className="w-12 text-center text-[14px] font-[500]">{item.quantity}</span>
                                                         <button
                                                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                                            className="p-1 text-[#667085] hover:bg-white rounded"
+                                                            className="p-1 text-fg-secondary hover:bg-surface rounded"
                                                         >
                                                             <Plus size={16} />
                                                         </button>
                                                     </div>
-                                                    <p className="text-[16px] font-[600] text-[#383E49]">Rs. {(item.price * item.quantity).toLocaleString()}</p>
+                                                    <p className="text-[16px] font-[600] text-fg">Rs. {(item.price * item.quantity).toLocaleString()}</p>
                                                 </div>
 
                                                 {/* Special Instructions Input */}
@@ -1615,19 +1616,19 @@ export default function POSSales() {
                                                         placeholder="Special instructions (e.g. No sugar, pack separately)"
                                                         value={item.specialInstructions || ""}
                                                         onChange={(e) => updateSpecialInstructions(item.id, e.target.value)}
-                                                        className="w-full px-2 py-1.5 bg-white border border-[#E4E6EA] rounded text-[11px] text-[#383E49] focus:outline-none focus:ring-1 focus:ring-[#0F50AA]/20 focus:border-[#0F50AA]"
+                                                        className="w-full px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-fg focus:outline-none focus:ring-1 focus:ring-brand-fg/20 focus:border-brand-fg"
                                                     />
                                                 </div>
 
                                                 {/* Per-item KOT (kotBased items only) */}
                                                 {item.kotBased && productionCenters.length > 0 && (
-                                                    <div className="mt-2 flex items-center gap-2 p-2 bg-orange-50 border border-orange-200 rounded">
-                                                        <ChefHat size={14} className="text-orange-500 shrink-0" />
+                                                    <div className="mt-2 flex items-center gap-2 p-2 bg-warning/10 border border-warning/30 rounded">
+                                                        <ChefHat size={14} className="text-warning shrink-0" />
                                                         <select
                                                             value={selectedPcs[item.id] || productionCenters[0]?.id || ""}
                                                             onChange={(e) => setSelectedPcs(prev => ({ ...prev, [item.id]: e.target.value }))}
                                                             disabled={kotSentMap[item.id]}
-                                                            className="flex-1 text-[11px] border border-orange-200 rounded px-1 py-0.5 bg-white focus:outline-none"
+                                                            className="flex-1 text-[11px] border border-warning/30 rounded px-1 py-0.5 bg-surface focus:outline-none"
                                                         >
                                                             {productionCenters.map(pc => (
                                                                 <option key={pc.id} value={pc.id}>{pc.centerName}</option>
@@ -1637,8 +1638,8 @@ export default function POSSales() {
                                                             onClick={() => sendKotForItem(item)}
                                                             disabled={kotSentMap[item.id]}
                                                             className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${kotSentMap[item.id]
-                                                                ? "bg-green-100 text-green-700 cursor-not-allowed"
-                                                                : "bg-orange-500 text-white hover:bg-orange-600"
+                                                                ? "bg-success/10 text-success cursor-not-allowed"
+                                                                : "bg-warning-solid text-on-brand hover:bg-warning-solid"
                                                                 }`}
                                                         >
                                                             <Send size={11} />
@@ -1649,18 +1650,18 @@ export default function POSSales() {
 
                                                 {/* Per-item auto-discount remove button (no label shown here – discount shown at bill level) */}
                                                 {appliedDiscounts[item.id] > 0 && appliedDiscountsMeta[item.id] && (
-                                                    <div className="mt-2 flex items-center gap-1 p-1.5 bg-[#DDFFE0]/40 rounded border border-[#199D26]/20">
+                                                    <div className="mt-2 flex items-center gap-1 p-1.5 bg-hover/40 rounded border border-success/20">
                                                         {appliedDiscountsMeta[item.id]?.ruleType === 'TIME_BASED' ? (
-                                                            <ClockIcon size={12} className="text-[#0F50AA] shrink-0" />
+                                                            <ClockIcon size={12} className="text-brand-fg shrink-0" />
                                                         ) : (
-                                                            <TagIcon size={12} className="text-[#199D26] shrink-0" />
+                                                            <TagIcon size={12} className="text-success shrink-0" />
                                                         )}
-                                                        <span className="text-[10px] text-[#199D26] font-[500] flex-1">
+                                                        <span className="text-[10px] text-success font-[500] flex-1">
                                                             {appliedDiscountsMeta[item.id]?.name || 'Discount'} applied
                                                         </span>
                                                         <button
                                                             onClick={() => handleRemoveAutoDiscount(item.id, appliedDiscountsMeta[item.id].discountId)}
-                                                            className="p-0.5 hover:bg-white rounded-full text-[#667085] transition-colors"
+                                                            className="p-0.5 hover:bg-surface rounded-full text-fg-secondary transition-colors"
                                                             title="Remove discount"
                                                         >
                                                             <X size={11} />
@@ -1676,31 +1677,31 @@ export default function POSSales() {
 
                             {/* Cart Summary */}
                             {cart.length > 0 && (
-                                <div className="border-t border-[#E4E6EA] pt-4">
+                                <div className="border-t border-line pt-4">
                                     <div className="space-y-2 mb-4">
                                         <div className="flex justify-between text-[14px]">
-                                            <span className="text-[#667085]">Subtotal:</span>
-                                            <span className="text-[#383E49]">Rs. {subtotal.toLocaleString()}</span>
+                                            <span className="text-fg-secondary">Subtotal:</span>
+                                            <span className="text-fg">Rs. {subtotal.toLocaleString()}</span>
                                         </div>
 
                                         {totalDiscount > 0 ? (
-                                            <div className="flex justify-between text-[14px] p-2 bg-[#DDFFE0]/50 rounded border border-[#199D26]/20">
-                                                <span className="text-[#199D26] font-[500] flex items-center gap-1">
+                                            <div className="flex justify-between text-[14px] p-2 bg-hover/50 rounded border border-success/20">
+                                                <span className="text-success font-[500] flex items-center gap-1">
                                                     <TagIcon size={13} />
                                                     Discount{appliedPromo ? ` (${appliedPromo.code})` : ''}:
                                                 </span>
-                                                <span className="text-[#199D26] font-[600]">- Rs. {totalDiscount.toLocaleString()}</span>
+                                                <span className="text-success font-[600]">- Rs. {totalDiscount.toLocaleString()}</span>
                                             </div>
                                         ) : (
                                             <div className="flex justify-between text-[14px]">
-                                                <span className="text-[#667085]">Discount:</span>
-                                                <span className="text-[#383E49]">Rs. 0</span>
+                                                <span className="text-fg-secondary">Discount:</span>
+                                                <span className="text-fg">Rs. 0</span>
                                             </div>
                                         )}
 
                                         <div className="flex justify-between text-[16px] font-[600]">
-                                            <span className="text-[#383E49]">Total:</span>
-                                            <span className="text-[#0F50AA]">Rs. {total.toLocaleString()}</span>
+                                            <span className="text-fg">Total:</span>
+                                            <span className="text-brand-fg">Rs. {total.toLocaleString()}</span>
                                         </div>
                                     </div>
 
@@ -1710,14 +1711,14 @@ export default function POSSales() {
                                         <div className="space-y-2">
                                             <button
                                                 onClick={handleSaveToWaiter}
-                                                className="w-full bg-[#6366F1] text-white py-3 rounded-lg font-[500] hover:bg-[#4F46E5] transition-colors flex items-center justify-center gap-2"
+                                                className="w-full bg-plum-solid text-on-brand py-3 rounded-lg font-[500] hover:bg-plum-solid transition-colors flex items-center justify-center gap-2"
                                             >
                                                 <Calculator size={16} />
                                                 Save to Waiter & Print Proforma
                                             </button>
                                             <button
                                                 onClick={handleCheckout}
-                                                className="w-full border border-[#0F50AA] text-[#0F50AA] py-2 rounded-lg text-sm font-[500] hover:bg-[#0F50AA]/5 transition-colors flex items-center justify-center gap-2"
+                                                className="w-full border border-brand-fg text-brand-fg py-2 rounded-lg text-sm font-[500] hover:bg-brand/5 transition-colors flex items-center justify-center gap-2"
                                             >
                                                 Normal Checkout
                                             </button>
@@ -1725,7 +1726,7 @@ export default function POSSales() {
                                     ) : (
                                         <button
                                             onClick={handleCheckout}
-                                            className="w-full bg-[#0F50AA] text-white py-3 rounded-lg font-[500] hover:bg-[#0D4494] transition-colors flex items-center justify-center gap-2"
+                                            className="w-full bg-brand text-on-brand py-3 rounded-lg font-[500] hover:bg-brand-hover transition-colors flex items-center justify-center gap-2"
                                         >
                                             <Calculator size={16} />
                                             Checkout
@@ -1743,17 +1744,17 @@ export default function POSSales() {
 
             {/* Payment Modal */}
             {showPayment && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-[18px] font-[600] text-[#383E49]">Payment</h3>
+                                <h3 className="text-[18px] font-[600] text-fg">Payment</h3>
                                 <button
                                     onClick={() => {
                                         setShowPayment(false);
                                         resetPaymentForm();
                                     }}
-                                    className="p-1 text-[#667085] hover:bg-[#F8F9FA] rounded"
+                                    className="p-1 text-fg-secondary hover:bg-subtle rounded"
                                 >
                                     <X size={20} />
                                 </button>
@@ -1768,8 +1769,8 @@ export default function POSSales() {
                                                 {/* Promotion Scope Selection */}
                                                 {appliedPromo && (
                                                     <div className="mb-6">
-                                                        <h4 className="text-[14px] font-[500] text-[#383E49] mb-3">Discount Scope</h4>
-                                                        <div className="flex gap-2 p-1 bg-[#F8F9FA] rounded-lg">
+                                                        <h4 className="text-[14px] font-[500] text-fg mb-3">Discount Scope</h4>
+                                                        <div className="flex gap-2 p-1 bg-subtle rounded-lg">
                                                             {[
                                                                 { id: 'EVERY', label: 'Every Item' },
                                                                 { id: 'TOTAL', label: 'Full Total' },
@@ -1779,8 +1780,8 @@ export default function POSSales() {
                                                                     key={scope.id}
                                                                     onClick={() => setPromoScope(scope.id)}
                                                                     className={`flex-1 py-1.5 px-2 rounded-md text-[12px] font-[500] transition-all ${promoScope === scope.id
-                                                                        ? 'bg-white text-[#0F50AA] shadow-sm'
-                                                                        : 'text-[#667085] hover:text-[#383E49]'
+                                                                        ? 'bg-surface text-brand-fg shadow-sm'
+                                                                        : 'text-fg-secondary hover:text-fg'
                                                                         }`}
                                                                 >
                                                                     {scope.label}
@@ -1788,14 +1789,14 @@ export default function POSSales() {
                                                             ))}
                                                         </div>
                                                         {promoScope === 'SELECTED' && selectedPromoItems.length === 0 && (
-                                                            <p className="text-[11px] text-[#F97316] mt-2 italic">* Please select items above to apply discount</p>
+                                                            <p className="text-[11px] text-warning mt-2 italic">* Please select items above to apply discount</p>
                                                         )}
                                                     </div>
                                                 )}
 
                                                 {/* Payment Methods */}
                                                 <div className="mb-6">
-                                                    <h4 className="text-[14px] font-[500] text-[#383E49] mb-3">Payment Method</h4>
+                                                    <h4 className="text-[14px] font-[500] text-fg mb-3">Payment Method</h4>
                                                     <div className="grid grid-cols-1 gap-2">
                                                         {availablePaymentMethods
                                                             .filter(method => {
@@ -1819,8 +1820,8 @@ export default function POSSales() {
                                                                             setStaffReason('');
                                                                         }}
                                                                         className={`p-3 border rounded-lg text-left transition-colors flex items-center gap-3 ${paymentMethod === config.key
-                                                                            ? 'border-[#0F50AA] bg-[#0F50AA]/5'
-                                                                            : 'border-[#E4E6EA] hover:border-[#0F50AA]/30'
+                                                                            ? 'border-brand-fg bg-brand/5'
+                                                                            : 'border-line hover:border-brand-fg/30'
                                                                             }`}
                                                                     >
                                                                         <Icon size={16} className={config.color} />
@@ -1834,7 +1835,7 @@ export default function POSSales() {
                                                 {/* Payment Method Specific Fields */}
                                                 {paymentMethod === 'cash' && !isFreeMeal && (
                                                     <div className="mb-6">
-                                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Cash Received *</label>
+                                                        <label className="block text-[14px] font-[500] text-fg mb-2">Cash Received *</label>
                                                         <input
                                                             ref={cashInputRef}
                                                             type="number"
@@ -1851,11 +1852,11 @@ export default function POSSales() {
                                                                     }
                                                                 }
                                                             }}
-                                                            className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                                            className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                                         />
                                                         {cashReceived && parseFloat(cashReceived) >= total && (
-                                                            <div className="mt-2 p-2 bg-[#DDFFE0] rounded-lg">
-                                                                <p className="text-[14px] text-[#199D26]">Change: Rs. {calculateChange().toLocaleString()}</p>
+                                                            <div className="mt-2 p-2 bg-hover rounded-lg">
+                                                                <p className="text-[14px] text-success">Change: Rs. {calculateChange().toLocaleString()}</p>
                                                             </div>
                                                         )}
                                                     </div>
@@ -1863,13 +1864,13 @@ export default function POSSales() {
 
                                                 {paymentMethod === 'card' && !isFreeMeal && (
                                                     <div className="mb-6">
-                                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Transaction Reference *</label>
+                                                        <label className="block text-[14px] font-[500] text-fg mb-2">Transaction Reference *</label>
                                                         <input
                                                             type="text"
                                                             placeholder="Enter card transaction reference"
                                                             value={cardRef}
                                                             onChange={(e) => setCardRef(e.target.value)}
-                                                            className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                                            className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                                         />
                                                     </div>
                                                 )}
@@ -1877,23 +1878,23 @@ export default function POSSales() {
                                                 {paymentMethod === 'bank' && !isFreeMeal && (
                                                     <div className="mb-6 space-y-3">
                                                         <div>
-                                                            <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Bank Name *</label>
+                                                            <label className="block text-[14px] font-[500] text-fg mb-2">Bank Name *</label>
                                                             <input
                                                                 type="text"
                                                                 placeholder="Enter bank name"
                                                                 value={bankName}
                                                                 onChange={(e) => setBankName(e.target.value)}
-                                                                className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                                                className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                                             />
                                                         </div>
                                                         <div>
-                                                            <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Transaction Reference *</label>
+                                                            <label className="block text-[14px] font-[500] text-fg mb-2">Transaction Reference *</label>
                                                             <input
                                                                 type="text"
                                                                 placeholder="Enter transaction reference"
                                                                 value={bankRef}
                                                                 onChange={(e) => setBankRef(e.target.value)}
-                                                                className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                                                className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                                             />
                                                         </div>
                                                     </div>
@@ -1901,15 +1902,15 @@ export default function POSSales() {
 
                                                 {isFreeMeal && (
                                                     <div className="mb-6">
-                                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Reason for Free Meal *</label>
+                                                        <label className="block text-[14px] font-[500] text-fg mb-2">Reason for Free Meal *</label>
                                                         <textarea
                                                             placeholder="Please specify the reason (minimum 10 characters)"
                                                             value={freeMealReason}
                                                             onChange={(e) => setFreeMealReason(e.target.value)}
-                                                            className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none resize-none"
+                                                            className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none resize-none"
                                                             rows="3"
                                                         />
-                                                        <div className="mt-2 p-2 bg-[#F0F8FF] border border-[#0F50AA] rounded-lg text-[13px] text-[#0F50AA]">
+                                                        <div className="mt-2 p-2 bg-subtle border border-brand-fg rounded-lg text-[13px] text-brand-fg">
                                                             Free Meal: No charge for this transaction.
                                                         </div>
                                                     </div>
@@ -1918,23 +1919,23 @@ export default function POSSales() {
                                                 {paymentMethod === 'staff' && !isFreeMeal && (
                                                     <div className="mb-6 space-y-3">
                                                         <div>
-                                                            <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Staff ID *</label>
+                                                            <label className="block text-[14px] font-[500] text-fg mb-2">Staff ID *</label>
                                                             <input
                                                                 type="text"
                                                                 placeholder="Enter staff ID"
                                                                 value={staffId}
                                                                 onChange={(e) => setStaffId(e.target.value)}
-                                                                className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                                                className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                                             />
                                                         </div>
                                                         <div>
-                                                            <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Reason (Optional)</label>
+                                                            <label className="block text-[14px] font-[500] text-fg mb-2">Reason (Optional)</label>
                                                             <input
                                                                 type="text"
                                                                 placeholder="Optional reason"
                                                                 value={staffReason}
                                                                 onChange={(e) => setStaffReason(e.target.value)}
-                                                                className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                                                className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                                             />
                                                         </div>
                                                     </div>
@@ -1942,21 +1943,21 @@ export default function POSSales() {
 
                                                 {/* Order Channel Selection Checkboxes */}
                                                 <div className="mb-6">
-                                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Order Channel (Optional)</label>
-                                                    <div className="flex gap-4 p-3 border border-[#E4E6EA] rounded-lg bg-[#F8F9FA]">
+                                                    <label className="block text-[14px] font-[500] text-fg mb-2">Order Channel (Optional)</label>
+                                                    <div className="flex gap-4 p-3 border border-line rounded-lg bg-subtle">
                                                         {[
                                                             { id: 'UBER', label: 'Uber' },
                                                             { id: 'PICKME', label: 'PickMe' },
                                                             { id: 'OTHER', label: 'Other' }
                                                         ].map(option => (
-                                                            <label key={option.id} className="flex items-center gap-2 cursor-pointer text-[14px] text-[#383E49] font-[500]">
+                                                            <label key={option.id} className="flex items-center gap-2 cursor-pointer text-[14px] text-fg font-[500]">
                                                                 <input
                                                                     type="checkbox"
                                                                     checked={deliveryOption === option.id}
                                                                     onChange={() => {
                                                                         setDeliveryOption(deliveryOption === option.id ? null : option.id);
                                                                     }}
-                                                                    className="w-4 h-4 text-[#0F50AA] border-gray-300 rounded focus:ring-[#0F50AA] cursor-pointer"
+                                                                    className="w-4 h-4 text-brand-fg border-line-strong rounded focus:ring-brand-fg cursor-pointer"
                                                                 />
                                                                 {option.label}
                                                             </label>
@@ -1973,8 +1974,8 @@ export default function POSSales() {
                                 <div>
 
                                     {/* Order Summary */}
-                                    <div className="mb-6 p-4 bg-[#F8F9FA] rounded-lg">
-                                        <h4 className="text-[14px] font-[500] text-[#383E49] mb-2">Order Summary</h4>
+                                    <div className="mb-6 p-4 bg-subtle rounded-lg">
+                                        <h4 className="text-[14px] font-[500] text-fg mb-2">Order Summary</h4>
                                         <div className="space-y-1 mb-3">
                                             {cart.map((item) => (
                                                 <div key={item.id} className="flex items-center gap-2 text-[12px]">
@@ -1989,37 +1990,37 @@ export default function POSSales() {
                                                                         : [...prev, item.id]
                                                                 );
                                                             }}
-                                                            className="w-3 h-3 accent-[#0F50AA]"
+                                                            className="w-3 h-3 accent-brand"
                                                         />
                                                     )}
-                                                    <span className="flex-1 text-[#667085]">{item.quantity}x {item.name}</span>
-                                                    <span className="text-[#383E49]">Rs. {(item.price * item.quantity).toLocaleString()}</span>
+                                                    <span className="flex-1 text-fg-secondary">{item.quantity}x {item.name}</span>
+                                                    <span className="text-fg">Rs. {(item.price * item.quantity).toLocaleString()}</span>
                                                 </div>
                                             ))}
                                         </div>
-                                        <div className="border-t border-[#E4E6EA] pt-2 pb-2">
+                                        <div className="border-t border-line pt-2 pb-2">
                                             <div className="flex justify-between text-[14px]">
-                                                <span className="text-[#667085]">Subtotal:</span>
-                                                <span className="text-[#383E49]">Rs. {subtotal.toLocaleString()}</span>
+                                                <span className="text-fg-secondary">Subtotal:</span>
+                                                <span className="text-fg">Rs. {subtotal.toLocaleString()}</span>
                                             </div>
 
                                             <div className="flex justify-between text-[14px]">
-                                                <span className="text-[#667085]">Discount:</span>
-                                                <span className="text-[#383E49]">Rs. {totalDiscount.toLocaleString()}</span>
+                                                <span className="text-fg-secondary">Discount:</span>
+                                                <span className="text-fg">Rs. {totalDiscount.toLocaleString()}</span>
                                             </div>
                                         </div>
-                                        <div className="border-t border-[#E4E6EA] pt-2">
+                                        <div className="border-t border-line pt-2">
                                             <div className="flex justify-between text-[16px] font-[600]">
-                                                <span className="text-[#383E49]">Total:</span>
-                                                <span className="text-[#0F50AA]">Rs. {total.toLocaleString()}</span>
+                                                <span className="text-fg">Total:</span>
+                                                <span className="text-brand-fg">Rs. {total.toLocaleString()}</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Customer Loyalty Section */}
-                                    <div className="mb-6 p-4 border border-dashed border-[#0F50AA]/30 bg-[#F0F5FF]/40 rounded-lg">
-                                        <h4 className="text-[14px] font-[600] text-[#383E49] mb-3 flex items-center gap-1.5">
-                                            <Users size={16} className="text-[#0F50AA]" />
+                                    <div className="mb-6 p-4 border border-dashed border-brand-fg/30 bg-subtle/40 rounded-lg">
+                                        <h4 className="text-[14px] font-[600] text-fg mb-3 flex items-center gap-1.5">
+                                            <Users size={16} className="text-brand-fg" />
                                             Customer Loyalty
                                         </h4>
 
@@ -2031,25 +2032,25 @@ export default function POSSales() {
                                                         placeholder="Enter phone number..."
                                                         value={customerPhone}
                                                         onChange={(e) => setCustomerPhone(e.target.value)}
-                                                        className="flex-1 px-3 py-1.5 border border-[#E4E6EA] rounded-lg text-[13px] outline-none focus:border-[#0F50AA] bg-white"
+                                                        className="flex-1 px-3 py-1.5 border border-line rounded-lg text-[13px] outline-none focus:border-brand-fg bg-surface"
                                                     />
                                                     <button
                                                         type="button"
                                                         onClick={handleCustomerLookup}
                                                         disabled={lookupLoading || !customerPhone.trim()}
-                                                        className="px-3 py-1.5 bg-[#0F50AA] hover:bg-[#0C438F] text-white text-[13px] font-[500] rounded-lg transition-colors disabled:bg-gray-200 disabled:text-gray-400 flex items-center justify-center min-w-[70px]"
+                                                        className="px-3 py-1.5 bg-brand hover:bg-brand-hover text-on-brand text-[13px] font-[500] rounded-lg transition-colors disabled:bg-line disabled:text-fg-muted flex items-center justify-center min-w-[70px]"
                                                     >
                                                         {lookupLoading ? <Loader variant="inline" /> : "Verify"}
                                                     </button>
                                                 </div>
-                                                <p className="text-[11px] text-[#667085]">Enter registered mobile number to award/redeem points.</p>
+                                                <p className="text-[11px] text-fg-secondary">Enter registered mobile number to award/redeem points.</p>
                                             </div>
                                         ) : (
                                             <div className="space-y-3 text-[13px]">
-                                                <div className="flex justify-between items-center bg-white p-2.5 rounded-lg border border-[#E4E6EA]">
+                                                <div className="flex justify-between items-center bg-surface p-2.5 rounded-lg border border-line">
                                                     <div>
-                                                        <p className="font-[600] text-[#383E49]">{customer.name}</p>
-                                                        <p className="text-[11px] text-[#667085]">
+                                                        <p className="font-[600] text-fg">{customer.name}</p>
+                                                        <p className="text-[11px] text-fg-secondary">
                                                             {customer.contactNumber} {customer.idCardNumber ? `• NIC: ${customer.idCardNumber}` : ""}
                                                             {customer.idCardNumber && (() => {
                                                                 const nicInfo = extractNicDetails(customer.idCardNumber);
@@ -2058,8 +2059,8 @@ export default function POSSales() {
                                                         </p>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="text-[11px] text-[#667085]">Points</p>
-                                                        <p className="font-[700] text-[#F4A100] flex items-center gap-0.5 justify-end">
+                                                        <p className="text-[11px] text-fg-secondary">Points</p>
+                                                        <p className="font-[700] text-warning flex items-center gap-0.5 justify-end">
                                                             <Coins size={12} /> {customer.loyaltyPoints?.toFixed(3) || '0.000'}
                                                         </p>
                                                     </div>
@@ -2067,8 +2068,8 @@ export default function POSSales() {
 
                                                 {/* Redemption Checkbox */}
                                                 {customer.loyaltyPoints >= 1000 ? (
-                                                    <div className="p-2.5 bg-[#FFFDF5] border border-[#F4A100]/20 rounded-lg space-y-2">
-                                                        <label className="flex items-center gap-2 font-[500] cursor-pointer text-[#383E49]">
+                                                    <div className="p-2.5 bg-subtle border border-warning/20 rounded-lg space-y-2">
+                                                        <label className="flex items-center gap-2 font-[500] cursor-pointer text-fg">
                                                             <input
                                                                 type="checkbox"
                                                                 checked={redeemPoints}
@@ -2080,18 +2081,18 @@ export default function POSSales() {
                                                                         setOtp("");
                                                                     }
                                                                 }}
-                                                                className="w-4 h-4 accent-[#0F50AA] cursor-pointer"
+                                                                className="w-4 h-4 accent-brand cursor-pointer"
                                                             />
                                                             Redeem 1000 Points (Rs. 1000.00 Discount)
                                                         </label>
 
                                                         {redeemPoints && !otpVerified && (
-                                                            <div className="space-y-2 pt-1.5 border-t border-dashed border-[#F4A100]/20">
+                                                            <div className="space-y-2 pt-1.5 border-t border-dashed border-warning/20">
                                                                 {!otpSent ? (
                                                                     <button
                                                                         type="button"
                                                                         onClick={handleSendOtp}
-                                                                        className="w-full py-1.5 bg-[#F4A100] hover:bg-[#E09400] text-white text-[12px] font-[600] rounded-md transition-colors"
+                                                                        className="w-full py-1.5 bg-warning-solid hover:bg-warning-solid text-on-brand text-[12px] font-[600] rounded-md transition-colors"
                                                                     >
                                                                         Send SMS Verification OTP
                                                                     </button>
@@ -2103,30 +2104,30 @@ export default function POSSales() {
                                                                                 placeholder="Enter 6-digit OTP..."
                                                                                 value={otp}
                                                                                 onChange={(e) => setOtp(e.target.value)}
-                                                                                className="flex-1 px-2.5 py-1 border border-[#E4E6EA] rounded text-[12px] bg-white"
+                                                                                className="flex-1 px-2.5 py-1 border border-line rounded text-[12px] bg-surface"
                                                                             />
                                                                             <button
                                                                                 type="button"
                                                                                 onClick={handleVerifyOtp}
-                                                                                className="px-3 py-1 bg-[#199D26] hover:bg-[#14821E] text-white text-[12px] font-[600] rounded"
+                                                                                className="px-3 py-1 bg-success-solid hover:bg-success-solid text-on-brand text-[12px] font-[600] rounded"
                                                                             >
                                                                                 Verify
                                                                             </button>
                                                                         </div>
-                                                                        <p className="text-[11px] text-[#199D26]">✓ OTP sent to mobile. Enter code to confirm discount.</p>
+                                                                        <p className="text-[11px] text-success">✓ OTP sent to mobile. Enter code to confirm discount.</p>
                                                                     </div>
                                                                 )}
                                                             </div>
                                                         )}
 
                                                         {otpVerified && (
-                                                            <div className="text-[12px] text-[#199D26] font-[600] bg-green-50 p-2 rounded flex items-center gap-1.5">
+                                                            <div className="text-[12px] text-success font-[600] bg-success/10 p-2 rounded flex items-center gap-1.5">
                                                                 <Check size={14} /> Point verification successful. Rs. 1000.00 discount applied!
                                                             </div>
                                                         )}
                                                     </div>
                                                 ) : (
-                                                    <div className="text-[11px] text-[#667085] italic bg-white p-2 rounded border border-[#E4E6EA]">
+                                                    <div className="text-[11px] text-fg-secondary italic bg-surface p-2 rounded border border-line">
                                                         * Needs at least 1000 points to redeem. Points to earn from this order: +{(total / 1000.0).toFixed(3)}
                                                     </div>
                                                 )}
@@ -2134,7 +2135,7 @@ export default function POSSales() {
                                                 <button
                                                     type="button"
                                                     onClick={handleRemoveCustomer}
-                                                    className="text-[12px] text-red-500 hover:underline flex items-center gap-1 cursor-pointer"
+                                                    className="text-[12px] text-error hover:underline flex items-center gap-1 cursor-pointer"
                                                 >
                                                     Remove Customer
                                                 </button>
@@ -2149,14 +2150,14 @@ export default function POSSales() {
                                                 setShowPayment(false);
                                                 resetPaymentForm();
                                             }}
-                                            className="flex-1 px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors font-[500]"
+                                            className="flex-1 px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors font-[500]"
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             onClick={() => processPayment(false)}
                                             disabled={!paymentMethod || (isFreeMeal && freeMealReason.trim().length < 10)}
-                                            className="flex-1 px-4 py-3 bg-[#6366F1] text-white rounded-lg hover:bg-[#4F46E5] transition-colors disabled:bg-[#E4E6EA] disabled:text-[#667085] flex items-center justify-center gap-2 font-[500]"
+                                            className="flex-1 px-4 py-3 bg-plum-solid text-on-brand rounded-lg hover:bg-plum-solid transition-colors disabled:bg-line disabled:text-fg-secondary flex items-center justify-center gap-2 font-[500]"
                                         >
                                             <Receipt size={16} />
                                             Complete Sale
@@ -2164,7 +2165,7 @@ export default function POSSales() {
                                         <button
                                             onClick={() => processPayment(true)}
                                             disabled={!paymentMethod || (isFreeMeal && freeMealReason.trim().length < 10)}
-                                            className="flex-1 px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors disabled:bg-[#E4E6EA] disabled:text-[#667085] flex items-center justify-center gap-2 font-[500]"
+                                            className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:bg-line disabled:text-fg-secondary flex items-center justify-center gap-2 font-[500]"
                                         >
                                             <Receipt size={16} />
                                             Print Invoice
@@ -2180,15 +2181,15 @@ export default function POSSales() {
 
             {/* Quantity Input Modal */}
             {showQtyModal && pendingProduct && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-sm">
                         <div className="p-6">
-                            <h3 className="text-[16px] font-[600] text-[#383E49] mb-1">{pendingProduct.name}</h3>
-                            <p className="text-[13px] text-[#667085] mb-1">{pendingProduct.code}</p>
-                            <p className="text-[14px] font-[600] text-[#0F50AA] mb-4">Rs. {pendingProduct.price} each</p>
-                            <p className="text-[12px] text-[#667085] mb-4">Stock available: {pendingProduct.stock}</p>
+                            <h3 className="text-[16px] font-[600] text-fg mb-1">{pendingProduct.name}</h3>
+                            <p className="text-[13px] text-fg-secondary mb-1">{pendingProduct.code}</p>
+                            <p className="text-[14px] font-[600] text-brand-fg mb-4">Rs. {pendingProduct.price} each</p>
+                            <p className="text-[12px] text-fg-secondary mb-4">Stock available: {pendingProduct.stock}</p>
 
-                            <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Quantity</label>
+                            <label className="block text-[14px] font-[500] text-fg mb-2">Quantity</label>
                             <input
                                 ref={qtyInputRef}
                                 type="number"
@@ -2203,9 +2204,9 @@ export default function POSSales() {
                                         setTimeout(() => searchInputRef.current?.focus(), 50);
                                     }
                                 }}
-                                className="w-full px-3 py-3 border border-[#E4E6EA] rounded-lg text-[18px] font-[600] text-center focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10"
+                                className="w-full px-3 py-3 border border-line rounded-lg text-[18px] font-[600] text-center focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                             />
-                            <p className="text-[11px] text-[#667085] mt-2 text-center">Press Enter to add · Esc to cancel</p>
+                            <p className="text-[11px] text-fg-secondary mt-2 text-center">Press Enter to add · Esc to cancel</p>
 
                             <div className="flex gap-3 mt-4">
                                 <button
@@ -2213,13 +2214,13 @@ export default function POSSales() {
                                         setShowQtyModal(false);
                                         setTimeout(() => searchInputRef.current?.focus(), 50);
                                     }}
-                                    className="flex-1 px-4 py-2 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA]"
+                                    className="flex-1 px-4 py-2 border border-line text-fg-secondary rounded-lg hover:bg-subtle"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={confirmQtyModal}
-                                    className="flex-1 px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] font-[500]"
+                                    className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover font-[500]"
                                 >
                                     Add to Cart
                                 </button>
@@ -2231,17 +2232,17 @@ export default function POSSales() {
 
             {/* Insufficient Stock Alert */}
             {showInsufficientStock && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-sm">
                         <div className="p-6 text-center">
-                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <AlertTriangle size={32} className="text-red-600" />
+                            <div className="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <AlertTriangle size={32} className="text-error" />
                             </div>
-                            <h3 className="text-[18px] font-[600] text-[#383E49] mb-2">Insufficient Stock</h3>
-                            <p className="text-[14px] text-[#667085] mb-6">Not enough stock available for <strong>{insufficientItem}</strong></p>
+                            <h3 className="text-[18px] font-[600] text-fg mb-2">Insufficient Stock</h3>
+                            <p className="text-[14px] text-fg-secondary mb-6">Not enough stock available for <strong>{insufficientItem}</strong></p>
                             <button
                                 onClick={() => setShowInsufficientStock(false)}
-                                className="w-full px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors"
+                                className="w-full px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors"
                             >
                                 OK
                             </button>
@@ -2252,13 +2253,13 @@ export default function POSSales() {
 
             {/* Waiter Discount Modal */}
             {showWaiterDiscountModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden animate-fade-in">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-sm overflow-hidden animate-fade-in">
                         <div className="p-6">
-                            <h3 className="text-[18px] font-[600] text-[#383E49] mb-4">Apply Waiter Discount</h3>
+                            <h3 className="text-[18px] font-[600] text-fg mb-4">Apply Waiter Discount</h3>
 
                             <div className="mb-4">
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-1">Discount Amount (Rs.)</label>
+                                <label className="block text-[14px] font-[500] text-fg mb-1">Discount Amount (Rs.)</label>
                                 <input
                                     type="number"
                                     min="0"
@@ -2267,19 +2268,19 @@ export default function POSSales() {
                                     value={waiterDiscountAmount}
                                     onChange={(e) => setWaiterDiscountAmount(e.target.value)}
                                     placeholder="Enter discount amount"
-                                    className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg focus:border-[#0F50AA] focus:outline-none"
+                                    className="w-full px-3 py-2 border border-line rounded-lg focus:border-brand-fg focus:outline-none"
                                 />
-                                <p className="text-[11px] text-[#667085] mt-1">Maximum discount: Rs. {selectedSubTotal.toLocaleString()}</p>
+                                <p className="text-[11px] text-fg-secondary mt-1">Maximum discount: Rs. {selectedSubTotal.toLocaleString()}</p>
                             </div>
 
                             <div className="mb-6">
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-1">Discount Reason</label>
+                                <label className="block text-[14px] font-[500] text-fg mb-1">Discount Reason</label>
                                 <textarea
                                     value={waiterDiscountReason}
                                     onChange={(e) => setWaiterDiscountReason(e.target.value)}
                                     placeholder="Enter reason for discount..."
                                     rows="3"
-                                    className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg focus:border-[#0F50AA] focus:outline-none resize-none text-[14px]"
+                                    className="w-full px-3 py-2 border border-line rounded-lg focus:border-brand-fg focus:outline-none resize-none text-[14px]"
                                 />
                             </div>
 
@@ -2288,7 +2289,7 @@ export default function POSSales() {
                                     onClick={() => {
                                         setShowWaiterDiscountModal(false);
                                     }}
-                                    className="flex-1 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                    className="flex-1 px-4 py-2.5 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors"
                                 >
                                     Cancel
                                 </button>
@@ -2310,7 +2311,7 @@ export default function POSSales() {
                                         setShowWaiterDiscountModal(false);
                                         toast.success("Discount applied");
                                     }}
-                                    className="flex-1 px-4 py-2.5 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] font-[500] transition-colors"
+                                    className="flex-1 px-4 py-2.5 bg-brand text-on-brand rounded-lg hover:bg-brand-hover font-[500] transition-colors"
                                 >
                                     Apply
                                 </button>
@@ -2324,14 +2325,14 @@ export default function POSSales() {
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] lg:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] lg:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}
 
             {/* Hidden Print Receipt Template */}
             {printData && (
-                <div id="print-receipt" className="hidden print:block fixed inset-0 bg-white z-[9999] p-4 text-black font-mono w-[80mm] text-xs">
+                <div id="print-receipt" className="hidden print:block fixed inset-0 bg-surface z-[9999] p-4 text-fg-strong font-mono w-[80mm] text-xs">
                     <style dangerouslySetInnerHTML={{
                         __html: `
                         @media print {
@@ -2445,7 +2446,7 @@ export default function POSSales() {
                                 <div className="text-[12px] font-bold">KOT ITEM: {item.productName || item.name}</div>
                                 <div className="text-[12px] font-bold mt-1">QTY: {item.qty || item.quantity}</div>
                                 {item.specialInstructions && (
-                                    <div className="text-[10px] text-gray-800 italic font-mono mt-1">
+                                    <div className="text-[10px] text-fg italic font-mono mt-1">
                                         * Note: {item.specialInstructions}
                                     </div>
                                 )}
@@ -2461,16 +2462,16 @@ export default function POSSales() {
 
             {/* Customer Registration Modal */}
             {showRegModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[10000] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-sm animate-in fade-in zoom-in-95 duration-200">
-                        <div className="p-5 border-b border-[#E4E6EA] bg-[#F8F9FA] flex justify-between items-center">
-                            <h3 className="font-[600] text-[15px] text-[#383E49] flex items-center gap-1.5">
-                                <User size={18} className="text-[#0F50AA]" />
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[10000] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-sm animate-in fade-in zoom-in-95 duration-200">
+                        <div className="p-5 border-b border-line bg-subtle flex justify-between items-center">
+                            <h3 className="font-[600] text-[15px] text-fg flex items-center gap-1.5">
+                                <User size={18} className="text-brand-fg" />
                                 Register Customer
                             </h3>
                             <button
                                 onClick={() => setShowRegModal(false)}
-                                className="text-[#667085] hover:bg-gray-100 p-1 rounded transition-all"
+                                className="text-fg-secondary hover:bg-hover p-1 rounded transition-all"
                             >
                                 <X size={18} />
                             </button>
@@ -2478,53 +2479,53 @@ export default function POSSales() {
                         <form onSubmit={handlePOSRegisterCustomer}>
                             <div className="p-5 space-y-4">
                                 {regError && (
-                                    <div className="p-2.5 bg-red-50 border border-red-200 rounded text-[12px] text-red-600 font-[500]">
+                                    <div className="p-2.5 bg-error/10 border border-error/30 rounded text-[12px] text-error font-[500]">
                                         {regError}
                                     </div>
                                 )}
                                 <div>
-                                    <label className="block text-[12px] font-[500] text-[#383E49] mb-1">Customer Name *</label>
+                                    <label className="block text-[12px] font-[500] text-fg mb-1">Customer Name *</label>
                                     <input
                                         type="text"
                                         required
                                         placeholder="Enter full name"
                                         value={regName}
                                         onChange={(e) => setRegName(e.target.value)}
-                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[13px] outline-none focus:border-[#0F50AA] bg-white"
+                                        className="w-full px-3 py-2 border border-line rounded-lg text-[13px] outline-none focus:border-brand-fg bg-surface"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-[12px] font-[500] text-[#383E49] mb-1">Phone Number *</label>
+                                    <label className="block text-[12px] font-[500] text-fg mb-1">Phone Number *</label>
                                     <input
                                         type="text"
                                         required
                                         disabled
                                         value={customerPhone}
-                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[13px] bg-gray-50 text-gray-500 cursor-not-allowed"
+                                        className="w-full px-3 py-2 border border-line rounded-lg text-[13px] bg-subtle text-fg-secondary cursor-not-allowed"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-[12px] font-[500] text-[#383E49] mb-1">ID Card Number (NIC) (Optional)</label>
+                                    <label className="block text-[12px] font-[500] text-fg mb-1">ID Card Number (NIC) (Optional)</label>
                                     <input
                                         type="text"
                                         placeholder="Enter identity card number"
                                         value={regNIC}
                                         onChange={(e) => setRegNIC(e.target.value)}
-                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[13px] outline-none focus:border-[#0F50AA] bg-white"
+                                        className="w-full px-3 py-2 border border-line rounded-lg text-[13px] outline-none focus:border-brand-fg bg-surface"
                                     />
                                 </div>
                             </div>
-                            <div className="p-4 bg-[#F8F9FA] border-t border-[#E4E6EA] flex justify-end gap-2">
+                            <div className="p-4 bg-subtle border-t border-line flex justify-end gap-2">
                                 <button
                                     type="button"
                                     onClick={() => setShowRegModal(false)}
-                                    className="px-3 py-1.5 border border-[#E4E6EA] text-[#667085] hover:bg-white rounded text-[13px] font-[500] transition-colors"
+                                    className="px-3 py-1.5 border border-line text-fg-secondary hover:bg-surface rounded text-[13px] font-[500] transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-1.5 bg-[#0F50AA] text-white hover:bg-[#0C438F] rounded text-[13px] font-[500] transition-colors"
+                                    className="px-4 py-1.5 bg-brand text-on-brand hover:bg-brand-hover rounded text-[13px] font-[500] transition-colors"
                                 >
                                     Register & Verify
                                 </button>

@@ -159,12 +159,12 @@ export default function ManagerActualProduction() {
   );
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       {/* Notification Toast */}
       {notification && (
         <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
-          notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        } text-white transition-opacity duration-300`}>
+          notification.type === 'success' ? 'bg-success-solid' : 'bg-error-solid'
+        } text-on-brand transition-opacity duration-300`}>
           {notification.message}
         </div>
       )}
@@ -181,31 +181,31 @@ export default function ManagerActualProduction() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <div>
-              <h2 className="text-[20px] font-[600] text-[#383E49]">Actual Production Pool</h2>
-              <p className="text-[12px] text-[#667085]">Manage produced items ready to be sent to stores</p>
+              <h2 className="text-[20px] font-[600] text-fg">Actual Production Pool</h2>
+              <p className="text-[12px] text-fg-secondary">Manage produced items ready to be sent to stores</p>
             </div>
             
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <div className="relative flex-1 sm:flex-none">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-muted" size={16} />
                 <input
                   type="text"
                   placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full sm:w-64 pl-9 pr-4 py-2 bg-white border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                  className="w-full sm:w-64 pl-9 pr-4 py-2 bg-surface border border-line rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                 />
               </div>
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-4 border-b border-[#E4E6EA] mb-6">
+          <div className="flex gap-4 border-b border-line mb-6">
             <button
               className={`pb-3 text-[14px] font-[500] border-b-2 transition-colors ${
                 activeTab === "pool"
-                  ? "border-[#0F50AA] text-[#0F50AA]"
-                  : "border-transparent text-[#667085] hover:text-[#383E49]"
+                  ? "border-brand-fg text-brand-fg"
+                  : "border-transparent text-fg-secondary hover:text-fg"
               }`}
               onClick={() => setActiveTab("pool")}
             >
@@ -214,8 +214,8 @@ export default function ManagerActualProduction() {
             <button
               className={`pb-3 text-[14px] font-[500] border-b-2 transition-colors ${
                 activeTab === "production_history"
-                  ? "border-[#0F50AA] text-[#0F50AA]"
-                  : "border-transparent text-[#667085] hover:text-[#383E49]"
+                  ? "border-brand-fg text-brand-fg"
+                  : "border-transparent text-fg-secondary hover:text-fg"
               }`}
               onClick={() => setActiveTab("production_history")}
             >
@@ -224,8 +224,8 @@ export default function ManagerActualProduction() {
             <button
               className={`pb-3 text-[14px] font-[500] border-b-2 transition-colors ${
                 activeTab === "distribution_history"
-                  ? "border-[#0F50AA] text-[#0F50AA]"
-                  : "border-transparent text-[#667085] hover:text-[#383E49]"
+                  ? "border-brand-fg text-brand-fg"
+                  : "border-transparent text-fg-secondary hover:text-fg"
               }`}
               onClick={() => setActiveTab("distribution_history")}
             >
@@ -234,49 +234,49 @@ export default function ManagerActualProduction() {
           </div>
 
           {activeTab === "pool" && (
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] overflow-hidden">
+            <div className="bg-surface rounded-lg shadow-sm border border-line overflow-hidden">
               {loading ? (
                 <div className="p-8"><Loader text="Loading actual production pool..." /></div>
               ) : error ? (
-                <div className="p-8 text-center text-red-500">{error}</div>
+                <div className="p-8 text-center text-error">{error}</div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
-                    <thead className="bg-[#F8F9FA] border-b border-[#E4E6EA]">
+                    <thead className="bg-subtle border-b border-line">
                       <tr>
-                        <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Product</th>
-                        <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase text-center">Available Quantity</th>
-                        <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Lots &amp; Expiry</th>
-                        <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase text-center">Last Updated</th>
-                        <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase text-right">Actions</th>
+                        <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Product</th>
+                        <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase text-center">Available Quantity</th>
+                        <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Lots &amp; Expiry</th>
+                        <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase text-center">Last Updated</th>
+                        <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E4E6EA]">
+                    <tbody className="divide-y divide-line">
                       {filteredInventory.length === 0 ? (
                         <tr>
-                          <td colSpan="5" className="py-8 text-center text-[#667085] text-[14px]">
+                          <td colSpan="5" className="py-8 text-center text-fg-secondary text-[14px]">
                             No items in actual production pool.
                           </td>
                         </tr>
                       ) : (
                         filteredInventory.map((item) => (
-                          <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
+                          <tr key={item.id} className="hover:bg-subtle/50 transition-colors">
                             <td className="py-4 px-4">
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                                  <Package className="text-[#0F50AA]" size={16} />
+                                <div className="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center">
+                                  <Package className="text-brand-fg" size={16} />
                                 </div>
-                                <span className="text-[14px] font-[500] text-[#383E49]">{item.productName}</span>
+                                <span className="text-[14px] font-[500] text-fg">{item.productName}</span>
                               </div>
                             </td>
                             <td className="py-4 px-4 text-center">
-                              <span className="text-[14px] font-[600] text-[#383E49]">{item.availableQuantity}</span>
+                              <span className="text-[14px] font-[600] text-fg">{item.availableQuantity}</span>
                             </td>
                             <td className="py-4 px-4">
                               {item.lots && item.lots.length > 0 ? (
                                 <div className="flex flex-col gap-1.5">
                                   {item.lots.slice(0, 3).map((lot) => (
-                                    <div key={lot.id} className="flex items-center gap-2 text-[12px] text-[#344054]">
+                                    <div key={lot.id} className="flex items-center gap-2 text-[12px] text-fg">
                                       <span className="font-[600] w-8 text-right">{lot.availableQty}</span>
                                       <ExpiryTag expiryDate={lot.expiryDate} warnDays={1} />
                                       <button
@@ -286,23 +286,23 @@ export default function ManagerActualProduction() {
                                           batchRef: `Lot ${lot.id}`, expiryDate: lot.expiryDate,
                                           stockRef: `actual_production_lot:${lot.id}`, available: lot.availableQty,
                                         })}
-                                        className="text-[11px] font-[600] text-red-600 hover:underline"
+                                        className="text-[11px] font-[600] text-error hover:underline"
                                       >
                                         Report
                                       </button>
                                     </div>
                                   ))}
-                                  {item.lots.length > 3 && <span className="text-[11px] text-[#98A2B3]">+{item.lots.length - 3} more lots</span>}
+                                  {item.lots.length > 3 && <span className="text-[11px] text-fg-muted">+{item.lots.length - 3} more lots</span>}
                                   {item.expiredQuantity > 0 && (
-                                    <span className="text-[11px] font-[600] text-red-600">{item.expiredQuantity} expired - cannot be sent to stores</span>
+                                    <span className="text-[11px] font-[600] text-error">{item.expiredQuantity} expired - cannot be sent to stores</span>
                                   )}
                                 </div>
                               ) : (
-                                <span className="text-[12px] text-[#98A2B3]">No dated lots</span>
+                                <span className="text-[12px] text-fg-muted">No dated lots</span>
                               )}
                             </td>
                             <td className="py-4 px-4 text-center">
-                              <span className="text-[13px] text-[#667085]">
+                              <span className="text-[13px] text-fg-secondary">
                                 {new Date(item.lastUpdated).toLocaleString()}
                               </span>
                             </td>
@@ -310,7 +310,7 @@ export default function ManagerActualProduction() {
                               <button
                                 onClick={() => openDistributeModal(item)}
                                 disabled={item.availableQuantity <= 0}
-                                className="px-3 py-1.5 bg-[#0F50AA] text-white text-[13px] font-[500] rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 inline-flex"
+                                className="px-3 py-1.5 bg-brand text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 inline-flex"
                               >
                                 <Send size={14} /> Send to Store
                               </button>
@@ -326,45 +326,45 @@ export default function ManagerActualProduction() {
           )}
 
           {activeTab === "production_history" && (
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] overflow-hidden">
+            <div className="bg-surface rounded-lg shadow-sm border border-line overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead className="bg-[#F8F9FA] border-b border-[#E4E6EA]">
+                  <thead className="bg-subtle border-b border-line">
                     <tr>
-                      <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Date</th>
-                      <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Product</th>
-                      <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase text-center">Quantity</th>
-                      <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Source Plan</th>
+                      <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Date</th>
+                      <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Product</th>
+                      <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase text-center">Quantity</th>
+                      <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Source Plan</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E4E6EA]">
+                  <tbody className="divide-y divide-line">
                     {productionHistory.length === 0 ? (
                       <tr>
-                        <td colSpan="4" className="py-8 text-center text-[#667085] text-[14px]">
+                        <td colSpan="4" className="py-8 text-center text-fg-secondary text-[14px]">
                           No production history found.
                         </td>
                       </tr>
                     ) : (
                       productionHistory.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
+                        <tr key={item.id} className="hover:bg-subtle/50 transition-colors">
                           <td className="py-4 px-4">
-                            <span className="text-[13px] text-[#667085]">
+                            <span className="text-[13px] text-fg-secondary">
                               {new Date(item.createdAt).toLocaleString()}
                             </span>
                           </td>
                           <td className="py-4 px-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
-                                <TrendingUp className="text-green-600" size={16} />
+                              <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
+                                <TrendingUp className="text-success" size={16} />
                               </div>
-                              <span className="text-[14px] font-[500] text-[#383E49]">{item.productName}</span>
+                              <span className="text-[14px] font-[500] text-fg">{item.productName}</span>
                             </div>
                           </td>
                           <td className="py-4 px-4 text-center">
-                            <span className="text-[14px] font-[600] text-green-600">+{item.quantity}</span>
+                            <span className="text-[14px] font-[600] text-success">+{item.quantity}</span>
                           </td>
                           <td className="py-4 px-4">
-                            <span className="text-[13px] text-[#667085]">{item.referenceName}</span>
+                            <span className="text-[13px] text-fg-secondary">{item.referenceName}</span>
                           </td>
                         </tr>
                       ))
@@ -376,45 +376,45 @@ export default function ManagerActualProduction() {
           )}
 
           {activeTab === "distribution_history" && (
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] overflow-hidden">
+            <div className="bg-surface rounded-lg shadow-sm border border-line overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead className="bg-[#F8F9FA] border-b border-[#E4E6EA]">
+                  <thead className="bg-subtle border-b border-line">
                     <tr>
-                      <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Date</th>
-                      <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Product</th>
-                      <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase text-center">Quantity</th>
-                      <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Destination Outlet</th>
+                      <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Date</th>
+                      <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Product</th>
+                      <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase text-center">Quantity</th>
+                      <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Destination Outlet</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E4E6EA]">
+                  <tbody className="divide-y divide-line">
                     {distributionHistory.length === 0 ? (
                       <tr>
-                        <td colSpan="4" className="py-8 text-center text-[#667085] text-[14px]">
+                        <td colSpan="4" className="py-8 text-center text-fg-secondary text-[14px]">
                           No distribution history found.
                         </td>
                       </tr>
                     ) : (
                       distributionHistory.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
+                        <tr key={item.id} className="hover:bg-subtle/50 transition-colors">
                           <td className="py-4 px-4">
-                            <span className="text-[13px] text-[#667085]">
+                            <span className="text-[13px] text-fg-secondary">
                               {new Date(item.createdAt).toLocaleString()}
                             </span>
                           </td>
                           <td className="py-4 px-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
-                                <TrendingDown className="text-red-600" size={16} />
+                              <div className="w-8 h-8 rounded-lg bg-error/10 flex items-center justify-center">
+                                <TrendingDown className="text-error" size={16} />
                               </div>
-                              <span className="text-[14px] font-[500] text-[#383E49]">{item.productName}</span>
+                              <span className="text-[14px] font-[500] text-fg">{item.productName}</span>
                             </div>
                           </td>
                           <td className="py-4 px-4 text-center">
-                            <span className="text-[14px] font-[600] text-red-600">-{item.quantity}</span>
+                            <span className="text-[14px] font-[600] text-error">-{item.quantity}</span>
                           </td>
                           <td className="py-4 px-4">
-                            <span className="text-[13px] text-[#667085]">{item.referenceName}</span>
+                            <span className="text-[13px] text-fg-secondary">{item.referenceName}</span>
                           </td>
                         </tr>
                       ))
@@ -428,32 +428,32 @@ export default function ManagerActualProduction() {
       </div>
 
       {showDistributeModal && (
-        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-            <div className="flex items-center justify-between p-4 border-b border-[#E4E6EA]">
-              <h3 className="text-[16px] font-[600] text-[#383E49]">Send to Store</h3>
+        <div className="fixed inset-0 bg-backdrop z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-4 border-b border-line">
+              <h3 className="text-[16px] font-[600] text-fg">Send to Store</h3>
               <button 
                 onClick={() => setShowDistributeModal(false)}
-                className="text-[#667085] hover:text-[#383E49] transition-colors"
+                className="text-fg-secondary hover:text-fg transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
             <div className="p-4 space-y-4">
               <div>
-                <p className="text-[13px] font-[500] text-[#383E49] mb-1">Product</p>
-                <p className="text-[14px] text-[#667085] bg-gray-50 px-3 py-2 rounded border border-[#E4E6EA]">{selectedProduct?.productName}</p>
+                <p className="text-[13px] font-[500] text-fg mb-1">Product</p>
+                <p className="text-[14px] text-fg-secondary bg-subtle px-3 py-2 rounded border border-line">{selectedProduct?.productName}</p>
               </div>
               <div>
-                <p className="text-[13px] font-[500] text-[#383E49] mb-1">Available Quantity</p>
-                <p className="text-[14px] text-[#667085] bg-gray-50 px-3 py-2 rounded border border-[#E4E6EA]">{selectedProduct?.availableQuantity}</p>
+                <p className="text-[13px] font-[500] text-fg mb-1">Available Quantity</p>
+                <p className="text-[14px] text-fg-secondary bg-subtle px-3 py-2 rounded border border-line">{selectedProduct?.availableQuantity}</p>
               </div>
               <div>
-                <label className="text-[13px] font-[500] text-[#383E49] mb-1 block">Outlet / Store</label>
+                <label className="text-[13px] font-[500] text-fg mb-1 block">Outlet / Store</label>
                 <select
                   value={selectedOutlet}
                   onChange={(e) => setSelectedOutlet(e.target.value)}
-                  className="w-full border border-[#E4E6EA] rounded px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#0F50AA]"
+                  className="w-full border border-line rounded px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-brand-fg"
                 >
                   <option value="">Select Outlet</option>
                   {outlets.map(o => (
@@ -462,29 +462,29 @@ export default function ManagerActualProduction() {
                 </select>
               </div>
               <div>
-                <label className="text-[13px] font-[500] text-[#383E49] mb-1 block">Quantity to Send</label>
+                <label className="text-[13px] font-[500] text-fg mb-1 block">Quantity to Send</label>
                 <input
                   type="number"
                   min="1"
                   max={selectedProduct?.availableQuantity || 1}
                   value={distributeQty}
                   onChange={(e) => setDistributeQty(e.target.value)}
-                  className="w-full border border-[#E4E6EA] rounded px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#0F50AA]"
+                  className="w-full border border-line rounded px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-brand-fg"
                   placeholder="Enter quantity"
                 />
               </div>
             </div>
-            <div className="flex gap-2 justify-end p-4 border-t border-[#E4E6EA]">
+            <div className="flex gap-2 justify-end p-4 border-t border-line">
               <button
                 onClick={() => setShowDistributeModal(false)}
-                className="px-4 py-2 border border-[#E4E6EA] rounded-lg text-[13px] font-[500] text-[#383E49] hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-line rounded-lg text-[13px] font-[500] text-fg hover:bg-subtle transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDistribute}
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg text-[13px] font-[500] hover:bg-blue-700 transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-brand text-on-brand rounded-lg text-[13px] font-[500] hover:bg-brand-hover transition-colors disabled:opacity-50"
               >
                 {isSubmitting ? "Sending..." : "Send to Store"}
               </button>
@@ -507,7 +507,7 @@ export default function ManagerActualProduction() {
 
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

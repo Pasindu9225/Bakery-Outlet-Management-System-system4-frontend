@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
+import toast from "react-hot-toast";
+import { confirmDialog } from "../component/ConfirmDialog";
 import { Package, Search, Plus, Edit, Trash2, X, Check, AlertTriangle, Archive, Calendar, Download } from "lucide-react";
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
@@ -295,7 +297,7 @@ export default function AdminRawMaterials() {
     const handleAddPackSize = () => {
         const size = parseFloat(newPackSize);
         if (!size || isNaN(size) || size <= 0) {
-            alert('Please enter a valid pack size');
+            toast.error('Please enter a valid pack size');
             return;
         }
 
@@ -451,7 +453,7 @@ export default function AdminRawMaterials() {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this raw material?')) {
+        if (await confirmDialog('Are you sure you want to delete this raw material?', { confirmText: "Delete", danger: true })) {
             try {
                 //${process.env.REACT_APP_BASE_URL}
                 const response = await fetch(`${process.env.REACT_APP_BASE_URL}/ADMIN/v1/raw-materials/${id}`, {
@@ -465,11 +467,11 @@ export default function AdminRawMaterials() {
                     setTimeout(() => setShowToast(false), 3000);
                 } else {
                     console.error("Failed to delete material");
-                    alert("Failed to delete material. Please try again.");
+                    toast.error("Failed to delete material. Please try again.");
                 }
             } catch (error) {
                 console.error("Error deleting material:", error);
-                alert("Error deleting material. Please check console.");
+                toast.error("Error deleting material. Please check console.");
             }
         }
     };
@@ -541,7 +543,7 @@ export default function AdminRawMaterials() {
                 setTimeout(() => setShowToast(false), 3000);
             } catch (error) {
                 console.error('Error saving material:', error);
-                alert(error.message);
+                toast.error(error.message);
             } finally {
                 setIsSubmitting(false);
             }
@@ -604,7 +606,7 @@ export default function AdminRawMaterials() {
             setNewGenericPackUnit('kg');
         } catch (error) {
             console.error('Error adding generic:', error);
-            alert(error.message || 'Failed to add generic material');
+            toast.error(error.message || 'Failed to add generic material');
         }
     };
 
@@ -621,7 +623,7 @@ export default function AdminRawMaterials() {
             setShowAddBrandModal(false);
         } catch (error) {
             console.error('Error adding brand:', error);
-            alert('Failed to add brand');
+            toast.error('Failed to add brand');
         }
     };
 
@@ -639,7 +641,7 @@ export default function AdminRawMaterials() {
             setTimeout(() => setShowToast(false), 3000);
         } catch (error) {
             console.error('Error adding category:', error);
-            alert(error.message || 'Failed to add category');
+            toast.error(error.message || 'Failed to add category');
         }
     };
 
@@ -666,7 +668,7 @@ export default function AdminRawMaterials() {
             setTimeout(() => setShowToast(false), 3000);
         } catch (error) {
             console.error('Error updating category:', error);
-            alert(error.message || 'Failed to update category');
+            toast.error(error.message || 'Failed to update category');
         }
     };
 
@@ -719,7 +721,7 @@ export default function AdminRawMaterials() {
             setTimeout(() => setShowToast(false), 3000);
         } catch (error) {
             console.error('Error updating generic material:', error);
-            alert(error.message || 'Failed to update generic material');
+            toast.error(error.message || 'Failed to update generic material');
         }
     };
 
@@ -742,7 +744,7 @@ export default function AdminRawMaterials() {
             setTimeout(() => setShowToast(false), 3000);
         } catch (error) {
             console.error('Error updating brand:', error);
-            alert(error.message || 'Failed to update brand');
+            toast.error(error.message || 'Failed to update brand');
         }
     };
 
@@ -753,9 +755,9 @@ export default function AdminRawMaterials() {
     };
 
     const getStockStatusColor = (material) => {
-        if (material.currentStock === 0) return 'bg-[#FEE2E2] text-[#EF4444]';
-        if (material.currentStock <= material.minStockLevel) return 'bg-[#FFF4ED] text-[#F4A100]';
-        return 'bg-[#DDFFE0] text-[#199D26]';
+        if (material.currentStock === 0) return 'bg-hover text-error';
+        if (material.currentStock <= material.minStockLevel) return 'bg-hover text-warning';
+        return 'bg-hover text-success';
     };
 
     const getFilteredMaterials = () => {
@@ -859,7 +861,7 @@ export default function AdminRawMaterials() {
     const uniquebrands = [...new Set(materials.map(m => m.brand))];
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             {/* Sidebar */}
             <AdminSidebar sidebarOpen={sidebarOpen} />
 
@@ -874,29 +876,29 @@ export default function AdminRawMaterials() {
                 <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
                     {/* Page Header */}
                     <div className="mb-6">
-                        <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+                        <h1 className="text-[20px] font-[600] text-fg mb-1">
                             Raw Material Management
                         </h1>
-                        <p className="text-[14px] leading-[20px] font-[400] text-[#667085]">
+                        <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
                             Add, view, and manage raw materials
                         </p>
                     </div>
 
                     {/* Materials List Table */}
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-                            <h3 className="text-[18px] font-[600] text-[#383E49]">Material List</h3>
+                            <h3 className="text-[18px] font-[600] text-fg">Material List</h3>
                             <div className="flex items-center gap-2 mt-2 sm:mt-0">
                                 <button
                                     onClick={handleExportExcel}
-                                    className="flex items-center gap-2 border border-[#E4E6EA] hover:bg-[#F8F9FA] text-[#383E49] px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors"
+                                    className="flex items-center gap-2 border border-line hover:bg-subtle text-fg px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors"
                                 >
                                     <Download className="w-5 h-5" />
                                     Export to Excel
                                 </button>
                                 <button
                                     onClick={handleCreateNew}
-                                    className="flex items-center gap-2 bg-[#0F50AA] hover:bg-[#1366D9] text-white px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors"
+                                    className="flex items-center gap-2 bg-brand hover:bg-brand-hover text-on-brand px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors"
                                 >
                                     <Plus className="w-5 h-5" />
                                     Add New Material
@@ -908,13 +910,13 @@ export default function AdminRawMaterials() {
                         <div className="flex flex-col lg:flex-row gap-4 mb-6">
                             {/* Search Bar */}
                             <div className="flex-1 relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={16} />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary" size={16} />
                                 <input
                                     type="text"
                                     placeholder="Search by code, name, or batch number..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                                    className="w-full pl-10 pr-4 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                                 />
                             </div>
 
@@ -923,7 +925,7 @@ export default function AdminRawMaterials() {
                                 <select
                                     value={categoryFilter}
                                     onChange={(e) => setCategoryFilter(e.target.value)}
-                                    className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                                    className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                                 >
                                     <option value="All">All Categories</option>
                                     {uniqueCategories.map(category => (
@@ -934,7 +936,7 @@ export default function AdminRawMaterials() {
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                                    className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                                 >
                                     <option value="All">All Status</option>
                                     <option value="Active">Active</option>
@@ -946,7 +948,7 @@ export default function AdminRawMaterials() {
                                 <select
                                     value={vatFilter}
                                     onChange={(e) => setVatFilter(e.target.value)}
-                                    className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                                    className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                                 >
                                     <option value="All">All VAT Status</option>
                                     <option value="VAT Included">VAT Included</option>
@@ -960,33 +962,33 @@ export default function AdminRawMaterials() {
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="border-b border-[#E4E6EA]">
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">Code</th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">Name</th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">Category</th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">Brand</th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">Supplier</th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">Stock</th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">Unit</th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">Cost</th>
-                                            {/* <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">Max Stop Level</th> */}
-                                            {/* <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">Expiry</th> */}
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">Stock Status</th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">Status</th>
-                                            <th className="text-center py-4 text-[14px] font-[500] text-[#383E49]">VAT</th>
-                                            <th className="text-center py-4 text-[14px] font-[500] text-[#383E49]">Actions</th>
+                                        <tr className="border-b border-line">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">Code</th>
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">Name</th>
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">Category</th>
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">Brand</th>
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">Supplier</th>
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">Stock</th>
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">Unit</th>
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">Cost</th>
+                                            {/* <th className="text-left py-4 text-[14px] font-[500] text-fg">Max Stop Level</th> */}
+                                            {/* <th className="text-left py-4 text-[14px] font-[500] text-fg">Expiry</th> */}
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">Stock Status</th>
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">Status</th>
+                                            <th className="text-center py-4 text-[14px] font-[500] text-fg">VAT</th>
+                                            <th className="text-center py-4 text-[14px] font-[500] text-fg">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-[#E4E6EA]">
+                                    <tbody className="divide-y divide-line">
                                         {filteredMaterials.map((material) => (
-                                            <tr key={material.id} className="hover:bg-[#F8F9FA] transition-colors">
+                                            <tr key={material.id} className="hover:bg-subtle transition-colors">
                                                 <td className="py-4">
-                                                    <p className="text-[14px] font-[600] text-[#383E49]">
+                                                    <p className="text-[14px] font-[600] text-fg">
                                                         {material.code}
                                                     </p>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className="text-[14px] font-[600] text-[#383E49]">
+                                                    <p className="text-[14px] font-[600] text-fg">
                                                         {(() => {
                                                             const genericObj = generics.find(g => g.id === material.genericId);
                                                             const genericName = genericObj ? (genericObj.name || genericObj.genericMaterialName) : (material.genericMaterialName || material.name);
@@ -997,9 +999,9 @@ export default function AdminRawMaterials() {
                                                                              brand.toLowerCase() !== 'n/a' && 
                                                                              brand.toLowerCase() !== 'default';
                                                             return hasBrand ? `${genericName}, ${brand}` : genericName;
-                                                        })() || <span className="text-[#688ed7] italic">({material.code})</span>}
+                                                        })() || <span className="text-brand-fg italic">({material.code})</span>}
                                                     </p>
-                                                    <div className="text-[12px] text-[#667085]">
+                                                    <div className="text-[12px] text-fg-secondary">
                                                         {(() => {
                                                             const batchInfo = formatBatchDisplay(material.batchNo, 2);
                                                             return (
@@ -1008,7 +1010,7 @@ export default function AdminRawMaterials() {
                                                                     {batchInfo.hasMore && (
                                                                         <button
                                                                             onClick={() => handleViewBatches(material)}
-                                                                            className="ml-2 text-[#0F50AA] hover:underline font-[500]"
+                                                                            className="ml-2 text-brand-fg hover:underline font-[500]"
                                                                         >
                                                                             +{batchInfo.remaining} more
                                                                         </button>
@@ -1019,53 +1021,53 @@ export default function AdminRawMaterials() {
                                                     </div>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className="text-[14px] text-[#48505E]">
-                                                        {material.category || <span className="text-[#9CA3AF]">Uncategorized</span>}
+                                                    <p className="text-[14px] text-fg">
+                                                        {material.category || <span className="text-fg-muted">Uncategorized</span>}
                                                     </p>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className="text-[14px] text-[#48505E]">
-                                                        {material.brand || <span className="text-[#9CA3AF]">No Brand</span>}
+                                                    <p className="text-[14px] text-fg">
+                                                        {material.brand || <span className="text-fg-muted">No Brand</span>}
                                                     </p>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className="text-[14px] text-[#48505E]">
-                                                        {material.supplierName || <span className="text-[#9CA3AF]">Not Assigned</span>}
+                                                    <p className="text-[14px] text-fg">
+                                                        {material.supplierName || <span className="text-fg-muted">Not Assigned</span>}
                                                     </p>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className="text-[14px] font-[600] text-[#383E49]">
+                                                    <p className="text-[14px] font-[600] text-fg">
                                                         {material.currentStock.toLocaleString()} {material.unit}
                                                     </p>
                                                     {material.unit?.toLowerCase() === 'pack' && material.packDetails?.[0] && (
-                                                        <p className="text-[12px] text-[#667085]">
+                                                        <p className="text-[12px] text-fg-secondary">
                                                             Total: {(material.currentStock * material.packDetails[0].packSize).toLocaleString()} {material.packDetails[0].packUom}
                                                         </p>
                                                     )}
-                                                    <p className="text-[12px] text-[#667085]">
+                                                    <p className="text-[12px] text-fg-secondary">
                                                         Min: {material.minStockLevel.toFixed(2)}
                                                     </p>
-                                                    <p className="text-[12px] text-[#667085]">
+                                                    <p className="text-[12px] text-fg-secondary">
                                                         Max: {material.maxstoplevel.toFixed(2)}
                                                     </p>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className="text-[14px] text-[#48505E]">
+                                                    <p className="text-[14px] text-fg">
                                                         {material.unit}
                                                     </p>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className="text-[14px] font-[500] text-[#383E49]">
+                                                    <p className="text-[14px] font-[500] text-fg">
                                                         Rs. {(material.unitCost || 0).toFixed(2)}
                                                     </p>
                                                 </td>
                                                 {/* <td className="py-4">
-                                                    <p className="text-[14px] font-[500] text-[#383E49]">
+                                                    <p className="text-[14px] font-[500] text-fg">
                                                         Rs. {material.maxstoplevel.toFixed(2)}
                                                     </p>
                                                 </td> */}
                                                 {/* <td className="py-4">
-                                                    <p className="text-[14px] text-[#48505E]">
+                                                    <p className="text-[14px] text-fg">
                                                         {material.expiryDate || 'N/A'}
                                                     </p>
                                                 </td> */}
@@ -1076,8 +1078,8 @@ export default function AdminRawMaterials() {
                                                 </td>
                                                 <td className="py-4">
                                                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-[500] ${material.status === 'Active'
-                                                        ? 'bg-[#DDFFE0] text-[#199D26]'
-                                                        : 'bg-[#FEE2E2] text-[#EF4444]'
+                                                        ? 'bg-hover text-success'
+                                                        : 'bg-hover text-error'
                                                         }`}>
                                                         {material.status}
                                                     </span>
@@ -1086,11 +1088,11 @@ export default function AdminRawMaterials() {
                                                     <div className="flex items-center justify-center">
 
                                                         {material.vatIncluded ? (
-                                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] bg-[#EBF8FF] text-[#0F50AA]">
+                                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] bg-hover text-brand-fg">
                                                                 VAT Included
                                                             </span>
                                                         ) : (
-                                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] bg-[#F3F4F6] text-[#6B7280]">
+                                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] bg-hover text-fg-secondary">
                                                                 No VAT
                                                             </span>
                                                         )}
@@ -1100,14 +1102,14 @@ export default function AdminRawMaterials() {
                                                     <div className="flex items-center justify-center gap-2">
                                                         <button
                                                             onClick={() => handleEdit(material)}
-                                                            className="p-2 text-[#0F50AA] hover:bg-[#EBF8FF] rounded-lg transition-colors"
+                                                            className="p-2 text-brand-fg hover:bg-hover rounded-lg transition-colors"
                                                             title="Edit Material"
                                                         >
                                                             <Edit size={16} />
                                                         </button>
                                                         <button
                                                             onClick={() => handleDelete(material.id)}
-                                                            className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors"
+                                                            className="p-2 text-error hover:bg-hover rounded-lg transition-colors"
                                                             title="Delete Material"
                                                         >
                                                             <Trash2 size={16} />
@@ -1121,9 +1123,9 @@ export default function AdminRawMaterials() {
                             </div>
                         ) : (
                             <div className="text-center py-12">
-                                <Package size={48} className="mx-auto text-[#667085] mb-4" />
-                                <p className="text-[16px] font-[500] text-[#383E49] mb-2">No materials found</p>
-                                <p className="text-[14px] text-[#667085]">
+                                <Package size={48} className="mx-auto text-fg-secondary mb-4" />
+                                <p className="text-[16px] font-[500] text-fg mb-2">No materials found</p>
+                                <p className="text-[14px] text-fg-secondary">
                                     {searchTerm || categoryFilter !== 'All' || statusFilter !== 'All' || vatFilter !== 'All'
                                         ? "Try adjusting your search or filter criteria"
                                         : "Click 'Add New Material' to add your first raw material"
@@ -1137,15 +1139,15 @@ export default function AdminRawMaterials() {
 
             {/* Material Form Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+                        <div className="flex items-center justify-between p-6 border-b border-line">
                             <div>
-                                <h2 className="text-[20px] leading-[30px] font-[600] text-[#383E49]">
+                                <h2 className="text-[20px] leading-[30px] font-[600] text-fg">
                                     {isEditMode ? 'Edit Raw Material' : 'Add New Raw Material'}
                                 </h2>
-                                <p className="text-[14px] text-[#667085] mt-1">
+                                <p className="text-[14px] text-fg-secondary mt-1">
                                     {isEditMode
                                         ? 'Update raw material information'
                                         : 'Fill in the details to add a new raw material'
@@ -1155,7 +1157,7 @@ export default function AdminRawMaterials() {
                             <button
                                 type="button"
                                 onClick={handleCancel}
-                                className="p-2 text-[#667085] hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                                className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -1167,15 +1169,15 @@ export default function AdminRawMaterials() {
 
                                  {/* Category Selection */}
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                        Category <span className="text-[#EF4444]">*</span>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
+                                        Category <span className="text-error">*</span>
                                     </label>
                                     <div className="flex gap-2">
                                         <select
                                             name="category"
                                             value={formData.category}
                                             onChange={handleChange}
-                                            className={`flex-1 min-w-0 px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] truncate ${errors.category ? 'border-[#EF4444]' : 'border-[#E4E6EA]'}`}
+                                            className={`flex-1 min-w-0 px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg truncate ${errors.category ? 'border-error' : 'border-line'}`}
                                         >
                                             <option value="">Select Category</option>
                                             {categories.map(cat => (
@@ -1191,11 +1193,11 @@ export default function AdminRawMaterials() {
                                                     setEditCategoryName(catObj.name);
                                                     setShowEditCategoryModal(true);
                                                 } else {
-                                                    alert("Cannot edit this category as it has no ID.");
+                                                    toast.error("Cannot edit this category as it has no ID.");
                                                 }
                                             }}
                                             disabled={!formData.category}
-                                           className={`shrink-0 px-3 py-2.5 border rounded-md transition-colors ${formData.category ? 'border-[#F97316] text-[#F97316] hover:bg-[#FFF7ED]' : 'border-[#E5E7EB] text-[#9CA3AF] cursor-not-allowed'}`}
+                                           className={`shrink-0 px-3 py-2.5 border rounded-md transition-colors ${formData.category ? 'border-warning text-warning hover:bg-hover' : 'border-line text-fg-muted cursor-not-allowed'}`}
                                             title="Edit selected category"
                                         >
                                             <Edit className="w-4 h-4" />
@@ -1203,21 +1205,21 @@ export default function AdminRawMaterials() {
                                         <button
                                             type="button"
                                             onClick={() => setShowAddCategoryModal(true)}
-                                           className="shrink-0 px-3 py-2.5 border border-[#0F50AA] text-[#0F50AA] rounded-md hover:bg-[#EBF8FF] transition-colors"
+                                           className="shrink-0 px-3 py-2.5 border border-brand-fg text-brand-fg rounded-md hover:bg-hover transition-colors"
                                             title="Add new category"
                                         >
                                             <Plus className="w-4 h-4" />
                                         </button>
                                     </div>
                                     {errors.category && (
-                                        <p className="text-[#EF4444] text-[12px] mt-1">{errors.category}</p>
+                                        <p className="text-error text-[12px] mt-1">{errors.category}</p>
                                     )}
                                 </div>
 
                                 {/* Generic Material Selection */}
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                        Generic Material <span className="text-[#EF4444]">*</span>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
+                                        Generic Material <span className="text-error">*</span>
                                     </label>
                                     <div className="flex gap-2">
                                         <select
@@ -1225,7 +1227,7 @@ export default function AdminRawMaterials() {
                                             value={formData.genericId}
                                             onChange={handleChange}
                                             disabled={!formData.category}
-                                          className={`flex-1 min-w-0 px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] truncate ${errors.genericId ? 'border-[#EF4444]' : 'border-[#E4E6EA]'}`}
+                                          className={`flex-1 min-w-0 px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg truncate ${errors.genericId ? 'border-error' : 'border-line'}`}
                                         >
                                             <option value="">Select Generic</option>
                                             {generics
@@ -1272,7 +1274,7 @@ export default function AdminRawMaterials() {
                                                 }
                                             }}
                                             disabled={!formData.genericId}
-                                         className={`shrink-0 px-3 py-2.5 border rounded-md transition-colors ${formData.genericId ? 'border-[#F97316] text-[#F97316] hover:bg-[#FFF7ED]' : 'border-[#E5E7EB] text-[#9CA3AF] cursor-not-allowed'}`}
+                                         className={`shrink-0 px-3 py-2.5 border rounded-md transition-colors ${formData.genericId ? 'border-warning text-warning hover:bg-hover' : 'border-line text-fg-muted cursor-not-allowed'}`}
                                             title="Edit selected generic material"
                                         >
                                             <Edit className="w-4 h-4" />
@@ -1283,21 +1285,21 @@ export default function AdminRawMaterials() {
                                                 setNewGenericUom(formData.unit || 'kg');
                                                 setShowAddGenericModal(true);
                                             }}
-                                          className="shrink-0 px-3 py-2.5 border border-[#0F50AA] text-[#0F50AA] rounded-md hover:bg-[#EBF8FF] transition-colors"
+                                          className="shrink-0 px-3 py-2.5 border border-brand-fg text-brand-fg rounded-md hover:bg-hover transition-colors"
                                             title="Add new generic material"
                                         >
                                             <Plus className="w-4 h-4" />
                                         </button>
                                     </div>
                                     {errors.genericId && (
-                                        <p className="text-[#EF4444] text-[12px] mt-1">{errors.genericId}</p>
+                                        <p className="text-error text-[12px] mt-1">{errors.genericId}</p>
                                     )}
                                 </div>
 
                                {/* Brand Selection */}
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                        Brand <span className="text-[#EF4444]">*</span>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
+                                        Brand <span className="text-error">*</span>
                                     </label>
                                     <div className="flex gap-2">
                                         <select
@@ -1305,7 +1307,7 @@ export default function AdminRawMaterials() {
                                             value={formData.brandId}
                                             onChange={handleChange}
                                             disabled={!formData.genericId}
-                                            className={`flex-1 min-w-0 px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] truncate ${errors.brandId ? 'border-[#EF4444]' : 'border-[#E4E6EA]'}`}
+                                            className={`flex-1 min-w-0 px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg truncate ${errors.brandId ? 'border-error' : 'border-line'}`}
                                         >
                                             <option value="">Select Brand</option>
                                             {brands.map(b => (
@@ -1323,7 +1325,7 @@ export default function AdminRawMaterials() {
                                                 }
                                             }}
                                             disabled={!formData.brandId}
-                                            className={`shrink-0 px-3 py-2.5 border rounded-md transition-colors ${formData.brandId ? 'border-[#F97316] text-[#F97316] hover:bg-[#FFF7ED]' : 'border-[#E5E7EB] text-[#9CA3AF] cursor-not-allowed'}`}
+                                            className={`shrink-0 px-3 py-2.5 border rounded-md transition-colors ${formData.brandId ? 'border-warning text-warning hover:bg-hover' : 'border-line text-fg-muted cursor-not-allowed'}`}
                                             title="Edit selected brand"
                                         >
                                             <Edit className="w-4 h-4" />
@@ -1332,21 +1334,21 @@ export default function AdminRawMaterials() {
                                             type="button"
                                             onClick={() => setShowAddBrandModal(true)}
                                             disabled={!formData.genericId}
-                                            className="shrink-0 px-3 py-2.5 border border-[#0F50AA] text-[#0F50AA] rounded-md hover:bg-[#EBF8FF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="shrink-0 px-3 py-2.5 border border-brand-fg text-brand-fg rounded-md hover:bg-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             title="Add new brand"
                                         >
                                             <Plus className="w-4 h-4" />
                                         </button>
                                     </div>
                                     {errors.brandId && (
-                                        <p className="text-[#EF4444] text-[12px] mt-1">{errors.brandId}</p>
+                                        <p className="text-error text-[12px] mt-1">{errors.brandId}</p>
                                     )}
                                 </div>
 
                                 {/* SKU Name (Was Material Name) */}
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                        SKU Name <span className="text-[#EF4444]">*</span>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
+                                        SKU Name <span className="text-error">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -1354,17 +1356,17 @@ export default function AdminRawMaterials() {
                                         value={formData.name}
                                         onChange={handleChange}
                                         placeholder="e.g., 1kg Pack, 50kg Sack"
-                                        className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.name ? 'border-[#EF4444]' : 'border-[#E4E6EA]'}`}
+                                        className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.name ? 'border-error' : 'border-line'}`}
                                     />
                                     {errors.name && (
-                                        <p className="text-[#EF4444] text-[12px] mt-1">{errors.name}</p>
+                                        <p className="text-error text-[12px] mt-1">{errors.name}</p>
                                     )}
                                 </div>
 
                                 {/* Material Code */}
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                        Material Code <span className="text-[#EF4444]">*</span>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
+                                        Material Code <span className="text-error">*</span>
                                     </label>
                                     <div className="relative">
                                         <input
@@ -1381,38 +1383,38 @@ export default function AdminRawMaterials() {
                                                 }
                                             }}
                                             placeholder={showMaterialCodeGhost ? '' : "e.g., RM-001"}
-                                            className={`w-full px-4 py-2.5 border rounded-md text-[14px] bg-transparent relative z-10 focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.code ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                            className={`w-full px-4 py-2.5 border rounded-md text-[14px] bg-transparent relative z-10 focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.code ? 'border-error' : 'border-line'
                                                 }`}
                                         />
                                         {showMaterialCodeGhost && (
                                             <div className="absolute inset-0 flex items-center px-4 py-2.5 text-[14px] pointer-events-none whitespace-pre">
                                                 <span className="invisible">{formData.code}</span>
-                                                <span className="text-[#98A2B3]">{suggestedMaterialCode.slice(formData.code.length)}</span>
+                                                <span className="text-fg-muted">{suggestedMaterialCode.slice(formData.code.length)}</span>
                                             </div>
                                         )}
                                     </div>
                                     {errors.code && (
-                                        <p className="text-[#EF4444] text-[12px] mt-1">{errors.code}</p>
+                                        <p className="text-error text-[12px] mt-1">{errors.code}</p>
                                     )}
                                 </div>
 
                                 {/* Supplier Selection */}
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
                                         Primary Supplier
                                     </label>
                                      <select
                                          name="supplierId"
                                          value={formData.supplierId ? String(formData.supplierId) : ""}
                                          onChange={handleChange}
-                                         className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                         className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                      >
                                          <option value="">Select Supplier</option>
                                          {suppliers.map(s => (
                                              <option key={s.supplierId} value={String(s.supplierId)}>{s.name}</option>
                                          ))}
                                      </select>
-                                    <p className="text-[12px] text-[#667085] mt-1">
+                                    <p className="text-[12px] text-fg-secondary mt-1">
                                         Associate this material with a supplier
                                     </p>
                                 </div>
@@ -1421,16 +1423,16 @@ export default function AdminRawMaterials() {
 
                                 {/* Unit of Measure */}
                                 <div>
-                                     <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                         Unit of Measure <span className="text-[#EF4444]">*</span>
+                                     <label className="block text-[14px] font-[500] text-fg mb-1">
+                                         Unit of Measure <span className="text-error">*</span>
                                      </label>
                                      <select
                                          name="unit"
                                          value={formData.unit}
                                          onChange={handleUnitChange}
                                          disabled={!!formData.genericId}
-                                         className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.unit ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
-                                             } ${formData.genericId ? 'bg-[#F8F9FA] cursor-not-allowed' : ''}`}
+                                         className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.unit ? 'border-error' : 'border-line'
+                                             } ${formData.genericId ? 'bg-subtle cursor-not-allowed' : ''}`}
                                      >
                                         <option value="">Select Unit</option>
                                         {(() => {
@@ -1447,28 +1449,28 @@ export default function AdminRawMaterials() {
                                         })()}
                                     </select>
                                     {errors.unit && (
-                                        <p className="text-[#EF4444] text-[12px] mt-1">{errors.unit}</p>
+                                        <p className="text-error text-[12px] mt-1">{errors.unit}</p>
                                     )}
                                 </div>
 
                                 {/* Pack Details - Only show when "pack" is selected */}
                                 {showPackDetails && (
-                                    <div className="md:col-span-2 p-4 bg-[#F8F9FA] border border-[#E4E6EA] rounded-lg">
-                                        <h4 className="text-[14px] font-[600] text-[#383E49] mb-3 flex items-center gap-2">
+                                    <div className="md:col-span-2 p-4 bg-subtle border border-line rounded-lg">
+                                        <h4 className="text-[14px] font-[600] text-fg mb-3 flex items-center gap-2">
                                             <Package className="w-4 h-4" />
                                             Pack Details
                                         </h4>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {/* Pack Unit */}
                                             <div>
-                                                <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                                    Pack Unit <span className="text-[#EF4444]">*</span>
+                                                <label className="block text-[14px] font-[500] text-fg mb-1">
+                                                    Pack Unit <span className="text-error">*</span>
                                                 </label>
                                                 <select
                                                     name="packUnit"
                                                     value={formData.packUnit}
                                                     onChange={handleChange}
-                                                    className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                                    className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                                 >
                                                     <option value="">Select pack unit</option>
                                                     {(() => {
@@ -1484,15 +1486,15 @@ export default function AdminRawMaterials() {
                                                         ));
                                                     })()}
                                                 </select>
-                                                <p className="text-[12px] text-[#667085] mt-1">
+                                                <p className="text-[12px] text-fg-secondary mt-1">
                                                     What unit is inside the pack?
                                                 </p>
                                             </div>
 
                                             {/* Pack Size */}
                                             <div>
-                                                <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                                    Pack Size <span className="text-[#EF4444]">*</span>
+                                                <label className="block text-[14px] font-[500] text-fg mb-1">
+                                                    Pack Size <span className="text-error">*</span>
                                                 </label>
                                                 {!showAddPackSize ? (
                                                     <div className="flex gap-2">
@@ -1500,7 +1502,7 @@ export default function AdminRawMaterials() {
                                                             name="packSize"
                                                             value={formData.packSize}
                                                             onChange={handleChange}
-                                                            className="flex-1 px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                                            className="flex-1 px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                                         >
                                                             <option value="">Select size</option>
                                                             {[...new Set([
@@ -1516,7 +1518,7 @@ export default function AdminRawMaterials() {
                                                         <button
                                                             type="button"
                                                             onClick={() => setShowAddPackSize(true)}
-                                                            className="px-3 py-2.5 border border-[#0F50AA] text-[#0F50AA] rounded-md hover:bg-[#EBF8FF] transition-colors"
+                                                            className="px-3 py-2.5 border border-brand-fg text-brand-fg rounded-md hover:bg-hover transition-colors"
                                                             title="Add new size"
                                                         >
                                                             <Plus className="w-4 h-4" />
@@ -1530,7 +1532,7 @@ export default function AdminRawMaterials() {
                                                                 value={newPackSize}
                                                                 onChange={(e) => setNewPackSize(e.target.value)}
                                                                 placeholder="Enter size"
-                                                                className="flex-1 px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                                                className="flex-1 px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                                                 onKeyPress={(e) => {
                                                                     if (e.key === 'Enter') {
                                                                         e.preventDefault();
@@ -1544,24 +1546,24 @@ export default function AdminRawMaterials() {
                                                                     setShowAddPackSize(false);
                                                                     setNewPackSize('');
                                                                 }}
-                                                                className="px-3 py-2.5 border border-[#E4E6EA] text-[#667085] rounded-md hover:bg-[#F8F9FA] transition-colors"
+                                                                className="px-3 py-2.5 border border-line text-fg-secondary rounded-md hover:bg-subtle transition-colors"
                                                             >
                                                                 <X className="w-4 h-4" />
                                                             </button>
                                                             <button
                                                                 type="button"
                                                                 onClick={handleAddPackSize}
-                                                                className="px-3 py-2.5 bg-[#0F50AA] text-white rounded-md hover:bg-[#1366D9] transition-colors"
+                                                                className="px-3 py-2.5 bg-brand text-on-brand rounded-md hover:bg-brand-hover transition-colors"
                                                             >
                                                                 <Check className="w-4 h-4" />
                                                             </button>
                                                         </div>
-                                                        <p className="text-[12px] text-[#667085]">
+                                                        <p className="text-[12px] text-fg-secondary">
                                                             Press Enter or click check to add size
                                                         </p>
                                                     </div>
                                                 )}
-                                                <p className="text-[12px] text-[#667085] mt-1">
+                                                <p className="text-[12px] text-fg-secondary mt-1">
                                                     Size per pack (e.g., 500 for 500kg pack)
                                                 </p>
                                             </div>
@@ -1570,8 +1572,8 @@ export default function AdminRawMaterials() {
                                 )}
 
                                 <div>
-                                     <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                         Unit Cost (Rs.) <span className="text-[#EF4444]">*</span>
+                                     <label className="block text-[14px] font-[500] text-fg mb-1">
+                                         Unit Cost (Rs.) <span className="text-error">*</span>
                                      </label>
                                      <input
                                          type="number"
@@ -1581,18 +1583,18 @@ export default function AdminRawMaterials() {
                                          placeholder="0.00"
                                          step="0.01"
                                          min="0"
-                                         className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.unitCost ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                         className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.unitCost ? 'border-error' : 'border-line'
                                              }`}
                                      />
                                      {errors.unitCost && (
-                                         <p className="text-[#EF4444] text-[12px] mt-1">{errors.unitCost}</p>
+                                         <p className="text-error text-[12px] mt-1">{errors.unitCost}</p>
                                      )}
                                  </div>
 
                                  {/* Minimum Stock Level */}
                                  <div>
-                                     <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                         Minimum Stock Level <span className="text-[#EF4444]">*</span>
+                                     <label className="block text-[14px] font-[500] text-fg mb-1">
+                                         Minimum Stock Level <span className="text-error">*</span>
                                      </label>
                                      <input
                                          type="number"
@@ -1601,16 +1603,16 @@ export default function AdminRawMaterials() {
                                          onChange={handleChange}
                                          disabled={!!formData.genericId}
                                          placeholder="e.g., 10"
-                                         className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.minStockLevel ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
-                                             } ${formData.genericId ? 'bg-[#F8F9FA] cursor-not-allowed' : ''}`}
+                                         className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.minStockLevel ? 'border-error' : 'border-line'
+                                             } ${formData.genericId ? 'bg-subtle cursor-not-allowed' : ''}`}
                                      />
                                      {errors.minStockLevel && (
-                                         <p className="text-[#EF4444] text-[12px] mt-1">{errors.minStockLevel}</p>
+                                         <p className="text-error text-[12px] mt-1">{errors.minStockLevel}</p>
                                      )}
                                  </div>
                                  <div>
-                                     <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                         Max Stock Level <span className="text-[#EF4444]">*</span>
+                                     <label className="block text-[14px] font-[500] text-fg mb-1">
+                                         Max Stock Level <span className="text-error">*</span>
                                      </label>
                                      <input
                                          type="number"
@@ -1619,24 +1621,24 @@ export default function AdminRawMaterials() {
                                          onChange={handleChange}
                                          disabled={!!formData.genericId}
                                          placeholder="e.g., 100"
-                                         className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.maxstoplevel ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
-                                             } ${formData.genericId ? 'bg-[#F8F9FA] cursor-not-allowed' : ''}`}
+                                         className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.maxstoplevel ? 'border-error' : 'border-line'
+                                             } ${formData.genericId ? 'bg-subtle cursor-not-allowed' : ''}`}
                                      />
                                      {errors.maxstoplevel && (
-                                         <p className="text-[#EF4444] text-[12px] mt-1">{errors.maxstoplevel}</p>
+                                         <p className="text-error text-[12px] mt-1">{errors.maxstoplevel}</p>
                                      )}
                                  </div>
 
                                 {/* Status */}
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
                                         Active Status
                                     </label>
                                     <select
                                         name="status"
                                         value={formData.status}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                        className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                     >
                                         <option value="Active">Active</option>
                                         <option value="Inactive">Inactive</option>
@@ -1645,10 +1647,10 @@ export default function AdminRawMaterials() {
                             </div>
 
                             <div className="md:col-span-2">
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-3">
+                                <label className="block text-[14px] font-[500] text-fg mb-3">
                                     VAT Settings
                                 </label>
-                                <div className="flex items-start gap-3 p-4 bg-[#F8F9FA] rounded-lg border border-[#E4E6EA]">
+                                <div className="flex items-start gap-3 p-4 bg-subtle rounded-lg border border-line">
                                     <input
                                         type="checkbox"
                                         name="vatIncluded"
@@ -1657,10 +1659,10 @@ export default function AdminRawMaterials() {
                                             ...prev,
                                             vatIncluded: e.target.checked
                                         }))}
-                                        className="w-5 h-5 text-[#0F50AA] border-[#E4E6EA] rounded focus:ring-2 focus:ring-[#0F50AA] mt-0.5"
+                                        className="w-5 h-5 text-brand-fg border-line rounded focus:ring-2 focus:ring-brand-fg mt-0.5"
                                     />
                                     <div className="flex-1">
-                                        <p className="text-[14px] font-[500] text-[#383E49] mb-1">
+                                        <p className="text-[14px] font-[500] text-fg mb-1">
                                             VAT Included in Cost
                                         </p>
                                     </div>
@@ -1670,32 +1672,32 @@ export default function AdminRawMaterials() {
                             {/* Stock Alert Info */}
                             {formData.currentStock && formData.minStockLevel &&
                                 parseInt(formData.currentStock) <= parseInt(formData.minStockLevel) && (
-                                    <div className="mt-4 p-4 bg-[#FFF4ED] border-l-4 border-[#F4A100] rounded">
+                                    <div className="mt-4 p-4 bg-hover border-l-4 border-warning rounded">
                                         <div className="flex items-center gap-2">
-                                            <AlertTriangle className="w-5 h-5 text-[#F4A100]" />
-                                            <p className="text-[14px] font-[500] text-[#383E49]">
+                                            <AlertTriangle className="w-5 h-5 text-warning" />
+                                            <p className="text-[14px] font-[500] text-fg">
                                                 Low Stock Warning
                                             </p>
                                         </div>
-                                        <p className="text-[12px] text-[#667085] mt-1 ml-7">
+                                        <p className="text-[12px] text-fg-secondary mt-1 ml-7">
                                             Current stock is at or below the minimum level. Consider restocking soon.
                                         </p>
                                     </div>
                                 )}
 
                             {/* Modal Footer */}
-                            <div className="flex gap-3 mt-6 pt-6 border-t border-[#E4E6EA]">
+                            <div className="flex gap-3 mt-6 pt-6 border-t border-line">
                                 <button
                                     type="button"
                                     onClick={handleCancel}
-                                    className="flex-1 px-4 py-2.5 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] font-[500] hover:bg-[#F8F9FA] transition-colors"
+                                    className="flex-1 px-4 py-2.5 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="button"
                                     onClick={handleSubmit}
-                                    className="flex-1 px-4 py-2.5 bg-[#0F50AA] hover:bg-[#1366D9] text-white rounded-md text-[14px] font-[500] transition-colors"
+                                    className="flex-1 px-4 py-2.5 bg-brand hover:bg-brand-hover text-on-brand rounded-md text-[14px] font-[500] transition-colors"
                                 >
                                     {isEditMode ? 'Update Material' : 'Save Material'}
                                 </button>
@@ -1707,21 +1709,21 @@ export default function AdminRawMaterials() {
 
             {/* Batch Details Modal */}
             {showBatchModal && selectedBatchMaterial && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+                        <div className="flex items-center justify-between p-6 border-b border-line">
                             <div>
-                                <h2 className="text-[20px] leading-[30px] font-[600] text-[#383E49]">
+                                <h2 className="text-[20px] leading-[30px] font-[600] text-fg">
                                     Batch Details
                                 </h2>
-                                <p className="text-[14px] text-[#667085] mt-1">
+                                <p className="text-[14px] text-fg-secondary mt-1">
                                     {selectedBatchMaterial.name} ({selectedBatchMaterial.code})
                                 </p>
                             </div>
                             <button
                                 onClick={() => setShowBatchModal(false)}
-                                className="p-2 text-[#667085] hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                                className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -1731,26 +1733,26 @@ export default function AdminRawMaterials() {
                         <div className="p-6">
                             <div className="space-y-4">
                                 <div>
-                                    <h3 className="text-[16px] font-[600] text-[#383E49] mb-3">
+                                    <h3 className="text-[16px] font-[600] text-fg mb-3">
                                         All Batches ({formatBatchDisplay(selectedBatchMaterial.batchNo).all.length})
                                     </h3>
                                     <div className="space-y-2">
                                         {formatBatchDisplay(selectedBatchMaterial.batchNo).all.map((batch, index) => (
                                             <div
                                                 key={index}
-                                                className="flex items-center justify-between p-3 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                                className="flex items-center justify-between p-3 border border-line rounded-lg hover:bg-subtle transition-colors"
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 bg-[#0F50AA] bg-opacity-10 rounded-full flex items-center justify-center">
-                                                        <span className="text-[12px] font-[600] text-[#0F50AA]">
+                                                    <div className="w-8 h-8 bg-brand bg-opacity-10 rounded-full flex items-center justify-center">
+                                                        <span className="text-[12px] font-[600] text-brand-fg">
                                                             {index + 1}
                                                         </span>
                                                     </div>
-                                                    <span className="text-[14px] font-[500] text-[#383E49]">
+                                                    <span className="text-[14px] font-[500] text-fg">
                                                         {batch}
                                                     </span>
                                                 </div>
-                                                <span className="text-[12px] text-[#667085] bg-[#F8F9FA] px-3 py-1 rounded-full">
+                                                <span className="text-[12px] text-fg-secondary bg-subtle px-3 py-1 rounded-full">
                                                     Batch #{index + 1}
                                                 </span>
                                             </div>
@@ -1760,10 +1762,10 @@ export default function AdminRawMaterials() {
                             </div>
 
                             {/* Modal Footer */}
-                            <div className="flex justify-end mt-6 pt-6 border-t border-[#E4E6EA]">
+                            <div className="flex justify-end mt-6 pt-6 border-t border-line">
                                 <button
                                     onClick={() => setShowBatchModal(false)}
-                                    className="px-6 py-2.5 bg-[#0F50AA] hover:bg-[#1366D9] text-white rounded-md text-[14px] font-[500] transition-colors"
+                                    className="px-6 py-2.5 bg-brand hover:bg-brand-hover text-on-brand rounded-md text-[14px] font-[500] transition-colors"
                                 >
                                     Close
                                 </button>
@@ -1775,24 +1777,24 @@ export default function AdminRawMaterials() {
 
             {/* Quick Add Category Modal */}
             {showAddCategoryModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[10000] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[10000] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-md p-6">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-[18px] font-[600] text-[#383E49]">Add New Category</h3>
-                            <button onClick={() => setShowAddCategoryModal(false)} className="text-[#667085] hover:bg-[#F8F9FA] rounded-md p-1">
+                            <h3 className="text-[18px] font-[600] text-fg">Add New Category</h3>
+                            <button onClick={() => setShowAddCategoryModal(false)} className="text-fg-secondary hover:bg-subtle rounded-md p-1">
                                 <X size={20} />
                             </button>
                         </div>
                         
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-1">Category Name</label>
+                                <label className="block text-[14px] font-[500] text-fg mb-1">Category Name</label>
                                 <input
                                     type="text"
                                     value={newCategoryName}
                                     onChange={(e) => setNewCategoryName(e.target.value)}
                                     placeholder="e.g., INGREDIENT, PACKAGING"
-                                    className="w-full px-4 py-2 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                    className="w-full px-4 py-2 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                     autoFocus
                                     onKeyPress={(e) => {
                                         if (e.key === 'Enter') {
@@ -1807,13 +1809,13 @@ export default function AdminRawMaterials() {
                         <div className="flex gap-3 mt-8">
                             <button
                                 onClick={() => setShowAddCategoryModal(false)}
-                                className="flex-1 px-4 py-2.5 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] hover:bg-[#F8F9FA]"
+                                className="flex-1 px-4 py-2.5 border border-line text-fg rounded-md text-[14px] hover:bg-subtle"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleAddCategory}
-                                className="flex-1 px-4 py-2.5 bg-[#0F50AA] text-white rounded-md text-[14px] hover:bg-[#1366D9]"
+                                className="flex-1 px-4 py-2.5 bg-brand text-on-brand rounded-md text-[14px] hover:bg-brand-hover"
                             >
                                 Save Category
                             </button>
@@ -1824,31 +1826,31 @@ export default function AdminRawMaterials() {
 
             {/* Quick Add Generic Modal */}
             {showAddGenericModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[10000] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[10000] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-md p-6">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-[18px] font-[600] text-[#383E49]">Add New Generic Material</h3>
-                            <button onClick={() => setShowAddGenericModal(false)} className="text-[#667085] hover:bg-[#F8F9FA] rounded-md p-1">
+                            <h3 className="text-[18px] font-[600] text-fg">Add New Generic Material</h3>
+                            <button onClick={() => setShowAddGenericModal(false)} className="text-fg-secondary hover:bg-subtle rounded-md p-1">
                                 <X size={20} />
                             </button>
                         </div>
                         
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-1">Generic Name</label>
+                                <label className="block text-[14px] font-[500] text-fg mb-1">Generic Name</label>
                                 <input
                                     type="text"
                                     placeholder="e.g., Flour, Sugar"
-                                    className="w-full px-4 py-2 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                    className="w-full px-4 py-2 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                     id="new-generic-name"
                                     autoFocus
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-1">Unit of Measure</label>
+                                <label className="block text-[14px] font-[500] text-fg mb-1">Unit of Measure</label>
                                 <select 
-                                    className="w-full px-4 py-2 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                    className="w-full px-4 py-2 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                     value={newGenericUom}
                                     onChange={(e) => setNewGenericUom(e.target.value)}
                                 >
@@ -1857,23 +1859,23 @@ export default function AdminRawMaterials() {
                             </div>
 
                             {newGenericUom === 'pack' && (
-                                <div className="grid grid-cols-2 gap-3 p-3 bg-[#F8F9FA] rounded-md border border-[#E4E6EA]">
+                                <div className="grid grid-cols-2 gap-3 p-3 bg-subtle rounded-md border border-line">
                                     <div>
-                                        <label className="block text-[12px] font-[500] text-[#383E49] mb-1">Pack Size *</label>
+                                        <label className="block text-[12px] font-[500] text-fg mb-1">Pack Size *</label>
                                         <input
                                             type="number"
                                             value={newGenericPackSize}
                                             onChange={(e) => setNewGenericPackSize(e.target.value)}
                                             placeholder="e.g., 25"
-                                            className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                            className="w-full px-3 py-2 border border-line rounded-md text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[12px] font-[500] text-[#383E49] mb-1">Pack Unit *</label>
+                                        <label className="block text-[12px] font-[500] text-fg mb-1">Pack Unit *</label>
                                         <select
                                             value={newGenericPackUnit}
                                             onChange={(e) => setNewGenericPackUnit(e.target.value)}
-                                            className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                            className="w-full px-3 py-2 border border-line rounded-md text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                         >
                                             {['kg', 'L', 'pieces'].map(u => <option key={u} value={u}>{u}</option>)}
                                         </select>
@@ -1883,23 +1885,23 @@ export default function AdminRawMaterials() {
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">Min Stock Level</label>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">Min Stock Level</label>
                                     <input
                                         type="number"
                                         value={newGenericMinStock}
                                         onChange={(e) => setNewGenericMinStock(e.target.value)}
                                         placeholder="Min"
-                                        className="w-full px-4 py-2 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                        className="w-full px-4 py-2 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">Max Stock Level</label>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">Max Stock Level</label>
                                     <input
                                         type="number"
                                         value={newGenericMaxStock}
                                         onChange={(e) => setNewGenericMaxStock(e.target.value)}
                                         placeholder="Max"
-                                        className="w-full px-4 py-2 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                        className="w-full px-4 py-2 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                     />
                                 </div>
                             </div>
@@ -1908,13 +1910,13 @@ export default function AdminRawMaterials() {
                         <div className="flex gap-3 mt-8">
                             <button
                                 onClick={() => setShowAddGenericModal(false)}
-                                className="flex-1 px-4 py-2.5 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] hover:bg-[#F8F9FA]"
+                                className="flex-1 px-4 py-2.5 border border-line text-fg rounded-md text-[14px] hover:bg-subtle"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={() => handleAddGeneric(document.getElementById('new-generic-name').value)}
-                                className="flex-1 px-4 py-2.5 bg-[#0F50AA] text-white rounded-md text-[14px] hover:bg-[#1366D9]"
+                                className="flex-1 px-4 py-2.5 bg-brand text-on-brand rounded-md text-[14px] hover:bg-brand-hover"
                             >
                                 Save Generic Material
                             </button>
@@ -1925,26 +1927,26 @@ export default function AdminRawMaterials() {
 
             {/* Quick Add Brand Modal */}
             {showAddBrandModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[10000] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-                        <h3 className="text-[18px] font-[600] text-[#383E49] mb-4">Add New Brand</h3>
-                        <p className="text-[14px] text-[#667085] mb-4">Generic: <span className="font-[500]">{generics.find(g => g.id === parseInt(formData.genericId))?.name}</span></p>
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[10000] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-md p-6">
+                        <h3 className="text-[18px] font-[600] text-fg mb-4">Add New Brand</h3>
+                        <p className="text-[14px] text-fg-secondary mb-4">Generic: <span className="font-[500]">{generics.find(g => g.id === parseInt(formData.genericId))?.name}</span></p>
                         <input
                             type="text"
                             placeholder="e.g., Prima, Pelwatte"
-                            className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] mb-4"
+                            className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg mb-4"
                             id="new-brand-name"
                         />
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowAddBrandModal(false)}
-                                className="flex-1 px-4 py-2.5 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px]"
+                                className="flex-1 px-4 py-2.5 border border-line text-fg rounded-md text-[14px]"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={() => handleAddBrand(document.getElementById('new-brand-name').value)}
-                                className="flex-1 px-4 py-2.5 bg-[#0F50AA] text-white rounded-md text-[14px]"
+                                className="flex-1 px-4 py-2.5 bg-brand text-on-brand rounded-md text-[14px]"
                             >
                                 Save
                             </button>
@@ -1956,48 +1958,48 @@ export default function AdminRawMaterials() {
             {/* Toast Notification */}
             {showToast && (
                 <div className="fixed top-4 right-4 z-[10000] animate-fade-in">
-                    <div className="bg-white border-l-4 border-[#51CC5D] rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
-                        <div className="flex-shrink-0 w-8 h-8 bg-[#51CC5D] bg-opacity-10 rounded-full flex items-center justify-center">
-                            <Check className="w-5 h-5 text-[#199D26]" />
+                    <div className="bg-surface border-l-4 border-success rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
+                        <div className="flex-shrink-0 w-8 h-8 bg-success-solid bg-opacity-10 rounded-full flex items-center justify-center">
+                            <Check className="w-5 h-5 text-success" />
                         </div>
-                        <p className="text-[14px] text-[#383E49] font-[500]">{toastMessage}</p>
+                        <p className="text-[14px] text-fg font-[500]">{toastMessage}</p>
                     </div>
                 </div>
             )}
             {/* Edit Category Modal */}
             {showEditCategoryModal && (
-                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E6EA]">
-                            <h3 className="text-[18px] font-[600] text-[#1D1F2C]">Edit Category</h3>
-                            <button onClick={() => setShowEditCategoryModal(false)} className="text-[#9CA3AF] hover:text-[#4B5563]">
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-backdrop">
+                    <div className="bg-elevated rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-line">
+                            <h3 className="text-[18px] font-[600] text-fg-strong">Edit Category</h3>
+                            <button onClick={() => setShowEditCategoryModal(false)} className="text-fg-muted hover:text-fg">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
                         <div className="p-6">
-                            <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                Category Name <span className="text-[#EF4444]">*</span>
+                            <label className="block text-[14px] font-[500] text-fg mb-1">
+                                Category Name <span className="text-error">*</span>
                             </label>
                             <input
                                 type="text"
                                 value={editCategoryName}
                                 onChange={(e) => setEditCategoryName(e.target.value)}
-                                className="w-full px-4 py-2 bg-white border border-[#E5E7EB] rounded-lg text-[14px] focus:outline-none focus:border-[#F97316]"
+                                className="w-full px-4 py-2 bg-surface border border-line rounded-lg text-[14px] focus:outline-none focus:border-warning"
                                 placeholder="Enter category name"
                             />
                         </div>
-                        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#F9FAFB] border-t border-[#E4E6EA]">
+                        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-subtle border-t border-line">
                             <button
                                 type="button"
                                 onClick={() => setShowEditCategoryModal(false)}
-                                className="px-4 py-2 text-[14px] font-[500] text-[#4B5563] bg-white border border-[#E5E7EB] rounded-lg hover:bg-gray-50 transition-colors"
+                                className="px-4 py-2 text-[14px] font-[500] text-fg bg-surface border border-line rounded-lg hover:bg-subtle transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="button"
                                 onClick={handleUpdateCategory}
-                                className="px-4 py-2 text-[14px] font-[500] text-white bg-[#F97316] rounded-lg hover:bg-[#EA580C] transition-colors"
+                                className="px-4 py-2 text-[14px] font-[500] text-on-brand bg-warning-solid rounded-lg hover:bg-warning-solid transition-colors"
                             >
                                 Save Changes
                             </button>
@@ -2008,34 +2010,34 @@ export default function AdminRawMaterials() {
 
             {/* Edit Generic Material Modal */}
             {showEditGenericModal && (
-                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E6EA]">
-                            <h3 className="text-[18px] font-[600] text-[#1D1F2C]">Edit Generic Material</h3>
-                            <button onClick={() => setShowEditGenericModal(false)} className="text-[#9CA3AF] hover:text-[#4B5563]">
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-backdrop">
+                    <div className="bg-elevated rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-line">
+                            <h3 className="text-[18px] font-[600] text-fg-strong">Edit Generic Material</h3>
+                            <button onClick={() => setShowEditGenericModal(false)} className="text-fg-muted hover:text-fg">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
                         <div className="p-6 space-y-4">
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                    Generic Material Name <span className="text-[#EF4444]">*</span>
+                                <label className="block text-[14px] font-[500] text-fg mb-1">
+                                    Generic Material Name <span className="text-error">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={editGenericName}
                                     onChange={(e) => setEditGenericName(e.target.value)}
-                                    className="w-full px-4 py-2 bg-white border border-[#E5E7EB] rounded-lg text-[14px] focus:outline-none focus:border-[#F97316]"
+                                    className="w-full px-4 py-2 bg-surface border border-line rounded-lg text-[14px] focus:outline-none focus:border-warning"
                                     placeholder="Enter generic material name"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                    Category <span className="text-[#EF4444]">*</span>
+                                <label className="block text-[14px] font-[500] text-fg mb-1">
+                                    Category <span className="text-error">*</span>
                                 </label>
                                 <select
-                                    className="w-full px-4 py-2 bg-white border border-[#E5E7EB] rounded-lg text-[14px] focus:outline-none focus:border-[#F97316]"
+                                    className="w-full px-4 py-2 bg-surface border border-line rounded-lg text-[14px] focus:outline-none focus:border-warning"
                                     value={editGenericCategory}
                                     onChange={(e) => setEditGenericCategory(e.target.value)}
                                 >
@@ -2047,11 +2049,11 @@ export default function AdminRawMaterials() {
                             </div>
 
                             <div>
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                <label className="block text-[14px] font-[500] text-fg mb-1">
                                     Unit of Measure
                                 </label>
                                 <select 
-                                    className="w-full px-4 py-2 bg-white border border-[#E5E7EB] rounded-lg text-[14px] focus:outline-none focus:border-[#F97316]"
+                                    className="w-full px-4 py-2 bg-surface border border-line rounded-lg text-[14px] focus:outline-none focus:border-warning"
                                     value={editGenericUom}
                                     onChange={(e) => setEditGenericUom(e.target.value)}
                                 >
@@ -2062,23 +2064,23 @@ export default function AdminRawMaterials() {
                             </div>
 
                             {editGenericUom === 'pack' && (
-                                <div className="grid grid-cols-2 gap-3 p-3 bg-[#F8F9FA] rounded-md border border-[#E4E6EA]">
+                                <div className="grid grid-cols-2 gap-3 p-3 bg-subtle rounded-md border border-line">
                                     <div>
-                                        <label className="block text-[12px] font-[500] text-[#383E49] mb-1">Pack Size *</label>
+                                        <label className="block text-[12px] font-[500] text-fg mb-1">Pack Size *</label>
                                         <input
                                             type="number"
                                             value={editGenericPackSize}
                                             onChange={(e) => setEditGenericPackSize(e.target.value)}
                                             placeholder="e.g., 25"
-                                            className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md text-[13px] focus:outline-none focus:border-[#F97316]"
+                                            className="w-full px-3 py-2 border border-line rounded-md text-[13px] focus:outline-none focus:border-warning"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[12px] font-[500] text-[#383E49] mb-1">Pack Unit *</label>
+                                        <label className="block text-[12px] font-[500] text-fg mb-1">Pack Unit *</label>
                                         <select
                                             value={editGenericPackUnit}
                                             onChange={(e) => setEditGenericPackUnit(e.target.value)}
-                                            className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md text-[13px] focus:outline-none focus:border-[#F97316]"
+                                            className="w-full px-3 py-2 border border-line rounded-md text-[13px] focus:outline-none focus:border-warning"
                                         >
                                             {['kg', 'L', 'pieces'].map(u => <option key={u} value={u}>{u}</option>)}
                                         </select>
@@ -2088,39 +2090,39 @@ export default function AdminRawMaterials() {
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">Min Stock Level</label>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">Min Stock Level</label>
                                     <input
                                         type="number"
                                         value={editGenericMinStock}
                                         onChange={(e) => setEditGenericMinStock(e.target.value)}
                                         placeholder="Min"
-                                        className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg text-[14px] focus:outline-none focus:border-[#F97316]"
+                                        className="w-full px-4 py-2 border border-line rounded-lg text-[14px] focus:outline-none focus:border-warning"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">Max Stock Level</label>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">Max Stock Level</label>
                                     <input
                                         type="number"
                                         value={editGenericMaxStock}
                                         onChange={(e) => setEditGenericMaxStock(e.target.value)}
                                         placeholder="Max"
-                                        className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg text-[14px] focus:outline-none focus:border-[#F97316]"
+                                        className="w-full px-4 py-2 border border-line rounded-lg text-[14px] focus:outline-none focus:border-warning"
                                     />
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#F9FAFB] border-t border-[#E4E6EA]">
+                        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-subtle border-t border-line">
                             <button
                                 type="button"
                                 onClick={() => setShowEditGenericModal(false)}
-                                className="px-4 py-2 text-[14px] font-[500] text-[#4B5563] bg-white border border-[#E5E7EB] rounded-lg hover:bg-gray-50 transition-colors"
+                                className="px-4 py-2 text-[14px] font-[500] text-fg bg-surface border border-line rounded-lg hover:bg-subtle transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="button"
                                 onClick={handleUpdateGeneric}
-                                className="px-4 py-2 text-[14px] font-[500] text-white bg-[#F97316] rounded-lg hover:bg-[#EA580C] transition-colors"
+                                className="px-4 py-2 text-[14px] font-[500] text-on-brand bg-warning-solid rounded-lg hover:bg-warning-solid transition-colors"
                             >
                                 Save Changes
                             </button>
@@ -2131,38 +2133,38 @@ export default function AdminRawMaterials() {
 
             {/* Edit Brand Modal */}
             {showEditBrandModal && (
-                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E6EA]">
-                            <h3 className="text-[18px] font-[600] text-[#1D1F2C]">Edit Brand</h3>
-                            <button onClick={() => setShowEditBrandModal(false)} className="text-[#9CA3AF] hover:text-[#4B5563]">
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-backdrop">
+                    <div className="bg-elevated rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-line">
+                            <h3 className="text-[18px] font-[600] text-fg-strong">Edit Brand</h3>
+                            <button onClick={() => setShowEditBrandModal(false)} className="text-fg-muted hover:text-fg">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
                         <div className="p-6">
-                            <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                Brand Name <span className="text-[#EF4444]">*</span>
+                            <label className="block text-[14px] font-[500] text-fg mb-1">
+                                Brand Name <span className="text-error">*</span>
                             </label>
                             <input
                                 type="text"
                                 value={editBrandName}
                                 onChange={(e) => setEditBrandName(e.target.value)}
-                                className="w-full px-4 py-2 bg-white border border-[#E5E7EB] rounded-lg text-[14px] focus:outline-none focus:border-[#F97316]"
+                                className="w-full px-4 py-2 bg-surface border border-line rounded-lg text-[14px] focus:outline-none focus:border-warning"
                                 placeholder="Enter brand name"
                             />
                         </div>
-                        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#F9FAFB] border-t border-[#E4E6EA]">
+                        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-subtle border-t border-line">
                             <button
                                 type="button"
                                 onClick={() => setShowEditBrandModal(false)}
-                                className="px-4 py-2 text-[14px] font-[500] text-[#4B5563] bg-white border border-[#E5E7EB] rounded-lg hover:bg-gray-50 transition-colors"
+                                className="px-4 py-2 text-[14px] font-[500] text-fg bg-surface border border-line rounded-lg hover:bg-subtle transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="button"
                                 onClick={handleUpdateBrand}
-                                className="px-4 py-2 text-[14px] font-[500] text-white bg-[#F97316] rounded-lg hover:bg-[#EA580C] transition-colors"
+                                className="px-4 py-2 text-[14px] font-[500] text-on-brand bg-warning-solid rounded-lg hover:bg-warning-solid transition-colors"
                             >
                                 Save Changes
                             </button>
@@ -2174,7 +2176,7 @@ export default function AdminRawMaterials() {
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

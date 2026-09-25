@@ -258,7 +258,7 @@ export default function POSSpecialOrders() {
     // Submit order
     const submitSpecialOrder = async () => {
         if (!isFormValid()) {
-            alert('Please complete all required fields');
+            toast.error('Please complete all required fields');
             return;
         }
 
@@ -286,7 +286,7 @@ export default function POSSpecialOrders() {
             setShowSuccessModal(true);
         } catch (error) {
             console.error("Error submitting credit order:", error);
-            alert(error.response?.data?.message || "Failed to submit credit order. Please try again.");
+            toast.error(error.response?.data?.message || "Failed to submit credit order. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -460,7 +460,7 @@ export default function POSSpecialOrders() {
     const recordFinalPayment = async () => {
         const amountNum = parseFloat(finalPaymentAmount);
         if (isNaN(amountNum) || amountNum <= 0) {
-            alert('Please enter a valid payment amount');
+            toast.error('Please enter a valid payment amount');
             return;
         }
 
@@ -474,7 +474,7 @@ export default function POSSpecialOrders() {
             };
 
             await posService.addOrderPayment(selectedOrder.id, payload);
-            alert(`Payment of Rs. ${finalPaymentAmount} recorded successfully!`);
+            toast.success(`Payment of Rs. ${finalPaymentAmount} recorded successfully!`);
             
             // Refresh the specific order details or the list
             fetchPendingOrders();
@@ -483,7 +483,7 @@ export default function POSSpecialOrders() {
             setFinalPaymentAmount('');
         } catch (error) {
             console.error("Error recording final payment:", error);
-            alert(error.response?.data?.message || "Failed to record payment.");
+            toast.error(error.response?.data?.message || "Failed to record payment.");
         } finally {
             setIsLoading(false);
         }
@@ -491,14 +491,14 @@ export default function POSSpecialOrders() {
 
     const verifyOtpAndProceed = async () => {
         if (!managerOtp) {
-            alert('Please enter the manager PIN/ID');
+            toast.error('Please enter the manager PIN/ID');
             return;
         }
 
         setIsLoading(true);
         try {
             await posService.approveAndCloseOrder(selectedOrder.id, managerOtp);
-            alert('Order approved and closed successfully!');
+            toast.success('Order approved and closed successfully!');
             
             // Print Final Bill
             printReceipt(selectedOrder, 'BILL');
@@ -510,7 +510,7 @@ export default function POSSpecialOrders() {
             setManagerOtp('');
         } catch (error) {
             console.error("Error approving order:", error);
-            alert(error.response?.data?.message || "Manager approval failed. Please verify the PIN.");
+            toast.error(error.response?.data?.message || "Manager approval failed. Please verify the PIN.");
         } finally {
             setIsLoading(false);
         }
@@ -518,7 +518,7 @@ export default function POSSpecialOrders() {
 
     const closeOrder = () => {
         if (selectedOrder.balanceAmount > 0) {
-            alert('Cannot close order with outstanding balance. Please record final payment first.');
+            toast.error('Cannot close order with outstanding balance. Please record final payment first.');
             return;
         }
         setShowManagerApproval(true);
@@ -526,7 +526,7 @@ export default function POSSpecialOrders() {
     };
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             <POSSidebar sidebarOpen={sidebarOpen} />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -545,22 +545,22 @@ export default function POSSpecialOrders() {
                                     {/* Title + Subtitle */}
                                     <div className="flex items-start md:items-center gap-2 sm:gap-4 min-w-0 flex-1">
                                         <div className="min-w-0 flex-1">
-                                            <h1 className="text-base sm:text-lg md:text-xl font-semibold text-[#383E49] truncate">
+                                            <h1 className="text-base sm:text-lg md:text-xl font-semibold text-fg truncate">
                                                 Special Orders & Customer Advance
                                             </h1>
-                                            <p className="text-xs sm:text-sm text-[#667085] truncate">
+                                            <p className="text-xs sm:text-sm text-fg-secondary truncate">
                                                 Create custom orders and manage customer advances
                                             </p>
                                         </div>
                                     </div>
 
                                     {/* View Toggle */}
-                                    <div className="flex bg-white rounded-lg border border-[#E4E6EA] p-1 w-full md:w-auto">
+                                    <div className="flex bg-surface rounded-lg border border-line p-1 w-full md:w-auto">
                                         <button
                                             onClick={() => setCurrentView('create')}
                                             className={`flex-1 md:flex-none px-4 py-2 rounded-md text-[14px] font-[500] transition-colors ${currentView === 'create'
-                                                    ? 'bg-[#0F50AA] text-white'
-                                                    : 'text-[#667085] hover:text-[#383E49]'
+                                                    ? 'bg-brand text-on-brand'
+                                                    : 'text-fg-secondary hover:text-fg'
                                                 }`}
                                         >
                                             Create Order
@@ -568,8 +568,8 @@ export default function POSSpecialOrders() {
                                         <button
                                             onClick={() => setCurrentView('fulfillment')}
                                             className={`flex-1 md:flex-none px-4 py-2 rounded-md text-[14px] font-[500] transition-colors ${currentView === 'fulfillment'
-                                                    ? 'bg-[#0F50AA] text-white'
-                                                    : 'text-[#667085] hover:text-[#383E49]'
+                                                    ? 'bg-brand text-on-brand'
+                                                    : 'text-fg-secondary hover:text-fg'
                                                 }`}
                                         >
                                             Order Fulfillment
@@ -579,30 +579,30 @@ export default function POSSpecialOrders() {
 
                                 {/* Order Header Information - Only for Create View */}
                                 {currentView === 'create' && (
-                                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 xl:mb-6 mb-0">
+                                    <div className="bg-surface rounded-lg shadow-sm border border-line p-4 xl:mb-6 mb-0">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                             <div>
-                                                <p className="text-[12px] text-[#667085] mb-1">Cashier Name</p>
-                                                <p className="text-[14px] font-[500] text-[#383E49]">{orderInfo.cashierName}</p>
+                                                <p className="text-[12px] text-fg-secondary mb-1">Cashier Name</p>
+                                                <p className="text-[14px] font-[500] text-fg">{orderInfo.cashierName}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[12px] text-[#667085] mb-1">Cashier ID</p>
-                                                <p className="text-[14px] font-[500] text-[#383E49]">{orderInfo.cashierId}</p>
+                                                <p className="text-[12px] text-fg-secondary mb-1">Cashier ID</p>
+                                                <p className="text-[14px] font-[500] text-fg">{orderInfo.cashierId}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[12px] text-[#667085] mb-1">Date</p>
-                                                <p className="text-[14px] font-[500] text-[#383E49]">{orderInfo.date}</p>
+                                                <p className="text-[12px] text-fg-secondary mb-1">Date</p>
+                                                <p className="text-[14px] font-[500] text-fg">{orderInfo.date}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[12px] text-[#667085] mb-1">Time</p>
-                                                <p className="text-[14px] font-[500] text-[#383E49]">{orderInfo.time}</p>
+                                                <p className="text-[12px] text-fg-secondary mb-1">Time</p>
+                                                <p className="text-[14px] font-[500] text-fg">{orderInfo.time}</p>
                                             </div>
                                         </div>
                                         {generatedOrderId && (
-                                            <div className="mt-4 pt-4 border-t border-[#E4E6EA]">
+                                            <div className="mt-4 pt-4 border-t border-line">
                                                 <div>
-                                                    <p className="text-[12px] text-[#667085] mb-1">Special Order ID</p>
-                                                    <p className="text-[16px] font-[600] text-[#0F50AA] bg-[#0F50AA]/10 px-3 py-1 rounded-lg inline-block">
+                                                    <p className="text-[12px] text-fg-secondary mb-1">Special Order ID</p>
+                                                    <p className="text-[16px] font-[600] text-brand-fg bg-brand/10 px-3 py-1 rounded-lg inline-block">
                                                         {generatedOrderId}
                                                     </p>
                                                 </div>
@@ -618,15 +618,15 @@ export default function POSSpecialOrders() {
                                     {/* Main Order Form */}
                                     <div className="xl:col-span-2 xl:space-y-6 space-y-4">
                                         {/* Customer Details Section */}
-                                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
-                                            <h3 className="text-[16px] font-[600] text-[#383E49] mb-4 flex items-center gap-2">
+                                        <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+                                            <h3 className="text-[16px] font-[600] text-fg mb-4 flex items-center gap-2">
                                                 <User size={18} />
                                                 Customer Details
                                             </h3>
 
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                 <div>
-                                                    <label className="block text-[12px] font-[500] text-[#383E49] mb-2">
+                                                    <label className="block text-[12px] font-[500] text-fg mb-2">
                                                         Customer Name *
                                                     </label>
                                                     <input
@@ -634,12 +634,12 @@ export default function POSSpecialOrders() {
                                                         placeholder="Enter customer name"
                                                         value={customerDetails.name}
                                                         onChange={(e) => setCustomerDetails({ ...customerDetails, name: e.target.value })}
-                                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10"
+                                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <label className="block text-[12px] font-[500] text-[#383E49] mb-2">
+                                                    <label className="block text-[12px] font-[500] text-fg mb-2">
                                                         Contact Number *
                                                     </label>
                                                     <div className="flex gap-2">
@@ -651,25 +651,25 @@ export default function POSSpecialOrders() {
                                                                 setCustomerDetails({ ...customerDetails, contactNumber: e.target.value });
                                                                 setCustomerLookupStatus('');
                                                             }}
-                                                            className="flex-1 px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10"
+                                                            className="flex-1 min-w-0 px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                                         />
                                                         <button
                                                             type="button"
                                                             onClick={handleCustomerLookup}
                                                             disabled={!customerDetails.contactNumber.trim() || isLookupLoading}
-                                                            className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg text-[12px] font-[500] hover:bg-[#0D4494] disabled:opacity-50 flex items-center justify-center min-w-[70px]"
+                                                            className="px-4 py-2 bg-brand text-on-brand rounded-lg text-[12px] font-[500] hover:bg-brand-hover disabled:opacity-50 flex items-center justify-center min-w-[70px]"
                                                         >
                                                             {isLookupLoading ? '...' : 'Verify'}
                                                         </button>
                                                     </div>
                                                     {customerLookupStatus === 'found' && (
-                                                        <p className="text-green-600 text-[11px] mt-1.5 flex items-center gap-1">
+                                                        <p className="text-success text-[11px] mt-1.5 flex items-center gap-1">
                                                             <CheckCircle size={12} />
                                                             Customer found: {customerDetails.name} ({customerDetails.type === 'Credit' ? 'Credit Allowed' : 'Regular'})
                                                         </p>
                                                     )}
                                                     {customerLookupStatus === 'new' && (
-                                                        <p className="text-[#0F50AA] text-[11px] mt-1.5 flex items-center gap-1">
+                                                        <p className="text-brand-fg text-[11px] mt-1.5 flex items-center gap-1">
                                                             <AlertCircle size={12} />
                                                             New Customer: Will be registered automatically on submit.
                                                         </p>
@@ -677,7 +677,7 @@ export default function POSSpecialOrders() {
                                                 </div>
 
                                                 <div>
-                                                    <label className="block text-[12px] font-[500] text-[#383E49] mb-2">
+                                                    <label className="block text-[12px] font-[500] text-fg mb-2">
                                                         Email Address
                                                     </label>
                                                     <input
@@ -685,19 +685,19 @@ export default function POSSpecialOrders() {
                                                         placeholder="Enter email address"
                                                         value={customerDetails.email}
                                                         onChange={(e) => setCustomerDetails({ ...customerDetails, email: e.target.value })}
-                                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10"
+                                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                                     />
                                                 </div>
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                                                 <div>
-                                                    <label className="block text-[12px] font-[500] text-[#383E49] mb-2">
+                                                    <label className="block text-[12px] font-[500] text-fg mb-2">
                                                         Customer Type
                                                     </label>
                                                     <select
                                                         value={customerDetails.type}
                                                         onChange={(e) => setCustomerDetails({ ...customerDetails, type: e.target.value })}
-                                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none bg-white"
+                                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none bg-surface"
                                                     >
                                                         {customerTypes.map(type => (
                                                             <option key={type.value} value={type.value}>{type.label}</option>
@@ -705,29 +705,29 @@ export default function POSSpecialOrders() {
                                                     </select>
                                                 </div>
                                                 <div className="md:col-span-2">
-                                                    <label className="block text-[12px] font-[500] text-[#383E49] mb-2">
+                                                    <label className="block text-[12px] font-[500] text-fg mb-2">
                                                         Pickup/Delivery Address
                                                     </label>
                                                     <textarea
                                                         placeholder="Enter full address"
                                                         value={customerDetails.address}
                                                         onChange={(e) => setCustomerDetails({ ...customerDetails, address: e.target.value })}
-                                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10 min-h-[80px]"
+                                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10 min-h-[80px]"
                                                     />
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Order Items Section */}
-                                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                                        <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                                             <div className="flex items-center justify-between mb-4">
-                                                <h3 className="text-[16px] font-[600] text-[#383E49] flex items-center gap-2">
+                                                <h3 className="text-[16px] font-[600] text-fg flex items-center gap-2">
                                                     <Package size={18} />
                                                     Order Items ({selectedProducts.length})
                                                 </h3>
                                                 <button
                                                     onClick={() => setShowProductSearch(!showProductSearch)}
-                                                    className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors text-[14px] font-[500] flex items-center gap-2"
+                                                    className="px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors text-[14px] font-[500] flex items-center gap-2"
                                                 >
                                                     <Plus size={16} />
                                                     Add Product
@@ -736,16 +736,16 @@ export default function POSSpecialOrders() {
 
                                             {/* Product Search */}
                                             {showProductSearch && (
-                                                <div className="mb-6 p-4 bg-[#F8F9FA] rounded-lg border border-[#E4E6EA]">
+                                                <div className="mb-6 p-4 bg-subtle rounded-lg border border-line">
                                                     <div className="mb-3">
                                                         <div className="relative">
-                                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={18} />
+                                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary" size={18} />
                                                             <input
                                                                 type="text"
                                                                 placeholder="Search products by name or code..."
                                                                 value={searchTerm}
                                                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                                                className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10"
+                                                                className="w-full pl-10 pr-4 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                                             />
                                                         </div>
                                                     </div>
@@ -755,24 +755,24 @@ export default function POSSpecialOrders() {
                                                             <div
                                                                 key={product.id}
                                                                 onClick={() => addProductToOrder(product)}
-                                                                className="p-3 bg-white rounded-lg border border-[#E4E6EA] hover:border-[#0F50AA] cursor-pointer transition-colors"
+                                                                className="p-3 bg-surface rounded-lg border border-line hover:border-brand-fg cursor-pointer transition-colors"
                                                             >
                                                                 <div className="flex justify-between items-start">
                                                                     <div className="flex-1">
-                                                                        <p className="text-[14px] font-[500] text-[#383E49]">{product.name}</p>
-                                                                        <p className="text-[12px] text-[#667085]">{product.code} | {product.category}</p>
-                                                                        <p className="text-[12px] text-[#667085] mt-1">{product.description}</p>
+                                                                        <p className="text-[14px] font-[500] text-fg">{product.name}</p>
+                                                                        <p className="text-[12px] text-fg-secondary">{product.code} | {product.category}</p>
+                                                                        <p className="text-[12px] text-fg-secondary mt-1">{product.description}</p>
                                                                     </div>
                                                                     <div className="text-right">
-                                                                        <p className="text-[14px] font-[600] text-[#0F50AA]">Rs. {(product.unitPrice || 0).toFixed(2)}</p>
+                                                                        <p className="text-[14px] font-[600] text-brand-fg">Rs. {(product.unitPrice || 0).toFixed(2)}</p>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         ))}
                                                         {filteredProducts.length === 0 && (
                                                             <div className="text-center py-6">
-                                                                <Package size={32} className="text-[#E4E6EA] mx-auto mb-2" />
-                                                                <p className="text-[14px] text-[#667085]">No products found</p>
+                                                                <Package size={32} className="text-fg-muted mx-auto mb-2" />
+                                                                <p className="text-[14px] text-fg-secondary">No products found</p>
                                                             </div>
                                                         )}
                                                     </div>
@@ -782,15 +782,15 @@ export default function POSSpecialOrders() {
                                             {/* Selected Products */}
                                             <div className="space-y-4">
                                                 {selectedProducts.map((product) => (
-                                                    <div key={product.id} className="p-4 bg-[#F8F9FA] rounded-lg border border-[#E4E6EA]">
+                                                    <div key={product.id} className="p-4 bg-subtle rounded-lg border border-line">
                                                         <div className="flex items-start justify-between mb-3">
                                                             <div className="flex-1">
-                                                                <h4 className="text-[14px] font-[500] text-[#383E49]">{product.name}</h4>
-                                                                <p className="text-[12px] text-[#667085]">{product.code} | {product.category}</p>
+                                                                <h4 className="text-[14px] font-[500] text-fg">{product.name}</h4>
+                                                                <p className="text-[12px] text-fg-secondary">{product.code} | {product.category}</p>
                                                             </div>
                                                             <button
                                                                 onClick={() => removeProduct(product.id)}
-                                                                className="text-[#EF4444] hover:bg-[#EF4444]/10 p-1 rounded"
+                                                                className="text-error hover:bg-error/10 p-1 rounded"
                                                             >
                                                                 <Trash2 size={16} />
                                                             </button>
@@ -798,11 +798,11 @@ export default function POSSpecialOrders() {
 
                                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                                                             <div>
-                                                                <label className="block text-[12px] text-[#667085] mb-1">Quantity</label>
+                                                                <label className="block text-[12px] text-fg-secondary mb-1">Quantity</label>
                                                                 <div className="flex items-center gap-2">
                                                                     <button
                                                                         onClick={() => updateProductQuantity(product.id, product.quantity - 1)}
-                                                                        className="w-8 h-8 flex items-center justify-center border border-[#E4E6EA] rounded text-[#667085] hover:bg-[#F8F9FA]"
+                                                                        className="w-8 h-8 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                     >
                                                                         <Minus size={14} />
                                                                     </button>
@@ -811,11 +811,11 @@ export default function POSSpecialOrders() {
                                                                         min="1"
                                                                         value={product.quantity}
                                                                         onChange={(e) => updateProductQuantity(product.id, parseInt(e.target.value) || 1)}
-                                                                        className="w-16 text-center py-1 border border-[#E4E6EA] rounded text-[12px] focus:border-[#0F50AA] focus:outline-none"
+                                                                        className="w-16 text-center py-1 border border-line rounded text-[12px] focus:border-brand-fg focus:outline-none"
                                                                     />
                                                                     <button
                                                                         onClick={() => updateProductQuantity(product.id, product.quantity + 1)}
-                                                                        className="w-8 h-8 flex items-center justify-center border border-[#E4E6EA] rounded text-[#667085] hover:bg-[#F8F9FA]"
+                                                                        className="w-8 h-8 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                     >
                                                                         <Plus size={14} />
                                                                     </button>
@@ -823,27 +823,27 @@ export default function POSSpecialOrders() {
                                                             </div>
 
                                                             <div>
-                                                                <label className="block text-[12px] text-[#667085] mb-1">Unit Price</label>
-                                                                <p className="text-[14px] font-[500] text-[#383E49] py-1">
+                                                                <label className="block text-[12px] text-fg-secondary mb-1">Unit Price</label>
+                                                                <p className="text-[14px] font-[500] text-fg py-1">
                                                                     Rs. {(product.unitPrice || 0).toFixed(2)}
                                                                 </p>
                                                             </div>
 
                                                             <div>
-                                                                <label className="block text-[12px] text-[#667085] mb-1">Total</label>
-                                                                <p className="text-[14px] font-[600] text-[#0F50AA] py-1">
+                                                                <label className="block text-[12px] text-fg-secondary mb-1">Total</label>
+                                                                <p className="text-[14px] font-[600] text-brand-fg py-1">
                                                                     Rs. {(product.quantity * (product.unitPrice || 0)).toFixed(2)}
                                                                 </p>
                                                             </div>
 
                                                             <div>
-                                                                <label className="block text-[12px] text-[#667085] mb-1">Special Instructions</label>
+                                                                <label className="block text-[12px] text-fg-secondary mb-1">Special Instructions</label>
                                                                 <input
                                                                     type="text"
                                                                     placeholder="Optional"
                                                                     value={product.specialInstructions}
                                                                     onChange={(e) => updateSpecialInstructions(product.id, e.target.value)}
-                                                                    className="w-full px-2 py-1 border border-[#E4E6EA] rounded text-[12px] focus:border-[#0F50AA] focus:outline-none"
+                                                                    className="w-full px-2 py-1 border border-line rounded text-[12px] focus:border-brand-fg focus:outline-none"
                                                                 />
                                                             </div>
                                                         </div>
@@ -852,42 +852,42 @@ export default function POSSpecialOrders() {
 
                                                 {selectedProducts.length === 0 && (
                                                     <div className="text-center py-8">
-                                                        <ShoppingCart size={48} className="text-[#E4E6EA] mx-auto mb-3" />
-                                                        <p className="text-[14px] text-[#667085]">No products added yet</p>
-                                                        <p className="text-[12px] text-[#667085] mt-1">Click "Add Product" to start building the order</p>
+                                                        <ShoppingCart size={48} className="text-fg-muted mx-auto mb-3" />
+                                                        <p className="text-[14px] text-fg-secondary">No products added yet</p>
+                                                        <p className="text-[12px] text-fg-secondary mt-1">Click "Add Product" to start building the order</p>
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
 
                                         {/* Delivery & Payment Section */}
-                                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
-                                            <h3 className="text-[16px] font-[600] text-[#383E49] mb-4 flex items-center gap-2">
+                                        <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+                                            <h3 className="text-[16px] font-[600] text-fg mb-4 flex items-center gap-2">
                                                 <Calendar size={18} />
                                                 Delivery & Payment Details
                                             </h3>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                                 <div>
-                                                    <label className="block text-[12px] font-[500] text-[#383E49] mb-2">
+                                                    <label className="block text-[12px] font-[500] text-fg mb-2">
                                                         Delivery Date & Time *
                                                     </label>
                                                     <input
                                                         type="datetime-local"
                                                         value={deliveryDateTime}
                                                         onChange={(e) => setDeliveryDateTime(e.target.value)}
-                                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10"
+                                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <label className="block text-[12px] font-[500] text-[#383E49] mb-2">
+                                                    <label className="block text-[12px] font-[500] text-fg mb-2">
                                                         Payment Method
                                                     </label>
                                                     <select
                                                         value={paymentMethod}
                                                         onChange={(e) => setPaymentMethod(e.target.value)}
-                                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none bg-white"
+                                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none bg-surface"
                                                     >
                                                         {paymentMethods.length > 0 ? (
                                                             paymentMethods.map(method => (
@@ -901,14 +901,14 @@ export default function POSSpecialOrders() {
                                             </div>
 
                                             <div className="mb-4">
-                                                <label className="block text-[12px] font-[500] text-[#383E49] mb-2">
+                                                <label className="block text-[12px] font-[500] text-fg mb-2">
                                                     Notes / Special Instructions
                                                 </label>
                                                 <textarea
                                                     placeholder="Add any special delivery instructions or notes..."
                                                     value={orderNotes}
                                                     onChange={(e) => setOrderNotes(e.target.value)}
-                                                    className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none resize-none"
+                                                    className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none resize-none"
                                                     rows="3"
                                                 />
                                             </div>
@@ -916,7 +916,7 @@ export default function POSSpecialOrders() {
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
-                                                    <label className="block text-[12px] font-[500] text-[#383E49] mb-2">
+                                                    <label className="block text-[12px] font-[500] text-fg mb-2">
                                                         Advance Amount (Rs.) *
                                                     </label>
                                                     <input
@@ -924,15 +924,15 @@ export default function POSSpecialOrders() {
                                                         placeholder="0.00"
                                                         value={advanceAmount}
                                                         onChange={(e) => setAdvanceAmount(e.target.value)}
-                                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10"
+                                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                                     />
                                                 </div>
 
                                                 <div>
-                                                    <label className="block text-[12px] font-[500] text-[#383E49] mb-2">
+                                                    <label className="block text-[12px] font-[500] text-fg mb-2">
                                                         Remaining Balance
                                                     </label>
-                                                    <div className="px-3 py-2 bg-[#F8F9FA] border border-[#E4E6EA] rounded-lg text-[14px] font-[600] text-[#0F50AA]">
+                                                    <div className="px-3 py-2 bg-subtle border border-line rounded-lg text-[14px] font-[600] text-brand-fg">
                                                         Rs. {(remainingBalance || 0).toFixed(2)}
                                                     </div>
                                                 </div>
@@ -944,39 +944,39 @@ export default function POSSpecialOrders() {
                                     <div className="xl:col-span-1">
                                         <div className="sticky top-0 space-y-6">
                                             {/* Order Summary */}
-                                            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
-                                                <h3 className="text-[16px] font-[600] text-[#383E49] mb-4 flex items-center gap-2">
+                                            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
+                                                <h3 className="text-[16px] font-[600] text-fg mb-4 flex items-center gap-2">
                                                     <FileText size={18} />
                                                     Order Summary
                                                 </h3>
 
                                                 <div className="space-y-3 mb-4">
                                                     <div className="flex justify-between text-[14px]">
-                                                        <span className="text-[#667085]">Total Items:</span>
-                                                        <span className="font-[500] text-[#383E49]">{selectedProducts.length}</span>
+                                                        <span className="text-fg-secondary">Total Items:</span>
+                                                        <span className="font-[500] text-fg">{selectedProducts.length}</span>
                                                     </div>
                                                     <div className="flex justify-between text-[14px]">
-                                                        <span className="text-[#667085]">Subtotal:</span>
-                                                        <span className="font-[500] text-[#383E49]">Rs. {(subtotal || 0).toFixed(2)}</span>
+                                                        <span className="text-fg-secondary">Subtotal:</span>
+                                                        <span className="font-[500] text-fg">Rs. {(subtotal || 0).toFixed(2)}</span>
                                                     </div>
-                                                    <div className="flex justify-between text-[16px] font-[600] border-t border-[#E4E6EA] pt-3">
-                                                        <span className="text-[#383E49]">Total Amount:</span>
-                                                        <span className="text-[#0F50AA]">Rs. {(totalAmount || 0).toFixed(2)}</span>
-                                                    </div>
-                                                    <div className="flex justify-between text-[14px]">
-                                                        <span className="text-[#667085]">Advance Amount:</span>
-                                                        <span className="font-[500] text-[#51CC5D]">Rs. {(advanceAmountNum || 0).toFixed(2)}</span>
+                                                    <div className="flex justify-between text-[16px] font-[600] border-t border-line pt-3">
+                                                        <span className="text-fg">Total Amount:</span>
+                                                        <span className="text-brand-fg">Rs. {(totalAmount || 0).toFixed(2)}</span>
                                                     </div>
                                                     <div className="flex justify-between text-[14px]">
-                                                        <span className="text-[#667085]">Remaining Balance:</span>
-                                                        <span className="font-[500] text-[#F4A100]">Rs. {(remainingBalance || 0).toFixed(2)}</span>
+                                                        <span className="text-fg-secondary">Advance Amount:</span>
+                                                        <span className="font-[500] text-success">Rs. {(advanceAmountNum || 0).toFixed(2)}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-[14px]">
+                                                        <span className="text-fg-secondary">Remaining Balance:</span>
+                                                        <span className="font-[500] text-warning">Rs. {(remainingBalance || 0).toFixed(2)}</span>
                                                     </div>
                                                 </div>
 
                                                 {customerDetails.name && (
-                                                    <div className="p-3 bg-[#F8F9FA] rounded-lg border-t border-[#E4E6EA]">
-                                                        <h4 className="text-[12px] font-[500] text-[#383E49] mb-2">Customer Info</h4>
-                                                        <div className="text-[12px] text-[#667085] space-y-1">
+                                                    <div className="p-3 bg-subtle rounded-lg border-t border-line">
+                                                        <h4 className="text-[12px] font-[500] text-fg mb-2">Customer Info</h4>
+                                                        <div className="text-[12px] text-fg-secondary space-y-1">
                                                             <div>Name: {customerDetails.name}</div>
                                                             <div>Contact: {customerDetails.contactNumber}</div>
                                                             <div>Type: {customerDetails.type}</div>
@@ -986,61 +986,61 @@ export default function POSSpecialOrders() {
                                             </div>
 
                                             {/* Manager Authorization section */}
-                                            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
-                                                <h3 className="text-[14px] font-[600] text-[#383E49] mb-3 flex items-center gap-2">
-                                                    <Shield size={16} className="text-[#0F50AA]" />
+                                            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
+                                                <h3 className="text-[14px] font-[600] text-fg mb-3 flex items-center gap-2">
+                                                    <Shield size={16} className="text-brand-fg" />
                                                     Manager Authorization
                                                 </h3>
                                                 
                                                 {advanceAmountNum === 0 ? (
-                                                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                                    <div className="p-3 bg-brand/10 border border-brand/20 rounded-lg">
                                                         <div className="flex items-center gap-2">
-                                                            <CheckCircle size={18} className="text-[#0F50AA]" />
+                                                            <CheckCircle size={18} className="text-brand-fg" />
                                                             <div>
-                                                                <p className="text-[12px] font-[600] text-[#0F50AA]">No Manager Authorization Required</p>
-                                                                <p className="text-[11px] text-blue-700">Advance amount is Rs. 0.00. Credit order can be submitted directly.</p>
+                                                                <p className="text-[12px] font-[600] text-brand-fg">No Manager Authorization Required</p>
+                                                                <p className="text-[11px] text-brand-fg">Advance amount is Rs. 0.00. Credit order can be submitted directly.</p>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 ) : !isManagerVerified ? (
                                                     <div className="space-y-3">
                                                         <div>
-                                                            <label className="block text-[12px] text-[#667085] mb-1">Manager Code</label>
+                                                            <label className="block text-[12px] text-fg-secondary mb-1">Manager Code</label>
                                                             <div className="flex gap-2">
                                                                 <input
                                                                     type="password"
                                                                     placeholder="Enter code"
                                                                     value={managerVerificationCode}
                                                                     onChange={(e) => setManagerVerificationCode(e.target.value)}
-                                                                    className={`flex-1 px-3 py-2 border ${verificationError ? 'border-red-500' : 'border-[#E4E6EA]'} rounded-lg text-[14px] focus:outline-none focus:ring-1 focus:ring-[#0F50AA]`}
+                                                                    className={`flex-1 px-3 py-2 border ${verificationError ? 'border-error' : 'border-line'} rounded-lg text-[14px] focus:outline-none focus:ring-1 focus:ring-brand-fg`}
                                                                 />
                                                                 <button
                                                                     onClick={handleVerifyManager}
                                                                     disabled={isLoading || !managerVerificationCode}
-                                                                    className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg text-[12px] font-[500] hover:bg-[#0D4494] disabled:opacity-50"
+                                                                    className="px-4 py-2 bg-brand text-on-brand rounded-lg text-[12px] font-[500] hover:bg-brand-hover disabled:opacity-50"
                                                                 >
                                                                     Verify
                                                                 </button>
                                                             </div>
                                                             {verificationError && (
-                                                                <p className="text-red-500 text-[11px] mt-1 flex items-center gap-1">
+                                                                <p className="text-error text-[11px] mt-1 flex items-center gap-1">
                                                                     <AlertCircle size={12} />
                                                                     {verificationError}
                                                                 </p>
                                                             )}
                                                         </div>
-                                                        <p className="text-[11px] text-[#667085]">
+                                                        <p className="text-[11px] text-fg-secondary">
                                                             * Manager verification is required when an advance amount is added.
                                                         </p>
                                                     </div>
                                                 ) : (
-                                                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                    <div className="p-3 bg-success/10 border border-success/30 rounded-lg">
                                                         <div className="flex items-center justify-between">
                                                             <div className="flex items-center gap-2">
-                                                                <CheckCircle size={18} className="text-green-600" />
+                                                                <CheckCircle size={18} className="text-success" />
                                                                 <div>
-                                                                    <p className="text-[12px] font-[600] text-green-800">Authorized by Manager</p>
-                                                                    <p className="text-[14px] text-green-700">{verifiedManagerName}</p>
+                                                                    <p className="text-[12px] font-[600] text-success">Authorized by Manager</p>
+                                                                    <p className="text-[14px] text-success">{verifiedManagerName}</p>
                                                                 </div>
                                                             </div>
                                                             <button 
@@ -1049,7 +1049,7 @@ export default function POSSpecialOrders() {
                                                                     setVerifiedManagerName('');
                                                                     setManagerVerificationCode('');
                                                                 }}
-                                                                className="text-green-800 hover:text-green-900 text-[11px] underline"
+                                                                className="text-success hover:text-success text-[11px] underline"
                                                             >
                                                                 Change
                                                             </button>
@@ -1064,7 +1064,7 @@ export default function POSSpecialOrders() {
                                                     onClick={submitSpecialOrder}
                                                     disabled={!isFormValid() || isLoading}
                                                     title={!isFormValid() ? "Please fill Name, Contact, Products and a valid Advance Amount (<= Total)" : ""}
-                                                    className="w-full px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500] flex items-center justify-center gap-2"
+                                                    className="w-full px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500] flex items-center justify-center gap-2"
                                                 >
                                                     {isLoading ? (
                                                         <RotateCcw className="animate-spin" size={16} />
@@ -1076,7 +1076,7 @@ export default function POSSpecialOrders() {
 
                                                 <button
                                                     onClick={resetForm}
-                                                    className="w-full px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors text-[14px] font-[500] flex items-center justify-center gap-2"
+                                                    className="w-full px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors text-[14px] font-[500] flex items-center justify-center gap-2"
                                                 >
                                                     <RotateCcw size={16} />
                                                     Reset Form
@@ -1089,68 +1089,68 @@ export default function POSSpecialOrders() {
 
                             {/* Order Fulfillment View */}
                             {currentView === 'fulfillment' && (
-                                <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA]">
-                                    <div className="p-6 border-b border-[#E4E6EA]">
-                                        <h3 className="text-[18px] font-[600] text-[#383E49] flex items-center gap-2">
+                                <div className="bg-surface rounded-lg shadow-sm border border-line">
+                                    <div className="p-6 border-b border-line">
+                                        <h3 className="text-[18px] font-[600] text-fg flex items-center gap-2">
                                             <Clock size={20} />
                                             Pending Orders Dashboard
                                         </h3>
-                                        <p className="text-[14px] text-[#667085] mt-1">
+                                        <p className="text-[14px] text-fg-secondary mt-1">
                                             Manage and fulfill pending special orders
                                         </p>
                                     </div>
 
                                     <div className="overflow-x-auto">
                                         <table className="w-full">
-                                            <thead className="bg-[#F8F9FA] border-b border-[#E4E6EA]">
+                                            <thead className="bg-subtle border-b border-line">
                                                 <tr>
-                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-[#383E49] uppercase tracking-wider">Order ID</th>
-                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-[#383E49] uppercase tracking-wider">Customer</th>
-                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-[#383E49] uppercase tracking-wider">Total Amount</th>
-                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-[#383E49] uppercase tracking-wider">Advance Paid</th>
-                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-[#383E49] uppercase tracking-wider">Remaining Balance</th>
-                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-[#383E49] uppercase tracking-wider">Delivery Date</th>
-                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-[#383E49] uppercase tracking-wider">Status</th>
-                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-[#383E49] uppercase tracking-wider">Actions</th>
+                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-fg uppercase tracking-wider">Order ID</th>
+                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-fg uppercase tracking-wider">Customer</th>
+                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-fg uppercase tracking-wider">Total Amount</th>
+                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-fg uppercase tracking-wider">Advance Paid</th>
+                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-fg uppercase tracking-wider">Remaining Balance</th>
+                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-fg uppercase tracking-wider">Delivery Date</th>
+                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-fg uppercase tracking-wider">Status</th>
+                                                    <th className="text-left px-6 py-3 text-[12px] font-[600] text-fg uppercase tracking-wider">Actions</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-[#E4E6EA]">
+                                            <tbody className="divide-y divide-line">
                                                 {pendingOrders.map((order) => (
-                                                    <tr key={order.id} className="hover:bg-[#F8F9FA] transition-colors">
+                                                    <tr key={order.id} className="hover:bg-subtle transition-colors">
                                                         <td className="px-6 py-4">
-                                                            <div className="text-[14px] font-[500] text-[#0F50AA]">{order.id}</div>
-                                                            <div className="text-[12px] text-[#667085]">{order.orderDate}</div>
+                                                            <div className="text-[14px] font-[500] text-brand-fg">{order.id}</div>
+                                                            <div className="text-[12px] text-fg-secondary">{order.orderDate}</div>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <div className="text-[14px] font-[500] text-[#383E49]">{order.customerName}</div>
-                                                            <div className="text-[12px] text-[#667085]">{order.contactNumber}</div>
+                                                            <div className="text-[14px] font-[500] text-fg">{order.customerName}</div>
+                                                            <div className="text-[12px] text-fg-secondary">{order.contactNumber}</div>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <div className="text-[14px] font-[600] text-[#383E49]">
+                                                            <div className="text-[14px] font-[600] text-fg">
                                                                 Rs. {(order.totalAmount || 0).toFixed(2)}
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <div className="text-[14px] font-[600] text-[#51CC5D]">
+                                                            <div className="text-[14px] font-[600] text-success">
                                                                 Rs. {(order.advanceAmount || 0).toFixed(2)}
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <div className="text-[14px] font-[600] text-[#F4A100]">
+                                                            <div className="text-[14px] font-[600] text-warning">
                                                                 Rs. {(order.balanceAmount || 0).toFixed(2)}
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <div className="text-[14px] text-[#383E49]">{order.deliveryDate}</div>
-                                                            <div className="text-[12px] text-[#667085]">{order.deliveryTime}</div>
+                                                            <div className="text-[14px] text-fg">{order.deliveryDate}</div>
+                                                            <div className="text-[12px] text-fg-secondary">{order.deliveryTime}</div>
                                                         </td>
                                                         <td className="px-6 py-4">
                                                             <span className={`px-2 py-1 rounded-full text-[12px] font-[500] ${
                                                                 order.status === 'ADVANCE_PAID'
-                                                                    ? 'bg-[#0F50AA]/10 text-[#0F50AA]'
+                                                                    ? 'bg-brand/10 text-brand-fg'
                                                                     : order.status === 'PENDING_APPROVAL'
-                                                                        ? 'bg-[#F4A100]/10 text-[#F4A100]'
-                                                                        : 'bg-[#51CC5D]/10 text-[#51CC5D]'
+                                                                        ? 'bg-warning/10 text-warning'
+                                                                        : 'bg-success/10 text-success'
                                                                 }`}>
                                                                 {(order.status || 'PENDING').replace('_', ' ')}
                                                             </span>
@@ -1158,7 +1158,7 @@ export default function POSSpecialOrders() {
                                                         <td className="px-6 py-4">
                                                             <button
                                                                 onClick={() => retrieveOrder(order)}
-                                                                className="text-[#0F50AA] hover:text-[#0D4494] text-[12px] font-[500] flex items-center gap-1"
+                                                                className="text-brand-fg hover:text-brand-fg text-[12px] font-[500] flex items-center gap-1"
                                                             >
                                                                 <Eye size={14} />
                                                                 Retrieve
@@ -1172,9 +1172,9 @@ export default function POSSpecialOrders() {
 
                                     {pendingOrders.length === 0 && (
                                         <div className="text-center py-12">
-                                            <Clock size={48} className="text-[#E4E6EA] mx-auto mb-3" />
-                                            <p className="text-[16px] text-[#667085]">No pending orders</p>
-                                            <p className="text-[14px] text-[#667085] mt-1">All special orders have been fulfilled</p>
+                                            <Clock size={48} className="text-fg-muted mx-auto mb-3" />
+                                            <p className="text-[16px] text-fg-secondary">No pending orders</p>
+                                            <p className="text-[14px] text-fg-secondary mt-1">All special orders have been fulfilled</p>
                                         </div>
                                     )}
                                 </div>
@@ -1186,24 +1186,24 @@ export default function POSSpecialOrders() {
 
             {/* Manager Approval Modal */}
             {showManagerApproval && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             {currentStep === 1 && (
                                 <>
                                     <div className="text-center mb-6">
-                                        <div className="w-16 h-16 bg-[#F4A100]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <Shield size={32} className="text-[#F4A100]" />
+                                        <div className="w-16 h-16 bg-warning/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <Shield size={32} className="text-warning" />
                                         </div>
-                                        <h3 className="text-[18px] font-[600] text-[#383E49] mb-2">Manager Approval Required</h3>
-                                        <p className="text-[14px] text-[#667085]">
+                                        <h3 className="text-[18px] font-[600] text-fg mb-2">Manager Approval Required</h3>
+                                        <p className="text-[14px] text-fg-secondary">
                                             Enter the manager OTP code to approve this special order
                                         </p>
                                     </div>
 
                                     <div className="space-y-4 mb-6">
                                         <div>
-                                            <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                            <label className="block text-[14px] font-[500] text-fg mb-2">
                                                 Manager OTP Code
                                             </label>
                                             <input
@@ -1211,7 +1211,7 @@ export default function POSSpecialOrders() {
                                                 placeholder="Enter OTP code"
                                                 value={managerOtp}
                                                 onChange={(e) => setManagerOtp(e.target.value)}
-                                                className="w-full px-3 py-3 border border-[#E4E6EA] rounded-lg text-[16px] text-center font-mono focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10"
+                                                className="w-full px-3 py-3 border border-line rounded-lg text-[16px] text-center font-mono focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                                 maxLength="6"
                                             />
                                         </div>
@@ -1225,14 +1225,14 @@ export default function POSSpecialOrders() {
                                                 setManagerOtp('');
                                                 setCurrentStep(1);
                                             }}
-                                            className="flex-1 px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                            className="flex-1 px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors"
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             onClick={verifyOtpAndProceed}
                                             disabled={managerOtp.length === 0}
-                                            className="flex-1 px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             Verify & Continue
                                         </button>
@@ -1243,42 +1243,42 @@ export default function POSSpecialOrders() {
                             {currentStep === 2 && (
                                 <>
                                     <div className="text-center mb-6">
-                                        <div className="w-16 h-16 bg-[#0F50AA]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <Receipt size={32} className="text-[#0F50AA]" />
+                                        <div className="w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <Receipt size={32} className="text-brand-fg" />
                                         </div>
-                                        <h3 className="text-[18px] font-[600] text-[#383E49] mb-2">Generate Advance Receipt</h3>
-                                        <p className="text-[14px] text-[#667085]">
+                                        <h3 className="text-[18px] font-[600] text-fg mb-2">Generate Advance Receipt</h3>
+                                        <p className="text-[14px] text-fg-secondary">
                                             Order approved! Generate receipt for advance payment
                                         </p>
                                     </div>
 
-                                    <div className="space-y-4 mb-6 p-4 bg-[#F8F9FA] rounded-lg border border-[#E4E6EA]">
-                                        <div className="text-center border-b border-[#E4E6EA] pb-3">
-                                            <h4 className="text-[16px] font-[600] text-[#383E49]">Downtown Bakery</h4>
-                                            <p className="text-[12px] text-[#667085]">Special Order - Advance Receipt</p>
-                                            <p className="text-[14px] font-[600] text-[#0F50AA] mt-2">Order ID: {generatedOrderId}</p>
+                                    <div className="space-y-4 mb-6 p-4 bg-subtle rounded-lg border border-line">
+                                        <div className="text-center border-b border-line pb-3">
+                                            <h4 className="text-[16px] font-[600] text-fg">Downtown Bakery</h4>
+                                            <p className="text-[12px] text-fg-secondary">Special Order - Advance Receipt</p>
+                                            <p className="text-[14px] font-[600] text-brand-fg mt-2">Order ID: {generatedOrderId}</p>
                                         </div>
 
                                         <div className="space-y-2 text-[12px]">
                                             <div className="flex justify-between">
-                                                <span className="text-[#667085]">Customer:</span>
-                                                <span className="text-[#383E49]">{customerDetails.name}</span>
+                                                <span className="text-fg-secondary">Customer:</span>
+                                                <span className="text-fg">{customerDetails.name}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-[#667085]">Contact:</span>
-                                                <span className="text-[#383E49]">{customerDetails.contactNumber}</span>
+                                                <span className="text-fg-secondary">Contact:</span>
+                                                <span className="text-fg">{customerDetails.contactNumber}</span>
                                             </div>
                                              <div className="flex justify-between">
-                                                <span className="text-[#667085]">Total Amount:</span>
-                                                <span className="font-[600] text-[#383E49]">Rs. {(totalAmount || 0).toFixed(2)}</span>
+                                                <span className="text-fg-secondary">Total Amount:</span>
+                                                <span className="font-[600] text-fg">Rs. {(totalAmount || 0).toFixed(2)}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-[#667085]">Advance Paid:</span>
-                                                <span className="font-[600] text-[#51CC5D]">Rs. {(advanceAmountNum || 0).toFixed(2)}</span>
+                                                <span className="text-fg-secondary">Advance Paid:</span>
+                                                <span className="font-[600] text-success">Rs. {(advanceAmountNum || 0).toFixed(2)}</span>
                                             </div>
                                             <div className="flex justify-between">
-                                                <span className="text-[#667085]">Balance Due:</span>
-                                                <span className="font-[600] text-[#F4A100]">Rs. {(remainingBalance || 0).toFixed(2)}</span>
+                                                <span className="text-fg-secondary">Balance Due:</span>
+                                                <span className="font-[600] text-warning">Rs. {(remainingBalance || 0).toFixed(2)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1289,14 +1289,14 @@ export default function POSSpecialOrders() {
                                                 printReceipt();
                                                 completeOrderSubmission();
                                             }}
-                                            className="flex-1 px-4 py-3 border border-[#0F50AA] text-[#0F50AA] rounded-lg hover:bg-[#0F50AA]/10 transition-colors flex items-center justify-center gap-2"
+                                            className="flex-1 px-4 py-3 border border-brand-fg text-brand-fg rounded-lg hover:bg-brand/10 transition-colors flex items-center justify-center gap-2"
                                         >
                                             <Printer size={16} />
                                             Print & Complete
                                         </button>
                                         <button
                                             onClick={completeOrderSubmission}
-                                            className="flex-1 px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors"
+                                            className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors"
                                         >
                                             Complete Order
                                         </button>
@@ -1310,52 +1310,52 @@ export default function POSSpecialOrders() {
 
             {/* Success Modal */}
             {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="text-center mb-6">
-                                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Check size={40} className="text-green-600" />
+                                <div className="w-20 h-20 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Check size={40} className="text-success" />
                                 </div>
-                                <h3 className="text-[20px] font-[600] text-[#383E49] mb-2">Order Submitted Successfully!</h3>
-                                <p className="text-[14px] text-[#667085] mb-4">
+                                <h3 className="text-[20px] font-[600] text-fg mb-2">Order Submitted Successfully!</h3>
+                                <p className="text-[14px] text-fg-secondary mb-4">
                                     Your special order has been created and is ready for processing
                                 </p>
-                                <div className="bg-[#F0F8FF] border border-[#0F50AA] rounded-lg p-4">
-                                    <p className="text-[12px] text-[#667085] mb-1">Special Order ID</p>
-                                    <p className="text-[18px] font-[600] text-[#0F50AA]">{generatedOrderId}</p>
+                                <div className="bg-subtle border border-brand-fg rounded-lg p-4">
+                                    <p className="text-[12px] text-fg-secondary mb-1">Special Order ID</p>
+                                    <p className="text-[18px] font-[600] text-brand-fg">{generatedOrderId}</p>
                                 </div>
                             </div>
 
                             <div className="space-y-4 mb-6">
-                                <div className="p-4 bg-[#F8F9FA] rounded-lg">
-                                    <h4 className="text-[14px] font-[500] text-[#383E49] mb-3">Order Summary</h4>
+                                <div className="p-4 bg-subtle rounded-lg">
+                                    <h4 className="text-[14px] font-[500] text-fg mb-3">Order Summary</h4>
                                     <div className="space-y-2 text-[14px]">
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Customer:</span>
-                                            <span className="font-[500] text-[#383E49]">{customerDetails.name}</span>
+                                            <span className="text-fg-secondary">Customer:</span>
+                                            <span className="font-[500] text-fg">{customerDetails.name}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Contact:</span>
-                                            <span className="font-[500] text-[#383E49]">{customerDetails.contactNumber}</span>
+                                            <span className="text-fg-secondary">Contact:</span>
+                                            <span className="font-[500] text-fg">{customerDetails.contactNumber}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Items:</span>
-                                            <span className="font-[500] text-[#383E49]">{selectedProducts.length}</span>
+                                            <span className="text-fg-secondary">Items:</span>
+                                            <span className="font-[500] text-fg">{selectedProducts.length}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Delivery:</span>
-                                            <span className="font-[500] text-[#383E49]">
+                                            <span className="text-fg-secondary">Delivery:</span>
+                                            <span className="font-[500] text-fg">
                                                 {new Date(deliveryDateTime).toLocaleString()}
                                             </span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Advance Paid:</span>
-                                            <span className="font-[500] text-[#51CC5D]">Rs. {advanceAmountNum.toFixed(2)}</span>
+                                            <span className="text-fg-secondary">Advance Paid:</span>
+                                            <span className="font-[500] text-success">Rs. {advanceAmountNum.toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Balance Due:</span>
-                                            <span className="font-[500] text-[#F4A100]">Rs. {remainingBalance.toFixed(2)}</span>
+                                            <span className="text-fg-secondary">Balance Due:</span>
+                                            <span className="font-[500] text-warning">Rs. {remainingBalance.toFixed(2)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1364,14 +1364,14 @@ export default function POSSpecialOrders() {
                             <div className="flex flex-col sm:flex-row gap-3">
                                 <button
                                     onClick={printReceipt}
-                                    className="flex-1 px-4 py-3 border border-[#0F50AA] text-[#0F50AA] rounded-lg hover:bg-[#0F50AA]/10 transition-colors flex items-center justify-center gap-2"
+                                    className="flex-1 px-4 py-3 border border-brand-fg text-brand-fg rounded-lg hover:bg-brand/10 transition-colors flex items-center justify-center gap-2"
                                 >
                                     <Printer size={16} />
                                     Print Receipt
                                 </button>
                                 <button
                                     onClick={resetForm}
-                                    className="flex-1 px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors flex items-center justify-center gap-2"
+                                    className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors flex items-center justify-center gap-2"
                                 >
                                     <Plus size={16} />
                                     New Order
@@ -1384,20 +1384,20 @@ export default function POSSpecialOrders() {
 
             {/* Order Details Modal (for Fulfillment) */}
             {showOrderDetails && selectedOrder && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="flex items-center justify-between mb-6">
                                 <div>
-                                    <h3 className="text-[18px] font-[600] text-[#383E49]">Order Details</h3>
-                                    <p className="text-[14px] text-[#667085]">Order ID: {selectedOrder.id}</p>
+                                    <h3 className="text-[18px] font-[600] text-fg">Order Details</h3>
+                                    <p className="text-[14px] text-fg-secondary">Order ID: {selectedOrder.id}</p>
                                 </div>
                                 <button
                                     onClick={() => {
                                         setShowOrderDetails(false);
                                         setSelectedOrder(null);
                                     }}
-                                    className="text-[#667085] hover:text-[#383E49] p-1"
+                                    className="text-fg-secondary hover:text-fg p-1"
                                 >
                                     <X size={20} />
                                 </button>
@@ -1405,27 +1405,27 @@ export default function POSSpecialOrders() {
 
                             <div className="space-y-6">
                                 {/* Customer Information */}
-                                <div className="bg-[#F8F9FA] rounded-lg p-4">
-                                    <h4 className="text-[14px] font-[600] text-[#383E49] mb-3 flex items-center gap-2">
+                                <div className="bg-subtle rounded-lg p-4">
+                                    <h4 className="text-[14px] font-[600] text-fg mb-3 flex items-center gap-2">
                                         <User size={16} />
                                         Customer Information
                                     </h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[14px]">
                                         <div>
-                                            <span className="text-[#667085]">Name:</span>
-                                            <span className="font-[500] text-[#383E49] ml-2">{selectedOrder.customerName}</span>
+                                            <span className="text-fg-secondary">Name:</span>
+                                            <span className="font-[500] text-fg ml-2">{selectedOrder.customerName}</span>
                                         </div>
                                         <div>
-                                            <span className="text-[#667085]">Contact:</span>
-                                            <span className="font-[500] text-[#383E49] ml-2">{selectedOrder.contactNumber}</span>
+                                            <span className="text-fg-secondary">Contact:</span>
+                                            <span className="font-[500] text-fg ml-2">{selectedOrder.contactNumber}</span>
                                         </div>
                                         <div>
-                                            <span className="text-[#667085]">Order Date:</span>
-                                            <span className="font-[500] text-[#383E49] ml-2">{selectedOrder.orderDate}</span>
+                                            <span className="text-fg-secondary">Order Date:</span>
+                                            <span className="font-[500] text-fg ml-2">{selectedOrder.orderDate}</span>
                                         </div>
                                         <div>
-                                            <span className="text-[#667085]">Delivery:</span>
-                                            <span className="font-[500] text-[#383E49] ml-2">
+                                            <span className="text-fg-secondary">Delivery:</span>
+                                            <span className="font-[500] text-fg ml-2">
                                                 {selectedOrder.deliveryDate} at {selectedOrder.deliveryTime}
                                             </span>
                                         </div>
@@ -1434,22 +1434,22 @@ export default function POSSpecialOrders() {
 
                                 {/* Order Items */}
                                 <div>
-                                    <h4 className="text-[14px] font-[600] text-[#383E49] mb-3 flex items-center gap-2">
+                                    <h4 className="text-[14px] font-[600] text-fg mb-3 flex items-center gap-2">
                                         <Package size={16} />
                                         Order Items
                                     </h4>
                                     <div className="space-y-2">
                                         {selectedOrder.items.map((item, index) => (
-                                            <div key={index} className="flex justify-between items-center p-3 bg-[#F8F9FA] rounded-lg">
+                                            <div key={index} className="flex justify-between items-center p-3 bg-subtle rounded-lg">
                                                 <div>
-                                                    <p className="text-[14px] font-[500] text-[#383E49]">{item.name}</p>
-                                                    <p className="text-[12px] text-[#667085]">Quantity: {item.quantity}</p>
+                                                    <p className="text-[14px] font-[500] text-fg">{item.name}</p>
+                                                    <p className="text-[12px] text-fg-secondary">Quantity: {item.quantity}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-[14px] font-[600] text-[#0F50AA]">
+                                                    <p className="text-[14px] font-[600] text-brand-fg">
                                                         Rs. {(item.quantity * (item.unitPrice || 0)).toFixed(2)}
                                                     </p>
-                                                    <p className="text-[12px] text-[#667085]">
+                                                    <p className="text-[12px] text-fg-secondary">
                                                         @ Rs. {(item.unitPrice || 0).toFixed(2)} each
                                                     </p>
                                                 </div>
@@ -1460,22 +1460,22 @@ export default function POSSpecialOrders() {
 
                                 {/* Payment Summary */}
                                 <div>
-                                    <h4 className="text-[14px] font-[600] text-[#383E49] mb-3 flex items-center gap-2">
+                                    <h4 className="text-[14px] font-[600] text-fg mb-3 flex items-center gap-2">
                                         <DollarSign size={16} />
                                         Payment Summary
                                     </h4>
-                                    <div className="bg-[#F8F9FA] rounded-lg p-4 space-y-3">
+                                    <div className="bg-subtle rounded-lg p-4 space-y-3">
                                         <div className="flex justify-between text-[14px]">
-                                            <span className="text-[#667085]">Total Amount:</span>
-                                            <span className="font-[600] text-[#383E49]">Rs. {(selectedOrder.totalAmount || 0).toFixed(2)}</span>
+                                            <span className="text-fg-secondary">Total Amount:</span>
+                                            <span className="font-[600] text-fg">Rs. {(selectedOrder.totalAmount || 0).toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between text-[14px]">
-                                            <span className="text-[#667085]">Advance Paid:</span>
-                                            <span className="font-[600] text-[#51CC5D]">Rs. {(selectedOrder.advanceAmount || 0).toFixed(2)}</span>
+                                            <span className="text-fg-secondary">Advance Paid:</span>
+                                            <span className="font-[600] text-success">Rs. {(selectedOrder.advanceAmount || 0).toFixed(2)}</span>
                                         </div>
-                                        <div className="flex justify-between text-[16px] font-[600] border-t border-[#E4E6EA] pt-3">
-                                            <span className="text-[#667085]">Remaining Balance:</span>
-                                            <span className="text-[#F4A100]">Rs. {(selectedOrder.balanceAmount || 0).toFixed(2)}</span>
+                                        <div className="flex justify-between text-[16px] font-[600] border-t border-line pt-3">
+                                            <span className="text-fg-secondary">Remaining Balance:</span>
+                                            <span className="text-warning">Rs. {(selectedOrder.balanceAmount || 0).toFixed(2)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1483,43 +1483,43 @@ export default function POSSpecialOrders() {
                                 {/* Special Notes */}
                                 {selectedOrder.notes && (
                                     <div>
-                                        <h4 className="text-[14px] font-[600] text-[#383E49] mb-2 flex items-center gap-2">
+                                        <h4 className="text-[14px] font-[600] text-fg mb-2 flex items-center gap-2">
                                             <FileText size={16} />
                                             Special Notes
                                         </h4>
-                                        <div className="bg-[#F8F9FA] rounded-lg p-3">
-                                            <p className="text-[14px] text-[#383E49]">{selectedOrder.notes}</p>
+                                        <div className="bg-subtle rounded-lg p-3">
+                                            <p className="text-[14px] text-fg">{selectedOrder.notes}</p>
                                         </div>
                                     </div>
                                 )}
 
                                 {/* Final Payment Section */}
-                                <div className="border-t border-[#E4E6EA] pt-6">
-                                    <h4 className="text-[14px] font-[600] text-[#383E49] mb-4 flex items-center gap-2">
+                                <div className="border-t border-line pt-6">
+                                    <h4 className="text-[14px] font-[600] text-fg mb-4 flex items-center gap-2">
                                         <CreditCard size={16} />
                                         Record Final Payment
                                     </h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-[12px] font-[500] text-[#383E49] mb-2">
+                                            <label className="block text-[12px] font-[500] text-fg mb-2">
                                                 Payment Amount (Rs.)
                                             </label>
                                             <input
                                                 type="number"
                                                 value={finalPaymentAmount}
                                                 onChange={(e) => setFinalPaymentAmount(e.target.value)}
-                                                className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                                className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                                 placeholder={(selectedOrder.balanceAmount || 0).toFixed(2)}
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-[12px] font-[500] text-[#383E49] mb-2">
+                                            <label className="block text-[12px] font-[500] text-fg mb-2">
                                                 Payment Method
                                             </label>
                                             <select
                                                 value={finalPaymentMethod}
                                                 onChange={(e) => setFinalPaymentMethod(e.target.value)}
-                                                className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none bg-white"
+                                                className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none bg-surface"
                                             >
                                                 {paymentMethods.map(method => (
                                                     <option key={method.paymentMethodId} value={method.name}>{method.name}</option>
@@ -1530,12 +1530,12 @@ export default function POSSpecialOrders() {
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="border-t border-[#E4E6EA] pt-6">
+                                <div className="border-t border-line pt-6">
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                         <button
                                             onClick={recordFinalPayment}
                                             disabled={isLoading || !finalPaymentAmount || parseFloat(finalPaymentAmount) <= 0}
-                                            className="px-4 py-3 bg-[#51CC5D] text-white rounded-lg hover:bg-[#45B74A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500] flex items-center justify-center gap-2"
+                                            className="px-4 py-3 bg-success-solid text-on-brand rounded-lg hover:bg-success-solid transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500] flex items-center justify-center gap-2"
                                         >
                                             {isLoading ? <RotateCcw className="animate-spin" size={16} /> : <DollarSign size={16} />}
                                             {isLoading ? 'Processing...' : 'Record Payment'}
@@ -1543,9 +1543,9 @@ export default function POSSpecialOrders() {
 
                                         <button
                                             onClick={() => {
-                                                alert('Manager approval requested for order modification');
+                                                toast('Manager approval requested for order modification');
                                             }}
-                                            className="px-4 py-3 border border-[#F4A100] text-[#F4A100] rounded-lg hover:bg-[#F4A100]/10 transition-colors text-[14px] font-[500] flex items-center justify-center gap-2"
+                                            className="px-4 py-3 border border-warning text-warning rounded-lg hover:bg-warning/10 transition-colors text-[14px] font-[500] flex items-center justify-center gap-2"
                                         >
                                             <Shield size={16} />
                                             Manager Approval
@@ -1554,7 +1554,7 @@ export default function POSSpecialOrders() {
                                         <button
                                             onClick={closeOrder}
                                             disabled={isLoading}
-                                            className="px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors text-[14px] font-[500] flex items-center justify-center gap-2 disabled:opacity-50"
+                                            className="px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors text-[14px] font-[500] flex items-center justify-center gap-2 disabled:opacity-50"
                                         >
                                             {isLoading ? <RotateCcw className="animate-spin" size={16} /> : <CheckCircle size={16} />}
                                             {isLoading ? 'Closing...' : 'Close Order'}
@@ -1569,7 +1569,7 @@ export default function POSSpecialOrders() {
 
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

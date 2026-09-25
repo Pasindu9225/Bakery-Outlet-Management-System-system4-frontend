@@ -43,9 +43,9 @@ const SOURCE_LABELS = {
 };
 
 const STATUS_STYLES = {
-  PENDING: "bg-amber-50 text-amber-700 border-amber-200",
-  CONFIRMED: "bg-green-50 text-green-700 border-green-200",
-  DISMISSED: "bg-gray-100 text-gray-600 border-gray-200",
+  PENDING: "bg-warning/10 text-warning border-warning/30",
+  CONFIRMED: "bg-success/10 text-success border-success/30",
+  DISMISSED: "bg-hover text-fg-secondary border-line",
 };
 
 const money = (v) =>
@@ -71,7 +71,7 @@ function StatusBadge({ status }) {
 function ExpiryNote({ entry }) {
   if (!entry.expiryDate) return null;
   return (
-    <span className={`text-[11px] ${entry.daysPastExpiry ? "text-red-600 font-[600]" : "text-[#667085]"}`}>
+    <span className={`text-[11px] ${entry.daysPastExpiry ? "text-error font-[600]" : "text-fg-secondary"}`}>
       Exp {entry.expiryDate}
       {entry.daysPastExpiry ? ` · ${entry.daysPastExpiry} day${entry.daysPastExpiry === 1 ? "" : "s"} ago` : ""}
     </span>
@@ -230,7 +230,7 @@ export default function AdminWastage() {
   ];
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden relative font-sans">
+    <div className="flex bg-app h-screen overflow-hidden relative font-sans">
       <AdminSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -239,31 +239,31 @@ export default function AdminWastage() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-[22px] font-[700] text-[#1D2939] mb-1">Wastage Management</h1>
-              <p className="text-[14px] text-[#667085]">
+              <h1 className="text-[22px] font-[700] text-fg-strong mb-1">Wastage Management</h1>
+              <p className="text-[14px] text-fg-secondary">
                 Review wastage from every module. Confirmed entries remove the stock and go to reports.
               </p>
             </div>
             <button
               onClick={refresh}
-              className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 bg-white border border-[#D0D5DD] rounded-lg text-[14px] text-[#344054] hover:bg-gray-50"
+              className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 bg-surface border border-line-strong rounded-lg text-[14px] text-fg hover:bg-subtle"
             >
               <RefreshCw size={16} className={loading ? "animate-spin" : ""} /> Refresh
             </button>
           </div>
 
-          <div className="flex gap-2 mb-6 border-b border-[#E4E6EA] overflow-x-auto overflow-y-hidden">
+          <div className="flex gap-2 mb-6 border-b border-line overflow-x-auto overflow-y-hidden">
             {tabs.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 text-[14px] font-[600] border-b-2 -mb-px whitespace-nowrap ${
-                  tab === t.id ? "border-[#0F50AA] text-[#0F50AA]" : "border-transparent text-[#667085] hover:text-[#344054]"
+                  tab === t.id ? "border-brand-fg text-brand-fg" : "border-transparent text-fg-secondary hover:text-fg"
                 }`}
               >
                 <t.icon size={16} /> {t.label}
                 {t.count > 0 && (
-                  <span className="ml-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[11px]">{t.count}</span>
+                  <span className="ml-1 px-2 py-0.5 rounded-full bg-warning/10 text-warning text-[11px]">{t.count}</span>
                 )}
               </button>
             ))}
@@ -276,13 +276,13 @@ export default function AdminWastage() {
               {tab === "overview" && <Overview summary={summary} pending={pending} onOpenPending={(stage) => { setStageFilter(stage || ""); setTab("pending"); }} />}
 
               {tab !== "overview" && (
-                <div className="bg-white rounded-xl shadow-sm border border-[#E4E6EA] p-4 mb-4 flex flex-col lg:flex-row gap-3">
+                <div className="bg-surface rounded-xl shadow-sm border border-line p-4 mb-4 flex flex-col lg:flex-row gap-3">
                   <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#98A2B3]" size={18} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-muted" size={18} />
                     <input
                       type="text"
                       placeholder="Search item, location, entry no or batch..."
-                      className="w-full pl-10 pr-4 py-2 border border-[#D0D5DD] rounded-lg text-[14px] outline-none focus:ring-2 focus:ring-blue-100"
+                      className="w-full pl-10 pr-4 py-2 border border-line-strong rounded-lg text-[14px] outline-none focus:ring-2 focus:ring-brand-fg"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                     />
@@ -290,7 +290,7 @@ export default function AdminWastage() {
                   <select
                     value={stageFilter}
                     onChange={(e) => setStageFilter(e.target.value)}
-                    className="px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px] bg-white"
+                    className="px-3 py-2 border border-line-strong rounded-lg text-[14px] bg-surface"
                   >
                     <option value="">All modules</option>
                     {Object.entries(STAGE_LABELS).map(([k, v]) => (
@@ -302,21 +302,21 @@ export default function AdminWastage() {
                       <select
                         value={watchDays}
                         onChange={(e) => setWatchDays(Number(e.target.value))}
-                        className="px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px] bg-white"
+                        className="px-3 py-2 border border-line-strong rounded-lg text-[14px] bg-surface"
                         title="Warn this many days before expiry"
                       >
                         {[1, 3, 7, 14].map((d) => (
                           <option key={d} value={d}>Warn {d} day{d === 1 ? "" : "s"} ahead</option>
                         ))}
                       </select>
-                      <label className="flex items-center gap-2 text-[14px] text-[#344054] px-2">
+                      <label className="flex items-center gap-2 text-[14px] text-fg px-2">
                         <input type="checkbox" checked={watchAll} onChange={(e) => setWatchAll(e.target.checked)} />
                         Show all dated stock
                       </label>
                       <button
                         onClick={runExpiryCheck}
                         disabled={checking}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-[14px] font-[600] disabled:opacity-50 whitespace-nowrap"
+                        className="flex items-center gap-2 px-4 py-2 bg-error-solid text-on-brand rounded-lg text-[14px] font-[600] disabled:opacity-50 whitespace-nowrap"
                         title="Send every expired item to Pending Review now (this also runs automatically every night)"
                       >
                         {checking ? <Loader variant="inline" /> : <><AlertTriangle size={16} /> Send expired to review</>}
@@ -328,19 +328,19 @@ export default function AdminWastage() {
                       <select
                         value={historyStatus}
                         onChange={(e) => setHistoryStatus(e.target.value)}
-                        className="px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px] bg-white"
+                        className="px-3 py-2 border border-line-strong rounded-lg text-[14px] bg-surface"
                       >
                         <option value="CONFIRMED">Confirmed</option>
                         <option value="DISMISSED">Dismissed</option>
                       </select>
                       <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)}
-                        className="px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px]" title="From" />
+                        className="px-3 py-2 border border-line-strong rounded-lg text-[14px]" title="From" />
                       <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)}
-                        className="px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px]" title="To" />
+                        className="px-3 py-2 border border-line-strong rounded-lg text-[14px]" title="To" />
                       <button
                         onClick={exportCsv}
                         disabled={historyRows.length === 0}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#0F50AA] text-white rounded-lg text-[14px] font-[600] disabled:opacity-50"
+                        className="flex items-center gap-2 px-4 py-2 bg-brand text-on-brand rounded-lg text-[14px] font-[600] disabled:opacity-50"
                       >
                         <Download size={16} /> Export
                       </button>
@@ -351,11 +351,11 @@ export default function AdminWastage() {
 
               {tab === "expiry" && (
                 <>
-                  <p className="text-[13px] text-[#667085] mb-3">
+                  <p className="text-[13px] text-fg-secondary mb-3">
                     {watchLoading ? "Checking stock..." : (
                       <>
                         {watchRows.length} item{watchRows.length === 1 ? "" : "s"} shown
-                        {expiredCount > 0 && <> · <span className="text-red-600 font-[600]">{expiredCount} expired</span></>}
+                        {expiredCount > 0 && <> · <span className="text-error font-[600]">{expiredCount} expired</span></>}
                         {" "}· expired stock is sent to Pending Review automatically every night.
                       </>
                     )}
@@ -377,9 +377,9 @@ export default function AdminWastage() {
               {tab === "history" && (
                 <>
                   {historyStatus === "CONFIRMED" && (
-                    <p className="text-[13px] text-[#667085] mb-3">
+                    <p className="text-[13px] text-fg-secondary mb-3">
                       {historyRows.length} confirmed entr{historyRows.length === 1 ? "y" : "ies"} · total value{" "}
-                      <span className="font-[700] text-[#1D2939]">{money(historyTotal)}</span>
+                      <span className="font-[700] text-fg-strong">{money(historyTotal)}</span>
                     </p>
                   )}
                   <EntryTable rows={historyRows} empty="No entries for these filters." />
@@ -411,13 +411,13 @@ export default function AdminWastage() {
 
       {toast && (
         <div className="fixed top-6 right-6 z-[10000000]">
-          <div className={`bg-white border-l-4 ${toast.type === "success" ? "border-green-500" : "border-red-500"} rounded-xl shadow-2xl p-4 flex items-center gap-4 min-w-[320px] max-w-[440px] ring-1 ring-black/5`}>
-            <div className={`flex-shrink-0 w-10 h-10 ${toast.type === "success" ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"} rounded-full flex items-center justify-center`}>
+          <div className={`bg-elevated border-l-4 ${toast.type === "success" ? "border-success" : "border-error"} rounded-xl shadow-2xl p-4 flex items-center gap-4 min-w-[320px] max-w-[440px] ring-1 ring-fg-strong/5`}>
+            <div className={`flex-shrink-0 w-10 h-10 ${toast.type === "success" ? "bg-success/10 text-success" : "bg-error/10 text-error"} rounded-full flex items-center justify-center`}>
               {toast.type === "success" ? <Check className="w-6 h-6" /> : <X className="w-6 h-6" />}
             </div>
             <div>
-              <p className="text-[14px] text-[#1D2939] font-[700] uppercase tracking-wider">{toast.type === "success" ? "Success" : "Error"}</p>
-              <p className="text-[13px] text-[#475467] font-[500]">{toast.msg}</p>
+              <p className="text-[14px] text-fg-strong font-[700] uppercase tracking-wider">{toast.type === "success" ? "Success" : "Error"}</p>
+              <p className="text-[13px] text-fg font-[500]">{toast.msg}</p>
             </div>
           </div>
         </div>
@@ -430,40 +430,40 @@ function Overview({ summary, pending, onOpenPending }) {
   if (!summary) return null;
   const expiredPending = pending.filter((e) => e.reasonCode === "EXPIRED").length;
   const cards = [
-    { label: "Waiting for review", value: summary.pendingCount, sub: `Suggested value ${money(summary.pendingValue)}`, icon: ClipboardList, tone: "text-amber-600 bg-amber-50" },
-    { label: "Expired items pending", value: expiredPending, sub: "Reported as expired", icon: AlertTriangle, tone: "text-red-600 bg-red-50" },
-    { label: "Confirmed this month", value: summary.confirmedThisMonthCount, sub: "Removed from stock", icon: CheckCircle2, tone: "text-green-600 bg-green-50" },
-    { label: "Wastage value this month", value: money(summary.confirmedThisMonthValue), sub: "Confirmed entries only", icon: Trash2, tone: "text-[#0F50AA] bg-blue-50" },
+    { label: "Waiting for review", value: summary.pendingCount, sub: `Suggested value ${money(summary.pendingValue)}`, icon: ClipboardList, tone: "text-warning bg-warning/10" },
+    { label: "Expired items pending", value: expiredPending, sub: "Reported as expired", icon: AlertTriangle, tone: "text-error bg-error/10" },
+    { label: "Confirmed this month", value: summary.confirmedThisMonthCount, sub: "Removed from stock", icon: CheckCircle2, tone: "text-success bg-success/10" },
+    { label: "Wastage value this month", value: money(summary.confirmedThisMonthValue), sub: "Confirmed entries only", icon: Trash2, tone: "text-brand-fg bg-brand/10" },
   ];
   const byStage = Object.entries(summary.pendingByStage || {});
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {cards.map((c) => (
-          <div key={c.label} className="bg-white rounded-xl border border-[#E4E6EA] p-5 shadow-sm">
+          <div key={c.label} className="bg-surface rounded-xl border border-line p-5 shadow-sm">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[13px] text-[#667085] font-[500]">{c.label}</p>
+              <p className="text-[13px] text-fg-secondary font-[500]">{c.label}</p>
               <span className={`w-9 h-9 rounded-full flex items-center justify-center ${c.tone}`}><c.icon size={18} /></span>
             </div>
-            <p className="text-[24px] font-[700] text-[#1D2939]">{c.value}</p>
-            <p className="text-[12px] text-[#98A2B3] mt-1">{c.sub}</p>
+            <p className="text-[24px] font-[700] text-fg-strong">{c.value}</p>
+            <p className="text-[12px] text-fg-muted mt-1">{c.sub}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-xl border border-[#E4E6EA] p-5 shadow-sm">
-        <h3 className="text-[16px] font-[600] text-[#1D2939] mb-1">Pending by module</h3>
-        <p className="text-[13px] text-[#667085] mb-4">Where the waiting wastage was found. Open a module to review it.</p>
+      <div className="bg-surface rounded-xl border border-line p-5 shadow-sm">
+        <h3 className="text-[16px] font-[600] text-fg-strong mb-1">Pending by module</h3>
+        <p className="text-[13px] text-fg-secondary mb-4">Where the waiting wastage was found. Open a module to review it.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {byStage.map(([stage, count]) => (
             <button
               key={stage}
               onClick={() => onOpenPending(stage)}
               disabled={!count}
-              className="text-left p-4 rounded-lg border border-[#E4E6EA] hover:border-[#0F50AA] hover:bg-blue-50/40 disabled:hover:border-[#E4E6EA] disabled:hover:bg-transparent disabled:cursor-default"
+              className="text-left p-4 rounded-lg border border-line hover:border-brand-fg hover:bg-brand/10 disabled:hover:border-line disabled:hover:bg-transparent disabled:cursor-default"
             >
-              <p className="text-[13px] text-[#667085]">{stageLabel(stage)}</p>
-              <p className={`text-[20px] font-[700] ${count ? "text-amber-600" : "text-[#D0D5DD]"}`}>{count}</p>
+              <p className="text-[13px] text-fg-secondary">{stageLabel(stage)}</p>
+              <p className={`text-[20px] font-[700] ${count ? "text-warning" : "text-fg-muted"}`}>{count}</p>
             </button>
           ))}
         </div>
@@ -475,41 +475,41 @@ function Overview({ summary, pending, onOpenPending }) {
 function ExpiryTable({ rows }) {
   if (rows.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-[#E4E6EA] p-10 text-center text-[14px] text-[#667085]">
+      <div className="bg-surface rounded-xl border border-line p-10 text-center text-[14px] text-fg-secondary">
         No stock is expired or close to expiry.
       </div>
     );
   }
   return (
-    <div className="bg-white rounded-xl border border-[#E4E6EA] shadow-sm overflow-x-auto">
+    <div className="bg-surface rounded-xl border border-line shadow-sm overflow-x-auto">
       <table className="w-full min-w-[900px]">
         <thead>
-          <tr className="border-b border-[#E4E6EA] bg-[#F9FAFB]">
+          <tr className="border-b border-line bg-subtle">
             {["Item", "Where", "Batch", "Qty", "Expiry", "", "Wastage entry"].map((h, i) => (
-              <th key={i} className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">{h}</th>
+              <th key={i} className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.stockRef} className={`border-b border-[#F0F1F3] ${r.status === "EXPIRED" ? "bg-red-50/40" : ""}`}>
-              <td className="py-3 px-4 text-[14px] font-[500] text-[#1D2939]">{r.itemName}</td>
+            <tr key={r.stockRef} className={`border-b border-line ${r.status === "EXPIRED" ? "bg-error/10" : ""}`}>
+              <td className="py-3 px-4 text-[14px] font-[500] text-fg-strong">{r.itemName}</td>
               <td className="py-3 px-4">
-                <p className="text-[13px] text-[#344054]">{stageLabel(r.stage)}</p>
-                {locationOf(r) && <p className="text-[12px] text-[#98A2B3]">{locationOf(r)}</p>}
+                <p className="text-[13px] text-fg">{stageLabel(r.stage)}</p>
+                {locationOf(r) && <p className="text-[12px] text-fg-muted">{locationOf(r)}</p>}
               </td>
-              <td className="py-3 px-4 text-[13px] text-[#667085]">{r.batchRef || "—"}</td>
-              <td className="py-3 px-4 text-[14px] text-[#344054] whitespace-nowrap">{qty(r.qty, r.uom)}</td>
-              <td className="py-3 px-4 text-[13px] text-[#344054] whitespace-nowrap">{r.expiryDate}</td>
+              <td className="py-3 px-4 text-[13px] text-fg-secondary">{r.batchRef || "—"}</td>
+              <td className="py-3 px-4 text-[14px] text-fg whitespace-nowrap">{qty(r.qty, r.uom)}</td>
+              <td className="py-3 px-4 text-[13px] text-fg whitespace-nowrap">{r.expiryDate}</td>
               <td className="py-3 px-4"><ExpiryTag expiryDate={r.expiryDate} /></td>
               <td className="py-3 px-4 text-[13px]">
                 {r.wastageEntryNo ? (
                   <span className="flex items-center gap-2">
-                    <span className="text-[#344054]">{r.wastageEntryNo}</span>
+                    <span className="text-fg">{r.wastageEntryNo}</span>
                     <StatusBadge status={r.wastageStatus} />
                   </span>
                 ) : (
-                  <span className="text-[#98A2B3]">{r.status === "EXPIRED" ? "Not yet raised" : "—"}</span>
+                  <span className="text-fg-muted">{r.status === "EXPIRED" ? "Not yet raised" : "—"}</span>
                 )}
               </td>
             </tr>
@@ -523,60 +523,60 @@ function ExpiryTable({ rows }) {
 function EntryTable({ rows, empty, pending, onConfirm, onDismiss }) {
   if (rows.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-[#E4E6EA] p-10 text-center text-[14px] text-[#667085]">{empty}</div>
+      <div className="bg-surface rounded-xl border border-line p-10 text-center text-[14px] text-fg-secondary">{empty}</div>
     );
   }
   return (
-    <div className="bg-white rounded-xl border border-[#E4E6EA] shadow-sm overflow-x-auto">
+    <div className="bg-surface rounded-xl border border-line shadow-sm overflow-x-auto">
       <table className="w-full min-w-[960px]">
         <thead>
-          <tr className="border-b border-[#E4E6EA] bg-[#F9FAFB]">
+          <tr className="border-b border-line bg-subtle">
             {["Entry", "Item", "Where", "Qty", pending ? "Suggested value" : "Value", "Reason", "Source", pending ? "" : "Status"].map((h, i) => (
-              <th key={i} className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">{h}</th>
+              <th key={i} className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {rows.map((e) => (
-            <tr key={e.id} className="border-b border-[#F0F1F3] align-top">
+            <tr key={e.id} className="border-b border-line align-top">
               <td className="py-3 px-4">
-                <p className="text-[13px] font-[600] text-[#1D2939]">{e.entryNo}</p>
-                <p className="text-[12px] text-[#98A2B3]">{e.wastageDate}</p>
+                <p className="text-[13px] font-[600] text-fg-strong">{e.entryNo}</p>
+                <p className="text-[12px] text-fg-muted">{e.wastageDate}</p>
               </td>
               <td className="py-3 px-4">
-                <p className="text-[14px] font-[500] text-[#1D2939]">{e.itemName}</p>
+                <p className="text-[14px] font-[500] text-fg-strong">{e.itemName}</p>
                 <div className="flex flex-col">
-                  {e.batchRef && <span className="text-[11px] text-[#667085]">Batch {e.batchRef}</span>}
+                  {e.batchRef && <span className="text-[11px] text-fg-secondary">Batch {e.batchRef}</span>}
                   <ExpiryNote entry={e} />
                 </div>
               </td>
               <td className="py-3 px-4">
-                <p className="text-[13px] text-[#344054]">{stageLabel(e.stage)}</p>
-                {locationOf(e) && <p className="text-[12px] text-[#98A2B3]">{locationOf(e)}</p>}
+                <p className="text-[13px] text-fg">{stageLabel(e.stage)}</p>
+                {locationOf(e) && <p className="text-[12px] text-fg-muted">{locationOf(e)}</p>}
               </td>
-              <td className="py-3 px-4 text-[14px] text-[#344054] whitespace-nowrap">
+              <td className="py-3 px-4 text-[14px] text-fg whitespace-nowrap">
                 {qty(pending ? e.qty : e.actualQty ?? e.qty, e.uom)}
                 {pending && e.stockAvailable !== null && e.stockAvailable !== undefined && (
-                  <p className="text-[11px] text-[#98A2B3]">In stock: {qty(e.stockAvailable, e.uom)}</p>
+                  <p className="text-[11px] text-fg-muted">In stock: {qty(e.stockAvailable, e.uom)}</p>
                 )}
               </td>
-              <td className="py-3 px-4 text-[14px] text-[#344054] whitespace-nowrap">{money(pending ? e.systemValue : e.actualValue)}</td>
+              <td className="py-3 px-4 text-[14px] text-fg whitespace-nowrap">{money(pending ? e.systemValue : e.actualValue)}</td>
               <td className="py-3 px-4">
-                <p className="text-[13px] text-[#344054]">{e.reasonLabel}</p>
-                {e.notes && <p className="text-[11px] text-[#98A2B3] max-w-[220px]">{e.notes}</p>}
-                {!pending && e.adminNotes && <p className="text-[11px] text-[#0F50AA] max-w-[220px]">Admin: {e.adminNotes}</p>}
+                <p className="text-[13px] text-fg">{e.reasonLabel}</p>
+                {e.notes && <p className="text-[11px] text-fg-muted max-w-[220px]">{e.notes}</p>}
+                {!pending && e.adminNotes && <p className="text-[11px] text-brand-fg max-w-[220px]">Admin: {e.adminNotes}</p>}
               </td>
               <td className="py-3 px-4">
-                <p className="text-[13px] text-[#344054]">{SOURCE_LABELS[e.sourceType] || e.sourceType}</p>
-                <p className="text-[11px] text-[#98A2B3]">{pending ? e.reportedByName : e.confirmedByName}</p>
+                <p className="text-[13px] text-fg">{SOURCE_LABELS[e.sourceType] || e.sourceType}</p>
+                <p className="text-[11px] text-fg-muted">{pending ? e.reportedByName : e.confirmedByName}</p>
               </td>
               <td className="py-3 px-4 whitespace-nowrap">
                 {pending ? (
                   <div className="flex gap-2">
-                    <button onClick={() => onConfirm(e)} className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-lg text-[13px] font-[600] hover:bg-green-700">
+                    <button onClick={() => onConfirm(e)} className="flex items-center gap-1 px-3 py-1.5 bg-success-solid text-on-brand rounded-lg text-[13px] font-[600] hover:bg-success-solid">
                       <Check size={14} /> Confirm
                     </button>
-                    <button onClick={() => onDismiss(e)} className="flex items-center gap-1 px-3 py-1.5 bg-white border border-[#D0D5DD] text-[#344054] rounded-lg text-[13px] font-[600] hover:bg-gray-50">
+                    <button onClick={() => onDismiss(e)} className="flex items-center gap-1 px-3 py-1.5 bg-surface border border-line-strong text-fg rounded-lg text-[13px] font-[600] hover:bg-subtle">
                       <XCircle size={14} /> Dismiss
                     </button>
                   </div>
@@ -648,31 +648,31 @@ function ConfirmModal({ entry, reasons, onClose, onDone, onError }) {
         <Info label="Suggested cost" value={unitCost !== null ? `${money(unitCost)} per ${entry.uom || "unit"}` : "No cost on record"} />
         <Info label="Stock" value={entry.stockDeducted ? "Already out of stock" : entry.stockAvailable !== null && entry.stockAvailable !== undefined ? `${qty(entry.stockAvailable, entry.uom)} available` : "—"} />
       </div>
-      {entry.notes && <p className="text-[12px] text-[#667085] bg-[#F9FAFB] border border-[#E4E6EA] rounded-lg p-3 mb-4">{entry.notes}</p>}
+      {entry.notes && <p className="text-[12px] text-fg-secondary bg-subtle border border-line rounded-lg p-3 mb-4">{entry.notes}</p>}
 
       <div className="grid grid-cols-2 gap-3">
         <Field label={`Actual quantity${entry.uom ? ` (${entry.uom})` : ""}`}>
-          <input type="number" min="0" step="any" value={actualQty} onChange={(e) => setActualQty(e.target.value)} className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px]" />
+          <input type="number" min="0" step="any" value={actualQty} onChange={(e) => setActualQty(e.target.value)} className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px]" />
         </Field>
         <Field label="Actual value (Rs.)">
-          <input type="number" min="0" step="0.01" value={actualValue} onChange={(e) => { setValueEdited(true); setActualValue(e.target.value); }} className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px]" />
+          <input type="number" min="0" step="0.01" value={actualValue} onChange={(e) => { setValueEdited(true); setActualValue(e.target.value); }} className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px]" />
         </Field>
       </div>
       <Field label="Reason">
-        <select value={reasonCode} onChange={(e) => setReasonCode(e.target.value)} className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px] bg-white">
+        <select value={reasonCode} onChange={(e) => setReasonCode(e.target.value)} className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px] bg-surface">
           {(reasons.length ? reasons : [{ code: entry.reasonCode, label: entry.reasonLabel }]).map((r) => (
             <option key={r.code} value={r.code}>{r.label}</option>
           ))}
         </select>
       </Field>
       <Field label={`Admin note${changed ? " (required — quantity or value changed)" : " (optional)"}`}>
-        <textarea rows={2} value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px]" />
+        <textarea rows={2} value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px]" />
       </Field>
 
-      {error && <p className="text-[12px] text-red-600 mb-3">{error}</p>}
+      {error && <p className="text-[12px] text-error mb-3">{error}</p>}
       <div className="flex gap-3 pt-2">
-        <button onClick={onClose} className="flex-1 px-4 py-2.5 bg-white border border-[#D0D5DD] text-[#344054] rounded-lg text-[14px] font-[600]">Cancel</button>
-        <button onClick={submit} disabled={!!error || saving} className="flex-1 px-4 py-2.5 bg-green-600 text-white rounded-lg text-[14px] font-[600] disabled:opacity-50 flex items-center justify-center gap-2">
+        <button onClick={onClose} className="flex-1 px-4 py-2.5 bg-surface border border-line-strong text-fg rounded-lg text-[14px] font-[600]">Cancel</button>
+        <button onClick={submit} disabled={!!error || saving} className="flex-1 px-4 py-2.5 bg-success-solid text-on-brand rounded-lg text-[14px] font-[600] disabled:opacity-50 flex items-center justify-center gap-2">
           {saving ? <Loader variant="inline" /> : <><Check size={16} /> Confirm wastage</>}
         </button>
       </div>
@@ -697,16 +697,16 @@ function DismissModal({ entry, onClose, onDone, onError }) {
   };
   return (
     <Modal title="Dismiss wastage" subtitle={`${entry.entryNo} · ${entry.itemName} · ${qty(entry.qty, entry.uom)}`} onClose={onClose}>
-      <p className="text-[13px] text-[#667085] mb-3">
+      <p className="text-[13px] text-fg-secondary mb-3">
         Dismissing leaves the stock as it is and keeps this entry out of reports.
       </p>
       <Field label="Why is this not wastage? (required)">
         <textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g. Item was used in production before the check"
-          className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px]" />
+          className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px]" />
       </Field>
       <div className="flex gap-3 pt-2">
-        <button onClick={onClose} className="flex-1 px-4 py-2.5 bg-white border border-[#D0D5DD] text-[#344054] rounded-lg text-[14px] font-[600]">Cancel</button>
-        <button onClick={submit} disabled={!notes.trim() || saving} className="flex-1 px-4 py-2.5 bg-[#344054] text-white rounded-lg text-[14px] font-[600] disabled:opacity-50 flex items-center justify-center gap-2">
+        <button onClick={onClose} className="flex-1 px-4 py-2.5 bg-surface border border-line-strong text-fg rounded-lg text-[14px] font-[600]">Cancel</button>
+        <button onClick={submit} disabled={!notes.trim() || saving} className="flex-1 px-4 py-2.5 bg-neutral-solid text-on-brand rounded-lg text-[14px] font-[600] disabled:opacity-50 flex items-center justify-center gap-2">
           {saving ? <Loader variant="inline" /> : "Dismiss"}
         </button>
       </div>
@@ -716,14 +716,14 @@ function DismissModal({ entry, onClose, onDone, onError }) {
 
 function Modal({ title, subtitle, onClose, children }) {
   return (
-    <div className="fixed inset-0 z-[100000] bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[560px] max-h-[90vh] overflow-y-auto">
-        <div className="flex items-start justify-between p-5 border-b border-[#E4E6EA]">
+    <div className="fixed inset-0 z-[100000] bg-backdrop flex items-center justify-center p-4">
+      <div className="bg-elevated rounded-2xl shadow-2xl w-full max-w-[560px] max-h-[90vh] overflow-y-auto">
+        <div className="flex items-start justify-between p-5 border-b border-line">
           <div>
-            <h3 className="text-[18px] font-[700] text-[#1D2939]">{title}</h3>
-            <p className="text-[13px] text-[#667085]">{subtitle}</p>
+            <h3 className="text-[18px] font-[700] text-fg-strong">{title}</h3>
+            <p className="text-[13px] text-fg-secondary">{subtitle}</p>
           </div>
-          <button onClick={onClose} className="p-1 text-[#98A2B3] hover:text-[#344054]"><X size={20} /></button>
+          <button onClick={onClose} className="p-1 text-fg-muted hover:text-fg"><X size={20} /></button>
         </div>
         <div className="p-5">{children}</div>
       </div>
@@ -734,7 +734,7 @@ function Modal({ title, subtitle, onClose, children }) {
 function Field({ label, children }) {
   return (
     <label className="block mb-3">
-      <span className="block text-[12px] font-[600] text-[#344054] mb-1">{label}</span>
+      <span className="block text-[12px] font-[600] text-fg mb-1">{label}</span>
       {children}
     </label>
   );
@@ -742,9 +742,9 @@ function Field({ label, children }) {
 
 function Info({ label, value }) {
   return (
-    <div className="bg-[#F9FAFB] rounded-lg border border-[#E4E6EA] p-2.5">
-      <p className="text-[11px] text-[#98A2B3] uppercase font-[600]">{label}</p>
-      <p className="text-[13px] text-[#1D2939]">{value}</p>
+    <div className="bg-subtle rounded-lg border border-line p-2.5">
+      <p className="text-[11px] text-fg-muted uppercase font-[600]">{label}</p>
+      <p className="text-[13px] text-fg-strong">{value}</p>
     </div>
   );
 }

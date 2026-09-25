@@ -1,0 +1,120 @@
+/*
+ * BMS theme: the only place colours are defined.
+ * Each token is an "R G B" triple so Tailwind can add opacity (e.g. bg-brand/10).
+ * Components use the semantic Tailwind names from tailwind.config.js (bg-surface, text-fg,
+ * border-line, text-error...), never raw hex. Light values are the app's original colours;
+ * dark values are layered greys (never black), off-white text and calmer brand/status tones.
+ * All text/background pairs were checked for WCAG AA (4.5:1) in both themes.
+ */
+:root {
+  --app: 240 241 243;
+  --surface: 255 255 255;
+  --subtle: 248 249 250;
+  --elevated: 255 255 255;
+  --hover: 242 244 247;
+  --active: 232 240 251;
+  --fg-strong: 29 41 57;
+  --fg: 56 62 73;
+  --fg-secondary: 93 102 121;
+  --fg-muted: 125 134 151;
+  --fg-on-brand: 255 255 255;
+  --border: 228 230 234;
+  --border-strong: 174 181 193;
+  --brand: 15 80 170;
+  --brand-hover: 13 68 148;
+  --brand-fg: 15 80 170;
+  --success: 19 115 58;
+  --warning: 138 93 0;
+  --error: 193 31 31;
+  --info: 3 105 161;
+  --success-solid: 21 128 61;
+  --warning-solid: 180 83 9;
+  --error-solid: 220 38 38;
+  --info-solid: 3 105 161;
+  --violet-solid: 109 74 184;
+  --neutral-solid: 71 84 103;
+  --chart-orange: 194 65 12;
+  --chart-cyan: 14 116 144;
+  --chart-pink: 190 24 93;
+  --violet: 109 74 184;
+  --overlay: 16 24 40;
+  --overlay-alpha: 0.45;
+  --shadow-elevated: 0 1px 2px rgb(16 24 40 / 0.06), 0 8px 24px rgb(16 24 40 / 0.10);
+  --soft-alpha: 0.10;
+  color-scheme: light;
+}
+
+.dark {
+  --app: 15 17 21;
+  --surface: 23 26 33;
+  --subtle: 27 31 39;
+  --elevated: 30 34 43;
+  --hover: 35 40 51;
+  --active: 38 45 58;
+  --fg-strong: 241 242 244;
+  --fg: 230 232 235;
+  --fg-secondary: 160 166 176;
+  --fg-muted: 107 114 128;
+  --fg-on-brand: 245 248 255;
+  --border: 38 42 51;
+  --border-strong: 74 81 96;
+  --brand: 59 111 192;
+  --brand-hover: 51 99 178;
+  --brand-fg: 134 171 232;
+  --success: 76 183 130;
+  --warning: 217 164 65;
+  --error: 229 115 115;
+  --info: 106 167 224;
+  --success-solid: 46 122 82;
+  --warning-solid: 143 90 18;
+  --error-solid: 179 58 58;
+  --info-solid: 47 104 163;
+  --violet-solid: 102 80 174;
+  --neutral-solid: 74 81 96;
+  --chart-orange: 240 149 90;
+  --chart-cyan: 79 195 220;
+  --chart-pink: 238 127 176;
+  --violet: 163 146 227;
+  --overlay: 5 6 9;
+  --overlay-alpha: 0.65;
+  /* In dark mode elevation comes from lighter surfaces; the shadow only separates the edge. */
+  --shadow-elevated: 0 0 0 1px rgb(var(--border)), 0 8px 24px rgb(0 0 0 / 0.35);
+  --soft-alpha: 0.14;
+  color-scheme: dark;
+}
+
+/* ---- Base ---------------------------------------------------------------------------------- */
+html, body { background-color: rgb(var(--app)); color: rgb(var(--fg)); }
+::selection { background-color: rgb(var(--brand) / 0.30); color: rgb(var(--fg-strong)); }
+::placeholder { color: rgb(var(--fg-muted)); opacity: 1; }
+
+/* Visible keyboard focus everywhere (mouse clicks keep the element's own look). */
+:focus-visible { outline: 2px solid rgb(var(--brand-fg)); outline-offset: 2px; }
+
+/* Native form controls, dates and options follow the theme. */
+input, select, textarea { color-scheme: inherit; }
+/* Fields that set no background of their own: white in light (as before), recessed in dark.
+   :where() keeps this weaker than any Tailwind class a field already has. */
+:where(input:not([type=checkbox], [type=radio], [type=range], [type=color], [type=file]), select, textarea) {
+  background-color: rgb(var(--surface)); color: rgb(var(--fg));
+}
+.dark :where(input:not([type=checkbox], [type=radio], [type=range], [type=color], [type=file]), select, textarea) {
+  background-color: rgb(var(--subtle));
+}
+option { background-color: rgb(var(--elevated)); color: rgb(var(--fg)); }
+
+/* Scrollbars */
+* { scrollbar-color: rgb(var(--border-strong)) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background-color: rgb(var(--border-strong)); border-radius: 8px; border: 2px solid rgb(var(--app)); }
+::-webkit-scrollbar-thumb:hover { background-color: rgb(var(--fg-muted)); }
+
+/* Disabled controls: reduced opacity + cursor, per the design system. */
+button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: not-allowed; }
+input:disabled, select:disabled, textarea:disabled { opacity: 0.55; }
+
+/* The brand logo is dark-brown artwork on transparency: in dark mode it sits on a light plate so it
+   keeps its real colours instead of being inverted. */
+.dark .logo-plate { background-color: rgb(var(--fg-strong)); border-radius: 8px; padding: 2px 6px; }
+

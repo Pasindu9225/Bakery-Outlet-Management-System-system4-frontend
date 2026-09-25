@@ -128,8 +128,8 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
   };
 
   const TxSortIcon = ({ col }) => {
-    if (txSortCol !== col) return <ArrowUpDown size={11} className="text-[#C8CDD5]" />;
-    return txSortDir === "asc" ? <ArrowUp size={11} className="text-[#0F50AA]" /> : <ArrowDown size={11} className="text-[#0F50AA]" />;
+    if (txSortCol !== col) return <ArrowUpDown size={11} className="text-fg-muted" />;
+    return txSortDir === "asc" ? <ArrowUp size={11} className="text-brand-fg" /> : <ArrowDown size={11} className="text-brand-fg" />;
   };
 
   const handleExportPDF = () => {
@@ -174,24 +174,24 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
   };
 
   const deliveryStatus = (s) => {
-    if (s === "Delivered") return "text-[#199D26] bg-[#F0FDF4]";
-    if (s === "Pending") return "text-[#F4A100] bg-[#FFFBEB]";
-    return "text-[#667085] bg-[#F0F1F3]";
+    if (s === "Delivered") return "text-success bg-hover";
+    if (s === "Pending") return "text-warning bg-hover";
+    return "text-fg-secondary bg-app";
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999999] flex items-center justify-center p-4">
+      <div className="bg-elevated rounded-xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col">
 
         {/* Modal Header */}
-        <div className="p-6 border-b border-[#E4E6EA] flex items-start justify-between flex-shrink-0">
+        <div className="p-6 border-b border-line flex items-start justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-[#0F50AA] rounded-xl flex items-center justify-center text-white font-[700] text-[16px]">
+            <div className="w-12 h-12 bg-brand rounded-xl flex items-center justify-center text-on-brand font-[700] text-[16px]">
               {detail?.name?.charAt(0) || "?"}
             </div>
             <div>
-              <h3 className="text-[20px] font-[600] text-[#383E49]">{detail?.name || "Loading..."}</h3>
-              <p className="text-[12px] text-[#667085] mt-0.5 flex items-center gap-1">
+              <h3 className="text-[20px] font-[600] text-fg">{detail?.name || "Loading..."}</h3>
+              <p className="text-[12px] text-fg-secondary mt-0.5 flex items-center gap-1">
                 <Hash size={11} />{detail?.id || "—"} {detail?.registrationId ? `· Reg: ${detail.registrationId}` : ""}
               </p>
             </div>
@@ -199,16 +199,16 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
           <div className="flex items-center gap-2">
             <button
               onClick={handleExportPDF}
-              className="inline-flex items-center gap-1.5 px-3 py-2 border border-[#E4E6EA] text-[#667085] text-[12px] font-[500] rounded-lg hover:bg-[#F8F9FA]">
+              className="inline-flex items-center gap-1.5 px-3 py-2 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle">
               <FileText size={13} /> PDF
             </button>
             <button
               onClick={handleExportExcel}
-              className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#0F50AA] text-white text-[12px] font-[500] rounded-lg hover:bg-[#0D4494]">
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-brand text-on-brand text-[12px] font-[500] rounded-lg hover:bg-brand-hover">
               <FileSpreadsheet size={13} /> Excel
             </button>
-            <button onClick={onClose} className="p-2 hover:bg-[#F0F1F3] rounded-lg transition-colors ml-1">
-              <X size={18} className="text-[#667085]" />
+            <button onClick={onClose} className="p-2 hover:bg-app rounded-lg transition-colors ml-1">
+              <X size={18} className="text-fg-secondary" />
             </button>
           </div>
         </div>
@@ -217,17 +217,17 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
 
           {loading && (
             <div className="text-center py-16">
-              <RefreshCw size={32} className="mx-auto text-[#0F50AA] mb-3 animate-spin" />
-              <p className="text-[14px] font-[500] text-[#383E49]">Loading supplier details...</p>
+              <RefreshCw size={32} className="mx-auto text-brand-fg mb-3 animate-spin" />
+              <p className="text-[14px] font-[500] text-fg">Loading supplier details...</p>
             </div>
           )}
 
           {error && !loading && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-              <AlertTriangle size={18} className="text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="bg-error/10 border border-error/30 rounded-lg p-4 flex items-start gap-3">
+              <AlertTriangle size={18} className="text-error flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-[14px] font-[500] text-red-700">Failed to load supplier details</p>
-                <p className="text-[12px] text-red-600 mt-1">{error}</p>
+                <p className="text-[14px] font-[500] text-error">Failed to load supplier details</p>
+                <p className="text-[12px] text-error mt-1">{error}</p>
               </div>
             </div>
           )}
@@ -235,52 +235,52 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
           {!loading && !error && detail && (
             <>
               {/* Profile Info */}
-              <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E4E6EA]">
-                <h4 className="text-[15px] font-[600] text-[#383E49] mb-4">Profile Information</h4>
+              <div className="bg-subtle rounded-xl p-5 border border-line">
+                <h4 className="text-[15px] font-[600] text-fg mb-4">Profile Information</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div className="flex items-start gap-2">
-                    <Phone size={15} className="text-[#0F50AA] mt-0.5 flex-shrink-0" />
+                    <Phone size={15} className="text-brand-fg mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-[#667085]">Phone</p>
-                      <p className="text-[13px] font-[500] text-[#383E49]">{detail.phone || "—"}</p>
+                      <p className="text-[11px] text-fg-secondary">Phone</p>
+                      <p className="text-[13px] font-[500] text-fg">{detail.phone || "—"}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Mail size={15} className="text-[#0F50AA] mt-0.5 flex-shrink-0" />
+                    <Mail size={15} className="text-brand-fg mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-[#667085]">Email</p>
-                      <p className="text-[13px] font-[500] text-[#383E49]">{detail.email || "—"}</p>
+                      <p className="text-[11px] text-fg-secondary">Email</p>
+                      <p className="text-[13px] font-[500] text-fg">{detail.email || "—"}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <MapPin size={15} className="text-[#0F50AA] mt-0.5 flex-shrink-0" />
+                    <MapPin size={15} className="text-brand-fg mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-[#667085]">Address</p>
-                      <p className="text-[13px] font-[500] text-[#383E49]">{detail.address || "—"}</p>
+                      <p className="text-[11px] text-fg-secondary">Address</p>
+                      <p className="text-[13px] font-[500] text-fg">{detail.address || "—"}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Calendar size={15} className="text-[#0F50AA] mt-0.5 flex-shrink-0" />
+                    <Calendar size={15} className="text-brand-fg mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-[#667085]">Registration Date</p>
-                      <p className="text-[13px] font-[500] text-[#383E49]">{formatDate(detail.registrationDate)}</p>
+                      <p className="text-[11px] text-fg-secondary">Registration Date</p>
+                      <p className="text-[13px] font-[500] text-fg">{formatDate(detail.registrationDate)}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Hash size={15} className="text-[#0F50AA] mt-0.5 flex-shrink-0" />
+                    <Hash size={15} className="text-brand-fg mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-[#667085]">Registration ID</p>
-                      <p className="text-[13px] font-[500] text-[#383E49]">{detail.registrationId || "—"}</p>
+                      <p className="text-[11px] text-fg-secondary">Registration ID</p>
+                      <p className="text-[13px] font-[500] text-fg">{detail.registrationId || "—"}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <Banknote size={15} className="text-[#0F50AA] mt-0.5 flex-shrink-0" />
+                    <Banknote size={15} className="text-brand-fg mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-[#667085]">Outstanding Balance</p>
-                      <p className={`text-[13px] font-[700] ${Number(detail.outstandingBalance) > 0 ? (detail.overdue ? "text-[#EF4444]" : "text-[#F4A100]") : "text-[#199D26]"}`}>
+                      <p className="text-[11px] text-fg-secondary">Outstanding Balance</p>
+                      <p className={`text-[13px] font-[700] ${Number(detail.outstandingBalance) > 0 ? (detail.overdue ? "text-error" : "text-warning") : "text-success"}`}>
                         {formatMoney(detail.outstandingBalance)}
                         {detail.overdue && Number(detail.outstandingBalance) > 0 && (
-                          <span className="ml-1.5 text-[10px] font-[500] px-1.5 py-0.5 bg-red-100 text-red-600 rounded-full">Overdue</span>
+                          <span className="ml-1.5 text-[10px] font-[500] px-1.5 py-0.5 bg-error/10 text-error rounded-full">Overdue</span>
                         )}
                       </p>
                     </div>
@@ -291,18 +291,18 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
               {/* Transaction History */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-[15px] font-[600] text-[#383E49]">Transaction History</h4>
+                  <h4 className="text-[15px] font-[600] text-fg">Transaction History</h4>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]" size={13} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                     <input type="text" placeholder="Search ref or description..."
-                      className="pl-8 pr-3 py-1.5 border border-[#E4E6EA] rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] w-52"
+                      className="pl-8 pr-3 py-1.5 border border-line rounded-lg text-[12px] focus:outline-none focus:ring-2 focus:ring-brand-fg w-52"
                       value={txSearch} onChange={(e) => setTxSearch(e.target.value)} />
                   </div>
                 </div>
-                <div className="border border-[#E4E6EA] rounded-xl overflow-hidden">
+                <div className="border border-line rounded-xl overflow-hidden">
                   <table className="w-full">
                     <thead>
-                      <tr className="bg-[#F8F9FA] border-b border-[#E4E6EA]">
+                      <tr className="bg-subtle border-b border-line">
                         {[
                           { key: "date", label: "Date" },
                           { key: "ref", label: "Reference" },
@@ -312,7 +312,7 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
                           { key: "balance", label: "Balance (Rs.)" },
                         ].map((col) => (
                           <th key={col.key} onClick={() => handleTxSort(col.key)}
-                            className="text-left py-3 px-4 text-[12px] font-[500] text-[#667085] cursor-pointer hover:text-[#383E49]">
+                            className="text-left py-3 px-4 text-[12px] font-[500] text-fg-secondary cursor-pointer hover:text-fg">
                             <div className="flex items-center gap-1">{col.label}<TxSortIcon col={col.key} /></div>
                           </th>
                         ))}
@@ -320,21 +320,21 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
                     </thead>
                     <tbody>
                       {filteredTx.length === 0 ? (
-                        <tr><td colSpan={6} className="py-10 text-center text-[13px] text-[#667085]">No transactions found</td></tr>
+                        <tr><td colSpan={6} className="py-10 text-center text-[13px] text-fg-secondary">No transactions found</td></tr>
                       ) : filteredTx.map((tx, i) => (
-                        <tr key={tx.id || i} className="border-b border-[#E4E6EA] last:border-0 hover:bg-[#F8F9FA]">
-                          <td className="py-3 px-4 text-[12px] text-[#383E49]">{tx.date || "—"}</td>
+                        <tr key={tx.id || i} className="border-b border-line last:border-0 hover:bg-subtle">
+                          <td className="py-3 px-4 text-[12px] text-fg">{tx.date || "—"}</td>
                           <td className="py-3 px-4">
-                            <span className="text-[12px] font-[500] text-[#0F50AA]">{tx.ref}</span>
+                            <span className="text-[12px] font-[500] text-brand-fg">{tx.ref}</span>
                           </td>
-                          <td className="py-3 px-4 text-[12px] text-[#667085]">{tx.description}</td>
-                          <td className="py-3 px-4 text-[12px] font-[600] text-[#EF4444]">
+                          <td className="py-3 px-4 text-[12px] text-fg-secondary">{tx.description}</td>
+                          <td className="py-3 px-4 text-[12px] font-[600] text-error">
                             {Number(tx.debit) > 0 ? formatMoney(tx.debit) : "—"}
                           </td>
-                          <td className="py-3 px-4 text-[12px] font-[600] text-[#199D26]">
+                          <td className="py-3 px-4 text-[12px] font-[600] text-success">
                             {Number(tx.credit) > 0 ? formatMoney(tx.credit) : "—"}
                           </td>
-                          <td className="py-3 px-4 text-[12px] font-[700] text-[#383E49]">
+                          <td className="py-3 px-4 text-[12px] font-[700] text-fg">
                             {formatMoney(tx.balance)}
                           </td>
                         </tr>
@@ -346,28 +346,28 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
 
               {/* Purchase & Delivery Records */}
               <div>
-                <h4 className="text-[15px] font-[600] text-[#383E49] mb-3">Purchase & Delivery Records</h4>
-                <div className="border border-[#E4E6EA] rounded-xl overflow-hidden">
+                <h4 className="text-[15px] font-[600] text-fg mb-3">Purchase & Delivery Records</h4>
+                <div className="border border-line rounded-xl overflow-hidden">
                   <table className="w-full">
                     <thead>
-                      <tr className="bg-[#F8F9FA] border-b border-[#E4E6EA]">
+                      <tr className="bg-subtle border-b border-line">
                         {["PO Number", "PO Date", "GRN Number", "GRN Date", "Product", "Qty", "Amount (Rs.)", "Status"].map((h) => (
-                          <th key={h} className="text-left py-3 px-4 text-[12px] font-[500] text-[#667085]">{h}</th>
+                          <th key={h} className="text-left py-3 px-4 text-[12px] font-[500] text-fg-secondary">{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {poGrns.length === 0 ? (
-                        <tr><td colSpan={8} className="py-10 text-center text-[13px] text-[#667085]">No records found</td></tr>
+                        <tr><td colSpan={8} className="py-10 text-center text-[13px] text-fg-secondary">No records found</td></tr>
                       ) : poGrns.map((r, i) => (
-                        <tr key={r.poNo || i} className="border-b border-[#E4E6EA] last:border-0 hover:bg-[#F8F9FA]">
-                          <td className="py-3 px-4 text-[12px] font-[500] text-[#0F50AA]">{r.poNo}</td>
-                          <td className="py-3 px-4 text-[12px] text-[#383E49]">{formatDate(r.poDate)}</td>
-                          <td className="py-3 px-4 text-[12px] font-[500] text-[#383E49]">{r.grnNo}</td>
-                          <td className="py-3 px-4 text-[12px] text-[#383E49]">{formatDate(r.grnDate)}</td>
-                          <td className="py-3 px-4 text-[12px] font-[500] text-[#383E49]">{r.productSummary}</td>
-                          <td className="py-3 px-4 text-[12px] text-[#383E49]">{r.qty != null ? Number(r.qty).toLocaleString() : "—"} {r.unit || ""}</td>
-                          <td className="py-3 px-4 text-[12px] font-[600] text-[#383E49]">{formatMoney(r.amount)}</td>
+                        <tr key={r.poNo || i} className="border-b border-line last:border-0 hover:bg-subtle">
+                          <td className="py-3 px-4 text-[12px] font-[500] text-brand-fg">{r.poNo}</td>
+                          <td className="py-3 px-4 text-[12px] text-fg">{formatDate(r.poDate)}</td>
+                          <td className="py-3 px-4 text-[12px] font-[500] text-fg">{r.grnNo}</td>
+                          <td className="py-3 px-4 text-[12px] text-fg">{formatDate(r.grnDate)}</td>
+                          <td className="py-3 px-4 text-[12px] font-[500] text-fg">{r.productSummary}</td>
+                          <td className="py-3 px-4 text-[12px] text-fg">{r.qty != null ? Number(r.qty).toLocaleString() : "—"} {r.unit || ""}</td>
+                          <td className="py-3 px-4 text-[12px] font-[600] text-fg">{formatMoney(r.amount)}</td>
                           <td className="py-3 px-4">
                             <span className={`text-[11px] font-[500] px-2.5 py-1 rounded-full ${deliveryStatus(r.status)}`}>
                               {r.status}
@@ -567,12 +567,12 @@ export default function MISSupplierOverview() {
   };
 
   const SortIcon = ({ col }) => {
-    if (sortCol !== col) return <ArrowUpDown size={12} className="text-[#C8CDD5]" />;
-    return sortDir === "asc" ? <ArrowUp size={12} className="text-[#0F50AA]" /> : <ArrowDown size={12} className="text-[#0F50AA]" />;
+    if (sortCol !== col) return <ArrowUpDown size={12} className="text-fg-muted" />;
+    return sortDir === "asc" ? <ArrowUp size={12} className="text-brand-fg" /> : <ArrowDown size={12} className="text-brand-fg" />;
   };
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <MISAdminSideBar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -583,24 +583,24 @@ export default function MISSupplierOverview() {
           {/* ── Page Header ── */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
             <div>
-              <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">Supplier Overview</h1>
-              <p className="text-[14px] text-[#667085]">Comprehensive view of all suppliers and their performance metrics</p>
+              <h1 className="text-[20px] font-[600] text-fg mb-1">Supplier Overview</h1>
+              <p className="text-[14px] text-fg-secondary">Comprehensive view of all suppliers and their performance metrics</p>
             </div>
             <div className="flex items-center gap-2 mt-3 sm:mt-0">
               <button
                 onClick={handleRefresh}
-                className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] bg-white text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors">
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-line text-fg-secondary bg-surface text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors">
                 <RefreshCw size={15} />
                 Refresh
               </button>
               <button
                 onClick={handleExportPDF}
-                className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] bg-white text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors">
+                className="inline-flex items-center gap-2 px-4 py-2.5 border border-line text-fg-secondary bg-surface text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors">
                 <FileText size={15} /> PDF
               </button>
               <button
                 onClick={handleExportExcel}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0F50AA] text-white text-[13px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors">
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover transition-colors">
                 <FileSpreadsheet size={15} /> Excel
               </button>
             </div>
@@ -609,16 +609,16 @@ export default function MISSupplierOverview() {
           {/* ── Summary Cards ── */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
             {[
-              { label: "Total Suppliers", value: summary.totalSuppliers, icon: <Users size={20} />, color: "bg-blue-500", hoverColor: "hover:bg-blue-600", iconBg: "bg-blue-400/30" },
-              { label: "Active Suppliers", value: summary.activeCount, icon: <CheckCircle size={20} />, color: "bg-indigo-500", hoverColor: "hover:bg-indigo-600", iconBg: "bg-indigo-400/30" },
-              { label: "Total Outstanding", value: formatMoney(summary.totalOutstanding), icon: <Banknote size={20} />, color: "bg-cyan-500", hoverColor: "hover:bg-cyan-600", iconBg: "bg-cyan-400/30" },
-              { label: "Overdue Accounts", value: summary.overdueCount, icon: <AlertTriangle size={20} />, color: "bg-sky-500", hoverColor: "hover:bg-sky-600", iconBg: "bg-sky-400/30" },
+              { label: "Total Suppliers", value: summary.totalSuppliers, icon: <Users size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
+              { label: "Active Suppliers", value: summary.activeCount, icon: <CheckCircle size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
+              { label: "Total Outstanding", value: formatMoney(summary.totalOutstanding), icon: <Banknote size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+              { label: "Overdue Accounts", value: summary.overdueCount, icon: <AlertTriangle size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
             ].map((card, i) => (
               <div key={i}
-                className={`${card.color} ${card.hoverColor} rounded-lg p-5 text-white shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer`}>
+                className={`${card.color} ${card.hoverColor} rounded-lg p-5 text-on-brand shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[13px] font-medium text-white/80 mb-2">{card.label}</p>
+                    <p className="text-[13px] font-medium text-on-brand/80 mb-2">{card.label}</p>
                     <h2 className="text-[28px] font-bold leading-none">{card.value}</h2>
                   </div>
                   <div className={`${card.iconBg} w-12 h-12 rounded-lg flex items-center justify-center backdrop-blur-sm`}>
@@ -630,19 +630,19 @@ export default function MISSupplierOverview() {
           </div>
 
           {/* ── Filter Panel ── */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 mb-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-4 mb-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
 
               {/* Search */}
               <div className="lg:col-span-4 relative">
                 <Search
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary"
                   size={15}
                 />
                 <input
                   type="text"
                   placeholder="Search by supplier name or ID..."
-                  className="w-full pl-9 pr-4 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent"
+                  className="w-full pl-9 pr-4 py-2.5 border border-line rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent"
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -655,17 +655,17 @@ export default function MISSupplierOverview() {
               <div className="lg:col-span-2 relative">
                 <button
                   onClick={() => setStatusOpen(!statusOpen)}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] bg-white hover:bg-[#F8F9FA] transition-colors"
+                  className="w-full flex items-center gap-2 px-3 py-2.5 border border-line rounded-lg text-[13px] text-fg bg-surface hover:bg-subtle transition-colors"
                 >
-                  <Filter size={14} className="text-[#667085]" />
+                  <Filter size={14} className="text-fg-secondary" />
                   <span className="flex-1 text-left truncate">
                     {statusFilter}
                   </span>
-                  <ChevronDown size={13} className="text-[#667085]" />
+                  <ChevronDown size={13} className="text-fg-secondary" />
                 </button>
 
                 {statusOpen && (
-                  <div className="absolute top-full mt-1 left-0 bg-white border border-[#E4E6EA] rounded-lg shadow-lg z-50 w-full">
+                  <div className="absolute top-full mt-1 left-0 bg-elevated border border-line rounded-lg shadow-lg z-50 w-full">
                     {["All", "Active", "Inactive"].map((opt) => (
                       <button
                         key={opt}
@@ -674,9 +674,9 @@ export default function MISSupplierOverview() {
                           setStatusOpen(false);
                           setPage(1);
                         }}
-                        className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-[#F8F9FA] transition-colors first:rounded-t-lg last:rounded-b-lg ${statusFilter === opt
-                            ? "text-[#0F50AA] font-[500] bg-[#F0F1F3]"
-                            : "text-[#383E49]"
+                        className={`w-full text-left px-4 py-2.5 text-[13px] hover:bg-subtle transition-colors first:rounded-t-lg last:rounded-b-lg ${statusFilter === opt
+                            ? "text-brand-fg font-[500] bg-app"
+                            : "text-fg"
                           }`}
                       >
                         {opt}
@@ -690,7 +690,7 @@ export default function MISSupplierOverview() {
               <div className="lg:col-span-2">
                 <div className="relative">
                   <Calendar
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary"
                     size={13}
                   />
                   <input
@@ -700,7 +700,7 @@ export default function MISSupplierOverview() {
                       setStartDate(e.target.value);
                       setPage(1);
                     }}
-                    className="w-full pl-9 pr-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                    className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg"
                   />
                 </div>
               </div>
@@ -709,7 +709,7 @@ export default function MISSupplierOverview() {
               <div className="lg:col-span-2">
                 <div className="relative">
                   <Calendar
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085]"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary"
                     size={13}
                   />
                   <input
@@ -719,7 +719,7 @@ export default function MISSupplierOverview() {
                       setEndDate(e.target.value);
                       setPage(1);
                     }}
-                    className="w-full pl-9 pr-3 py-2.5 border border-[#E4E6EA] rounded-lg text-[13px] text-[#383E49] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                    className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg"
                   />
                 </div>
               </div>
@@ -728,7 +728,7 @@ export default function MISSupplierOverview() {
               <div className="lg:col-span-2">
                 <button
                   onClick={handleClearFilters}
-                  className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 border border-[#E4E6EA] text-[#667085] text-[13px] font-[500] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                  className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 border border-line text-fg-secondary text-[13px] font-[500] rounded-lg hover:bg-subtle transition-colors"
                 >
                   <RefreshCw size={13} />
                   Clear
@@ -740,15 +740,15 @@ export default function MISSupplierOverview() {
 
           {/* ── Error Banner ── */}
           {pageError && (
-            <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-              <AlertTriangle size={18} className="text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="mb-4 bg-error/10 border border-error/30 rounded-lg p-4 flex items-start gap-3">
+              <AlertTriangle size={18} className="text-error flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-[14px] font-[500] text-red-700">Failed to load supplier data</p>
-                <p className="text-[12px] text-red-600 mt-1">{pageError}</p>
+                <p className="text-[14px] font-[500] text-error">Failed to load supplier data</p>
+                <p className="text-[12px] text-error mt-1">{pageError}</p>
               </div>
               <button
                 onClick={handleRefresh}
-                className="text-[12px] font-[500] text-red-700 underline hover:text-red-800"
+                className="text-[12px] font-[500] text-error underline hover:text-error"
               >
                 Retry
               </button>
@@ -756,17 +756,17 @@ export default function MISSupplierOverview() {
           )}
 
           {/* ── Supplier Table ── */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="text-[18px] font-[600] text-[#383E49]">Supplier List</h3>
-                <p className="text-[12px] text-[#667085] mt-0.5">
+                <h3 className="text-[18px] font-[600] text-fg">Supplier List</h3>
+                <p className="text-[12px] text-fg-secondary mt-0.5">
                   Showing {paginated.length} of {sorted.length} suppliers
                 </p>
               </div>
               <button
                 onClick={handleExportPDF}
-                className="inline-flex items-center gap-1.5 px-3 py-2 border border-[#E4E6EA] text-[#667085] text-[12px] font-[500] rounded-lg hover:bg-[#F8F9FA]">
+                className="inline-flex items-center gap-1.5 px-3 py-2 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle">
                 <Printer size={13} /> Print
               </button>
             </div>
@@ -778,7 +778,7 @@ export default function MISSupplierOverview() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-[#E4E6EA] bg-[#F8F9FA]">
+                      <tr className="border-b border-line bg-subtle">
                         {[
                           { key: "name", label: "Supplier Name" },
                           { key: "contact", label: "Contact Info", noSort: true },
@@ -789,7 +789,7 @@ export default function MISSupplierOverview() {
                         ].map((col) => (
                           <th key={col.key}
                             onClick={() => !col.noSort && handleSort(col.key)}
-                            className={`text-left py-3.5 px-4 text-[12px] font-[500] text-[#667085] ${col.noSort ? "" : "cursor-pointer hover:text-[#383E49]"}`}>
+                            className={`text-left py-3.5 px-4 text-[12px] font-[500] text-fg-secondary ${col.noSort ? "" : "cursor-pointer hover:text-fg"}`}>
                             <div className="flex items-center gap-1">
                               {col.label}
                               {!col.noSort && <SortIcon col={col.key} />}
@@ -802,24 +802,24 @@ export default function MISSupplierOverview() {
                       {paginated.length === 0 ? (
                         <tr>
                           <td colSpan={6} className="py-16 text-center">
-                            <Users size={40} className="mx-auto text-[#C8CDD5] mb-3" />
-                            <p className="text-[14px] font-[500] text-[#383E49]">No suppliers found</p>
-                            <p className="text-[12px] text-[#667085]">Try adjusting your filters</p>
+                            <Users size={40} className="mx-auto text-fg-muted mb-3" />
+                            <p className="text-[14px] font-[500] text-fg">No suppliers found</p>
+                            <p className="text-[12px] text-fg-secondary">Try adjusting your filters</p>
                           </td>
                         </tr>
                       ) : paginated.map((s) => (
                         <tr key={s.id || s.supplierId}
-                          className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA] transition-colors">
+                          className="border-b border-line hover:bg-subtle transition-colors">
 
                           {/* Supplier Name */}
                           <td className="py-4 px-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 bg-[#EEF3FB] rounded-lg flex items-center justify-center text-[#0F50AA] font-[700] text-[14px] flex-shrink-0">
+                              <div className="w-9 h-9 bg-hover rounded-lg flex items-center justify-center text-brand-fg font-[700] text-[14px] flex-shrink-0">
                                 {(s.name || "?").charAt(0)}
                               </div>
                               <div>
-                                <p className="text-[13px] font-[600] text-[#383E49]">{s.name}</p>
-                                <p className="text-[11px] text-[#667085] flex items-center gap-1 mt-0.5">
+                                <p className="text-[13px] font-[600] text-fg">{s.name}</p>
+                                <p className="text-[11px] text-fg-secondary flex items-center gap-1 mt-0.5">
                                   <Hash size={9} />{s.id}
                                 </p>
                               </div>
@@ -829,20 +829,20 @@ export default function MISSupplierOverview() {
                           {/* Contact */}
                           <td className="py-4 px-4">
                             <div className="flex items-center gap-1.5 mb-1">
-                              <Phone size={11} className="text-[#667085]" />
-                              <span className="text-[12px] text-[#383E49]">{s.phone || "—"}</span>
+                              <Phone size={11} className="text-fg-secondary" />
+                              <span className="text-[12px] text-fg">{s.phone || "—"}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <Mail size={11} className="text-[#667085]" />
-                              <span className="text-[12px] text-[#667085]">{s.email || "—"}</span>
+                              <Mail size={11} className="text-fg-secondary" />
+                              <span className="text-[12px] text-fg-secondary">{s.email || "—"}</span>
                             </div>
                           </td>
 
                           {/* Status */}
                           <td className="py-4 px-4">
                             <span className={`inline-flex items-center gap-1.5 text-[12px] font-[500] px-3 py-1 rounded-full ${s.status === "Active"
-                                ? "text-[#199D26] bg-[#F0FDF4]"
-                                : "text-[#667085] bg-[#F0F1F3]"
+                                ? "text-success bg-hover"
+                                : "text-fg-secondary bg-app"
                               }`}>
                               {s.status === "Active"
                                 ? <CheckCircle size={12} />
@@ -854,27 +854,27 @@ export default function MISSupplierOverview() {
                           {/* Outstanding Balance */}
                           <td className="py-4 px-4">
                             <p className={`text-[14px] font-[700] ${Number(s.outstandingBalance) === 0
-                                ? "text-[#199D26]"
+                                ? "text-success"
                                 : s.overdue
-                                  ? "text-[#EF4444]"
-                                  : "text-[#F4A100]"
+                                  ? "text-error"
+                                  : "text-warning"
                               }`}>
                               {formatMoney(s.outstandingBalance)}
                             </p>
                             {s.overdue && Number(s.outstandingBalance) > 0 && (
-                              <span className="text-[10px] font-[500] text-[#EF4444] flex items-center gap-0.5 mt-0.5">
+                              <span className="text-[10px] font-[500] text-error flex items-center gap-0.5 mt-0.5">
                                 <AlertTriangle size={9} /> Overdue
                               </span>
                             )}
                             {Number(s.outstandingBalance) === 0 && (
-                              <span className="text-[10px] font-[500] text-[#199D26]">Cleared</span>
+                              <span className="text-[10px] font-[500] text-success">Cleared</span>
                             )}
                           </td>
 
                           {/* Last Transaction */}
                           <td className="py-4 px-4">
-                            <p className="text-[13px] font-[500] text-[#383E49]">{formatDate(s.lastTransactionDate)}</p>
-                            <p className="text-[11px] text-[#667085] mt-0.5">{s.totalPos ?? 0} POs · {s.totalGrns ?? 0} GRNs</p>
+                            <p className="text-[13px] font-[500] text-fg">{formatDate(s.lastTransactionDate)}</p>
+                            <p className="text-[11px] text-fg-secondary mt-0.5">{s.totalPos ?? 0} POs · {s.totalGrns ?? 0} GRNs</p>
                           </td>
 
                           {/* Actions */}
@@ -882,12 +882,12 @@ export default function MISSupplierOverview() {
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => setSelectedSupplierId(s.supplierId)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0F50AA] text-white text-[12px] font-[500] rounded-lg hover:bg-[#0D4494] transition-colors">
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand text-on-brand text-[12px] font-[500] rounded-lg hover:bg-brand-hover transition-colors">
                                 <Eye size={13} />
                                 Details
                               </button>
                               <button
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F0F1F3] text-[#667085] text-[12px] font-[500] rounded-lg hover:bg-[#E4E6EA] transition-colors">
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-app text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-line transition-colors">
                                 <FileSpreadsheet size={13} />
                                 Export
                               </button>
@@ -901,24 +901,24 @@ export default function MISSupplierOverview() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between mt-5 pt-4 border-t border-[#E4E6EA]">
-                    <p className="text-[12px] text-[#667085]">
+                  <div className="flex items-center justify-between mt-5 pt-4 border-t border-line">
+                    <p className="text-[12px] text-fg-secondary">
                       Page {page} of {totalPages} · {sorted.length} suppliers
                     </p>
                     <div className="flex items-center gap-2">
                       <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                        className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                        <ChevronLeft size={15} className="text-[#667085]" />
+                        className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        <ChevronLeft size={15} className="text-fg-secondary" />
                       </button>
                       {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                         <button key={p} onClick={() => setPage(p)}
-                          className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-[#0F50AA] text-white" : "text-[#667085] hover:bg-[#F0F1F3]"}`}>
+                          className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-brand text-on-brand" : "text-fg-secondary hover:bg-app"}`}>
                           {p}
                         </button>
                       ))}
                       <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                        className="p-2 border border-[#E4E6EA] rounded-lg hover:bg-[#F8F9FA] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                        <ChevronRight size={15} className="text-[#667085]" />
+                        className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                        <ChevronRight size={15} className="text-fg-secondary" />
                       </button>
                     </div>
                   </div>
@@ -941,7 +941,7 @@ export default function MISSupplierOverview() {
 
       {/* Mobile Overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)} />
       )}
     </div>

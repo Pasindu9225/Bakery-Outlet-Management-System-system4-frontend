@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { confirmDialog } from "../component/ConfirmDialog";
 import { Package, Search, Edit, Trash2, X, Check, Plus, Tag, DollarSign, FileText, Building2, Calendar, Download } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -722,7 +723,7 @@ export default function AdminManageProducts() {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
+        if (await confirmDialog('Are you sure you want to delete this product?', { confirmText: "Delete", danger: true })) {
             try {
                 const token = localStorage.getItem("authToken");
                 const response = await fetch(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/product/${id}`, {
@@ -866,18 +867,18 @@ export default function AdminManageProducts() {
 
     const getCategoryColor = (category) => {
         const colors = {
-            'Bread': 'bg-[#FEF3C7] text-[#92400E]',
-            'Bun': 'bg-[#DBEAFE] text-[#1E40AF]',
-            'Pastry': 'bg-[#FCE7F3] text-[#9F1239]',
-            'Cake': 'bg-[#E0E7FF] text-[#3730A3]',
-            'Cookie': 'bg-[#FED7AA] text-[#9A3412]',
-            'Other': 'bg-[#F3F4F6] text-[#374151]'
+            'Bread': 'bg-warning/20 text-warning',
+            'Bun': 'bg-line text-brand-fg',
+            'Pastry': 'bg-hover text-error',
+            'Cake': 'bg-hover text-plum',
+            'Cookie': 'bg-warning/20 text-warning',
+            'Other': 'bg-hover text-fg'
         };
         return colors[category] || colors['Other'];
     };
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             {/* Sidebar */}
             <AdminSidebar sidebarOpen={sidebarOpen} />
 
@@ -892,29 +893,29 @@ export default function AdminManageProducts() {
                 <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
                     {/* Page Header */}
                     <div className="mb-6">
-                        <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+                        <h1 className="text-[20px] font-[600] text-fg mb-1">
                             Product Management
                         </h1>
-                        <p className="text-[14px] leading-[20px] font-[400] text-[#667085]">
+                        <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
                             Add, edit, and manage product details
                         </p>
                     </div>
 
                     {/* Product List Table */}
-                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-                            <h3 className="text-[18px] font-[600] text-[#383E49]">Product List</h3>
+                            <h3 className="text-[18px] font-[600] text-fg">Product List</h3>
                             <div className="flex items-center gap-2 mt-2 sm:mt-0">
                                 <button
                                     onClick={handleExportExcel}
-                                    className="flex items-center gap-2 border border-[#E4E6EA] hover:bg-[#F8F9FA] text-[#383E49] px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors"
+                                    className="flex items-center gap-2 border border-line hover:bg-subtle text-fg px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors"
                                 >
                                     <Download className="w-5 h-5" />
                                     Export to Excel
                                 </button>
                                 <button
                                     onClick={handleCreateNew}
-                                    className="flex items-center gap-2 bg-[#0F50AA] hover:bg-[#1366D9] text-white px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors"
+                                    className="flex items-center gap-2 bg-brand hover:bg-brand-hover text-on-brand px-4 py-2.5 rounded-md text-[14px] font-[500] transition-colors"
                                 >
                                     <Plus className="w-5 h-5" />
                                     Add New Product
@@ -929,13 +930,13 @@ export default function AdminManageProducts() {
                             {/* Search Bar */}
                             <div className="flex-1 min-w-[250px]">
                                 <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={16} />
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary" size={16} />
                                     <input
                                         type="text"
                                         placeholder="Search by product name, code, category, or production center..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                                        className="w-full pl-10 pr-4 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                                     />
                                 </div>
                             </div>
@@ -945,7 +946,7 @@ export default function AdminManageProducts() {
                                 <select
                                     value={categoryFilter}
                                     onChange={(e) => setCategoryFilter(e.target.value)}
-                                    className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                                    className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                                 >
                                     <option value="All">All Categories</option>
                                     {uniqueCategories.map(category => (
@@ -956,7 +957,7 @@ export default function AdminManageProducts() {
                                 <select
                                     value={stageFilter}
                                     onChange={(e) => setStageFilter(e.target.value)}
-                                    className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                                    className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                                 >
                                     <option value="All">All Stages</option>
                                     {productionStages.map((stage) => {
@@ -969,7 +970,7 @@ export default function AdminManageProducts() {
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                                    className="px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                                 >
                                     <option value="All">All Status</option>
                                     <option value="Active">Active</option>
@@ -985,73 +986,73 @@ export default function AdminManageProducts() {
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="border-b border-[#E4E6EA]">
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                        <tr className="border-b border-line">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Code
                                             </th>
 
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Product Name
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Production Stage
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Category
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Brand
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Cost
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Selling Price
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Expected GP
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Actual GP
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Shelf Life
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Production Center
                                             </th>
-                                            <th className="text-left py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-left py-4 text-[14px] font-[500] text-fg">
                                                 Status
                                             </th>
-                                            <th className="text-center py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-center py-4 text-[14px] font-[500] text-fg">
                                                 VAT
                                             </th>
-                                            <th className="text-center py-4 text-[14px] font-[500] text-[#383E49]">
+                                            <th className="text-center py-4 text-[14px] font-[500] text-fg">
                                                 Actions
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-[#E4E6EA]">
+                                    <tbody className="divide-y divide-line">
                                         {filteredProducts.map((product) => (
-                                            <tr key={product.id} className="hover:bg-[#F8F9FA] transition-colors">
+                                            <tr key={product.id} className="hover:bg-subtle transition-colors">
                                                 <td className="py-4">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-[14px] font-[500] text-[#667085]">
+                                                        <span className="text-[14px] font-[500] text-fg-secondary">
                                                             {product.code}
                                                         </span>
                                                     </div>
                                                 </td>
                                                 <td className="py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 bg-[#EBF8FF] rounded-full flex items-center justify-center">
-                                                            <Package className="w-5 h-5 text-[#0F50AA]" />
+                                                        <div className="w-10 h-10 bg-hover rounded-full flex items-center justify-center">
+                                                            <Package className="w-5 h-5 text-brand-fg" />
                                                         </div>
                                                         <div>
-                                                            <p className="text-[14px] font-[600] text-[#383E49]">
+                                                            <p className="text-[14px] font-[600] text-fg">
                                                                 {product.name}
                                                             </p>
                                                             {product.description && (
-                                                                <p className="text-[12px] text-[#667085] max-w-xs truncate">
+                                                                <p className="text-[12px] text-fg-secondary max-w-xs truncate">
                                                                     {product.description}
                                                                 </p>
                                                             )}
@@ -1059,55 +1060,55 @@ export default function AdminManageProducts() {
                                                     </div>
                                                 </td>
                                                 <td className="py-4">
-                                                    <span className="text-[14px] text-[#48505E]">
+                                                    <span className="text-[14px] text-fg">
                                                         {product.productionStage}
                                                     </span>
                                                 </td>
                                                 <td className="py-4">
-                                                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] text-[#383E49]`}>
+                                                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] text-fg`}>
                                                         {product.category}
                                                     </span>
                                                 </td>
                                                 <td className="py-4">
-                                                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] text-[#383E49]`}>
+                                                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] text-fg`}>
                                                         {product.brand}
                                                     </span>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className="text-[14px] font-[600] text-[#383E49]">
+                                                    <p className="text-[14px] font-[600] text-fg">
                                                         Rs. {(product.unitPrice || 0).toFixed(2)}
                                                     </p>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className="text-[14px] font-[600] text-[#0F50AA]">
+                                                    <p className="text-[14px] font-[600] text-brand-fg">
                                                         Rs. {(product.sellingPrice || 0).toFixed(2)}
                                                     </p>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className="text-[14px] font-[500] text-[#667085]">
+                                                    <p className="text-[14px] font-[500] text-fg-secondary">
                                                         {(product.GBmargin || 0).toFixed(2)}%
                                                     </p>
                                                 </td>
                                                 <td className="py-4">
-                                                    <p className={`text-[14px] font-[700] ${product.actualGP > 0 ? 'text-[#199D26]' : 'text-[#EF4444]'}`}>
+                                                    <p className={`text-[14px] font-[700] ${product.actualGP > 0 ? 'text-success' : 'text-error'}`}>
                                                         {(product.actualGP || 0).toFixed(2)}%
                                                     </p>
                                                 </td>
-                                                <td className="py-4 text-[14px] text-[#48505E]">
+                                                <td className="py-4 text-[14px] text-fg">
                                                     {product.shelfLifeDays ? `${product.shelfLifeDays} days` : '-'}
                                                 </td>
                                                 <td className="py-4">
                                                     <div className="flex items-center gap-2">
-                                                        <Building2 className="w-4 h-4 text-[#667085]" />
-                                                        <span className="text-[14px] text-[#48505E]">
+                                                        <Building2 className="w-4 h-4 text-fg-secondary" />
+                                                        <span className="text-[14px] text-fg">
                                                             {product.productionCenter}
                                                         </span>
                                                     </div>
                                                 </td>
                                                 <td className="py-4">
                                                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] ${product.active
-                                                        ? 'bg-[#D1FAE5] text-[#065F46]'
-                                                        : 'bg-[#FEE2E2] text-[#991B1B]'
+                                                        ? 'bg-line text-success'
+                                                        : 'bg-hover text-error'
                                                         }`}>
                                                         {product.active ? 'Active' : 'Inactive'}
                                                     </span>
@@ -1115,11 +1116,11 @@ export default function AdminManageProducts() {
                                                 <td className="py-4">
                                                     <div className="flex items-center justify-center">
                                                         {product.vatIncluded ? (
-                                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] bg-[#EBF8FF] text-[#0F50AA]">
+                                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] bg-hover text-brand-fg">
                                                                 VAT Included
                                                             </span>
                                                         ) : (
-                                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] bg-[#F3F4F6] text-[#6B7280]">
+                                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] bg-hover text-fg-secondary">
                                                                 No VAT
                                                             </span>
                                                         )}
@@ -1129,14 +1130,14 @@ export default function AdminManageProducts() {
                                                     <div className="flex items-center justify-center gap-2">
                                                         <button
                                                             onClick={() => handleEdit(product)}
-                                                            className="p-2 text-[#0F50AA] hover:bg-[#EBF8FF] rounded-lg transition-colors"
+                                                            className="p-2 text-brand-fg hover:bg-hover rounded-lg transition-colors"
                                                             title="Edit Product"
                                                         >
                                                             <Edit size={16} />
                                                         </button>
                                                         <button
                                                             onClick={() => handleDelete(product.id)}
-                                                            className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors"
+                                                            className="p-2 text-error hover:bg-hover rounded-lg transition-colors"
                                                             title="Delete Product"
                                                         >
                                                             <Trash2 size={16} />
@@ -1151,9 +1152,9 @@ export default function AdminManageProducts() {
                             </div>
                         ) : (
                             <div className="text-center py-12">
-                                <Package size={48} className="mx-auto text-[#667085] mb-4" />
-                                <p className="text-[16px] font-[500] text-[#383E49] mb-2">No products found</p>
-                                <p className="text-[14px] text-[#667085]">
+                                <Package size={48} className="mx-auto text-fg-secondary mb-4" />
+                                <p className="text-[16px] font-[500] text-fg mb-2">No products found</p>
+                                <p className="text-[14px] text-fg-secondary">
                                     {searchTerm
                                         ? "Try adjusting your search criteria"
                                         : "Click 'Add New Product' to add your first product"
@@ -1167,15 +1168,15 @@ export default function AdminManageProducts() {
 
             {/* Product Form Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+                        <div className="flex items-center justify-between p-6 border-b border-line">
                             <div>
-                                <h2 className="text-[20px] leading-[30px] font-[600] text-[#383E49]">
+                                <h2 className="text-[20px] leading-[30px] font-[600] text-fg">
                                     {isEditMode ? 'Edit Product' : 'Add New Product'}
                                 </h2>
-                                <p className="text-[14px] text-[#667085] mt-1">
+                                <p className="text-[14px] text-fg-secondary mt-1">
                                     {isEditMode
                                         ? 'Update product information'
                                         : 'Fill in the details to add a new product'
@@ -1184,7 +1185,7 @@ export default function AdminManageProducts() {
                             </div>
                             <button
                                 onClick={handleCancel}
-                                className="p-2 text-[#667085] hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                                className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -1198,8 +1199,8 @@ export default function AdminManageProducts() {
 
                                     {/* Production Stage */}
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                            Production Stage <span className="text-[#EF4444]">*</span>
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                                            Production Stage <span className="text-error">*</span>
                                         </label>
 
                                         {!showAddStage ? (
@@ -1209,8 +1210,8 @@ export default function AdminManageProducts() {
                                                     value={formData.productionStage}
                                                     onChange={handleChange}
                                                     className={`flex-1 px-4 py-2.5 border rounded-md text-[14px]
-                focus:outline-none focus:ring-2 focus:ring-[#0F50AA]
-                ${errors.productionStage ? 'border-[#EF4444]' : 'border-[#E4E6EA]'}`}
+                focus:outline-none focus:ring-2 focus:ring-brand-fg
+                ${errors.productionStage ? 'border-error' : 'border-line'}`}
                                                 >
                                                     <option value="">Select stage</option>
                                                     {productionStages.map(stage => {
@@ -1229,11 +1230,11 @@ export default function AdminManageProducts() {
                                                             setEditStageName(stageObj.productionStage);
                                                             setShowEditStageModal(true);
                                                         } else {
-                                                            alert("Cannot edit this production stage as it has no ID.");
+                                                            toast.error("Cannot edit this production stage as it has no ID.");
                                                         }
                                                     }}
                                                     disabled={!formData.productionStage}
-                                                    className={`px-3 py-2.5 border rounded-md transition-colors ${formData.productionStage ? 'border-[#F97316] text-[#F97316] hover:bg-[#FFF7ED]' : 'border-[#E5E7EB] text-[#9CA3AF] cursor-not-allowed'}`}
+                                                    className={`px-3 py-2.5 border rounded-md transition-colors ${formData.productionStage ? 'border-warning text-warning hover:bg-hover' : 'border-line text-fg-muted cursor-not-allowed'}`}
                                                     title="Edit selected stage"
                                                 >
                                                     <Edit className="w-4 h-4" />
@@ -1242,8 +1243,8 @@ export default function AdminManageProducts() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowAddStage(true)}
-                                                    className="px-3 py-2.5 border border-[#0F50AA]
-                text-[#0F50AA] rounded-md hover:bg-[#EBF8FF]"
+                                                    className="px-3 py-2.5 border border-brand-fg
+                text-brand-fg rounded-md hover:bg-hover"
                                                 >
                                                     <Plus className="w-4 h-4" />
                                                 </button>
@@ -1255,20 +1256,20 @@ export default function AdminManageProducts() {
                                                     value={newStageName}
                                                     onChange={(e) => setNewStageName(e.target.value)}
                                                     placeholder="Enter new stage"
-                                                    className="flex-1 px-4 py-2.5 border border-[#E4E6EA]
+                                                    className="flex-1 px-4 py-2.5 border border-line
                 rounded-md text-[14px]"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowAddStage(false)}
-                                                    className="px-3 py-2.5 border border-[#E4E6EA]"
+                                                    className="px-3 py-2.5 border border-line"
                                                 >
                                                     <X className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     type="button"
                                                     onClick={handleAddStage}
-                                                    className="px-3 py-2.5 bg-[#0F50AA] text-white rounded-md"
+                                                    className="px-3 py-2.5 bg-brand text-on-brand rounded-md"
                                                 >
                                                     <Check className="w-4 h-4" />
                                                 </button>
@@ -1276,7 +1277,7 @@ export default function AdminManageProducts() {
                                         )}
 
                                         {errors.productionStage && (
-                                            <p className="text-[#EF4444] text-[12px] mt-1">
+                                            <p className="text-error text-[12px] mt-1">
                                                 {errors.productionStage}
                                             </p>
                                         )}
@@ -1284,8 +1285,8 @@ export default function AdminManageProducts() {
 
                                     {/* Category */}
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                            Category <span className="text-[#EF4444]">*</span>
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                                            Category <span className="text-error">*</span>
                                         </label>
                                         {!showAddCategory ? (
                                             <div className="flex gap-2">
@@ -1293,7 +1294,7 @@ export default function AdminManageProducts() {
                                                     name="category"
                                                     value={formData.category}
                                                     onChange={handleChange}
-                                                    className={`flex-1 px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.category ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                                    className={`flex-1 px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.category ? 'border-error' : 'border-line'
                                                         }`}
                                                 >
                                                     <option value="">Select category</option>
@@ -1312,11 +1313,11 @@ export default function AdminManageProducts() {
                                                             setEditCategoryName(catObj.name || catObj.categoryName);
                                                             setShowEditCategoryModal(true);
                                                         } else {
-                                                            alert("Cannot edit this category as it has no ID.");
+                                                            toast.error("Cannot edit this category as it has no ID.");
                                                         }
                                                     }}
                                                     disabled={!formData.category}
-                                                    className={`px-3 py-2.5 border rounded-md transition-colors ${formData.category ? 'border-[#F97316] text-[#F97316] hover:bg-[#FFF7ED]' : 'border-[#E5E7EB] text-[#9CA3AF] cursor-not-allowed'}`}
+                                                    className={`px-3 py-2.5 border rounded-md transition-colors ${formData.category ? 'border-warning text-warning hover:bg-hover' : 'border-line text-fg-muted cursor-not-allowed'}`}
                                                     title="Edit selected category"
                                                 >
                                                     <Edit className="w-4 h-4" />
@@ -1324,7 +1325,7 @@ export default function AdminManageProducts() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowAddCategory(true)}
-                                                    className="px-3 py-2.5 border border-[#0F50AA] text-[#0F50AA] rounded-md hover:bg-[#EBF8FF] transition-colors flex items-center gap-1"
+                                                    className="px-3 py-2.5 border border-brand-fg text-brand-fg rounded-md hover:bg-hover transition-colors flex items-center gap-1"
                                                     title="Add new category"
                                                 >
                                                     <Plus className="w-4 h-4" />
@@ -1338,7 +1339,7 @@ export default function AdminManageProducts() {
                                                         value={newCategoryName}
                                                         onChange={(e) => setNewCategoryName(e.target.value)}
                                                         placeholder="Enter new category name"
-                                                        className="flex-1 px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                                        className="flex-1 px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                                         onKeyPress={(e) => {
                                                             if (e.key === 'Enter') {
                                                                 e.preventDefault();
@@ -1352,7 +1353,7 @@ export default function AdminManageProducts() {
                                                             setShowAddCategory(false);
                                                             setNewCategoryName('');
                                                         }}
-                                                        className="px-3 py-2.5 border border-[#E4E6EA] text-[#667085] rounded-md hover:bg-[#F8F9FA] transition-colors"
+                                                        className="px-3 py-2.5 border border-line text-fg-secondary rounded-md hover:bg-subtle transition-colors"
                                                         title="Cancel"
                                                     >
                                                         <X className="w-4 h-4" />
@@ -1360,48 +1361,48 @@ export default function AdminManageProducts() {
                                                     <button
                                                         type="button"
                                                         onClick={handleAddCategory}
-                                                        className="px-3 py-2.5 bg-[#0F50AA] text-white rounded-md hover:bg-[#1366D9] transition-colors"
+                                                        className="px-3 py-2.5 bg-brand text-on-brand rounded-md hover:bg-brand-hover transition-colors"
                                                         title="Save category"
                                                     >
                                                         <Check className="w-4 h-4" />
                                                     </button>
                                                 </div>
-                                                <p className="text-[12px] text-[#667085]">
+                                                <p className="text-[12px] text-fg-secondary">
                                                     Press Enter or click check to add category
                                                 </p>
                                             </div>
                                         )}
                                         {errors.category && (
-                                            <p className="text-[#EF4444] text-[12px] mt-1">{errors.category}</p>
+                                            <p className="text-error text-[12px] mt-1">{errors.category}</p>
                                         )}
                                     </div>
 
                                     {/* Product Name */}
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                            Product Name <span className="text-[#EF4444]">*</span>
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                                            Product Name <span className="text-error">*</span>
                                         </label>
                                         <div className="relative">
-                                            <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                                            <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                                             <input
                                                 type="text"
                                                 name="name"
                                                 value={formData.name}
                                                 onChange={handleChange}
                                                 placeholder="Enter product name"
-                                                className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.name ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                                className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.name ? 'border-error' : 'border-line'
                                                     }`}
                                             />
                                         </div>
                                         {errors.name && (
-                                            <p className="text-[#EF4444] text-[12px] mt-1">{errors.name}</p>
+                                            <p className="text-error text-[12px] mt-1">{errors.name}</p>
                                         )}
                                     </div>
 
                                     {/* Brand */}
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                            Brand <span className="text-[#EF4444]">*</span>
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                                            Brand <span className="text-error">*</span>
                                         </label>
                                         {!showAddBrand ? (
                                             <div className="flex gap-2">
@@ -1409,7 +1410,7 @@ export default function AdminManageProducts() {
                                                     name="brand"
                                                     value={formData.brand}
                                                     onChange={handleChange}
-                                                    className={`flex-1 px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.brand ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                                    className={`flex-1 px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.brand ? 'border-error' : 'border-line'
                                                         }`}
                                                 >
                                                     <option value="">Select brand</option>
@@ -1420,7 +1421,7 @@ export default function AdminManageProducts() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setShowAddBrand(true)}
-                                                    className="px-3 py-2.5 border border-[#0F50AA] text-[#0F50AA] rounded-md hover:bg-[#EBF8FF] transition-colors flex items-center gap-1"
+                                                    className="px-3 py-2.5 border border-brand-fg text-brand-fg rounded-md hover:bg-hover transition-colors flex items-center gap-1"
                                                     title="Add new brand"
                                                 >
                                                     <Plus className="w-4 h-4" />
@@ -1434,7 +1435,7 @@ export default function AdminManageProducts() {
                                                         value={newBrandName}
                                                         onChange={(e) => setNewBrandName(e.target.value)}
                                                         placeholder="Enter new brand name"
-                                                        className="flex-1 px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                                        className="flex-1 px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                                         onKeyPress={(e) => {
                                                             if (e.key === 'Enter') {
                                                                 e.preventDefault();
@@ -1448,7 +1449,7 @@ export default function AdminManageProducts() {
                                                             setShowAddBrand(false);
                                                             setNewBrandName('');
                                                         }}
-                                                        className="px-3 py-2.5 border border-[#E4E6EA] text-[#667085] rounded-md hover:bg-[#F8F9FA] transition-colors"
+                                                        className="px-3 py-2.5 border border-line text-fg-secondary rounded-md hover:bg-subtle transition-colors"
                                                         title="Cancel"
                                                     >
                                                         <X className="w-4 h-4" />
@@ -1456,29 +1457,29 @@ export default function AdminManageProducts() {
                                                     <button
                                                         type="button"
                                                         onClick={handleAddBrand}
-                                                        className="px-3 py-2.5 bg-[#0F50AA] text-white rounded-md hover:bg-[#1366D9] transition-colors"
+                                                        className="px-3 py-2.5 bg-brand text-on-brand rounded-md hover:bg-brand-hover transition-colors"
                                                         title="Save brand"
                                                     >
                                                         <Check className="w-4 h-4" />
                                                     </button>
                                                 </div>
-                                                <p className="text-[12px] text-[#667085]">
+                                                <p className="text-[12px] text-fg-secondary">
                                                     Press Enter or click check to add brand
                                                 </p>
                                             </div>
                                         )}
                                         {errors.brand && (
-                                            <p className="text-[#EF4444] text-[12px] mt-1">{errors.brand}</p>
+                                            <p className="text-error text-[12px] mt-1">{errors.brand}</p>
                                         )}
                                     </div>
 
                                     {/* Product Code */}
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                            Product Code <span className="text-[#EF4444]">*</span>
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                                            Product Code <span className="text-error">*</span>
                                         </label>
                                         <div className="relative">
-                                            <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085] z-10" />
+                                            <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary z-10" />
                                             <input
                                                 type="text"
                                                 name="code"
@@ -1493,18 +1494,18 @@ export default function AdminManageProducts() {
                                                     }
                                                 }}
                                                 placeholder={showProductCodeGhost ? '' : "Enter product code (e.g., P-001)"}
-                                                className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] bg-transparent relative z-10 focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.code ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                                className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] bg-transparent relative z-10 focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.code ? 'border-error' : 'border-line'
                                                     }`}
                                             />
                                             {showProductCodeGhost && (
                                                 <div className="absolute inset-0 flex items-center pl-10 pr-4 py-2.5 text-[14px] pointer-events-none whitespace-pre">
                                                     <span className="invisible">{formData.code}</span>
-                                                    <span className="text-[#98A2B3]">{suggestedProductCode.slice(formData.code.length)}</span>
+                                                    <span className="text-fg-muted">{suggestedProductCode.slice(formData.code.length)}</span>
                                                 </div>
                                             )}
                                         </div>
                                         {errors.code && (
-                                            <p className="text-[#EF4444] text-[12px] mt-1">{errors.code}</p>
+                                            <p className="text-error text-[12px] mt-1">{errors.code}</p>
                                         )}
                                     </div>
 
@@ -1516,16 +1517,16 @@ export default function AdminManageProducts() {
 
                                     {/* Production Center */}
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
                                             Production Center
                                         </label>
                                         <div className="relative">
-                                            <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                                            <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                                             <select
                                                 name="productionCenter"
                                                 value={formData.productionCenter}
                                                 onChange={handleChange}
-                                                className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.productionCenter ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                                className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.productionCenter ? 'border-error' : 'border-line'
                                                     }`}
                                             >
                                                 <option value="">Select production center</option>
@@ -1535,15 +1536,15 @@ export default function AdminManageProducts() {
                                             </select>
                                         </div>
                                         {errors.productionCenter && (
-                                            <p className="text-[#EF4444] text-[12px] mt-1">{errors.productionCenter}</p>
+                                            <p className="text-error text-[12px] mt-1">{errors.productionCenter}</p>
                                         )}
                                     </div>
 
 
                                     {/* Unit Price */}
                                     {/* <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                            Unit Price (Rs.) <span className="text-[#EF4444]"></span>
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                                            Unit Price (Rs.) <span className="text-error"></span>
                                         </label>
                                         <div className="relative">
                                             <input
@@ -1554,19 +1555,19 @@ export default function AdminManageProducts() {
                                                 placeholder="0.00"
                                                 step="0.01"
                                                 min="0"
-                                                className={`w-full pl-4 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.unitPrice ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                                className={`w-full pl-4 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.unitPrice ? 'border-error' : 'border-line'
                                                     }`}
                                             />
                                         </div>
                                         {errors.unitPrice && (
-                                            <p className="text-[#EF4444] text-[12px] mt-1">{errors.unitPrice}</p>
+                                            <p className="text-error text-[12px] mt-1">{errors.unitPrice}</p>
                                         )}
                                     </div> */}
 
                                     {/* GP M Price */}
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                            Expected GP (%) <span className="text-[#EF4444]"></span>
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                                            Expected GP (%) <span className="text-error"></span>
                                         </label>
                                         <div className="relative">
                                             <input
@@ -1577,12 +1578,12 @@ export default function AdminManageProducts() {
                                                 placeholder="0"
                                                 step="1"
                                                 min="0"
-                                                className={`w-full pl-4 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.GBmargin ? 'border-[#EF4444]' : 'border-[#E4E6EA]'
+                                                className={`w-full pl-4 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.GBmargin ? 'border-error' : 'border-line'
                                                     }`}
                                             />
                                         </div>
                                         {errors.GBmargin && (
-                                            <p className="text-[#EF4444] text-[12px] mt-1">{errors.GBmargin}</p>
+                                            <p className="text-error text-[12px] mt-1">{errors.GBmargin}</p>
                                         )}
                                     </div>
                                 </div>
@@ -1590,11 +1591,11 @@ export default function AdminManageProducts() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {/* Selling Price */}
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
                                             Selling Price (Rs.)
                                         </label>
                                         <div className="relative">
-                                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[14px] font-[500] text-[#667085] select-none">Rs.</span>
+                                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[14px] font-[500] text-fg-secondary select-none">Rs.</span>
                                             <input
                                                 type="number"
                                                 name="sellingPrice"
@@ -1604,21 +1605,21 @@ export default function AdminManageProducts() {
                                                 placeholder="0.00"
                                                 step="0.01"
                                                 min="0"
-                                                className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                                className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                             />
                                         </div>
                                     </div>
 
                                     {/* Unit of Measure */}
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
                                             Unit of Measure
                                         </label>
                                         <select
                                             name="unitOfMeasure"
                                             value={formData.unitOfMeasure}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                            className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                         >
                                             <option value="">Select Unit</option>
                                             <option value="Kg">Kg</option>
@@ -1630,7 +1631,7 @@ export default function AdminManageProducts() {
 
                                     {/* Minimum Stock Level */}
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
                                             Minimum Stock Level
                                         </label>
                                         <input
@@ -1640,13 +1641,13 @@ export default function AdminManageProducts() {
                                             onChange={handleChange}
                                             placeholder="0"
                                             min="0"
-                                            className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                            className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                         />
                                     </div>
 
                                     {/* Maximum Stock Level */}
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
                                             Maximum Stock Level
                                         </label>
                                         <input
@@ -1656,17 +1657,17 @@ export default function AdminManageProducts() {
                                             onChange={handleChange}
                                             placeholder="0"
                                             min="0"
-                                            className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                            className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                         />
                                     </div>
 
                                     {/* Shelf Life */}
                                     <div>
-                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
                                             Shelf Life (Days)
                                         </label>
                                         <div className="relative">
-                                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#667085]" />
+                                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fg-secondary" />
                                             <input
                                                 type="number"
                                                 name="shelfLifeDays"
@@ -1675,19 +1676,19 @@ export default function AdminManageProducts() {
                                                 placeholder="Enter days (e.g., 5)"
                                                 min="0"
                                                 step="1"
-                                                className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] ${errors.shelfLifeDays ? 'border-[#EF4444]' : 'border-[#E4E6EA]'}`}
+                                                className={`w-full pl-10 pr-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors.shelfLifeDays ? 'border-error' : 'border-line'}`}
                                             />
                                         </div>
                                         {errors.shelfLifeDays && (
-                                            <p className="text-[#EF4444] text-[12px] mt-1">{errors.shelfLifeDays}</p>
+                                            <p className="text-error text-[12px] mt-1">{errors.shelfLifeDays}</p>
                                         )}
                                     </div>
                                 </div>
 
                                 {/* Active Status */}
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                        Active Status <span className="text-[#EF4444]">*</span>
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
+                                        Active Status <span className="text-error">*</span>
                                     </label>
                                     <select
                                         name="active"
@@ -1696,22 +1697,22 @@ export default function AdminManageProducts() {
                                             ...prev,
                                             active: e.target.value === 'true'
                                         }))}
-                                        className="w-full px-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]"
+                                        className="w-full px-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                     >
                                         <option value="true">Active</option>
                                         <option value="false">Inactive</option>
                                     </select>
-                                    <p className="text-[12px] text-[#667085] mt-1">
+                                    <p className="text-[12px] text-fg-secondary mt-1">
                                         Enable this product for production and sales
                                     </p>
                                 </div>
 
                                 {/* VAT Checkbox */}
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-3">
+                                    <label className="block text-[14px] font-[500] text-fg mb-3">
                                         VAT Settings
                                     </label>
-                                    <div className="flex items-start gap-3 p-4 bg-[#F8F9FA] rounded-lg border border-[#E4E6EA]">
+                                    <div className="flex items-start gap-3 p-4 bg-subtle rounded-lg border border-line">
                                         <input
                                             type="checkbox"
                                             name="vatIncluded"
@@ -1720,13 +1721,13 @@ export default function AdminManageProducts() {
                                                 ...prev,
                                                 vatIncluded: e.target.checked
                                             }))}
-                                            className="w-5 h-5 text-[#0F50AA] border-[#E4E6EA] rounded focus:ring-2 focus:ring-[#0F50AA] mt-0.5"
+                                            className="w-5 h-5 text-brand-fg border-line rounded focus:ring-2 focus:ring-brand-fg mt-0.5"
                                         />
                                         <div className="flex-1">
-                                            <p className="text-[14px] font-[500] text-[#383E49] mb-1">
+                                            <p className="text-[14px] font-[500] text-fg mb-1">
                                                 VAT Included in Price
                                             </p>
-                                            {/* <p className="text-[12px] text-[#667085]">
+                                            {/* <p className="text-[12px] text-fg-secondary">
                 Check this if the unit price already includes VAT (Value Added Tax). If unchecked, VAT will be calculated separately.
             </p> */}
                                         </div>
@@ -1735,10 +1736,10 @@ export default function AdminManageProducts() {
 
                                 {/* KOT Setting */}
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-3">
+                                    <label className="block text-[14px] font-[500] text-fg mb-3">
                                         KOT Settings
                                     </label>
-                                    <div className="flex items-start gap-3 p-4 bg-[#F8F9FA] rounded-lg border border-[#E4E6EA]">
+                                    <div className="flex items-start gap-3 p-4 bg-subtle rounded-lg border border-line">
                                         <input
                                             type="checkbox"
                                             name="isKotEnabled"
@@ -1747,13 +1748,13 @@ export default function AdminManageProducts() {
                                                 ...prev,
                                                 isKotEnabled: e.target.checked
                                             }))}
-                                            className="w-5 h-5 text-[#0F50AA] border-[#E4E6EA] rounded focus:ring-2 focus:ring-[#0F50AA] mt-0.5"
+                                            className="w-5 h-5 text-brand-fg border-line rounded focus:ring-2 focus:ring-brand-fg mt-0.5"
                                         />
                                         <div className="flex-1">
-                                            <p className="text-[14px] font-[500] text-[#383E49] mb-1">
+                                            <p className="text-[14px] font-[500] text-fg mb-1">
                                                 KOT Preparation Required
                                             </p>
-                                            <p className="text-[12px] text-[#667085]">
+                                            <p className="text-[12px] text-fg-secondary">
                                                 Enable this if the item needs to be sent to the kitchen.
                                             </p>
                                         </div>
@@ -1761,18 +1762,18 @@ export default function AdminManageProducts() {
                                 </div>
                                 {/* Description */}
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
                                         Description
                                     </label>
                                     <div className="relative">
-                                        <FileText className="absolute left-3 top-3 w-5 h-5 text-[#667085]" />
+                                        <FileText className="absolute left-3 top-3 w-5 h-5 text-fg-secondary" />
                                         <textarea
                                             name="description"
                                             value={formData.description}
                                             onChange={handleChange}
                                             placeholder="Enter product description"
                                             rows="3"
-                                            className="w-full pl-10 pr-4 py-2.5 border border-[#E4E6EA] rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] resize-none"
+                                            className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg resize-none"
                                         />
                                     </div>
                                 </div>
@@ -1781,18 +1782,18 @@ export default function AdminManageProducts() {
                             </div>
 
                             {/* Modal Footer */}
-                            <div className="flex gap-3 mt-6 pt-6 border-t border-[#E4E6EA]">
+                            <div className="flex gap-3 mt-6 pt-6 border-t border-line">
                                 <button
                                     type="button"
                                     onClick={handleCancel}
-                                    className="flex-1 px-4 py-2.5 border border-[#E4E6EA] text-[#48505E] rounded-md text-[14px] font-[500] hover:bg-[#F8F9FA] transition-colors"
+                                    className="flex-1 px-4 py-2.5 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="button"
                                     onClick={handleSubmit}
-                                    className="flex-1 px-4 py-2.5 bg-[#0F50AA] hover:bg-[#1366D9] text-white rounded-md text-[14px] font-[500] transition-colors"
+                                    className="flex-1 px-4 py-2.5 bg-brand hover:bg-brand-hover text-on-brand rounded-md text-[14px] font-[500] transition-colors"
                                 >
                                     {isEditMode ? 'Update Product' : 'Save Product'}
                                 </button>
@@ -1804,38 +1805,38 @@ export default function AdminManageProducts() {
 
             {/* Edit Category Modal */}
             {showEditCategoryModal && (
-                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E6EA]">
-                            <h3 className="text-[18px] font-[600] text-[#1D1F2C]">Edit Category</h3>
-                            <button onClick={() => setShowEditCategoryModal(false)} className="text-[#9CA3AF] hover:text-[#4B5563]">
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-backdrop">
+                    <div className="bg-elevated rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-line">
+                            <h3 className="text-[18px] font-[600] text-fg-strong">Edit Category</h3>
+                            <button onClick={() => setShowEditCategoryModal(false)} className="text-fg-muted hover:text-fg">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
                         <div className="p-6">
-                            <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                Category Name <span className="text-[#EF4444]">*</span>
+                            <label className="block text-[14px] font-[500] text-fg mb-1">
+                                Category Name <span className="text-error">*</span>
                             </label>
                             <input
                                 type="text"
                                 value={editCategoryName}
                                 onChange={(e) => setEditCategoryName(e.target.value)}
-                                className="w-full px-4 py-2 bg-white border border-[#E5E7EB] rounded-lg text-[14px] focus:outline-none focus:border-[#F97316]"
+                                className="w-full px-4 py-2 bg-surface border border-line rounded-lg text-[14px] focus:outline-none focus:border-warning"
                                 placeholder="Enter category name"
                             />
                         </div>
-                        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#F9FAFB] border-t border-[#E4E6EA]">
+                        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-subtle border-t border-line">
                             <button
                                 type="button"
                                 onClick={() => setShowEditCategoryModal(false)}
-                                className="px-4 py-2 text-[14px] font-[500] text-[#4B5563] bg-white border border-[#E5E7EB] rounded-lg hover:bg-gray-50 transition-colors"
+                                className="px-4 py-2 text-[14px] font-[500] text-fg bg-surface border border-line rounded-lg hover:bg-subtle transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="button"
                                 onClick={handleUpdateCategory}
-                                className="px-4 py-2 text-[14px] font-[500] text-white bg-[#F97316] rounded-lg hover:bg-[#EA580C] transition-colors"
+                                className="px-4 py-2 text-[14px] font-[500] text-on-brand bg-warning-solid rounded-lg hover:bg-warning-solid transition-colors"
                             >
                                 Save Changes
                             </button>
@@ -1846,38 +1847,38 @@ export default function AdminManageProducts() {
 
             {/* Edit Stage Modal */}
             {showEditStageModal && (
-                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E6EA]">
-                            <h3 className="text-[18px] font-[600] text-[#1D1F2C]">Edit Production Stage</h3>
-                            <button onClick={() => setShowEditStageModal(false)} className="text-[#9CA3AF] hover:text-[#4B5563]">
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-backdrop">
+                    <div className="bg-elevated rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-line">
+                            <h3 className="text-[18px] font-[600] text-fg-strong">Edit Production Stage</h3>
+                            <button onClick={() => setShowEditStageModal(false)} className="text-fg-muted hover:text-fg">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
                         <div className="p-6">
-                            <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
-                                Production Stage Name <span className="text-[#EF4444]">*</span>
+                            <label className="block text-[14px] font-[500] text-fg mb-1">
+                                Production Stage Name <span className="text-error">*</span>
                             </label>
                             <input
                                 type="text"
                                 value={editStageName}
                                 onChange={(e) => setEditStageName(e.target.value)}
-                                className="w-full px-4 py-2 bg-white border border-[#E5E7EB] rounded-lg text-[14px] focus:outline-none focus:border-[#F97316]"
+                                className="w-full px-4 py-2 bg-surface border border-line rounded-lg text-[14px] focus:outline-none focus:border-warning"
                                 placeholder="Enter stage name"
                             />
                         </div>
-                        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#F9FAFB] border-t border-[#E4E6EA]">
+                        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-subtle border-t border-line">
                             <button
                                 type="button"
                                 onClick={() => setShowEditStageModal(false)}
-                                className="px-4 py-2 text-[14px] font-[500] text-[#4B5563] bg-white border border-[#E5E7EB] rounded-lg hover:bg-gray-50 transition-colors"
+                                className="px-4 py-2 text-[14px] font-[500] text-fg bg-surface border border-line rounded-lg hover:bg-subtle transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="button"
                                 onClick={handleUpdateStage}
-                                className="px-4 py-2 text-[14px] font-[500] text-white bg-[#F97316] rounded-lg hover:bg-[#EA580C] transition-colors"
+                                className="px-4 py-2 text-[14px] font-[500] text-on-brand bg-warning-solid rounded-lg hover:bg-warning-solid transition-colors"
                             >
                                 Save Changes
                             </button>
@@ -1889,11 +1890,11 @@ export default function AdminManageProducts() {
             {/* Toast Notification */}
             {showToast && (
                 <div className="fixed top-4 right-4 z-[10001] animate-fade-in">
-                    <div className="bg-white border-l-4 border-[#51CC5D] rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
-                        <div className="flex-shrink-0 w-8 h-8 bg-[#51CC5D] bg-opacity-10 rounded-full flex items-center justify-center">
-                            <Check className="w-5 h-5 text-[#199D26]" />
+                    <div className="bg-surface border-l-4 border-success rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
+                        <div className="flex-shrink-0 w-8 h-8 bg-success-solid bg-opacity-10 rounded-full flex items-center justify-center">
+                            <Check className="w-5 h-5 text-success" />
                         </div>
-                        <p className="text-[14px] text-[#383E49] font-[500]">{toastMessage}</p>
+                        <p className="text-[14px] text-fg font-[500]">{toastMessage}</p>
                     </div>
                 </div>
             )}
@@ -1901,7 +1902,7 @@ export default function AdminManageProducts() {
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

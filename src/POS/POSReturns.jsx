@@ -135,100 +135,100 @@ export default function POSReturns() {
                         {/* Step 1 - Transaction Search */}
                         <div className="flex flex-col items-center min-w-0">
                             <div className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 ${currentStep === 1
-                                ? 'border-[#0F50AA] bg-[#0F50AA] text-white'
+                                ? 'border-brand-fg bg-brand text-on-brand'
                                 : currentStep > 1
-                                    ? 'border-[#51CC5D] bg-[#51CC5D] text-white'
-                                    : 'border-[#E4E6EA] bg-white text-[#667085]'
+                                    ? 'border-success bg-success-solid text-on-brand'
+                                    : 'border-line bg-surface text-fg-secondary'
                                 }`}>
                                 {currentStep > 1 ?
                                     <Check size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" /> :
                                     <Search size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                                 }
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 1 ? 'text-[#0F50AA] font-medium' : 'text-[#667085]'
+                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 1 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                                 }`}>
                                 Search
                             </span>
                         </div>
 
                         {/* Connector */}
-                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 1 ? 'bg-[#51CC5D]' : 'bg-[#E4E6EA]'}`} />
+                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 1 ? 'bg-success-solid' : 'bg-line'}`} />
 
                         {/* Step 2 - Item Selection */}
                         <div className="flex flex-col items-center min-w-0">
                             <div className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 ${currentStep === 2
-                                ? 'border-[#0F50AA] bg-[#0F50AA] text-white'
+                                ? 'border-brand-fg bg-brand text-on-brand'
                                 : currentStep > 2
-                                    ? 'border-[#51CC5D] bg-[#51CC5D] text-white'
-                                    : 'border-[#E4E6EA] bg-white text-[#667085]'
+                                    ? 'border-success bg-success-solid text-on-brand'
+                                    : 'border-line bg-surface text-fg-secondary'
                                 }`}>
                                 {currentStep > 2 ?
                                     <Check size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" /> :
                                     <Package size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                                 }
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 2 ? 'text-[#0F50AA] font-medium' : 'text-[#667085]'
+                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 2 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                                 }`}>
                                 Items
                             </span>
                         </div>
 
                         {/* Connector */}
-                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 2 ? 'bg-[#51CC5D]' : 'bg-[#E4E6EA]'}`} />
+                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 2 ? 'bg-success-solid' : 'bg-line'}`} />
 
                         {/* Step 3 - Return Type */}
                         <div className="flex flex-col items-center min-w-0">
                             <div className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 ${currentStep === 3
-                                ? 'border-[#0F50AA] bg-[#0F50AA] text-white'
+                                ? 'border-brand-fg bg-brand text-on-brand'
                                 : currentStep > 3
-                                    ? 'border-[#51CC5D] bg-[#51CC5D] text-white'
-                                    : 'border-[#E4E6EA] bg-white text-[#667085]'
+                                    ? 'border-success bg-success-solid text-on-brand'
+                                    : 'border-line bg-surface text-fg-secondary'
                                 }`}>
                                 {currentStep > 3 ?
                                     <Check size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" /> :
                                     <RefreshCw size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                                 }
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 3 ? 'text-[#0F50AA] font-medium' : 'text-[#667085]'
+                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 3 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                                 }`}>
                                 Type
                             </span>
                         </div>
 
                         {/* Connector */}
-                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 3 ? 'bg-[#51CC5D]' : 'bg-[#E4E6EA]'}`} />
+                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 3 ? 'bg-success-solid' : 'bg-line'}`} />
 
                         {/* Step 4 - Processing */}
                         <div className="flex flex-col items-center min-w-0">
                             <div className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 ${currentStep === 4
-                                ? 'border-[#0F50AA] bg-[#0F50AA] text-white'
+                                ? 'border-brand-fg bg-brand text-on-brand'
                                 : currentStep > 4
-                                    ? 'border-[#51CC5D] bg-[#51CC5D] text-white'
-                                    : 'border-[#E4E6EA] bg-white text-[#667085]'
+                                    ? 'border-success bg-success-solid text-on-brand'
+                                    : 'border-line bg-surface text-fg-secondary'
                                 }`}>
                                 {currentStep > 4 ?
                                     <Check size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" /> :
                                     <DollarSign size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                                 }
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 4 ? 'text-[#0F50AA] font-medium' : 'text-[#667085]'
+                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 4 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                                 }`}>
                                 Process
                             </span>
                         </div>
 
                         {/* Connector */}
-                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 4 ? 'bg-[#51CC5D]' : 'bg-[#E4E6EA]'}`} />
+                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 4 ? 'bg-success-solid' : 'bg-line'}`} />
 
                         {/* Step 5 - Confirmation */}
                         <div className="flex flex-col items-center min-w-0">
                             <div className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 ${currentStep === 5
-                                ? 'border-[#0F50AA] bg-[#0F50AA] text-white'
-                                : 'border-[#E4E6EA] bg-white text-[#667085]'
+                                ? 'border-brand-fg bg-brand text-on-brand'
+                                : 'border-line bg-surface text-fg-secondary'
                                 }`}>
                                 <Check size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 5 ? 'text-[#0F50AA] font-medium' : 'text-[#667085]'
+                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 5 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                                 }`}>
                                 Confirm
                             </span>
@@ -511,7 +511,7 @@ export default function POSReturns() {
 
     return (
 
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             <POSSidebar sidebarOpen={sidebarOpen} />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -528,10 +528,10 @@ export default function POSReturns() {
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
                                     <div className="min-w-0 flex-1">
-                                        <h1 className="text-base sm:text-lg md:text-xl font-semibold text-[#383E49] truncate">
+                                        <h1 className="text-base sm:text-lg md:text-xl font-semibold text-fg truncate">
                                             Returns
                                         </h1>
-                                        <p className="text-xs sm:text-sm text-[#667085] truncate">
+                                        <p className="text-xs sm:text-sm text-fg-secondary truncate">
                                             <span className="hidden sm:inline">Processing return - </span>
                                             Step {currentStep} of 5
                                         </p>
@@ -546,24 +546,24 @@ export default function POSReturns() {
                             {/* Step 1: Transaction Search */}
                             {currentStep === 1 && (
                                 <div className=" mx-auto">
-                                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6 lg:p-8">
+                                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6 lg:p-8">
                                         <div className="text-center mb-6">
-                                            <div className="w-16 h-16 bg-[#0F50AA]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <Search size={32} className="text-[#0F50AA]" />
+                                            <div className="w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <Search size={32} className="text-brand-fg" />
                                             </div>
-                                            <h2 className="text-[20px] font-[600] text-[#383E49] mb-2">Find Original Transaction</h2>
-                                            <p className="text-[14px] text-[#667085]">
+                                            <h2 className="text-[20px] font-[600] text-fg mb-2">Find Original Transaction</h2>
+                                            <p className="text-[14px] text-fg-secondary">
                                                 Enter transaction ID or scan receipt barcode
                                             </p>
                                         </div>
 
                                         <div className="space-y-4">
                                             <div>
-                                                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                                                <label className="block text-[14px] font-[500] text-fg mb-2">
                                                     Transaction ID *
                                                 </label>
                                                 <div className="relative">
-                                                    <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={18} />
+                                                    <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary" size={18} />
                                                     <input
                                                         ref={receiptInputRef}
                                                         type="text"
@@ -571,10 +571,10 @@ export default function POSReturns() {
                                                         value={receiptId}
                                                         onChange={(e) => setReceiptId(e.target.value)}
                                                         onKeyPress={(e) => e.key === 'Enter' && handleReceiptSearch()}
-                                                        className="w-full pl-10 pr-12 py-3 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10"
+                                                        className="w-full pl-10 pr-12 py-3 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                                     />
                                                     <button
-                                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#667085] hover:text-[#0F50AA] transition-colors"
+                                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-fg-secondary hover:text-brand-fg transition-colors"
                                                     >
                                                         <Scan size={18} />
                                                     </button>
@@ -584,7 +584,7 @@ export default function POSReturns() {
                                             <button
                                                 onClick={handleReceiptSearch}
                                                 disabled={!receiptId.trim()}
-                                                className="w-full bg-[#0F50AA] text-white py-3 rounded-lg font-[500] hover:bg-[#0D4494] transition-colors disabled:bg-[#E4E6EA] disabled:text-[#667085] flex items-center justify-center gap-2"
+                                                className="w-full bg-brand text-on-brand py-3 rounded-lg font-[500] hover:bg-brand-hover transition-colors disabled:bg-line disabled:text-fg-secondary flex items-center justify-center gap-2"
                                             >
                                                 <Search size={16} />
                                                 Search Transaction
@@ -600,38 +600,38 @@ export default function POSReturns() {
                             {currentStep === 2 && foundTransaction && (
                                 <div className="space-y-6">
                                     {/* Transaction Details */}
-                                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
-                                        <h3 className="text-[18px] font-[600] text-[#383E49] mb-4">Original Transaction Details</h3>
+                                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+                                        <h3 className="text-[18px] font-[600] text-fg mb-4">Original Transaction Details</h3>
 
-                                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-[#F8F9FA] rounded-lg mb-6">
+                                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-subtle rounded-lg mb-6">
                                             <div>
-                                                <p className="text-[12px] text-[#667085]">Bill ID</p>
-                                                <p className="text-[14px] font-[600] text-[#0F50AA] break-all">{foundTransaction.billNumber || foundTransaction.id}</p>
+                                                <p className="text-[12px] text-fg-secondary">Bill ID</p>
+                                                <p className="text-[14px] font-[600] text-brand-fg break-all">{foundTransaction.billNumber || foundTransaction.id}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[12px] text-[#667085]">Date & Time</p>
-                                                <p className="text-[14px] font-[500] text-[#383E49]">{foundTransaction.date} {foundTransaction.time}</p>
+                                                <p className="text-[12px] text-fg-secondary">Date & Time</p>
+                                                <p className="text-[14px] font-[500] text-fg">{foundTransaction.date} {foundTransaction.time}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[12px] text-[#667085]">Cashier</p>
-                                                <p className="text-[14px] font-[500] text-[#383E49]">{foundTransaction.cashier}</p>
+                                                <p className="text-[12px] text-fg-secondary">Cashier</p>
+                                                <p className="text-[14px] font-[500] text-fg">{foundTransaction.cashier}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[12px] text-[#667085]">Total Amount</p>
-                                                <p className="text-[14px] font-[500] text-[#383E49]">Rs. {foundTransaction.total.toLocaleString()}</p>
+                                                <p className="text-[12px] text-fg-secondary">Total Amount</p>
+                                                <p className="text-[14px] font-[500] text-fg">Rs. {foundTransaction.total.toLocaleString()}</p>
                                             </div>
                                         </div>
 
                                         {/* Items Selection */}
-                                        <h4 className="text-[16px] font-[500] text-[#383E49] mb-4">Select Items to Return</h4>
+                                        <h4 className="text-[16px] font-[500] text-fg mb-4">Select Items to Return</h4>
                                         <div className="space-y-3">
                                             {selectedItems.map((item) => (
-                                                <div key={item.id} className="border border-[#E4E6EA] rounded-lg p-4">
+                                                <div key={item.id} className="border border-line rounded-lg p-4">
                                                     <div className="flex items-start justify-between mb-3">
                                                         <div className="flex-1">
-                                                            <p className="text-[14px] font-[500] text-[#383E49]">{item.name}</p>
-                                                            <p className="text-[12px] text-[#667085]">{item.code}</p>
-                                                            <p className="text-[14px] text-[#0F50AA] font-[500]">
+                                                            <p className="text-[14px] font-[500] text-fg">{item.name}</p>
+                                                            <p className="text-[12px] text-fg-secondary">{item.code}</p>
+                                                            <p className="text-[14px] text-brand-fg font-[500]">
                                                                 Rs. {item.price} × {item.quantity} = Rs. {item.total.toLocaleString()}
                                                             </p>
                                                         </div>
@@ -640,11 +640,11 @@ export default function POSReturns() {
                                                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                                                         <div className="flex items-center gap-4">
                                                             <div className="flex items-center gap-2">
-                                                                <label className="text-[12px] text-[#667085] whitespace-nowrap">Return Qty:</label>
+                                                                <label className="text-[12px] text-fg-secondary whitespace-nowrap">Return Qty:</label>
                                                                 <div className="flex items-center gap-1">
                                                                     <button
                                                                         onClick={() => updateReturnQuantity(item.id, item.returnQuantity - 1)}
-                                                                        className="w-8 h-8 flex items-center justify-center border border-[#E4E6EA] rounded text-[#667085] hover:bg-[#F8F9FA] transition-colors"
+                                                                        className="w-8 h-8 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle transition-colors"
                                                                         disabled={item.returnQuantity <= 0}
                                                                     >
                                                                         <Minus size={14} />
@@ -655,17 +655,17 @@ export default function POSReturns() {
                                                                         max={item.quantity}
                                                                         value={item.returnQuantity}
                                                                         onChange={(e) => updateReturnQuantity(item.id, parseInt(e.target.value) || 0)}
-                                                                        className="w-16 text-center py-1 border border-[#E4E6EA] rounded text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                                                        className="w-16 text-center py-1 border border-line rounded text-[14px] focus:border-brand-fg focus:outline-none"
                                                                     />
                                                                     <button
                                                                         onClick={() => updateReturnQuantity(item.id, item.returnQuantity + 1)}
-                                                                        className="w-8 h-8 flex items-center justify-center border border-[#E4E6EA] rounded text-[#667085] hover:bg-[#F8F9FA] transition-colors"
+                                                                        className="w-8 h-8 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle transition-colors"
                                                                         disabled={item.returnQuantity >= item.quantity}
                                                                     >
                                                                         <Plus size={14} />
                                                                     </button>
                                                                 </div>
-                                                                <span className="text-[12px] text-[#667085] whitespace-nowrap">/ {item.quantity}</span>
+                                                                <span className="text-[12px] text-fg-secondary whitespace-nowrap">/ {item.quantity}</span>
                                                             </div>
 
                                                             {item.returnQuantity > 0 && (
@@ -674,19 +674,19 @@ export default function POSReturns() {
                                                                         type="checkbox"
                                                                         checked={item.resellable}
                                                                         onChange={() => toggleResellable(item.id)}
-                                                                        className="rounded border-[#E4E6EA] text-[#0F50AA] focus:ring-[#0F50AA]/10"
+                                                                        className="rounded border-line text-brand-fg focus:ring-brand-fg/10"
                                                                     />
-                                                                    <span className="text-[12px] text-[#667085]">Resellable</span>
+                                                                    <span className="text-[12px] text-fg-secondary">Resellable</span>
                                                                 </label>
                                                             )}
                                                         </div>
 
                                                         {item.returnQuantity > 0 && (
                                                             <div className="text-left sm:text-right">
-                                                                <p className="text-[16px] font-[600] text-[#51CC5D]">
+                                                                <p className="text-[16px] font-[600] text-success">
                                                                     Rs. {(item.price * item.returnQuantity).toLocaleString()}
                                                                 </p>
-                                                                <p className="text-[10px] text-[#667085]">
+                                                                <p className="text-[10px] text-fg-secondary">
                                                                     {item.resellable ? 'Back to stock' : 'Mark as wastage'}
                                                                 </p>
                                                             </div>
@@ -698,19 +698,19 @@ export default function POSReturns() {
 
                                         {/* Return Reason */}
                                         <div className="mt-6">
-                                            <h4 className="text-[16px] font-[500] text-[#383E49] mb-4">Return Reason *</h4>
+                                            <h4 className="text-[16px] font-[500] text-fg mb-4">Return Reason *</h4>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                 {returnReasons.map((reason) => (
-                                                    <label key={reason.value} className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-[#F8F9FA] border border-[#E4E6EA] transition-colors">
+                                                    <label key={reason.value} className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-subtle border border-line transition-colors">
                                                         <input
                                                             type="radio"
                                                             name="returnReason"
                                                             value={reason.value}
                                                             checked={returnReason === reason.value}
                                                             onChange={(e) => setReturnReason(e.target.value)}
-                                                            className="text-[#0F50AA] focus:ring-[#0F50AA]/10 mt-0.5"
+                                                            className="text-brand-fg focus:ring-brand-fg/10 mt-0.5"
                                                         />
-                                                        <span className="text-[14px] text-[#383E49] flex-1">{reason.label}</span>
+                                                        <span className="text-[14px] text-fg flex-1">{reason.label}</span>
                                                     </label>
                                                 ))}
                                             </div>
@@ -721,11 +721,11 @@ export default function POSReturns() {
                                                         placeholder="Please specify the reason (minimum 10 characters)"
                                                         value={customReason}
                                                         onChange={(e) => setCustomReason(e.target.value)}
-                                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none resize-none"
+                                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none resize-none"
                                                         rows="3"
                                                     />
                                                     {customReason.trim().length > 0 && customReason.trim().length < 10 && (
-                                                        <p className="text-[12px] text-[#EF4444] mt-1">Please enter at least 10 characters</p>
+                                                        <p className="text-[12px] text-error mt-1">Please enter at least 10 characters</p>
                                                     )}
                                                 </div>
                                             )}
@@ -733,31 +733,31 @@ export default function POSReturns() {
                                     </div>
 
                                     {/* Return Summary */}
-                                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
-                                        <h3 className="text-[16px] font-[600] text-[#383E49] mb-4">Return Summary</h3>
+                                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+                                        <h3 className="text-[16px] font-[600] text-fg mb-4">Return Summary</h3>
 
                                         {returnItems.length > 0 ? (
                                             <div className="space-y-3">
                                                 {returnItems.map((item) => (
-                                                    <div key={item.id} className="flex justify-between text-[14px] py-2 border-b border-[#E4E6EA] last:border-0">
-                                                        <span className="text-[#667085]">{item.returnQuantity}× {item.name}</span>
-                                                        <span className="text-[#383E49] font-[500]">
+                                                    <div key={item.id} className="flex justify-between text-[14px] py-2 border-b border-line last:border-0">
+                                                        <span className="text-fg-secondary">{item.returnQuantity}× {item.name}</span>
+                                                        <span className="text-fg font-[500]">
                                                             Rs. {(item.price * item.returnQuantity).toLocaleString()}
                                                         </span>
                                                     </div>
                                                 ))}
-                                                <div className="border-t border-[#E4E6EA] pt-3">
+                                                <div className="border-t border-line pt-3">
                                                     <div className="flex justify-between text-[18px] font-[600]">
-                                                        <span className="text-[#383E49]">Total Return:</span>
-                                                        <span className="text-[#51CC5D]">Rs. {returnTotal.toLocaleString()}</span>
+                                                        <span className="text-fg">Total Return:</span>
+                                                        <span className="text-success">Rs. {returnTotal.toLocaleString()}</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         ) : (
                                             <div className="text-center py-8">
-                                                <Package size={48} className="text-[#E4E6EA] mx-auto mb-3" />
-                                                <p className="text-[14px] text-[#667085]">No items selected for return</p>
-                                                <p className="text-[12px] text-[#667085] mt-1">Select items above to continue</p>
+                                                <Package size={48} className="text-fg-muted mx-auto mb-3" />
+                                                <p className="text-[14px] text-fg-secondary">No items selected for return</p>
+                                                <p className="text-[12px] text-fg-secondary mt-1">Select items above to continue</p>
                                             </div>
                                         )}
                                     </div>
@@ -767,55 +767,55 @@ export default function POSReturns() {
                             {/* Step 3: Return Type Selection */}
                             {currentStep === 3 && (
                                 <div className="max-w-2xl mx-auto space-y-6">
-                                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                                         <div className="text-center mb-6">
-                                            <div className="w-16 h-16 bg-[#0F50AA]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <RefreshCw size={32} className="text-[#0F50AA]" />
+                                            <div className="w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <RefreshCw size={32} className="text-brand-fg" />
                                             </div>
-                                            <h2 className="text-[20px] font-[600] text-[#383E49] mb-2">Select Return Type</h2>
-                                            <p className="text-[14px] text-[#667085]">
+                                            <h2 className="text-[20px] font-[600] text-fg mb-2">Select Return Type</h2>
+                                            <p className="text-[14px] text-fg-secondary">
                                                 Choose how you want to process the return
                                             </p>
                                         </div>
 
                                         <div className="space-y-4">
-                                            <label className={`flex items-center gap-4 cursor-pointer p-4 border-2 rounded-lg hover:bg-[#F8F9FA] transition-colors ${refundType === 'refund' ? 'border-[#0F50AA] bg-[#0F50AA]/5' : 'border-[#E4E6EA]'}`}>
+                                            <label className={`flex items-center gap-4 cursor-pointer p-4 border-2 rounded-lg hover:bg-subtle transition-colors ${refundType === 'refund' ? 'border-brand-fg bg-brand/5' : 'border-line'}`}>
                                                 <input
                                                     type="radio"
                                                     name="refundType"
                                                     value="refund"
                                                     checked={refundType === 'refund'}
                                                     onChange={(e) => setRefundType(e.target.value)}
-                                                    className="text-[#0F50AA] focus:ring-[#0F50AA]/10"
+                                                    className="text-brand-fg focus:ring-brand-fg/10"
                                                 />
-                                                <div className="w-12 h-12 bg-[#51CC5D]/10 rounded-lg flex items-center justify-center">
-                                                    <DollarSign size={24} className="text-[#51CC5D]" />
+                                                <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
+                                                    <DollarSign size={24} className="text-success" />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <h3 className="text-[16px] font-[500] text-[#383E49]">Cash Refund</h3>
-                                                    <p className="text-[12px] text-[#667085]">Return money to customer</p>
-                                                    <p className="text-[14px] font-[600] text-[#51CC5D] mt-1">
+                                                    <h3 className="text-[16px] font-[500] text-fg">Cash Refund</h3>
+                                                    <p className="text-[12px] text-fg-secondary">Return money to customer</p>
+                                                    <p className="text-[14px] font-[600] text-success mt-1">
                                                         Rs. {returnTotal.toLocaleString()}
                                                     </p>
                                                 </div>
                                             </label>
 
-                                            <label className={`flex items-center gap-4 cursor-pointer p-4 border-2 rounded-lg hover:bg-[#F8F9FA] transition-colors ${refundType === 'exchange' ? 'border-[#0F50AA] bg-[#0F50AA]/5' : 'border-[#E4E6EA]'}`}>
+                                            <label className={`flex items-center gap-4 cursor-pointer p-4 border-2 rounded-lg hover:bg-subtle transition-colors ${refundType === 'exchange' ? 'border-brand-fg bg-brand/5' : 'border-line'}`}>
                                                 <input
                                                     type="radio"
                                                     name="refundType"
                                                     value="exchange"
                                                     checked={refundType === 'exchange'}
                                                     onChange={(e) => setRefundType(e.target.value)}
-                                                    className="text-[#0F50AA] focus:ring-[#0F50AA]/10"
+                                                    className="text-brand-fg focus:ring-brand-fg/10"
                                                 />
-                                                <div className="w-12 h-12 bg-[#B3A5FF]/10 rounded-lg flex items-center justify-center">
-                                                    <RefreshCw size={24} className="text-[#B3A5FF]" />
+                                                <div className="w-12 h-12 bg-plum/20 rounded-lg flex items-center justify-center">
+                                                    <RefreshCw size={24} className="text-plum" />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <h3 className="text-[16px] font-[500] text-[#383E49]">Exchange</h3>
-                                                    <p className="text-[12px] text-[#667085]">Replace with different items</p>
-                                                    <p className="text-[14px] font-[600] text-[#B3A5FF] mt-1">
+                                                    <h3 className="text-[16px] font-[500] text-fg">Exchange</h3>
+                                                    <p className="text-[12px] text-fg-secondary">Replace with different items</p>
+                                                    <p className="text-[14px] font-[600] text-plum mt-1">
                                                         Credit: Rs. {returnTotal.toLocaleString()}
                                                     </p>
                                                 </div>
@@ -830,83 +830,83 @@ export default function POSReturns() {
                                 <div className="space-y-6">
                                     {refundType === 'refund' && (
                                         <div className="max-w-2xl mx-auto">
-                                            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                                            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                                                 <div className="text-center mb-6">
-                                                    <div className="w-16 h-16 bg-[#51CC5D]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                        <DollarSign size={32} className="text-[#51CC5D]" />
+                                                    <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                        <DollarSign size={32} className="text-success" />
                                                     </div>
-                                                    <h2 className="text-[20px] font-[600] text-[#383E49] mb-2">Process Refund</h2>
-                                                    <p className="text-[14px] text-[#667085]">
+                                                    <h2 className="text-[20px] font-[600] text-fg mb-2">Process Refund</h2>
+                                                    <p className="text-[14px] text-fg-secondary">
                                                         Select refund payment method
                                                     </p>
                                                 </div>
 
                                                 <div className="space-y-6">
-                                                    <div className="p-4 bg-[#F8F9FA] rounded-lg">
+                                                    <div className="p-4 bg-subtle rounded-lg">
                                                         <div className="flex justify-between items-center">
-                                                            <span className="text-[16px] font-[500] text-[#383E49]">Refund Amount:</span>
-                                                            <span className="text-[24px] font-[700] text-[#51CC5D]">
+                                                            <span className="text-[16px] font-[500] text-fg">Refund Amount:</span>
+                                                            <span className="text-[24px] font-[700] text-success">
                                                                 Rs. {returnTotal.toLocaleString()}
                                                             </span>
                                                         </div>
                                                     </div>
 
                                                     <div>
-                                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-3">
+                                                        <label className="block text-[14px] font-[500] text-fg mb-3">
                                                             Payment Method *
                                                         </label>
                                                         <div className="grid grid-cols-1 gap-3">
-                                                            <label className={`flex items-center gap-3 cursor-pointer p-4 border-2 rounded-lg hover:bg-[#F8F9FA] transition-colors ${paymentMethod === 'cash' ? 'border-[#0F50AA] bg-[#0F50AA]/5' : 'border-[#E4E6EA]'}`}>
+                                                            <label className={`flex items-center gap-3 cursor-pointer p-4 border-2 rounded-lg hover:bg-subtle transition-colors ${paymentMethod === 'cash' ? 'border-brand-fg bg-brand/5' : 'border-line'}`}>
                                                                 <input
                                                                     type="radio"
                                                                     name="paymentMethod"
                                                                     value="cash"
                                                                     checked={paymentMethod === 'cash'}
                                                                     onChange={(e) => setPaymentMethod(e.target.value)}
-                                                                    className="text-[#0F50AA] focus:ring-[#0F50AA]/10"
+                                                                    className="text-brand-fg focus:ring-brand-fg/10"
                                                                 />
-                                                                <div className="w-10 h-10 bg-[#51CC5D]/10 rounded-lg flex items-center justify-center">
-                                                                    <DollarSign size={20} className="text-[#51CC5D]" />
+                                                                <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
+                                                                    <DollarSign size={20} className="text-success" />
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <span className="text-[14px] font-[500] text-[#383E49]">Cash Refund</span>
-                                                                    <p className="text-[12px] text-[#667085]">Immediate cash return</p>
+                                                                    <span className="text-[14px] font-[500] text-fg">Cash Refund</span>
+                                                                    <p className="text-[12px] text-fg-secondary">Immediate cash return</p>
                                                                 </div>
                                                             </label>
 
-                                                            <label className={`flex items-center gap-3 cursor-pointer p-4 border-2 rounded-lg hover:bg-[#F8F9FA] transition-colors ${paymentMethod === 'card' ? 'border-[#0F50AA] bg-[#0F50AA]/5' : 'border-[#E4E6EA]'}`}>
+                                                            <label className={`flex items-center gap-3 cursor-pointer p-4 border-2 rounded-lg hover:bg-subtle transition-colors ${paymentMethod === 'card' ? 'border-brand-fg bg-brand/5' : 'border-line'}`}>
                                                                 <input
                                                                     type="radio"
                                                                     name="paymentMethod"
                                                                     value="card"
                                                                     checked={paymentMethod === 'card'}
                                                                     onChange={(e) => setPaymentMethod(e.target.value)}
-                                                                    className="text-[#0F50AA] focus:ring-[#0F50AA]/10"
+                                                                    className="text-brand-fg focus:ring-brand-fg/10"
                                                                 />
-                                                                <div className="w-10 h-10 bg-[#0F50AA]/10 rounded-lg flex items-center justify-center">
-                                                                    <CreditCard size={20} className="text-[#0F50AA]" />
+                                                                <div className="w-10 h-10 bg-brand/10 rounded-lg flex items-center justify-center">
+                                                                    <CreditCard size={20} className="text-brand-fg" />
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <span className="text-[14px] font-[500] text-[#383E49]">Card Refund</span>
-                                                                    <p className="text-[12px] text-[#667085]">Refund to original card</p>
+                                                                    <span className="text-[14px] font-[500] text-fg">Card Refund</span>
+                                                                    <p className="text-[12px] text-fg-secondary">Refund to original card</p>
                                                                 </div>
                                                             </label>
 
-                                                            <label className={`flex items-center gap-3 cursor-pointer p-4 border-2 rounded-lg hover:bg-[#F8F9FA] transition-colors ${paymentMethod === 'bank' ? 'border-[#0F50AA] bg-[#0F50AA]/5' : 'border-[#E4E6EA]'}`}>
+                                                            <label className={`flex items-center gap-3 cursor-pointer p-4 border-2 rounded-lg hover:bg-subtle transition-colors ${paymentMethod === 'bank' ? 'border-brand-fg bg-brand/5' : 'border-line'}`}>
                                                                 <input
                                                                     type="radio"
                                                                     name="paymentMethod"
                                                                     value="bank"
                                                                     checked={paymentMethod === 'bank'}
                                                                     onChange={(e) => setPaymentMethod(e.target.value)}
-                                                                    className="text-[#0F50AA] focus:ring-[#0F50AA]/10"
+                                                                    className="text-brand-fg focus:ring-brand-fg/10"
                                                                 />
-                                                                <div className="w-10 h-10 bg-[#F97316]/10 rounded-lg flex items-center justify-center">
-                                                                    <Building2 size={20} className="text-[#F97316]" />
+                                                                <div className="w-10 h-10 bg-warning/10 rounded-lg flex items-center justify-center">
+                                                                    <Building2 size={20} className="text-warning" />
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <span className="text-[14px] font-[500] text-[#383E49]">Bank Transfer</span>
-                                                                    <p className="text-[12px] text-[#667085]">Transfer to bank account</p>
+                                                                    <span className="text-[14px] font-[500] text-fg">Bank Transfer</span>
+                                                                    <p className="text-[12px] text-fg-secondary">Transfer to bank account</p>
                                                                 </div>
                                                             </label>
                                                         </div>
@@ -918,48 +918,48 @@ export default function POSReturns() {
 
                                     {refundType === 'exchange' && (
                                         <div className="space-y-6">
-                                            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                                            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                                                 <div className="flex items-center justify-between mb-4">
-                                                    <h3 className="text-[18px] font-[600] text-[#383E49]">Exchange Items</h3>
+                                                    <h3 className="text-[18px] font-[600] text-fg">Exchange Items</h3>
                                                     <div className="text-right">
-                                                        <p className="text-[12px] text-[#667085]">Available Credit</p>
-                                                        <p className="text-[16px] font-[600] text-[#B3A5FF]">Rs. {returnTotal.toLocaleString()}</p>
+                                                        <p className="text-[12px] text-fg-secondary">Available Credit</p>
+                                                        <p className="text-[16px] font-[600] text-plum">Rs. {returnTotal.toLocaleString()}</p>
                                                     </div>
                                                 </div>
 
                                                 {/* Selected Exchange Items */}
                                                 {exchangeItems.length > 0 && (
-                                                    <div className="mb-6 p-4 bg-[#F8F9FA] rounded-lg">
-                                                        <h4 className="text-[14px] font-[500] text-[#383E49] mb-3">Selected Items:</h4>
+                                                    <div className="mb-6 p-4 bg-subtle rounded-lg">
+                                                        <h4 className="text-[14px] font-[500] text-fg mb-3">Selected Items:</h4>
                                                         <div className="space-y-2">
                                                             {exchangeItems.map((item) => (
-                                                                <div key={item.id} className="flex justify-between items-center p-3 bg-white rounded-lg border border-[#E4E6EA]">
+                                                                <div key={item.id} className="flex justify-between items-center p-3 bg-surface rounded-lg border border-line">
                                                                     <div className="flex-1">
-                                                                        <p className="text-[14px] font-[500] text-[#383E49]">{item.name}</p>
-                                                                        <p className="text-[12px] text-[#667085]">{item.code}</p>
+                                                                        <p className="text-[14px] font-[500] text-fg">{item.name}</p>
+                                                                        <p className="text-[12px] text-fg-secondary">{item.code}</p>
                                                                     </div>
                                                                     <div className="flex items-center gap-3">
                                                                         <div className="flex items-center gap-1">
                                                                             <button
                                                                                 onClick={() => updateExchangeItemQuantity(item.id, item.quantity - 1)}
-                                                                                className="w-6 h-6 flex items-center justify-center border border-[#E4E6EA] rounded text-[#667085] hover:bg-[#F8F9FA]"
+                                                                                className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                             >
                                                                                 <Minus size={12} />
                                                                             </button>
-                                                                            <span className="text-[14px] font-[500] text-[#383E49] w-8 text-center">{item.quantity}</span>
+                                                                            <span className="text-[14px] font-[500] text-fg w-8 text-center">{item.quantity}</span>
                                                                             <button
                                                                                 onClick={() => updateExchangeItemQuantity(item.id, item.quantity + 1)}
-                                                                                className="w-6 h-6 flex items-center justify-center border border-[#E4E6EA] rounded text-[#667085] hover:bg-[#F8F9FA]"
+                                                                                className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                             >
                                                                                 <Plus size={12} />
                                                                             </button>
                                                                         </div>
-                                                                        <p className="text-[14px] font-[500] text-[#0F50AA] w-20 text-right">
+                                                                        <p className="text-[14px] font-[500] text-brand-fg w-20 text-right">
                                                                             Rs. {(item.price * item.quantity).toLocaleString()}
                                                                         </p>
                                                                         <button
                                                                             onClick={() => removeExchangeItem(item.id)}
-                                                                            className="text-[#EF4444] hover:bg-red-100 rounded p-1"
+                                                                            className="text-error hover:bg-error/10 rounded p-1"
                                                                         >
                                                                             <X size={16} />
                                                                         </button>
@@ -968,14 +968,14 @@ export default function POSReturns() {
                                                             ))}
                                                         </div>
 
-                                                        <div className="border-t border-[#E4E6EA] mt-4 pt-4">
+                                                        <div className="border-t border-line mt-4 pt-4">
                                                             <div className="flex justify-between items-center mb-2">
-                                                                <span className="text-[14px] font-[500] text-[#383E49]">Exchange Total:</span>
-                                                                <span className="text-[16px] font-[600] text-[#B3A5FF]">Rs. {exchangeTotal.toLocaleString()}</span>
+                                                                <span className="text-[14px] font-[500] text-fg">Exchange Total:</span>
+                                                                <span className="text-[16px] font-[600] text-plum">Rs. {exchangeTotal.toLocaleString()}</span>
                                                             </div>
                                                             <div className="flex justify-between items-center">
-                                                                <span className="text-[16px] font-[600] text-[#383E49]">Balance:</span>
-                                                                <span className={`text-[18px] font-[700] ${balanceAmount >= 0 ? 'text-[#51CC5D]' : 'text-[#EF4444]'}`}>
+                                                                <span className="text-[16px] font-[600] text-fg">Balance:</span>
+                                                                <span className={`text-[18px] font-[700] ${balanceAmount >= 0 ? 'text-success' : 'text-error'}`}>
                                                                     Rs. {Math.abs(balanceAmount).toLocaleString()} {balanceAmount >= 0 ? 'Refund' : 'Due'}
                                                                 </span>
                                                             </div>
@@ -987,7 +987,7 @@ export default function POSReturns() {
                                                 <div className="mb-4">
                                                     <button
                                                         onClick={() => setShowExchangeProducts(!showExchangeProducts)}
-                                                        className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-[#0F50AA] rounded-lg text-[#0F50AA] hover:bg-[#0F50AA]/5 transition-colors"
+                                                        className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-brand-fg rounded-lg text-brand-fg hover:bg-brand/5 transition-colors"
                                                     >
                                                         <Plus size={20} />
                                                         {showExchangeProducts ? 'Hide Products' : 'Add Exchange Items'}
@@ -997,9 +997,9 @@ export default function POSReturns() {
 
                                                 {/* Product Selection */}
                                                 {showExchangeProducts && (
-                                                    <div className="border border-[#E4E6EA] rounded-lg">
-                                                        <div className="p-3 bg-[#F8F9FA] border-b border-[#E4E6EA]">
-                                                            <h4 className="text-[14px] font-[500] text-[#383E49]">Available Products</h4>
+                                                    <div className="border border-line rounded-lg">
+                                                        <div className="p-3 bg-subtle border-b border-line">
+                                                            <h4 className="text-[14px] font-[500] text-fg">Available Products</h4>
                                                         </div>
                                                         <div className="max-h-64 overflow-y-auto">
                                                             <div className="grid grid-cols-1 gap-0">
@@ -1007,16 +1007,16 @@ export default function POSReturns() {
                                                                     <div
                                                                         key={product.id}
                                                                         onClick={() => addExchangeItem(product)}
-                                                                        className="p-4 hover:bg-[#F8F9FA] transition-colors border-b border-[#E4E6EA] last:border-0 cursor-pointer"
+                                                                        className="p-4 hover:bg-subtle transition-colors border-b border-line last:border-0 cursor-pointer"
                                                                     >
                                                                         <div className="flex justify-between items-center">
                                                                             <div className="flex-1">
-                                                                                <p className="text-[14px] font-[500] text-[#383E49]">{product.name}</p>
-                                                                                <p className="text-[12px] text-[#667085]">{product.code} • Stock: {product.stock}</p>
+                                                                                <p className="text-[14px] font-[500] text-fg">{product.name}</p>
+                                                                                <p className="text-[12px] text-fg-secondary">{product.code} • Stock: {product.stock}</p>
                                                                             </div>
                                                                             <div className="text-right">
-                                                                                <p className="text-[14px] font-[600] text-[#0F50AA]">Rs. {product.price.toLocaleString()}</p>
-                                                                                <div className="flex items-center gap-1 text-[12px] text-[#51CC5D] mt-1">
+                                                                                <p className="text-[14px] font-[600] text-brand-fg">Rs. {product.price.toLocaleString()}</p>
+                                                                                <div className="flex items-center gap-1 text-[12px] text-success mt-1">
                                                                                     <Plus size={12} />
                                                                                     <span>Add Item</span>
                                                                                 </div>
@@ -1032,51 +1032,51 @@ export default function POSReturns() {
                                                 {/* Payment Method Selection */}
                                                 {exchangeItems.length > 0 && (
                                                     <div className="mt-6">
-                                                        <h4 className="text-[16px] font-[500] text-[#383E49] mb-4">Payment Method *</h4>
+                                                        <h4 className="text-[16px] font-[500] text-fg mb-4">Payment Method *</h4>
 
                                                         {balanceAmount < 0 ? (
-                                                            <div className="p-4 bg-[#FEF2F2] border border-[#FCA5A5] rounded-lg mb-4">
+                                                            <div className="p-4 bg-subtle border border-error/30 rounded-lg mb-4">
                                                                 <div className="flex items-center gap-2 mb-3">
-                                                                    <AlertTriangle size={16} className="text-[#EF4444]" />
-                                                                    <h5 className="text-[14px] font-[500] text-[#EF4444]">Additional Payment Required</h5>
+                                                                    <AlertTriangle size={16} className="text-error" />
+                                                                    <h5 className="text-[14px] font-[500] text-error">Additional Payment Required</h5>
                                                                 </div>
-                                                                <p className="text-[12px] text-[#EF4444] mb-3">
+                                                                <p className="text-[12px] text-error mb-3">
                                                                     Customer needs to pay Rs. {Math.abs(balanceAmount).toLocaleString()} more
                                                                 </p>
                                                                 <div className="grid grid-cols-2 gap-3">
-                                                                    <label className={`flex items-center gap-2 cursor-pointer p-3 border rounded-lg transition-colors ${paymentMethod === 'cash' ? 'border-[#0F50AA] bg-[#0F50AA]/5' : 'border-[#E4E6EA] bg-white'}`}>
+                                                                    <label className={`flex items-center gap-2 cursor-pointer p-3 border rounded-lg transition-colors ${paymentMethod === 'cash' ? 'border-brand-fg bg-brand/5' : 'border-line bg-surface'}`}>
                                                                         <input
                                                                             type="radio"
                                                                             name="additionalPayment"
                                                                             value="cash"
                                                                             checked={paymentMethod === 'cash'}
                                                                             onChange={(e) => setPaymentMethod(e.target.value)}
-                                                                            className="text-[#0F50AA] focus:ring-[#0F50AA]/10"
+                                                                            className="text-brand-fg focus:ring-brand-fg/10"
                                                                         />
-                                                                        <DollarSign size={16} className="text-[#51CC5D]" />
-                                                                        <span className="text-[12px] font-[500] text-[#383E49]">Cash Refund</span>
+                                                                        <DollarSign size={16} className="text-success" />
+                                                                        <span className="text-[12px] font-[500] text-fg">Cash Refund</span>
                                                                     </label>
-                                                                    <label className={`flex items-center gap-2 cursor-pointer p-3 border rounded-lg transition-colors ${paymentMethod === 'card' ? 'border-[#0F50AA] bg-[#0F50AA]/5' : 'border-[#E4E6EA] bg-white'}`}>
+                                                                    <label className={`flex items-center gap-2 cursor-pointer p-3 border rounded-lg transition-colors ${paymentMethod === 'card' ? 'border-brand-fg bg-brand/5' : 'border-line bg-surface'}`}>
                                                                         <input
                                                                             type="radio"
                                                                             name="refundMethod"
                                                                             value="card"
                                                                             checked={paymentMethod === 'card'}
                                                                             onChange={(e) => setPaymentMethod(e.target.value)}
-                                                                            className="text-[#0F50AA] focus:ring-[#0F50AA]/10"
+                                                                            className="text-brand-fg focus:ring-brand-fg/10"
                                                                         />
-                                                                        <CreditCard size={16} className="text-[#0F50AA]" />
-                                                                        <span className="text-[12px] font-[500] text-[#383E49]">Card Refund</span>
+                                                                        <CreditCard size={16} className="text-brand-fg" />
+                                                                        <span className="text-[12px] font-[500] text-fg">Card Refund</span>
                                                                     </label>
                                                                 </div>
                                                             </div>
                                                         ) : (
-                                                            <div className="p-4 bg-[#F0F8FF] border border-[#0F50AA] rounded-lg">
+                                                            <div className="p-4 bg-subtle border border-brand-fg rounded-lg">
                                                                 <div className="flex items-center gap-2 mb-2">
-                                                                    <RefreshCw size={16} className="text-[#0F50AA]" />
-                                                                    <h5 className="text-[14px] font-[500] text-[#0F50AA]">Even Exchange</h5>
+                                                                    <RefreshCw size={16} className="text-brand-fg" />
+                                                                    <h5 className="text-[14px] font-[500] text-brand-fg">Even Exchange</h5>
                                                                 </div>
-                                                                <p className="text-[12px] text-[#0F50AA]">
+                                                                <p className="text-[12px] text-brand-fg">
                                                                     Perfect balance! No additional payment or refund needed.
                                                                 </p>
                                                                 <input
@@ -1099,43 +1099,43 @@ export default function POSReturns() {
                             {/* Step 5: Final Confirmation/Success */}
                             {currentStep === 5 && processedReturn && (
                                 <div className="max-w-2xl mx-auto">
-                                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                                    <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                                         <div className="text-center mb-6">
-                                            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <Check size={40} className="text-green-600" />
+                                            <div className="w-20 h-20 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <Check size={40} className="text-success" />
                                             </div>
-                                            <h2 className="text-[22px] font-[600] text-[#383E49] mb-2">Return Processed Successfully!</h2>
-                                            <p className="text-[14px] text-[#667085]">
-                                                Return ID: <span className="font-[500] text-[#383E49] bg-[#F8F9FA] px-2 py-1 rounded">{processedReturn.returnId}</span>
+                                            <h2 className="text-[22px] font-[600] text-fg mb-2">Return Processed Successfully!</h2>
+                                            <p className="text-[14px] text-fg-secondary">
+                                                Return ID: <span className="font-[500] text-fg bg-subtle px-2 py-1 rounded">{processedReturn.returnId}</span>
                                             </p>
                                         </div>
 
                                         {/* Return Summary */}
                                         <div className="space-y-4 mb-6">
-                                            <div className="p-4 bg-[#F8F9FA] rounded-lg">
-                                                <h4 className="text-[14px] font-[500] text-[#383E49] mb-3">Transaction Summary</h4>
+                                            <div className="p-4 bg-subtle rounded-lg">
+                                                <h4 className="text-[14px] font-[500] text-fg mb-3">Transaction Summary</h4>
                                                 <div className="space-y-2 text-[14px]">
                                                     <div className="flex justify-between">
-                                                        <span className="text-[#667085]">Original Transaction:</span>
-                                                        <span className="font-[500] text-[#383E49]">{processedReturn.originalTransaction}</span>
+                                                        <span className="text-fg-secondary">Original Transaction:</span>
+                                                        <span className="font-[500] text-fg">{processedReturn.originalTransaction}</span>
                                                     </div>
                                                     <div className="flex justify-between">
-                                                        <span className="text-[#667085]">Return Amount:</span>
-                                                        <span className="font-[500] text-[#51CC5D]">Rs. {processedReturn.returnTotal.toLocaleString()}</span>
+                                                        <span className="text-fg-secondary">Return Amount:</span>
+                                                        <span className="font-[500] text-success">Rs. {processedReturn.returnTotal.toLocaleString()}</span>
                                                     </div>
                                                     <div className="flex justify-between">
-                                                        <span className="text-[#667085]">Refund Type:</span>
-                                                        <span className="font-[500] text-[#383E49] capitalize">{processedReturn.refundType}</span>
+                                                        <span className="text-fg-secondary">Refund Type:</span>
+                                                        <span className="font-[500] text-fg capitalize">{processedReturn.refundType}</span>
                                                     </div>
                                                     {processedReturn.refundType === 'exchange' && (
                                                         <>
                                                             <div className="flex justify-between">
-                                                                <span className="text-[#667085]">Exchange Total:</span>
-                                                                <span className="font-[500] text-[#B3A5FF]">Rs. {processedReturn.exchangeTotal.toLocaleString()}</span>
+                                                                <span className="text-fg-secondary">Exchange Total:</span>
+                                                                <span className="font-[500] text-plum">Rs. {processedReturn.exchangeTotal.toLocaleString()}</span>
                                                             </div>
-                                                            <div className="flex justify-between border-t border-[#E4E6EA] pt-2">
-                                                                <span className="text-[#667085]">Final Balance:</span>
-                                                                <span className={`font-[600] text-[16px] ${processedReturn.balanceAmount >= 0 ? 'text-[#51CC5D]' : 'text-[#EF4444]'}`}>
+                                                            <div className="flex justify-between border-t border-line pt-2">
+                                                                <span className="text-fg-secondary">Final Balance:</span>
+                                                                <span className={`font-[600] text-[16px] ${processedReturn.balanceAmount >= 0 ? 'text-success' : 'text-error'}`}>
                                                                     Rs. {Math.abs(processedReturn.balanceAmount).toLocaleString()} {processedReturn.balanceAmount >= 0 ? 'Refund' : 'Due'}
                                                                 </span>
                                                             </div>
@@ -1145,14 +1145,14 @@ export default function POSReturns() {
                                             </div>
 
                                             {/* Returned Items */}
-                                            <div className="p-4 bg-[#DDFFE0] rounded-lg">
-                                                <h4 className="text-[14px] font-[500] text-[#199D26] mb-3 flex items-center gap-2">
+                                            <div className="p-4 bg-hover rounded-lg">
+                                                <h4 className="text-[14px] font-[500] text-success mb-3 flex items-center gap-2">
                                                     <Package size={16} />
                                                     Stock Updated
                                                 </h4>
                                                 <div className="space-y-1">
                                                     {processedReturn.returnItems.map((item) => (
-                                                        <div key={item.id} className="flex justify-between text-[12px] text-[#199D26]">
+                                                        <div key={item.id} className="flex justify-between text-[12px] text-success">
                                                             <span>
                                                                 {item.name} ({item.returnQuantity} units)
                                                             </span>
@@ -1166,14 +1166,14 @@ export default function POSReturns() {
 
                                             {/* Exchange Items */}
                                             {processedReturn.refundType === 'exchange' && processedReturn.exchangeItems.length > 0 && (
-                                                <div className="p-4 bg-[#F0F8FF] rounded-lg">
-                                                    <h4 className="text-[14px] font-[500] text-[#0F50AA] mb-3 flex items-center gap-2">
+                                                <div className="p-4 bg-subtle rounded-lg">
+                                                    <h4 className="text-[14px] font-[500] text-brand-fg mb-3 flex items-center gap-2">
                                                         <RefreshCw size={16} />
                                                         Exchange Items
                                                     </h4>
                                                     <div className="space-y-1">
                                                         {processedReturn.exchangeItems.map((item) => (
-                                                            <div key={item.id} className="flex justify-between text-[12px] text-[#0F50AA]">
+                                                            <div key={item.id} className="flex justify-between text-[12px] text-brand-fg">
                                                                 <span>
                                                                     {item.name} ({item.quantity} units)
                                                                 </span>
@@ -1190,14 +1190,14 @@ export default function POSReturns() {
                                         <div className="flex flex-col sm:flex-row gap-3">
                                             <button
                                                 onClick={handlePrintReceipt}
-                                                className="flex-1 px-4 py-3 border border-[#0F50AA] text-[#0F50AA] rounded-lg hover:bg-[#0F50AA]/5 transition-colors flex items-center justify-center gap-2"
+                                                className="flex-1 px-4 py-3 border border-brand-fg text-brand-fg rounded-lg hover:bg-brand/5 transition-colors flex items-center justify-center gap-2"
                                             >
                                                 <Receipt size={16} />
                                                 Print Receipt
                                             </button>
                                             <button
                                                 onClick={resetForm}
-                                                className="flex-1 px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors flex items-center justify-center gap-2"
+                                                className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors flex items-center justify-center gap-2"
                                             >
                                                 <RefreshCw size={16} />
                                                 New Return
@@ -1211,14 +1211,14 @@ export default function POSReturns() {
                     </div>
 
                     {/* Sticky Footer with Navigation Buttons */}
-                    <div className="sticky bottom-0 bg-white border-t border-[#E4E6EA] p-4 z-50">
+                    <div className="sticky bottom-0 bg-surface border-t border-line p-4 z-50">
                         <div className="max-w-6xl mx-auto flex justify-between items-center">
                             {/* Left side buttons */}
                             <div className="flex gap-3">
                                 {currentStep > 1 && (
                                     <button
                                         onClick={goToPreviousStep}
-                                        className="px-4 py-2 sm:px-6 sm:py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors text-[14px] font-[500] flex items-center gap-2"
+                                        className="px-4 py-2 sm:px-6 sm:py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors text-[14px] font-[500] flex items-center gap-2"
                                     >
                                         <ArrowLeft size={16} />
                                         Back
@@ -1226,7 +1226,7 @@ export default function POSReturns() {
                                 )}
                                 <button
                                     onClick={() => window.history.back()}
-                                    className="px-4 py-2 sm:px-6 sm:py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors text-[14px] font-[500]"
+                                    className="px-4 py-2 sm:px-6 sm:py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors text-[14px] font-[500]"
                                 >
                                     Cancel
                                 </button>
@@ -1237,7 +1237,7 @@ export default function POSReturns() {
                                 <button
                                     onClick={goToNextStep}
                                     disabled={!isStepValid()}
-                                    className="px-4 py-2 sm:px-6 sm:py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500] flex items-center gap-2"
+                                    className="px-4 py-2 sm:px-6 sm:py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500] flex items-center gap-2"
                                 >
                                     Next
                                     <ArrowRight size={16} />
@@ -1248,7 +1248,7 @@ export default function POSReturns() {
                                 <button
                                     onClick={processReturn}
                                     disabled={!isStepValid()}
-                                    className="px-4 py-2 sm:px-6 sm:py-3 bg-[#51CC5D] text-white rounded-lg hover:bg-[#199D26] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500] flex items-center gap-2"
+                                    className="px-4 py-2 sm:px-6 sm:py-3 bg-success-solid text-on-brand rounded-lg hover:bg-success-solid transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500] flex items-center gap-2"
                                 >
                                     <Check size={16} />
                                     Process Return
@@ -1264,38 +1264,38 @@ export default function POSReturns() {
 
             {/* Confirmation Modal */}
             {showConfirmModal && processedReturn && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="text-center mb-6">
-                                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <AlertTriangle size={32} className="text-orange-600" />
+                                <div className="w-16 h-16 bg-warning/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <AlertTriangle size={32} className="text-warning" />
                                 </div>
-                                <h3 className="text-[18px] font-[600] text-[#383E49] mb-2">Confirm Return Processing</h3>
-                                <p className="text-[14px] text-[#667085]">
+                                <h3 className="text-[18px] font-[600] text-fg mb-2">Confirm Return Processing</h3>
+                                <p className="text-[14px] text-fg-secondary">
                                     Please review the return details before processing
                                 </p>
                             </div>
 
                             <div className="space-y-4 mb-6">
-                                <div className="p-4 bg-[#F8F9FA] rounded-lg">
+                                <div className="p-4 bg-subtle rounded-lg">
                                     <div className="space-y-2 text-[14px]">
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Return Amount:</span>
-                                            <span className="font-[500] text-[#51CC5D]">Rs. {processedReturn.returnTotal.toLocaleString()}</span>
+                                            <span className="text-fg-secondary">Return Amount:</span>
+                                            <span className="font-[500] text-success">Rs. {processedReturn.returnTotal.toLocaleString()}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Refund Type:</span>
-                                            <span className="font-[500] text-[#383E49] capitalize">{processedReturn.refundType}</span>
+                                            <span className="text-fg-secondary">Refund Type:</span>
+                                            <span className="font-[500] text-fg capitalize">{processedReturn.refundType}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Payment Method:</span>
-                                            <span className="font-[500] text-[#383E49] capitalize">{processedReturn.paymentMethod}</span>
+                                            <span className="text-fg-secondary">Payment Method:</span>
+                                            <span className="font-[500] text-fg capitalize">{processedReturn.paymentMethod}</span>
                                         </div>
                                         {processedReturn.refundType === 'exchange' && (
-                                            <div className="flex justify-between border-t border-[#E4E6EA] pt-2">
-                                                <span className="text-[#667085]">Final Balance:</span>
-                                                <span className={`font-[500] ${processedReturn.balanceAmount >= 0 ? 'text-[#51CC5D]' : 'text-[#EF4444]'}`}>
+                                            <div className="flex justify-between border-t border-line pt-2">
+                                                <span className="text-fg-secondary">Final Balance:</span>
+                                                <span className={`font-[500] ${processedReturn.balanceAmount >= 0 ? 'text-success' : 'text-error'}`}>
                                                     Rs. {Math.abs(processedReturn.balanceAmount).toLocaleString()} {processedReturn.balanceAmount >= 0 ? 'Refund' : 'Due'}
                                                 </span>
                                             </div>
@@ -1304,7 +1304,7 @@ export default function POSReturns() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
                                         Manager Verification Code
                                     </label>
                                     <input
@@ -1312,7 +1312,7 @@ export default function POSReturns() {
                                         value={managerVerificationCode}
                                         onChange={(e) => setManagerVerificationCode(e.target.value)}
                                         placeholder="Enter manager code to authorize this return"
-                                        className="w-full px-4 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                        className="w-full px-4 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                     />
                                 </div>
                             </div>
@@ -1320,13 +1320,13 @@ export default function POSReturns() {
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => { setShowConfirmModal(false); setManagerVerificationCode(''); }}
-                                    className="flex-1 px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                    className="flex-1 px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={confirmReturn}
-                                    className="flex-1 px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors flex items-center justify-center gap-2"
+                                    className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors flex items-center justify-center gap-2"
                                 >
                                     <Check size={16} />
                                     Confirm Return
@@ -1339,14 +1339,14 @@ export default function POSReturns() {
 
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}
 
             {/* Printable Return Receipt (Thermal Printer Template) */}
             {printReturnData && (
-                <div id="printable-return-receipt" className="hidden print:block fixed inset-0 bg-white text-black p-2 font-mono text-xs z-[99999]">
+                <div id="printable-return-receipt" className="hidden print:block fixed inset-0 bg-surface text-fg-strong p-2 font-mono text-xs z-[99999]">
                     <style dangerouslySetInnerHTML={{ __html: `
                         @media print {
                             body * {
@@ -1364,7 +1364,7 @@ export default function POSReturns() {
                             }
                         }
                     `}} />
-                    <div className="w-[80mm] mx-auto text-black">
+                    <div className="w-[80mm] mx-auto text-fg-strong">
                         <div className="text-center font-bold text-sm mb-1">BAKERY MANAGEMENT SYSTEM</div>
                         <div className="text-center text-[10px] mb-2">ANURADHAPURA OUTLET</div>
                         <div className="border-t border-dashed my-1"></div>

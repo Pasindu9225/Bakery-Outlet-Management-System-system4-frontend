@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import {
   Search,
   Plus,
@@ -279,17 +280,17 @@ export default function StorekeeperIOUPurchase() {
   const submitIOURequest = async () => {
     // Validate form
     if (!iouRequest.justification.trim()) {
-      alert("Please provide justification for the IOU request");
+      toast.error("Please provide justification for the IOU request");
       return;
     }
 
     if (!iouRequest.supplierName.trim()) {
-      alert("Please provide supplier name");
+      toast.error("Please provide supplier name");
       return;
     }
 
     if (!iouRequest.supplierContact.trim()) {
-      alert("Please provide supplier contact");
+      toast.error("Please provide supplier contact");
       return;
     }
 
@@ -298,7 +299,7 @@ export default function StorekeeperIOUPurchase() {
         (item) => !item.materialId || !item.quantity || !item.estimatedPrice
       )
     ) {
-      alert("Please complete all item details");
+      toast.error("Please complete all item details");
       return;
     }
 
@@ -308,7 +309,7 @@ export default function StorekeeperIOUPurchase() {
         localStorage.getItem("userId") || sessionStorage.getItem("userId");
 
       if (!userId) {
-        alert("User ID not found. Please log in again.");
+        toast.error("User ID not found. Please log in again.");
         return;
       }
 
@@ -467,11 +468,11 @@ export default function StorekeeperIOUPurchase() {
         status: "Draft",
       });
 
-      alert(`IOU Request ${newIOUId} submitted successfully!`);
+      toast.success(`IOU Request ${newIOUId} submitted successfully!`);
       setActiveTab("pending");
     } catch (error) {
       console.error("Failed to submit IOU request:", error);
-      alert(`Failed to submit IOU request: ${error.message}`);
+      toast.error(`Failed to submit IOU request: ${error.message}`);
     }
   };
 
@@ -550,7 +551,7 @@ export default function StorekeeperIOUPurchase() {
   // Submit GRN
   const submitGRN = async () => {
     if (!grnEntry.vendorName.trim()) {
-      alert("Please enter vendor name");
+      toast.error("Please enter vendor name");
       return;
     }
 
@@ -564,7 +565,7 @@ export default function StorekeeperIOUPurchase() {
     );
 
     if (hasInvalidItems) {
-      alert(
+      toast.error(
         "Please complete all item details (batch number, expiry date, received quantity, and actual price)"
       );
       return;
@@ -633,7 +634,7 @@ export default function StorekeeperIOUPurchase() {
         })
       );
 
-      alert("GRN submitted successfully! Inventory updated.");
+      toast.success("GRN submitted successfully! Inventory updated.");
       setShowGRNModal(false);
       setSelectedIOU(null);
 
@@ -702,22 +703,22 @@ export default function StorekeeperIOUPurchase() {
       await refreshPurchases();
     } catch (error) {
       console.error("Failed to submit GRN:", error);
-      alert(`Failed to submit GRN: ${error.message}`);
+      toast.error(`Failed to submit GRN: ${error.message}`);
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
       case "Pending":
-        return "bg-[#FFF4E6] text-[#F4A100]";
+        return "bg-hover text-warning";
       case "Approved":
-        return "bg-[#E0F2FE] text-[#0369A1]";
+        return "bg-hover text-info";
       case "Settled":
-        return "bg-[#DDFFE0] text-[#199D26]";
+        return "bg-hover text-success";
       case "Rejected":
-        return "bg-[#FEE2E2] text-[#EF4444]";
+        return "bg-hover text-error";
       default:
-        return "bg-[#F8F9FA] text-[#667085]";
+        return "bg-subtle text-fg-secondary";
     }
   };
 
@@ -737,7 +738,7 @@ export default function StorekeeperIOUPurchase() {
   };
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <StorekeeperSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -751,24 +752,24 @@ export default function StorekeeperIOUPurchase() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+            <h1 className="text-[20px] font-[600] text-fg mb-1">
               IOU Purchase Management
             </h1>
-            <p className="text-[14px] text-[#667085]">
+            <p className="text-[14px] text-fg-secondary">
               Manage emergency purchases from non-registered suppliers with IOU
               process
             </p>
           </div>
 
           {/* Tab Navigation */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] mb-6">
-            <div className="flex border-b border-[#E4E6EA]">
+          <div className="bg-surface rounded-lg shadow-sm border border-line mb-6">
+            <div className="flex border-b border-line">
               <button
                 onClick={() => setActiveTab("create")}
                 className={`px-6 py-3 text-[14px] font-[500] border-b-2 transition-colors ${
                   activeTab === "create"
-                    ? "border-[#0F50AA] text-[#0F50AA]"
-                    : "border-transparent text-[#667085] hover:text-[#383E49]"
+                    ? "border-brand-fg text-brand-fg"
+                    : "border-transparent text-fg-secondary hover:text-fg"
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -780,8 +781,8 @@ export default function StorekeeperIOUPurchase() {
                 onClick={() => setActiveTab("pending")}
                 className={`px-6 py-3 text-[14px] font-[500] border-b-2 transition-colors ${
                   activeTab === "pending"
-                    ? "border-[#0F50AA] text-[#0F50AA]"
-                    : "border-transparent text-[#667085] hover:text-[#383E49]"
+                    ? "border-brand-fg text-brand-fg"
+                    : "border-transparent text-fg-secondary hover:text-fg"
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -793,8 +794,8 @@ export default function StorekeeperIOUPurchase() {
                 onClick={() => setActiveTab("history")}
                 className={`px-6 py-3 text-[14px] font-[500] border-b-2 transition-colors ${
                   activeTab === "history"
-                    ? "border-[#0F50AA] text-[#0F50AA]"
-                    : "border-transparent text-[#667085] hover:text-[#383E49]"
+                    ? "border-brand-fg text-brand-fg"
+                    : "border-transparent text-fg-secondary hover:text-fg"
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -812,13 +813,13 @@ export default function StorekeeperIOUPurchase() {
                 <Loader variant="section" text="Loading raw materials..." />
               )}
               {/* IOU Header */}
-              <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
-                <h3 className="text-[18px] font-[600] text-[#383E49] mb-4">
+              <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+                <h3 className="text-[18px] font-[600] text-fg mb-4">
                   IOU Request Details
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                    <label className="block text-[14px] font-[500] text-fg mb-2">
                       Request Date
                     </label>
                     <input
@@ -830,11 +831,11 @@ export default function StorekeeperIOUPurchase() {
                           date: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                      className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                    <label className="block text-[14px] font-[500] text-fg mb-2">
                       Estimated Total Amount
                     </label>
                     <input
@@ -843,14 +844,14 @@ export default function StorekeeperIOUPurchase() {
                         2
                       )}`}
                       readOnly
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md bg-[#F8F9FA] text-[14px] font-[600] text-[#383E49]"
+                      className="w-full px-3 py-2 border border-line rounded-md bg-subtle text-[14px] font-[600] text-fg"
                     />
                   </div>
                 </div>
                 <div className="mt-4">
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                  <label className="block text-[14px] font-[500] text-fg mb-2">
                     Justification/Reason{" "}
-                    <span className="text-[#EF4444]">*</span>
+                    <span className="text-error">*</span>
                   </label>
                   <textarea
                     value={iouRequest.justification}
@@ -862,15 +863,15 @@ export default function StorekeeperIOUPurchase() {
                     }
                     placeholder="Explain why this IOU purchase is necessary..."
                     rows={3}
-                    className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] resize-none"
+                    className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] resize-none"
                   />
                 </div>
 
                 {/* Supplier Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                   <div>
-                    <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
-                      Supplier Name <span className="text-[#EF4444]">*</span>
+                    <label className="block text-[14px] font-[500] text-fg mb-2">
+                      Supplier Name <span className="text-error">*</span>
                     </label>
                     <input
                       type="text"
@@ -882,12 +883,12 @@ export default function StorekeeperIOUPurchase() {
                         }))
                       }
                       placeholder="Enter supplier name"
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                      className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
-                      Supplier Contact <span className="text-[#EF4444]">*</span>
+                    <label className="block text-[14px] font-[500] text-fg mb-2">
+                      Supplier Contact <span className="text-error">*</span>
                     </label>
                     <input
                       type="text"
@@ -899,21 +900,21 @@ export default function StorekeeperIOUPurchase() {
                         }))
                       }
                       placeholder="Phone number or email"
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                      className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Items Table */}
-              <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+              <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-[18px] font-[600] text-[#383E49]">
+                  <h3 className="text-[18px] font-[600] text-fg">
                     Request Items
                   </h3>
                   <button
                     onClick={addIOUItem}
-                    className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-[#0F50AA] bg-[#EBF8FF] hover:bg-[#DBEAFE] rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-brand-fg bg-hover hover:bg-line rounded-lg transition-colors"
                   >
                     <Plus size={16} />
                     Add Item
@@ -923,27 +924,27 @@ export default function StorekeeperIOUPurchase() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-[#E4E6EA]">
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <tr className="border-b border-line">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Raw Material
                         </th>
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Quantity
                         </th>
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Est. Unit Price
                         </th>
-                        <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                           Est. Total
                         </th>
-                        <th className="text-center py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-center py-3 text-[12px] font-[600] text-fg uppercase">
                           Action
                         </th>
                       </tr>
                     </thead>
                     <tbody>
                       {iouRequest.items.map((item, index) => (
-                        <tr key={item.id} className="border-b border-[#E4E6EA]">
+                        <tr key={item.id} className="border-b border-line">
                           <td className="py-4">
                             <select
                               value={item.materialId}
@@ -954,7 +955,7 @@ export default function StorekeeperIOUPurchase() {
                                   e.target.value
                                 )
                               }
-                              className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                              className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                               disabled={loadingMaterials}
                             >
                               <option value="">
@@ -972,7 +973,7 @@ export default function StorekeeperIOUPurchase() {
                               ))}
                             </select>
                             {materialsError && (
-                              <p className="text-red-500 text-sm mt-1">
+                              <p className="text-error text-sm mt-1">
                                 Error loading materials: {materialsError}
                               </p>
                             )}
@@ -989,7 +990,7 @@ export default function StorekeeperIOUPurchase() {
                                 )
                               }
                               placeholder="0"
-                              className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                              className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                             />
                           </td>
                           <td className="py-4">
@@ -1004,18 +1005,18 @@ export default function StorekeeperIOUPurchase() {
                                 )
                               }
                               placeholder="0.00"
-                              className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                              className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                             />
                           </td>
                           <td className="py-4">
-                            <span className="text-[14px] font-[600] text-[#383E49]">
+                            <span className="text-[14px] font-[600] text-fg">
                               Rs.{Number(item.estimatedTotal || 0).toFixed(2)}
                             </span>
                           </td>
                           <td className="py-4 text-center">
                             <button
                               onClick={() => removeIOUItem(item.id)}
-                              className="p-2 text-[#EF4444] hover:bg-[#FEE2E2] rounded-lg transition-colors"
+                              className="p-2 text-error hover:bg-hover rounded-lg transition-colors"
                               disabled={iouRequest.items.length === 1}
                             >
                               <Trash2 size={16} />
@@ -1028,10 +1029,10 @@ export default function StorekeeperIOUPurchase() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-[#E4E6EA]">
+                <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-line">
                   <button
                     onClick={submitIOURequest}
-                    className="flex items-center justify-center gap-2 px-6 py-2 text-[14px] font-[500] text-white bg-[#0F50AA] hover:bg-[#2563EB] rounded-lg transition-colors"
+                    className="flex items-center justify-center gap-2 px-6 py-2 text-[14px] font-[500] text-on-brand bg-brand hover:bg-brand-hover rounded-lg transition-colors"
                   >
                     <Send size={16} />
                     Submit IOU Request
@@ -1058,7 +1059,7 @@ export default function StorekeeperIOUPurchase() {
                         status: "Draft",
                       });
                     }}
-                    className="flex items-center justify-center gap-2 px-6 py-2 text-[14px] font-[500] text-[#667085] bg-white border border-[#E4E6EA] hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                    className="flex items-center justify-center gap-2 px-6 py-2 text-[14px] font-[500] text-fg-secondary bg-surface border border-line hover:bg-subtle rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
@@ -1069,8 +1070,8 @@ export default function StorekeeperIOUPurchase() {
 
           {/* Pending & Approved IOUs Tab */}
           {activeTab === "pending" && (
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
-              <h3 className="text-[18px] font-[600] text-[#383E49] mb-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+              <h3 className="text-[18px] font-[600] text-fg mb-4">
                 Pending & Approved IOU Requests
               </h3>
 
@@ -1079,8 +1080,8 @@ export default function StorekeeperIOUPurchase() {
               )}
 
               {purchasesError && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                  <p className="text-red-800 text-sm">
+                <div className="bg-error/10 border border-error/30 rounded-lg p-4 mb-4">
+                  <p className="text-error text-sm">
                     Error loading essential purchases: {purchasesError}
                   </p>
                 </div>
@@ -1089,23 +1090,23 @@ export default function StorekeeperIOUPurchase() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E4E6EA]">
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                    <tr className="border-b border-line">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         IOU ID
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Date
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Supplier
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Amount
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Status
                       </th>
-                      <th className="text-center py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-center py-3 text-[12px] font-[600] text-fg uppercase">
                         Actions
                       </th>
                     </tr>
@@ -1119,31 +1120,31 @@ export default function StorekeeperIOUPurchase() {
                       .map((iou) => (
                         <tr
                           key={iou.id}
-                          className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                          className="border-b border-line hover:bg-subtle"
                         >
                           <td className="py-4">
-                            <span className="text-[14px] font-[600] text-[#383E49]">
+                            <span className="text-[14px] font-[600] text-fg">
                               {iou.id}
                             </span>
                           </td>
                           <td className="py-4">
-                            <span className="text-[14px] text-[#383E49]">
+                            <span className="text-[14px] text-fg">
                               {new Date(iou.date).toLocaleDateString()}
                             </span>
                           </td>
                           <td className="py-4">
                             <div>
-                              <span className="text-[14px] font-[500] text-[#383E49]">
+                              <span className="text-[14px] font-[500] text-fg">
                                 {iou.supplierName}
                               </span>
                               <br />
-                              <span className="text-[12px] text-[#667085]">
+                              <span className="text-[12px] text-fg-secondary">
                                 {iou.supplierContact}
                               </span>
                             </div>
                           </td>
                           <td className="py-4">
-                            <span className="text-[14px] font-[600] text-[#383E49]">
+                            <span className="text-[14px] font-[600] text-fg">
                               Rs.{Number(iou.estimatedAmount || 0).toFixed(2)}
                             </span>
                           </td>
@@ -1164,7 +1165,7 @@ export default function StorekeeperIOUPurchase() {
                                   setSelectedIOU(iou);
                                   setShowIOUDetails(true);
                                 }}
-                                className="p-2 text-[#0F50AA] hover:bg-[#EBF8FF] rounded-lg transition-colors"
+                                className="p-2 text-brand-fg hover:bg-hover rounded-lg transition-colors"
                                 title="View Details"
                               >
                                 <Eye size={16} />
@@ -1172,7 +1173,7 @@ export default function StorekeeperIOUPurchase() {
                               {iou.status === "Approved" && (
                                 <button
                                   onClick={() => handleGRNEntry(iou)}
-                                  className="p-2 text-[#199D26] hover:bg-[#F0FDF4] rounded-lg transition-colors"
+                                  className="p-2 text-success hover:bg-hover rounded-lg transition-colors"
                                   title="Create GRN"
                                 >
                                   <Package size={16} />
@@ -1192,11 +1193,11 @@ export default function StorekeeperIOUPurchase() {
                   (iou) => iou.status === "Pending" || iou.status === "Approved"
                 ).length === 0 && (
                   <div className="text-center py-12">
-                    <Clock size={48} className="mx-auto text-[#667085] mb-4" />
-                    <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                    <Clock size={48} className="mx-auto text-fg-secondary mb-4" />
+                    <p className="text-[16px] font-[500] text-fg mb-2">
                       No pending or approved IOUs
                     </p>
-                    <p className="text-[14px] text-[#667085]">
+                    <p className="text-[14px] text-fg-secondary">
                       IOU requests awaiting approval or goods entry will appear
                       here
                     </p>
@@ -1207,8 +1208,8 @@ export default function StorekeeperIOUPurchase() {
 
           {/* IOU History Tab */}
           {activeTab === "history" && (
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
-              <h3 className="text-[18px] font-[600] text-[#383E49] mb-4">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+              <h3 className="text-[18px] font-[600] text-fg mb-4">
                 IOU Request History
               </h3>
 
@@ -1217,8 +1218,8 @@ export default function StorekeeperIOUPurchase() {
               )}
 
               {purchasesError && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                  <p className="text-red-800 text-sm">
+                <div className="bg-error/10 border border-error/30 rounded-lg p-4 mb-4">
+                  <p className="text-error text-sm">
                     Error loading essential purchases: {purchasesError}
                   </p>
                 </div>
@@ -1227,29 +1228,29 @@ export default function StorekeeperIOUPurchase() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E4E6EA]">
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                    <tr className="border-b border-line">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         IOU ID
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Date
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Supplier
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Est. Amount
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Actual Amount
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Status
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         GRN Linked
                       </th>
-                      <th className="text-center py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-center py-3 text-[12px] font-[600] text-fg uppercase">
                         Actions
                       </th>
                     </tr>
@@ -1258,36 +1259,36 @@ export default function StorekeeperIOUPurchase() {
                     {essentialPurchases.map((iou) => (
                       <tr
                         key={iou.id}
-                        className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                        className="border-b border-line hover:bg-subtle"
                       >
                         <td className="py-4">
-                          <span className="text-[14px] font-[600] text-[#383E49]">
+                          <span className="text-[14px] font-[600] text-fg">
                             {iou.id}
                           </span>
                         </td>
                         <td className="py-4">
-                          <span className="text-[14px] text-[#383E49]">
+                          <span className="text-[14px] text-fg">
                             {new Date(iou.date).toLocaleDateString()}
                           </span>
                         </td>
                         <td className="py-4">
                           <div>
-                            <span className="text-[14px] font-[500] text-[#383E49]">
+                            <span className="text-[14px] font-[500] text-fg">
                               {iou.supplierName}
                             </span>
                             <br />
-                            <span className="text-[12px] text-[#667085]">
+                            <span className="text-[12px] text-fg-secondary">
                               {iou.supplierContact}
                             </span>
                           </div>
                         </td>
                         <td className="py-4">
-                          <span className="text-[14px] font-[500] text-[#383E49]">
+                          <span className="text-[14px] font-[500] text-fg">
                             Rs.{Number(iou.estimatedAmount || 0).toFixed(2)}
                           </span>
                         </td>
                         <td className="py-4">
-                          <span className="text-[14px] font-[500] text-[#383E49]">
+                          <span className="text-[14px] font-[500] text-fg">
                             {iou.actualAmount > 0
                               ? `Rs.${Number(iou.actualAmount || 0).toFixed(2)}`
                               : "-"}
@@ -1304,7 +1305,7 @@ export default function StorekeeperIOUPurchase() {
                           </span>
                         </td>
                         <td className="py-4">
-                          <span className="text-[14px] text-[#383E49]">
+                          <span className="text-[14px] text-fg">
                             {iou.grnLinked || "-"}
                           </span>
                         </td>
@@ -1315,14 +1316,14 @@ export default function StorekeeperIOUPurchase() {
                                 setSelectedIOU(iou);
                                 setShowIOUDetails(true);
                               }}
-                              className="p-2 text-[#0F50AA] hover:bg-[#EBF8FF] rounded-lg transition-colors"
+                              className="p-2 text-brand-fg hover:bg-hover rounded-lg transition-colors"
                               title="View Details"
                             >
                               <Eye size={16} />
                             </button>
                             <button
-                              onClick={() => alert("Downloading IOU report...")}
-                              className="p-2 text-[#667085] hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                              onClick={() => toast("Downloading IOU report...")}
+                              className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
                               title="Download"
                             >
                               <Download size={16} />
@@ -1341,12 +1342,12 @@ export default function StorekeeperIOUPurchase() {
                   <div className="text-center py-12">
                     <FileText
                       size={48}
-                      className="mx-auto text-[#667085] mb-4"
+                      className="mx-auto text-fg-secondary mb-4"
                     />
-                    <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                    <p className="text-[16px] font-[500] text-fg mb-2">
                       No IOU history
                     </p>
-                    <p className="text-[14px] text-[#667085]">
+                    <p className="text-[14px] text-fg-secondary">
                       Your IOU request history will appear here
                     </p>
                   </div>
@@ -1358,32 +1359,32 @@ export default function StorekeeperIOUPurchase() {
 
       {/* IOU Details Modal */}
       {showIOUDetails && selectedIOU && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+            <div className="flex items-center justify-between p-6 border-b border-line">
               <div>
-                <h2 className="text-[20px] font-[600] text-[#383E49]">
+                <h2 className="text-[20px] font-[600] text-fg">
                   IOU Request Details - {selectedIOU.id}
                 </h2>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   Request Date:{" "}
                   {new Date(selectedIOU.date).toLocaleDateString()}
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => alert("Downloading IOU details...")}
-                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-[#0F50AA] bg-[#EBF8FF] hover:bg-[#DBEAFE] rounded-lg transition-colors"
+                  onClick={() => toast("Downloading IOU details...")}
+                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-brand-fg bg-hover hover:bg-line rounded-lg transition-colors"
                 >
                   <Download size={16} />
                   Download
                 </button>
                 <button
                   onClick={() => setShowIOUDetails(false)}
-                  className="p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                  className="p-2 hover:bg-subtle rounded-lg transition-colors"
                 >
-                  <X size={20} className="text-[#667085]" />
+                  <X size={20} className="text-fg-secondary" />
                 </button>
               </div>
             </div>
@@ -1394,7 +1395,7 @@ export default function StorekeeperIOUPurchase() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                    <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                       STATUS
                     </p>
                     <span
@@ -1407,19 +1408,19 @@ export default function StorekeeperIOUPurchase() {
                     </span>
                   </div>
                   <div>
-                    <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                    <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                       ESTIMATED AMOUNT
                     </p>
-                    <p className="text-[16px] font-[600] text-[#383E49]">
+                    <p className="text-[16px] font-[600] text-fg">
                       Rs.{Number(selectedIOU.estimatedAmount || 0).toFixed(2)}
                     </p>
                   </div>
                   {selectedIOU.actualAmount > 0 && (
                     <div>
-                      <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                      <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                         ACTUAL AMOUNT
                       </p>
-                      <p className="text-[16px] font-[600] text-[#383E49]">
+                      <p className="text-[16px] font-[600] text-fg">
                         Rs.{Number(selectedIOU.actualAmount || 0).toFixed(2)}
                       </p>
                     </div>
@@ -1428,20 +1429,20 @@ export default function StorekeeperIOUPurchase() {
                 <div className="space-y-4">
                   {selectedIOU.financeOfficer && (
                     <div>
-                      <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                      <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                         FINANCE OFFICER
                       </p>
-                      <p className="text-[14px] font-[500] text-[#383E49]">
+                      <p className="text-[14px] font-[500] text-fg">
                         {selectedIOU.financeOfficer}
                       </p>
                     </div>
                   )}
                   {selectedIOU.approvalDate && (
                     <div>
-                      <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                      <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                         APPROVAL DATE
                       </p>
-                      <p className="text-[14px] text-[#383E49]">
+                      <p className="text-[14px] text-fg">
                         {new Date(
                           selectedIOU.approvalDate
                         ).toLocaleDateString()}
@@ -1450,10 +1451,10 @@ export default function StorekeeperIOUPurchase() {
                   )}
                   {selectedIOU.grnLinked && (
                     <div>
-                      <p className="text-[12px] font-[500] text-[#667085] mb-1">
+                      <p className="text-[12px] font-[500] text-fg-secondary mb-1">
                         GRN LINKED
                       </p>
-                      <p className="text-[14px] font-[500] text-[#0F50AA]">
+                      <p className="text-[14px] font-[500] text-brand-fg">
                         {selectedIOU.grnLinked}
                       </p>
                     </div>
@@ -1463,11 +1464,11 @@ export default function StorekeeperIOUPurchase() {
 
               {/* Justification */}
               <div>
-                <p className="text-[14px] font-[600] text-[#383E49] mb-2">
+                <p className="text-[14px] font-[600] text-fg mb-2">
                   Justification
                 </p>
-                <div className="p-4 bg-[#F8F9FA] rounded-lg">
-                  <p className="text-[14px] text-[#383E49]">
+                <div className="p-4 bg-subtle rounded-lg">
+                  <p className="text-[14px] text-fg">
                     {selectedIOU.justification}
                   </p>
                 </div>
@@ -1475,31 +1476,31 @@ export default function StorekeeperIOUPurchase() {
 
               {/* Items Table */}
               <div>
-                <p className="text-[14px] font-[600] text-[#383E49] mb-4">
+                <p className="text-[14px] font-[600] text-fg mb-4">
                   Requested Items
                 </p>
-                <div className="border border-[#E4E6EA] rounded-lg overflow-hidden">
+                <div className="border border-line rounded-lg overflow-hidden">
                   <table className="w-full">
-                    <thead className="bg-[#F8F9FA]">
+                    <thead className="bg-subtle">
                       <tr>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Material Name
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Quantity
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Est. Price
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Est. Total
                         </th>
                         {selectedIOU.status === "Settled" && (
                           <>
-                            <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                            <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                               Actual Price
                             </th>
-                            <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                            <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                               Actual Total
                             </th>
                           </>
@@ -1508,25 +1509,25 @@ export default function StorekeeperIOUPurchase() {
                     </thead>
                     <tbody>
                       {selectedIOU.items.map((item, index) => (
-                        <tr key={index} className="border-t border-[#E4E6EA]">
-                          <td className="py-3 px-4 text-[14px] text-[#383E49]">
+                        <tr key={index} className="border-t border-line">
+                          <td className="py-3 px-4 text-[14px] text-fg">
                             {item.materialName}
                           </td>
-                          <td className="py-3 px-4 text-[14px] text-[#383E49] text-right">
+                          <td className="py-3 px-4 text-[14px] text-fg text-right">
                             {item.quantity}
                           </td>
-                          <td className="py-3 px-4 text-[14px] text-[#383E49] text-right">
+                          <td className="py-3 px-4 text-[14px] text-fg text-right">
                             Rs.{Number(item.estimatedPrice || 0).toFixed(2)}
                           </td>
-                          <td className="py-3 px-4 text-[14px] font-[500] text-[#383E49] text-right">
+                          <td className="py-3 px-4 text-[14px] font-[500] text-fg text-right">
                             Rs.{Number(item.estimatedTotal || 0).toFixed(2)}
                           </td>
                           {selectedIOU.status === "Settled" && (
                             <>
-                              <td className="py-3 px-4 text-[14px] text-[#383E49] text-right">
+                              <td className="py-3 px-4 text-[14px] text-fg text-right">
                                 Rs.{Number(item.actualPrice || 0).toFixed(2)}
                               </td>
-                              <td className="py-3 px-4 text-[14px] font-[500] text-[#383E49] text-right">
+                              <td className="py-3 px-4 text-[14px] font-[500] text-fg text-right">
                                 Rs.
                                 {(
                                   Number(item.actualPrice || 0) *
@@ -1544,10 +1545,10 @@ export default function StorekeeperIOUPurchase() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex justify-end items-center p-6 border-t border-[#E4E6EA]">
+            <div className="flex justify-end items-center p-6 border-t border-line">
               <button
                 onClick={() => setShowIOUDetails(false)}
-                className="px-4 py-2 text-[14px] font-[500] text-[#667085] bg-white border border-[#E4E6EA] hover:bg-[#F8F9FA] rounded-md transition-colors"
+                className="px-4 py-2 text-[14px] font-[500] text-fg-secondary bg-surface border border-line hover:bg-subtle rounded-md transition-colors"
               >
                 Close
               </button>
@@ -1558,23 +1559,23 @@ export default function StorekeeperIOUPurchase() {
 
       {/* GRN Entry Modal */}
       {showGRNModal && selectedIOU && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
+            <div className="flex items-center justify-between p-6 border-b border-line">
               <div>
-                <h2 className="text-[20px] font-[600] text-[#383E49]">
+                <h2 className="text-[20px] font-[600] text-fg">
                   Goods Received Note - {selectedIOU.id}
                 </h2>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   Record actual goods received for approved IOU request
                 </p>
               </div>
               <button
                 onClick={() => setShowGRNModal(false)}
-                className="p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >
-                <X size={20} className="text-[#667085]" />
+                <X size={20} className="text-fg-secondary" />
               </button>
             </div>
 
@@ -1584,8 +1585,8 @@ export default function StorekeeperIOUPurchase() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
-                      GRN Date <span className="text-[#EF4444]">*</span>
+                    <label className="block text-[14px] font-[500] text-fg mb-2">
+                      GRN Date <span className="text-error">*</span>
                     </label>
                     <input
                       type="date"
@@ -1596,12 +1597,12 @@ export default function StorekeeperIOUPurchase() {
                           grnDate: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                      className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
-                      Vendor Name <span className="text-[#EF4444]">*</span>
+                    <label className="block text-[14px] font-[500] text-fg mb-2">
+                      Vendor Name <span className="text-error">*</span>
                     </label>
                     <input
                       type="text"
@@ -1613,11 +1614,11 @@ export default function StorekeeperIOUPurchase() {
                         }))
                       }
                       placeholder="Enter vendor name"
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                      className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                    <label className="block text-[14px] font-[500] text-fg mb-2">
                       Vendor Contact
                     </label>
                     <input
@@ -1630,12 +1631,12 @@ export default function StorekeeperIOUPurchase() {
                         }))
                       }
                       placeholder="Phone number or email"
-                      className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                      className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                  <label className="block text-[14px] font-[500] text-fg mb-2">
                     Vendor Address
                   </label>
                   <textarea
@@ -1648,44 +1649,44 @@ export default function StorekeeperIOUPurchase() {
                     }
                     placeholder="Enter vendor address"
                     rows={4}
-                    className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] resize-none"
+                    className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] resize-none"
                   />
                 </div>
               </div>
 
               {/* Items Table */}
               <div>
-                <p className="text-[14px] font-[600] text-[#383E49] mb-4">
+                <p className="text-[14px] font-[600] text-fg mb-4">
                   Goods Received
                 </p>
-                <div className="border border-[#E4E6EA] rounded-lg overflow-x-auto">
+                <div className="border border-line rounded-lg overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-[#F8F9FA]">
+                    <thead className="bg-subtle">
                       <tr>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Material
                         </th>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Batch/Lot
                         </th>
-                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Expiry Date
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Received Qty
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Actual Price
                         </th>
-                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-[#383E49] uppercase">
+                        <th className="text-right py-3 px-4 text-[12px] font-[600] text-fg uppercase">
                           Total
                         </th>
                       </tr>
                     </thead>
                     <tbody>
                       {grnEntry.items.map((item, index) => (
-                        <tr key={index} className="border-t border-[#E4E6EA]">
-                          <td className="py-3 px-4 text-[14px] text-[#383E49]">
+                        <tr key={index} className="border-t border-line">
+                          <td className="py-3 px-4 text-[14px] text-fg">
                             {item.materialName}
                           </td>
                           <td className="py-3 px-4">
@@ -1696,7 +1697,7 @@ export default function StorekeeperIOUPurchase() {
                                 updateGRNItem(index, "batchNo", e.target.value)
                               }
                               placeholder="Batch number"
-                              className="w-full px-2 py-1 border border-[#E4E6EA] rounded text-[14px] focus:outline-none focus:ring-1 focus:ring-[#0F50AA]"
+                              className="w-full px-2 py-1 border border-line rounded text-[14px] focus:outline-none focus:ring-1 focus:ring-brand-fg"
                             />
                           </td>
                           <td className="py-3 px-4">
@@ -1710,7 +1711,7 @@ export default function StorekeeperIOUPurchase() {
                                   e.target.value
                                 )
                               }
-                              className="w-full px-2 py-1 border border-[#E4E6EA] rounded text-[14px] focus:outline-none focus:ring-1 focus:ring-[#0F50AA]"
+                              className="w-full px-2 py-1 border border-line rounded text-[14px] focus:outline-none focus:ring-1 focus:ring-brand-fg"
                             />
                           </td>
                           <td className="py-3 px-4">
@@ -1724,7 +1725,7 @@ export default function StorekeeperIOUPurchase() {
                                   e.target.value
                                 )
                               }
-                              className="w-full px-2 py-1 border border-[#E4E6EA] rounded text-[14px] text-right focus:outline-none focus:ring-1 focus:ring-[#0F50AA]"
+                              className="w-full px-2 py-1 border border-line rounded text-[14px] text-right focus:outline-none focus:ring-1 focus:ring-brand-fg"
                             />
                           </td>
                           <td className="py-3 px-4">
@@ -1738,24 +1739,24 @@ export default function StorekeeperIOUPurchase() {
                                   e.target.value
                                 )
                               }
-                              className="w-full px-2 py-1 border border-[#E4E6EA] rounded text-[14px] text-right focus:outline-none focus:ring-1 focus:ring-[#0F50AA]"
+                              className="w-full px-2 py-1 border border-line rounded text-[14px] text-right focus:outline-none focus:ring-1 focus:ring-brand-fg"
                             />
                           </td>
-                          <td className="py-3 px-4 text-[14px] font-[500] text-[#383E49] text-right">
+                          <td className="py-3 px-4 text-[14px] font-[500] text-fg text-right">
                             Rs.{Number(item.actualTotal || 0).toFixed(2)}
                           </td>
                         </tr>
                       ))}
                     </tbody>
-                    <tfoot className="bg-[#F8F9FA] border-t border-[#E4E6EA]">
+                    <tfoot className="bg-subtle border-t border-line">
                       <tr>
                         <td
                           colSpan={5}
-                          className="py-3 px-4 text-[14px] font-[600] text-[#383E49] text-right"
+                          className="py-3 px-4 text-[14px] font-[600] text-fg text-right"
                         >
                           Total Amount:
                         </td>
-                        <td className="py-3 px-4 text-[16px] font-[700] text-[#383E49] text-right">
+                        <td className="py-3 px-4 text-[16px] font-[700] text-fg text-right">
                           Rs.
                           {grnEntry.items
                             .reduce(
@@ -1773,17 +1774,17 @@ export default function StorekeeperIOUPurchase() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex flex-col sm:flex-row justify-end items-center gap-3 p-6 border-t border-[#E4E6EA]">
+            <div className="flex flex-col sm:flex-row justify-end items-center gap-3 p-6 border-t border-line">
               <button
                 onClick={submitGRN}
-                className="flex items-center justify-center gap-2 px-6 py-2 text-[14px] font-[500] text-white bg-[#0F50AA] hover:bg-[#2563EB] rounded-lg transition-colors"
+                className="flex items-center justify-center gap-2 px-6 py-2 text-[14px] font-[500] text-on-brand bg-brand hover:bg-brand-hover rounded-lg transition-colors"
               >
                 <Package size={16} />
                 Submit GRN & Update Inventory
               </button>
               <button
                 onClick={() => setShowGRNModal(false)}
-                className="px-4 py-2 text-[14px] font-[500] text-[#667085] bg-white border border-[#E4E6EA] hover:bg-[#F8F9FA] rounded-md transition-colors"
+                className="px-4 py-2 text-[14px] font-[500] text-fg-secondary bg-surface border border-line hover:bg-subtle rounded-md transition-colors"
               >
                 Cancel
               </button>
@@ -1795,7 +1796,7 @@ export default function StorekeeperIOUPurchase() {
       {/* Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

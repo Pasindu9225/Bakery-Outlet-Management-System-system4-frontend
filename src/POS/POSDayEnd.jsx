@@ -290,10 +290,10 @@ export default function POSDayEnd() {
                         <div className="flex flex-col items-center min-w-0">
                             <div className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 ${
                                 currentStep === 1
-                                    ? 'border-[#0F50AA] bg-[#0F50AA] text-white'
+                                    ? 'border-brand-fg bg-brand text-on-brand'
                                     : currentStep > 1
-                                    ? 'border-[#51CC5D] bg-[#51CC5D] text-white'
-                                    : 'border-[#E4E6EA] bg-white text-[#667085]'
+                                    ? 'border-success bg-success-solid text-on-brand'
+                                    : 'border-line bg-surface text-fg-secondary'
                             }`}>
                                 {currentStep > 1 ? 
                                     <Check size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" /> : 
@@ -301,23 +301,23 @@ export default function POSDayEnd() {
                                 }
                             </div>
                             <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${
-                                currentStep === 1 ? 'text-[#0F50AA] font-medium' : 'text-[#667085]'
+                                currentStep === 1 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                             }`}>
                                 Shift
                             </span>
                         </div>
 
                         {/* Connector */}
-                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 1 ? 'bg-[#51CC5D]' : 'bg-[#E4E6EA]'}`} />
+                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 1 ? 'bg-success-solid' : 'bg-line'}`} />
 
                         {/* Step 2 */}
                         <div className="flex flex-col items-center min-w-0">
                             <div className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 ${
                                 currentStep === 2
-                                    ? 'border-[#0F50AA] bg-[#0F50AA] text-white'
+                                    ? 'border-brand-fg bg-brand text-on-brand'
                                     : currentStep > 2
-                                    ? 'border-[#51CC5D] bg-[#51CC5D] text-white'
-                                    : 'border-[#E4E6EA] bg-white text-[#667085]'
+                                    ? 'border-success bg-success-solid text-on-brand'
+                                    : 'border-line bg-surface text-fg-secondary'
                             }`}>
                                 {currentStep > 2 ? 
                                     <Check size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" /> : 
@@ -325,14 +325,14 @@ export default function POSDayEnd() {
                                 }
                             </div>
                             <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${
-                                currentStep === 2 ? 'text-[#0F50AA] font-medium' : 'text-[#667085]'
+                                currentStep === 2 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                             }`}>
                                 Cash
                             </span>
                         </div>
 
                         {/* Connector */}
-                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 2 ? 'bg-[#51CC5D]' : 'bg-[#E4E6EA]'}`} />
+                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 2 ? 'bg-success-solid' : 'bg-line'}`} />
 
                         {/* Step 3 (Stock) - Only for Day End */}
                         {activeTab !== 'finish-shift' && (
@@ -340,10 +340,10 @@ export default function POSDayEnd() {
                                 <div className="flex flex-col items-center min-w-0">
                                     <div className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 ${
                                         currentStep === 3
-                                            ? 'border-[#0F50AA] bg-[#0F50AA] text-white'
+                                            ? 'border-brand-fg bg-brand text-on-brand'
                                             : currentStep > 3
-                                            ? 'border-[#51CC5D] bg-[#51CC5D] text-white'
-                                            : 'border-[#E4E6EA] bg-white text-[#667085]'
+                                            ? 'border-success bg-success-solid text-on-brand'
+                                            : 'border-line bg-surface text-fg-secondary'
                                     }`}>
                                         {currentStep > 3 ? 
                                             <Check size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" /> : 
@@ -351,12 +351,12 @@ export default function POSDayEnd() {
                                         }
                                     </div>
                                     <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${
-                                        currentStep === 3 ? 'text-[#0F50AA] font-medium' : 'text-[#667085]'
+                                        currentStep === 3 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                                     }`}>
                                         Stock
                                     </span>
                                 </div>
-                                <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 3 ? 'bg-[#51CC5D]' : 'bg-[#E4E6EA]'}`} />
+                                <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 3 ? 'bg-success-solid' : 'bg-line'}`} />
                             </>
                         )}
 
@@ -364,10 +364,10 @@ export default function POSDayEnd() {
                         <div className="flex flex-col items-center min-w-0">
                             <div className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 ${
                                 currentStep === 4
-                                    ? 'border-[#0F50AA] bg-[#0F50AA] text-white'
+                                    ? 'border-brand-fg bg-brand text-on-brand'
                                     : currentStep > 4
-                                    ? 'border-[#51CC5D] bg-[#51CC5D] text-white'
-                                    : 'border-[#E4E6EA] bg-white text-[#667085]'
+                                    ? 'border-success bg-success-solid text-on-brand'
+                                    : 'border-line bg-surface text-fg-secondary'
                             }`}>
                                 {currentStep > 4 ? 
                                     <Check size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" /> : 
@@ -375,26 +375,26 @@ export default function POSDayEnd() {
                                 }
                             </div>
                             <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${
-                                currentStep === 4 ? 'text-[#0F50AA] font-medium' : 'text-[#667085]'
+                                currentStep === 4 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                             }`}>
                                 Review
                             </span>
                         </div>
 
                         {/* Connector */}
-                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 4 ? 'bg-[#51CC5D]' : 'bg-[#E4E6EA]'}`} />
+                        <div className={`h-0.5 w-4 sm:w-8 md:w-12 flex-shrink-0 ${currentStep > 4 ? 'bg-success-solid' : 'bg-line'}`} />
 
                         {/* Step 5 */}
                         <div className="flex flex-col items-center min-w-0">
                             <div className={`w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-2 ${
                                 currentStep === 5
-                                    ? 'border-[#0F50AA] bg-[#0F50AA] text-white'
-                                    : 'border-[#E4E6EA] bg-white text-[#667085]'
+                                    ? 'border-brand-fg bg-brand text-on-brand'
+                                    : 'border-line bg-surface text-fg-secondary'
                             }`}>
                                 <Lock size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                             </div>
                             <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${
-                                currentStep === 5 ? 'text-[#0F50AA] font-medium' : 'text-[#667085]'
+                                currentStep === 5 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                             }`}>
                                 Confirm
                             </span>
@@ -407,33 +407,33 @@ export default function POSDayEnd() {
 
     const renderStep1 = () => (
         <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
-                <h3 className="text-[18px] font-[600] text-[#383E49] mb-6">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+                <h3 className="text-[18px] font-[600] text-fg mb-6">
                     {activeTab === 'finish-shift' ? 'Initiate Shift-End Confirmation' : 'Initiate Day-End (Shift Confirmation)'}
                 </h3>
 
                 {/* Shift Details */}
-                <div className="mb-6 p-4 bg-[#F8F9FA] rounded-lg">
-                    <h4 className="text-[16px] font-[600] text-[#383E49] mb-4">Current Shift Details</h4>
+                <div className="mb-6 p-4 bg-subtle rounded-lg">
+                    <h4 className="text-[16px] font-[600] text-fg mb-4">Current Shift Details</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-[12px] text-[#667085] mb-1">Cashier</label>
-                            <div className="text-[14px] font-[500] text-[#383E49]">{currentCashier}</div>
+                            <label className="block text-[12px] text-fg-secondary mb-1">Cashier</label>
+                            <div className="text-[14px] font-[500] text-fg">{currentCashier}</div>
                         </div>
                         <div>
-                            <label className="block text-[12px] text-[#667085] mb-1">Date</label>
-                            <div className="text-[14px] font-[500] text-[#383E49]">{new Date().toLocaleDateString()}</div>
+                            <label className="block text-[12px] text-fg-secondary mb-1">Date</label>
+                            <div className="text-[14px] font-[500] text-fg">{new Date().toLocaleDateString()}</div>
                         </div>
                     </div>
                 </div>
 
                 {/* Notice Panel */}
-                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="mb-6 p-4 bg-brand/10 border border-brand/20 rounded-lg">
                     <div className="flex gap-3">
-                        <AlertTriangle className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
+                        <AlertTriangle className="text-brand-fg flex-shrink-0 mt-0.5" size={20} />
                         <div>
-                            <h4 className="text-[14px] font-[600] text-blue-800 mb-2">Important Notice</h4>
-                            <p className="text-[13px] text-blue-700">
+                            <h4 className="text-[14px] font-[600] text-brand-fg mb-2">Important Notice</h4>
+                            <p className="text-[13px] text-brand-fg">
                                 {activeTab === 'finish-shift' 
                                     ? "All sales/returns for your shift must be synced before finishing your shift." 
                                     : "All sales/returns must be synced before closing the day."}
@@ -449,9 +449,9 @@ export default function POSDayEnd() {
                             type="checkbox"
                             checked={dayEndData.shiftConfirmed}
                             onChange={(e) => setDayEndData(prev => ({ ...prev, shiftConfirmed: e.target.checked }))}
-                            className="mt-1 w-4 h-4 text-[#0F50AA] border-[#E4E6EA] rounded focus:ring-[#0F50AA]"
+                            className="mt-1 w-4 h-4 text-brand-fg border-line rounded focus:ring-brand-fg"
                         />
-                        <span className="text-[14px] text-[#383E49]">
+                        <span className="text-[14px] text-fg">
                             I confirm I've completed all sales/returns for this shift.
                         </span>
                     </label>
@@ -468,13 +468,13 @@ export default function POSDayEnd() {
                                 toast.success("All transactions validated successfully.");
                             }
                         }}
-                        className={`px-6 py-3 text-white rounded-lg transition-colors text-[14px] font-[500] ${dayEndData.shiftConfirmed ? 'bg-[#0F50AA] hover:bg-[#0D4494]' : 'bg-gray-400 cursor-not-allowed'}`}
+                        className={`px-6 py-3 text-on-brand rounded-lg transition-colors text-[14px] font-[500] ${dayEndData.shiftConfirmed ? 'bg-brand hover:bg-brand-hover' : 'bg-neutral-solid cursor-not-allowed'}`}
                         disabled={!dayEndData.shiftConfirmed}
                     >
                         Validate Open Transactions
                     </button>
                     {dayEndSummary?.pendingWaiterItemsCount > 0 && (
-                        <div className="mt-3 flex items-center gap-2 text-[#EF4444] bg-red-50 p-3 rounded-lg border border-red-200">
+                        <div className="mt-3 flex items-center gap-2 text-error bg-error/10 p-3 rounded-lg border border-error/30">
                             <AlertCircle size={20} className="flex-shrink-0" />
                             <span className="text-[14px] font-[500]">
                                 {activeTab === 'finish-shift' ? 
@@ -485,7 +485,7 @@ export default function POSDayEnd() {
                         </div>
                     )}
                     {dayEndData.transactionsValidated && (!dayEndSummary?.pendingWaiterItemsCount || dayEndSummary.pendingWaiterItemsCount === 0) && (
-                        <div className="mt-3 flex items-center gap-2 text-green-600">
+                        <div className="mt-3 flex items-center gap-2 text-success">
                             <CheckCircle size={20} />
                             <span className="text-[14px]">
                                 No pending transactions found. Ready to proceed.
@@ -536,30 +536,30 @@ export default function POSDayEnd() {
 
         return (
             <div className="space-y-6">
-                <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+                <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-[18px] font-[600] text-[#383E49]">Cash Reconciliation</h3>
+                        <h3 className="text-[18px] font-[600] text-fg">Cash Reconciliation</h3>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Cash Count */}
-                        <div className="p-4 bg-[#F8F9FA] rounded-lg border border-[#E4E6EA] md:col-span-2">
+                        <div className="p-4 bg-subtle rounded-lg border border-line md:col-span-2">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                    <DollarSign className="text-green-600" size={24} />
-                                    <h4 className="text-[16px] font-[600] text-[#383E49]">Cash Count & Denominations Breakdown</h4>
+                                    <DollarSign className="text-success" size={24} />
+                                    <h4 className="text-[16px] font-[600] text-fg">Cash Count & Denominations Breakdown</h4>
                                 </div>
-                                <span className="text-[11px] font-[600] text-gray-700 bg-white px-2.5 py-1 rounded border border-[#E4E6EA]">
+                                <span className="text-[11px] font-[600] text-fg bg-surface px-2.5 py-1 rounded border border-line">
                                     DB Recorded: Rs. {expectedCashTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </span>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Notes Column */}
-                                <div className="bg-white p-4 rounded-lg border border-[#E4E6EA] space-y-3">
-                                    <h5 className="text-[13px] font-[700] text-gray-800 uppercase tracking-wider mb-2 border-b pb-2 flex justify-between items-center">
+                                <div className="bg-surface p-4 rounded-lg border border-line space-y-3">
+                                    <h5 className="text-[13px] font-[700] text-fg uppercase tracking-wider mb-2 border-b pb-2 flex justify-between items-center">
                                         <span>Currency Notes</span>
-                                        <span className="text-[11px] text-gray-500 font-normal">Count x Value</span>
+                                        <span className="text-[11px] text-fg-secondary font-normal">Count x Value</span>
                                     </h5>
                                     {[
                                         { label: 'Rs. 5000 Note', key: 'n5000', val: 5000 },
@@ -573,16 +573,16 @@ export default function POSDayEnd() {
                                         const subtotal = (parseInt(count) || 0) * item.val;
                                         return (
                                             <div key={item.key} className="flex items-center justify-between gap-3 text-[13px]">
-                                                <span className="w-32 font-[500] text-gray-700">{item.label}</span>
+                                                <span className="w-32 font-[500] text-fg">{item.label}</span>
                                                 <input
                                                     type="number"
                                                     min="0"
                                                     value={count}
                                                     onChange={(e) => handleDenominationChange(item.key, e.target.value)}
-                                                    className="w-24 px-3 py-1.5 border border-[#E4E6EA] rounded text-center font-[600] text-gray-800 focus:ring-1 focus:ring-[#0F50AA]"
+                                                    className="w-24 px-3 py-1.5 border border-line rounded text-center font-[600] text-fg focus:ring-1 focus:ring-brand-fg"
                                                     placeholder="0"
                                                 />
-                                                <span className="w-28 text-right font-[600] text-green-700">
+                                                <span className="w-28 text-right font-[600] text-success">
                                                     Rs. {subtotal.toLocaleString()}
                                                 </span>
                                             </div>
@@ -591,11 +591,11 @@ export default function POSDayEnd() {
                                 </div>
 
                                 {/* Coins Column */}
-                                <div className="bg-white p-4 rounded-lg border border-[#E4E6EA] space-y-3 flex flex-col justify-between">
+                                <div className="bg-surface p-4 rounded-lg border border-line space-y-3 flex flex-col justify-between">
                                     <div>
-                                        <h5 className="text-[13px] font-[700] text-gray-800 uppercase tracking-wider mb-2 border-b pb-2 flex justify-between items-center">
+                                        <h5 className="text-[13px] font-[700] text-fg uppercase tracking-wider mb-2 border-b pb-2 flex justify-between items-center">
                                             <span>Currency Coins</span>
-                                            <span className="text-[11px] text-gray-500 font-normal">Count x Value</span>
+                                            <span className="text-[11px] text-fg-secondary font-normal">Count x Value</span>
                                         </h5>
                                         <div className="space-y-3">
                                             {[
@@ -608,16 +608,16 @@ export default function POSDayEnd() {
                                                 const subtotal = (parseInt(count) || 0) * item.val;
                                                 return (
                                                     <div key={item.key} className="flex items-center justify-between gap-3 text-[13px]">
-                                                        <span className="w-32 font-[500] text-gray-700">{item.label}</span>
+                                                        <span className="w-32 font-[500] text-fg">{item.label}</span>
                                                         <input
                                                             type="number"
                                                             min="0"
                                                             value={count}
                                                             onChange={(e) => handleDenominationChange(item.key, e.target.value)}
-                                                            className="w-24 px-3 py-1.5 border border-[#E4E6EA] rounded text-center font-[600] text-gray-800 focus:ring-1 focus:ring-[#0F50AA]"
+                                                            className="w-24 px-3 py-1.5 border border-line rounded text-center font-[600] text-fg focus:ring-1 focus:ring-brand-fg"
                                                             placeholder="0"
                                                         />
-                                                        <span className="w-28 text-right font-[600] text-green-700">
+                                                        <span className="w-28 text-right font-[600] text-success">
                                                             Rs. {subtotal.toLocaleString()}
                                                         </span>
                                                     </div>
@@ -627,19 +627,19 @@ export default function POSDayEnd() {
                                     </div>
 
                                     {/* Calculated Total Box */}
-                                    <div className="pt-4 border-t border-[#E4E6EA] bg-[#F8F9FA] p-3 rounded-lg">
+                                    <div className="pt-4 border-t border-line bg-subtle p-3 rounded-lg">
                                         <div className="flex justify-between items-center">
-                                            <label className="text-[13px] font-[600] text-gray-700">Counted Total Cash (Rs.):</label>
+                                            <label className="text-[13px] font-[600] text-fg">Counted Total Cash (Rs.):</label>
                                             <input
                                                 type="number"
                                                 value={dayEndData.cashCounted}
                                                 onChange={(e) => setDayEndData(prev => ({ ...prev, cashCounted: e.target.value }))}
-                                                className="w-36 px-3 py-2 border border-[#0F50AA] rounded font-[700] text-[15px] text-[#0F50AA] text-right"
+                                                className="w-36 px-3 py-2 border border-brand-fg rounded font-[700] text-[15px] text-brand-fg text-right"
                                                 placeholder="0.00"
                                             />
                                         </div>
                                         {dayEndData.cashCounted && parseFloat(dayEndData.cashCounted) < (dayEndSummary?.openingFloat || 0) && (
-                                            <div className="mt-2 flex items-center gap-2 text-[#EF4444] text-[12px] bg-red-50 p-2 rounded">
+                                            <div className="mt-2 flex items-center gap-2 text-error text-[12px] bg-error/10 p-2 rounded">
                                                 <AlertTriangle size={14} />
                                                 <span>Counted cash cannot be less than opening float (Rs. {dayEndSummary?.openingFloat?.toLocaleString()})</span>
                                             </div>
@@ -650,24 +650,24 @@ export default function POSDayEnd() {
                         </div>
 
                         {/* Card Count */}
-                        <div className="p-4 bg-[#F8F9FA] rounded-lg border border-[#E4E6EA]">
+                        <div className="p-4 bg-subtle rounded-lg border border-line">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                    <CreditCard className="text-blue-600" size={24} />
-                                    <h4 className="text-[16px] font-[600] text-[#383E49]">Card Total</h4>
+                                    <CreditCard className="text-brand-fg" size={24} />
+                                    <h4 className="text-[16px] font-[600] text-fg">Card Total</h4>
                                 </div>
-                                <span className="text-[11px] font-[600] text-blue-700 bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
+                                <span className="text-[11px] font-[600] text-brand-fg bg-brand/10 px-2.5 py-1 rounded border border-brand/20">
                                     DB Recorded: Rs. {expectedCardTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </span>
                             </div>
                             <div className="grid grid-cols-1 gap-4">
                                 <div>
                                     <div className="flex justify-between items-center mb-2">
-                                        <label className="block text-[12px] text-[#667085]">Card Counted Total</label>
+                                        <label className="block text-[12px] text-fg-secondary">Card Counted Total</label>
                                         <button
                                             type="button"
                                             onClick={() => setDayEndData(prev => ({ ...prev, cardCounted: String(expectedCardTotal) }))}
-                                            className="text-[11px] text-[#0F50AA] hover:underline font-[500]"
+                                            className="text-[11px] text-brand-fg hover:underline font-[500]"
                                         >
                                             Use DB Amount
                                         </button>
@@ -676,7 +676,7 @@ export default function POSDayEnd() {
                                         type="number"
                                         value={dayEndData.cardCounted}
                                         onChange={(e) => setDayEndData(prev => ({ ...prev, cardCounted: e.target.value }))}
-                                        className="w-full px-3 py-3 border border-[#E4E6EA] rounded-md focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent text-[14px]"
+                                        className="w-full px-3 py-3 border border-line rounded-md focus:ring-2 focus:ring-brand-fg focus:border-transparent text-[14px]"
                                         placeholder={`DB Recorded Total: Rs. ${expectedCardTotal.toFixed(2)}`}
                                     />
                                 </div>
@@ -684,24 +684,24 @@ export default function POSDayEnd() {
                         </div>
 
                         {/* PickMe/Uber Count */}
-                        <div className="p-4 bg-[#F8F9FA] rounded-lg border border-[#E4E6EA]">
+                        <div className="p-4 bg-subtle rounded-lg border border-line">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                    <TrendingUp className="text-purple-600" size={24} />
-                                    <h4 className="text-[16px] font-[600] text-[#383E49]">PickMe / Uber Total</h4>
+                                    <TrendingUp className="text-plum" size={24} />
+                                    <h4 className="text-[16px] font-[600] text-fg">PickMe / Uber Total</h4>
                                 </div>
-                                <span className="text-[11px] font-[600] text-purple-700 bg-purple-50 px-2.5 py-1 rounded border border-purple-200">
+                                <span className="text-[11px] font-[600] text-plum bg-plum/10 px-2.5 py-1 rounded border border-plum/30">
                                     DB Recorded: Rs. {expectedUberPickmeTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </span>
                             </div>
                             <div className="grid grid-cols-1 gap-4">
                                 <div>
                                     <div className="flex justify-between items-center mb-2">
-                                        <label className="block text-[12px] text-[#667085]">PickMe/Uber Counted Total</label>
+                                        <label className="block text-[12px] text-fg-secondary">PickMe/Uber Counted Total</label>
                                         <button
                                             type="button"
                                             onClick={() => setDayEndData(prev => ({ ...prev, uberPickmeCounted: String(expectedUberPickmeTotal) }))}
-                                            className="text-[11px] text-[#0F50AA] hover:underline font-[500]"
+                                            className="text-[11px] text-brand-fg hover:underline font-[500]"
                                         >
                                             Use DB Amount
                                         </button>
@@ -710,7 +710,7 @@ export default function POSDayEnd() {
                                         type="number"
                                         value={dayEndData.uberPickmeCounted}
                                         onChange={(e) => setDayEndData(prev => ({ ...prev, uberPickmeCounted: e.target.value }))}
-                                        className="w-full px-3 py-3 border border-[#E4E6EA] rounded-md focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent text-[14px]"
+                                        className="w-full px-3 py-3 border border-line rounded-md focus:ring-2 focus:ring-brand-fg focus:border-transparent text-[14px]"
                                         placeholder={`DB Recorded Total: Rs. ${expectedUberPickmeTotal.toFixed(2)}`}
                                     />
                                 </div>
@@ -724,23 +724,23 @@ export default function POSDayEnd() {
 
     const renderStep3 = () => (
         <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
-                <h3 className="text-[18px] font-[600] text-[#383E49] mb-6">End-of-Day Stock Management</h3>
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+                <h3 className="text-[18px] font-[600] text-fg mb-6">End-of-Day Stock Management</h3>
                 {isLoadingProducts ? (
                     <Loader variant="section" text="Loading current inventory..." />
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b border-[#E4E6EA]">
-                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Product</th>
-                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">System Qty</th>
-                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Physical Qty</th>
-                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Wastage</th>
-                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Wastage Reason</th>
-                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Carry Forward</th>
-                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Missing</th>
-                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Unit</th>
+                                <tr className="border-b border-line">
+                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Product</th>
+                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">System Qty</th>
+                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Physical Qty</th>
+                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Wastage</th>
+                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Wastage Reason</th>
+                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Carry Forward</th>
+                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Missing</th>
+                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Unit</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -748,15 +748,15 @@ export default function POSDayEnd() {
                                     const rowError = stockRowError(item);
                                     const missing = item.physicalQty === '' ? 0 : Math.max(0, (item.systemQty || 0) - (parseInt(item.physicalQty) || 0));
                                     return (
-                                    <tr key={item.productId} className="border-b border-[#F0F1F3]">
-                                        <td className="py-3 px-4 text-[14px] text-[#383E49] font-[500]">{item.productName}</td>
-                                        <td className="py-3 px-4 text-[14px] text-[#667085]">{item.systemQty}</td>
+                                    <tr key={item.productId} className="border-b border-line">
+                                        <td className="py-3 px-4 text-[14px] text-fg font-[500]">{item.productName}</td>
+                                        <td className="py-3 px-4 text-[14px] text-fg-secondary">{item.systemQty}</td>
                                         <td className="py-3 px-4">
                                             <input
                                                 type="number"
                                                 value={item.physicalQty}
                                                 onChange={(e) => handleProductQtyChange(item.productId, e.target.value)}
-                                                className="w-20 px-2 py-1 border border-[#E4E6EA] rounded focus:ring-1 focus:ring-[#0F50AA] text-[14px]"
+                                                className="w-20 px-2 py-1 border border-line rounded focus:ring-1 focus:ring-brand-fg text-[14px]"
                                                 placeholder="0"
                                             />
                                         </td>
@@ -767,17 +767,17 @@ export default function POSDayEnd() {
                                                 value={item.wastageQty}
                                                 disabled={item.physicalQty === ''}
                                                 onChange={(e) => handleWastageChange(item.productId, e.target.value)}
-                                                className={`w-20 px-2 py-1 border rounded focus:ring-1 focus:ring-[#0F50AA] text-[14px] disabled:bg-[#F8F9FA] ${rowError ? 'border-red-500' : 'border-[#E4E6EA]'}`}
+                                                className={`w-20 px-2 py-1 border rounded focus:ring-1 focus:ring-brand-fg text-[14px] disabled:bg-subtle ${rowError ? 'border-error' : 'border-line'}`}
                                                 placeholder="0"
                                             />
-                                            {rowError && <p className="text-[11px] text-red-600 mt-1 max-w-[160px]">{rowError}</p>}
+                                            {rowError && <p className="text-[11px] text-error mt-1 max-w-[160px]">{rowError}</p>}
                                         </td>
                                         <td className="py-3 px-4">
                                             {(parseInt(item.wastageQty) || 0) > 0 ? (
                                                 <select
                                                     value={item.wastageReason || 'UNSOLD'}
                                                     onChange={(e) => handleWastageReasonChange(item.productId, e.target.value)}
-                                                    className="px-2 py-1 border border-[#E4E6EA] rounded text-[13px] focus:ring-1 focus:ring-[#0F50AA]"
+                                                    className="px-2 py-1 border border-line rounded text-[13px] focus:ring-1 focus:ring-brand-fg"
                                                 >
                                                     <option value="UNSOLD">Unsold at day end</option>
                                                     <option value="EXPIRED">Expired</option>
@@ -785,23 +785,23 @@ export default function POSDayEnd() {
                                                     <option value="QUALITY_REJECT">Quality reject</option>
                                                 </select>
                                             ) : (
-                                                <span className="text-[13px] text-[#98A2B3]">-</span>
+                                                <span className="text-[13px] text-fg-muted">-</span>
                                             )}
                                         </td>
-                                        <td className="py-3 px-4 text-[14px] text-green-600 font-[600]">
+                                        <td className="py-3 px-4 text-[14px] text-success font-[600]">
                                             {item.carryForwardQty}
                                         </td>
-                                        <td className={`py-3 px-4 text-[14px] font-[600] ${missing > 0 ? 'text-amber-600' : 'text-[#98A2B3]'}`}
+                                        <td className={`py-3 px-4 text-[14px] font-[600] ${missing > 0 ? 'text-warning' : 'text-fg-muted'}`}
                                             title="System quantity minus counted quantity. Not recorded as wastage.">
                                             {missing}
                                         </td>
-                                        <td className="py-3 px-4 text-[14px] text-[#667085]">{item.unit}</td>
+                                        <td className="py-3 px-4 text-[14px] text-fg-secondary">{item.unit}</td>
                                     </tr>
                                     );
                                 })}
                                 {productData.length === 0 && (
                                     <tr>
-                                        <td colSpan="8" className="py-6 text-center text-[#667085] text-[14px]">No products in today's inventory.</td>
+                                        <td colSpan="8" className="py-6 text-center text-fg-secondary text-[14px]">No products in today's inventory.</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -814,22 +814,22 @@ export default function POSDayEnd() {
 
     const renderStep4 = () => (
         <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
-                <h3 className="text-[18px] font-[600] text-[#383E49] mb-6">Review All Inputs</h3>
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+                <h3 className="text-[18px] font-[600] text-fg mb-6">Review All Inputs</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     {/* Shift Information */}
                     <div>
-                        <h4 className="text-[16px] font-[600] text-[#383E49] mb-3">Shift Information</h4>
-                        <div className="p-4 bg-[#F8F9FA] rounded-lg h-[96px] flex flex-col justify-center">
+                        <h4 className="text-[16px] font-[600] text-fg mb-3">Shift Information</h4>
+                        <div className="p-4 bg-subtle rounded-lg h-[96px] flex flex-col justify-center">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <span className="text-[12px] text-[#667085]">Date:</span>
-                                    <p className="text-[14px] font-[500] text-[#383E49]">{new Date().toLocaleDateString()}</p>
+                                    <span className="text-[12px] text-fg-secondary">Date:</span>
+                                    <p className="text-[14px] font-[500] text-fg">{new Date().toLocaleDateString()}</p>
                                 </div>
                                 <div>
-                                    <span className="text-[12px] text-[#667085]">Cashier:</span>
-                                    <p className="text-[14px] font-[500] text-[#383E49]">{currentCashier}</p>
+                                    <span className="text-[12px] text-fg-secondary">Cashier:</span>
+                                    <p className="text-[14px] font-[500] text-fg">{currentCashier}</p>
                                 </div>
                             </div>
                         </div>
@@ -837,24 +837,24 @@ export default function POSDayEnd() {
 
                     {/* Sales Summary */}
                     <div>
-                        <h4 className="text-[16px] font-[600] text-[#383E49] mb-3">Shift Sales Summary</h4>
-                        <div className="p-4 bg-[#F8F9FA] rounded-lg h-[96px] flex flex-col justify-center">
+                        <h4 className="text-[16px] font-[600] text-fg mb-3">Shift Sales Summary</h4>
+                        <div className="p-4 bg-subtle rounded-lg h-[96px] flex flex-col justify-center">
                             <div className="grid grid-cols-3 gap-3">
-                                <div className="text-center p-2 bg-white rounded border border-[#E4E6EA] flex flex-col justify-center">
-                                    <span className="text-[10px] text-[#667085] block uppercase font-[600]">Total Sales</span>
-                                    <span className="text-[13px] font-[700] text-[#0F50AA] truncate">
+                                <div className="text-center p-2 bg-surface rounded border border-line flex flex-col justify-center">
+                                    <span className="text-[10px] text-fg-secondary block uppercase font-[600]">Total Sales</span>
+                                    <span className="text-[13px] font-[700] text-brand-fg truncate">
                                         Rs. {(dayEndSummary?.totalSalesAmount || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </span>
                                 </div>
-                                <div className="text-center p-2 bg-white rounded border border-[#E4E6EA] flex flex-col justify-center">
-                                    <span className="text-[10px] text-[#667085] block uppercase font-[600]">Total Bills</span>
-                                    <span className="text-[13px] font-[700] text-amber-600">
+                                <div className="text-center p-2 bg-surface rounded border border-line flex flex-col justify-center">
+                                    <span className="text-[10px] text-fg-secondary block uppercase font-[600]">Total Bills</span>
+                                    <span className="text-[13px] font-[700] text-warning">
                                         {dayEndSummary?.totalBills || 0}
                                     </span>
                                 </div>
-                                <div className="text-center p-2 bg-white rounded border border-[#E4E6EA] flex flex-col justify-center">
-                                    <span className="text-[10px] text-[#667085] block uppercase font-[600]">Loyal Cust.</span>
-                                    <span className="text-[13px] font-[700] text-green-600">
+                                <div className="text-center p-2 bg-surface rounded border border-line flex flex-col justify-center">
+                                    <span className="text-[10px] text-fg-secondary block uppercase font-[600]">Loyal Cust.</span>
+                                    <span className="text-[13px] font-[700] text-success">
                                         {dayEndSummary?.loyaltyCustomersCount || 0}
                                     </span>
                                 </div>
@@ -865,65 +865,65 @@ export default function POSDayEnd() {
 
                 {/* Payment Reconciliation */}
                 <div className="mb-6">
-                    <h4 className="text-[16px] font-[600] text-[#383E49] mb-3">Payment Reconciliation Comparison</h4>
+                    <h4 className="text-[16px] font-[600] text-fg mb-3">Payment Reconciliation Comparison</h4>
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse border border-[#E4E6EA] rounded-lg">
+                        <table className="w-full text-left border-collapse border border-line rounded-lg">
                             <thead>
-                                <tr className="bg-[#F8F9FA] border-b border-[#E4E6EA]">
-                                    <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase">Payment Method</th>
-                                    <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase text-right">Expected (System)</th>
-                                    <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase text-right">Counted (Entered)</th>
-                                    <th className="py-3 px-4 text-[12px] font-[600] text-[#667085] uppercase text-right">Variance</th>
+                                <tr className="bg-subtle border-b border-line">
+                                    <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Payment Method</th>
+                                    <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase text-right">Expected (System)</th>
+                                    <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase text-right">Counted (Entered)</th>
+                                    <th className="py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase text-right">Variance</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {/* Cash */}
-                                <tr className="border-b border-[#E4E6EA]">
-                                    <td className="py-3 px-4 text-[14px] text-[#383E49] font-[500]">Cash (incl. Float)</td>
-                                    <td className="py-3 px-4 text-[14px] text-[#667085] text-right">
+                                <tr className="border-b border-line">
+                                    <td className="py-3 px-4 text-[14px] text-fg font-[500]">Cash (incl. Float)</td>
+                                    <td className="py-3 px-4 text-[14px] text-fg-secondary text-right">
                                         Rs. {((dayEndSummary?.expectedCash || 0) + (dayEndSummary?.openingFloat || 0)).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </td>
-                                    <td className="py-3 px-4 text-[14px] text-[#383E49] text-right font-[500]">
+                                    <td className="py-3 px-4 text-[14px] text-fg text-right font-[500]">
                                         Rs. {dayEndData.cashCounted ? parseFloat(dayEndData.cashCounted).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00'}
                                     </td>
                                     <td className={`py-3 px-4 text-[14px] text-right font-[600] ${
                                         (parseFloat(dayEndData.cashCounted) || 0) - ((dayEndSummary?.expectedCash || 0) + (dayEndSummary?.openingFloat || 0)) >= 0 
-                                            ? 'text-green-600' 
-                                            : 'text-red-600'
+                                            ? 'text-success' 
+                                            : 'text-error'
                                     }`}>
                                         Rs. {((parseFloat(dayEndData.cashCounted) || 0) - ((dayEndSummary?.expectedCash || 0) + (dayEndSummary?.openingFloat || 0))).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </td>
                                 </tr>
                                 {/* Card */}
-                                <tr className="border-b border-[#E4E6EA]">
-                                    <td className="py-3 px-4 text-[14px] text-[#383E49] font-[500]">Card</td>
-                                    <td className="py-3 px-4 text-[14px] text-[#667085] text-right">
+                                <tr className="border-b border-line">
+                                    <td className="py-3 px-4 text-[14px] text-fg font-[500]">Card</td>
+                                    <td className="py-3 px-4 text-[14px] text-fg-secondary text-right">
                                         Rs. {(dayEndSummary?.expectedCard || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </td>
-                                    <td className="py-3 px-4 text-[14px] text-[#383E49] text-right font-[500]">
+                                    <td className="py-3 px-4 text-[14px] text-fg text-right font-[500]">
                                         Rs. {dayEndData.cardCounted ? parseFloat(dayEndData.cardCounted).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00'}
                                     </td>
                                     <td className={`py-3 px-4 text-[14px] text-right font-[600] ${
                                         (parseFloat(dayEndData.cardCounted) || 0) - (dayEndSummary?.expectedCard || 0) >= 0 
-                                            ? 'text-green-600' 
-                                            : 'text-red-600'
+                                            ? 'text-success' 
+                                            : 'text-error'
                                     }`}>
                                         Rs. {((parseFloat(dayEndData.cardCounted) || 0) - (dayEndSummary?.expectedCard || 0)).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </td>
                                 </tr>
                                 {/* PickMe/Uber */}
                                 <tr>
-                                    <td className="py-3 px-4 text-[14px] text-[#383E49] font-[500]">PickMe / Uber</td>
-                                    <td className="py-3 px-4 text-[14px] text-[#667085] text-right">
+                                    <td className="py-3 px-4 text-[14px] text-fg font-[500]">PickMe / Uber</td>
+                                    <td className="py-3 px-4 text-[14px] text-fg-secondary text-right">
                                         Rs. {((dayEndSummary?.expectedUber || 0) + (dayEndSummary?.expectedPickme || 0)).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </td>
-                                    <td className="py-3 px-4 text-[14px] text-[#383E49] text-right font-[500]">
+                                    <td className="py-3 px-4 text-[14px] text-fg text-right font-[500]">
                                         Rs. {dayEndData.uberPickmeCounted ? parseFloat(dayEndData.uberPickmeCounted).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00'}
                                     </td>
                                     <td className={`py-3 px-4 text-[14px] text-right font-[600] ${
                                         (parseFloat(dayEndData.uberPickmeCounted) || 0) - ((dayEndSummary?.expectedUber || 0) + (dayEndSummary?.expectedPickme || 0)) >= 0 
-                                            ? 'text-green-600' 
-                                            : 'text-red-600'
+                                            ? 'text-success' 
+                                            : 'text-error'
                                     }`}>
                                         Rs. {((parseFloat(dayEndData.uberPickmeCounted) || 0) - ((dayEndSummary?.expectedUber || 0) + (dayEndSummary?.expectedPickme || 0))).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </td>
@@ -937,28 +937,28 @@ export default function POSDayEnd() {
                 {activeTab !== 'finish-shift' && (
                     <>
                         <div className="mb-6">
-                            <h4 className="text-[16px] font-[600] text-[#383E49] mb-3">Stock Updates Summary</h4>
-                            <div className="p-4 bg-[#F8F9FA] rounded-lg">
-                                <div className="text-[14px] text-[#667085]">Products Processed: {productData.filter(item => item.physicalQty !== '').length} / {productData.length}</div>
+                            <h4 className="text-[16px] font-[600] text-fg mb-3">Stock Updates Summary</h4>
+                            <div className="p-4 bg-subtle rounded-lg">
+                                <div className="text-[14px] text-fg-secondary">Products Processed: {productData.filter(item => item.physicalQty !== '').length} / {productData.length}</div>
                             </div>
                         </div>
 
                         {/* Product Actions Summary */}
                         <div>
-                            <h4 className="text-[16px] font-[600] text-[#383E49] mb-3">Product Actions Summary</h4>
+                            <h4 className="text-[16px] font-[600] text-fg mb-3">Product Actions Summary</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="p-4 bg-green-50 rounded-lg">
-                                    <h5 className="text-[14px] font-[600] text-green-800 mb-2">Carry Forward</h5>
+                                <div className="p-4 bg-success/10 rounded-lg">
+                                    <h5 className="text-[14px] font-[600] text-success mb-2">Carry Forward</h5>
                                     {productData.filter(item => item.carryForwardQty > 0).map(item => (
-                                        <div key={item.productId} className="text-[12px] text-green-700">
+                                        <div key={item.productId} className="text-[12px] text-success">
                                             {item.productName} - {item.carryForwardQty} {item.unit}
                                         </div>
                                     ))}
                                 </div>
-                                <div className="p-4 bg-red-50 rounded-lg">
-                                    <h5 className="text-[14px] font-[600] text-red-800 mb-2">Wastage</h5>
+                                <div className="p-4 bg-error/10 rounded-lg">
+                                    <h5 className="text-[14px] font-[600] text-error mb-2">Wastage</h5>
                                     {productData.filter(item => item.wastageQty > 0).map(item => (
-                                        <div key={item.productId} className="text-[12px] text-red-700">
+                                        <div key={item.productId} className="text-[12px] text-error">
                                             {item.productName} - {item.wastageQty} {item.unit}
                                         </div>
                                     ))}
@@ -973,22 +973,22 @@ export default function POSDayEnd() {
 
     const renderStep5 = () => (
         <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                 <div className="text-center">
-                    <Lock size={64} className="text-[#0F50AA] mx-auto mb-4" />
-                    <h3 className="text-[20px] font-[600] text-[#383E49] mb-4">
+                    <Lock size={64} className="text-brand-fg mx-auto mb-4" />
+                    <h3 className="text-[20px] font-[600] text-fg mb-4">
                         {activeTab === 'finish-shift' ? 'Confirm & Close Shift' : 'Confirm & Lock Day-End'}
                     </h3>
-                    <p className="text-[14px] text-[#667085] mb-6">
+                    <p className="text-[14px] text-fg-secondary mb-6">
                         {activeTab === 'finish-shift' 
                             ? "Please review and confirm all the shift information below. Once closed, you will be checked out of your shift." 
                             : "Please review and confirm all the information below. Once confirmed, this action cannot be undone."}
                     </p>
 
                     {/* Effects List */}
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-left">
-                        <h4 className="text-[14px] font-[600] text-amber-800 mb-3">This action will:</h4>
-                        <ul className="text-[13px] text-amber-700 space-y-2">
+                    <div className="bg-warning/10 border border-warning/30 rounded-lg p-4 mb-6 text-left">
+                        <h4 className="text-[14px] font-[600] text-warning mb-3">This action will:</h4>
+                        <ul className="text-[13px] text-warning space-y-2">
                             {activeTab === 'finish-shift' ? (
                                 <>
                                     <li>• Close your shift cash float permanently</li>
@@ -1018,9 +1018,9 @@ export default function POSDayEnd() {
                                 type="checkbox"
                                 checked={dayEndData.finalConfirmation}
                                 onChange={(e) => setDayEndData(prev => ({ ...prev, finalConfirmation: e.target.checked }))}
-                                className="mt-1 w-4 h-4 text-[#0F50AA] border-[#E4E6EA] rounded focus:ring-[#0F50AA]"
+                                className="mt-1 w-4 h-4 text-brand-fg border-line rounded focus:ring-brand-fg"
                             />
-                            <span className="text-[14px] text-[#383E49]">
+                            <span className="text-[14px] text-fg">
                                 I certify the above information is true and complete.
                             </span>
                         </label>
@@ -1028,12 +1028,12 @@ export default function POSDayEnd() {
 
                     {/* PIN/Password Prompt */}
                     <div className="mb-6 max-w-xs mx-auto">
-                        <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Enter Cashier PIN</label>
+                        <label className="block text-[14px] font-[500] text-fg mb-2">Enter Cashier PIN</label>
                         <input
                             type="password"
                             value={cashierPin}
                             onChange={(e) => setCashierPin(e.target.value)}
-                            className="w-full px-3 py-3 border border-[#E4E6EA] rounded-md focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent text-center text-[16px] font-[600]"
+                            className="w-full px-3 py-3 border border-line rounded-md focus:ring-2 focus:ring-brand-fg focus:border-transparent text-center text-[16px] font-[600]"
                             placeholder="****"
                             maxLength="4"
                         />
@@ -1043,7 +1043,7 @@ export default function POSDayEnd() {
                     <button
                         onClick={() => setShowConfirmation(true)}
                         disabled={!canProceedToNextStep()}
-                        className="px-8 py-4 bg-[#EF4444] text-white rounded-lg hover:bg-[#DC2626] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[16px] font-[600] flex items-center gap-2 mx-auto"
+                        className="px-8 py-4 bg-error-solid text-on-brand rounded-lg hover:bg-error-solid transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[16px] font-[600] flex items-center gap-2 mx-auto"
                     >
                         <Lock size={20} />
                         {activeTab === 'finish-shift' ? 'Confirm & Close Shift' : 'Confirm Day-End & Lock'}
@@ -1053,14 +1053,14 @@ export default function POSDayEnd() {
 
             {/* Confirmation Modal */}
             {showConfirmation && (
-                <div className="fixed left-0 right-0 bottom-0 w-screen h-screen bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                <div className="fixed left-0 right-0 bottom-0 w-screen h-screen bg-backdrop bg-opacity-50 flex items-center justify-center z-[9999] p-4">
+                    <div className="bg-surface rounded-lg p-6 max-w-md w-full">
                         <div className="text-center">
-                            <AlertTriangle size={48} className="text-amber-500 mx-auto mb-4" />
-                            <h3 className="text-[18px] font-[600] text-[#383E49] mb-4">
+                            <AlertTriangle size={48} className="text-warning mx-auto mb-4" />
+                            <h3 className="text-[18px] font-[600] text-fg mb-4">
                                 {activeTab === 'finish-shift' ? 'Close Shift Confirmation' : 'Final Confirmation'}
                             </h3>
-                            <p className="text-[14px] text-[#667085] mb-6">
+                            <p className="text-[14px] text-fg-secondary mb-6">
                                 {activeTab === 'finish-shift' 
                                     ? "Are you sure you want to finalize and close your shift? This will settle your counts." 
                                     : "Are you absolutely sure you want to finalize and lock the day-end process? This action cannot be undone."}
@@ -1068,13 +1068,13 @@ export default function POSDayEnd() {
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setShowConfirmation(false)}
-                                    className="flex-1 px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                    className="flex-1 px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleFinalizeDayEnd}
-                                    className="flex-1 px-4 py-3 bg-[#EF4444] text-white rounded-lg hover:bg-[#DC2626] transition-colors"
+                                    className="flex-1 px-4 py-3 bg-error-solid text-on-brand rounded-lg hover:bg-error-solid transition-colors"
                                 >
                                     {activeTab === 'finish-shift' ? 'Yes, Close Shift' : 'Yes, Lock Day-End'}
                                 </button>
@@ -1109,7 +1109,7 @@ export default function POSDayEnd() {
     };
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             <POSSidebar sidebarOpen={sidebarOpen} />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -1127,10 +1127,10 @@ export default function POSDayEnd() {
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
                                     <div className="min-w-0 flex-1">
-                                        <h1 className="text-base sm:text-lg md:text-xl font-semibold text-[#383E49] truncate">
+                                        <h1 className="text-base sm:text-lg md:text-xl font-semibold text-fg truncate">
                                             {getStepTitle()}
                                         </h1>
-                                        <p className="text-xs sm:text-sm text-[#667085] truncate">
+                                        <p className="text-xs sm:text-sm text-fg-secondary truncate">
                                             <span className="hidden sm:inline">{currentTime.toLocaleDateString()} - </span>
                                             Step {activeTab === 'finish-shift' ? (currentStep === 4 ? 3 : currentStep === 5 ? 4 : currentStep) : currentStep} of {activeTab === 'finish-shift' ? 4 : 5}
                                         </p>
@@ -1139,7 +1139,7 @@ export default function POSDayEnd() {
                             </div>
 
                             {/* Tabs */}
-                            <div className="flex border-b border-[#E4E6EA] mb-6">
+                            <div className="flex border-b border-line mb-6">
                                 <button
                                     onClick={() => {
                                         setActiveTab('day-end');
@@ -1158,8 +1158,8 @@ export default function POSDayEnd() {
                                     }}
                                     className={`px-6 py-3 border-b-2 font-semibold text-[15px] transition-all duration-200 ${
                                         activeTab === 'day-end'
-                                            ? 'border-[#0F50AA] text-[#0F50AA]'
-                                            : 'border-transparent text-[#667085] hover:text-[#383E49]'
+                                            ? 'border-brand-fg text-brand-fg'
+                                            : 'border-transparent text-fg-secondary hover:text-fg'
                                     }`}
                                 >
                                     Day End
@@ -1182,8 +1182,8 @@ export default function POSDayEnd() {
                                     }}
                                     className={`px-6 py-3 border-b-2 font-semibold text-[15px] transition-all duration-200 ${
                                         activeTab === 'finish-shift'
-                                            ? 'border-[#0F50AA] text-[#0F50AA]'
-                                            : 'border-transparent text-[#667085] hover:text-[#383E49]'
+                                            ? 'border-brand-fg text-brand-fg'
+                                            : 'border-transparent text-fg-secondary hover:text-fg'
                                     }`}
                                 >
                                     Finish Shift
@@ -1199,13 +1199,13 @@ export default function POSDayEnd() {
                     </div>
 
                     {/* Sticky Footer with Navigation Buttons */}
-                    <div className="bg-white border-t border-[#E4E6EA] p-4">
+                    <div className="bg-surface border-t border-line p-4">
                         <div className="max-w-6xl mx-auto flex justify-between items-center">
                             <div className="flex gap-3">
                                 {currentStep > 1 && (
                                     <button
                                         onClick={handlePreviousStep}
-                                        className="px-4 py-2 sm:px-6 sm:py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors text-[14px] font-[500] flex items-center gap-2"
+                                        className="px-4 py-2 sm:px-6 sm:py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors text-[14px] font-[500] flex items-center gap-2"
                                     >
                                         <ArrowLeft size={16} />
                                         Back
@@ -1213,7 +1213,7 @@ export default function POSDayEnd() {
                                 )}
                                 <button
                                     onClick={() => window.history.back()}
-                                    className="px-4 py-2 sm:px-6 sm:py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors text-[14px] font-[500]"
+                                    className="px-4 py-2 sm:px-6 sm:py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors text-[14px] font-[500]"
                                 >
                                     Cancel
                                 </button>
@@ -1223,7 +1223,7 @@ export default function POSDayEnd() {
                                 <button
                                     onClick={handleNextStep}
                                     disabled={!canProceedToNextStep()}
-                                    className="px-4 py-2 sm:px-6 sm:py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500]"
+                                    className="px-4 py-2 sm:px-6 sm:py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500]"
                                 >
                                     Next
                                 </button>
@@ -1235,7 +1235,7 @@ export default function POSDayEnd() {
 
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}

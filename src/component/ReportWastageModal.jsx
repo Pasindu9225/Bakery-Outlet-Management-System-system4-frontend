@@ -72,56 +72,56 @@ export default function ReportWastageModal({ item, onClose, onDone }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100000] bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[480px] max-h-[90vh] overflow-y-auto">
-        <div className="flex items-start justify-between p-5 border-b border-[#E4E6EA]">
+    <div className="fixed inset-0 z-[100000] bg-backdrop flex items-center justify-center p-4">
+      <div className="bg-elevated rounded-2xl shadow-2xl w-full max-w-[480px] max-h-[90vh] overflow-y-auto">
+        <div className="flex items-start justify-between p-5 border-b border-line">
           <div>
-            <h3 className="text-[18px] font-[700] text-[#1D2939] flex items-center gap-2">
-              <AlertTriangle size={18} className="text-red-600" /> Report wastage
+            <h3 className="text-[18px] font-[700] text-fg-strong flex items-center gap-2">
+              <AlertTriangle size={18} className="text-error" /> Report wastage
             </h3>
-            <p className="text-[13px] text-[#667085]">
+            <p className="text-[13px] text-fg-secondary">
               {item.itemName}
               {item.batchRef ? ` · ${item.batchRef}` : ""}
               {item.locationName ? ` · ${item.locationName}` : ""}
             </p>
           </div>
-          <button onClick={onClose} className="p-1 text-[#98A2B3] hover:text-[#344054]"><X size={20} /></button>
+          <button onClick={onClose} className="p-1 text-fg-muted hover:text-fg"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-3">
-          <div className="flex items-center justify-between text-[13px] bg-[#F9FAFB] border border-[#E4E6EA] rounded-lg p-3">
-            <span className="text-[#667085]">
-              In stock: <span className="font-[600] text-[#1D2939]">{available !== null ? `${available} ${item.uom || ""}` : "—"}</span>
+          <div className="flex items-center justify-between text-[13px] bg-subtle border border-line rounded-lg p-3">
+            <span className="text-fg-secondary">
+              In stock: <span className="font-[600] text-fg-strong">{available !== null ? `${available} ${item.uom || ""}` : "—"}</span>
             </span>
             {item.expiryDate !== undefined && <ExpiryTag expiryDate={item.expiryDate} showDate />}
           </div>
 
           <label className="block">
-            <span className="block text-[12px] font-[600] text-[#344054] mb-1">Quantity wasted{item.uom ? ` (${item.uom})` : ""}</span>
+            <span className="block text-[12px] font-[600] text-fg mb-1">Quantity wasted{item.uom ? ` (${item.uom})` : ""}</span>
             <input type="number" min="0" step="any" value={qty} autoFocus
               onChange={(e) => setQty(e.target.value)}
-              className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px]" />
+              className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px]" />
           </label>
           <label className="block">
-            <span className="block text-[12px] font-[600] text-[#344054] mb-1">Reason</span>
+            <span className="block text-[12px] font-[600] text-fg mb-1">Reason</span>
             <select value={reasonCode} onChange={(e) => setReasonCode(e.target.value)}
-              className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px] bg-white">
+              className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px] bg-surface">
               {reasons.map((r) => <option key={r.code} value={r.code}>{r.label}</option>)}
             </select>
           </label>
           <label className="block">
-            <span className="block text-[12px] font-[600] text-[#344054] mb-1">Notes{reasonCode === "OTHER" ? " (required)" : " (optional)"}</span>
+            <span className="block text-[12px] font-[600] text-fg mb-1">Notes{reasonCode === "OTHER" ? " (required)" : " (optional)"}</span>
             <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px]" />
+              className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px]" />
           </label>
 
-          <p className="text-[12px] text-[#667085]">The Admin reviews this report. Stock is removed only when it is confirmed.</p>
-          {(error || (qty !== "" && problem)) && <p className="text-[12px] text-red-600">{error || problem}</p>}
+          <p className="text-[12px] text-fg-secondary">The Admin reviews this report. Stock is removed only when it is confirmed.</p>
+          {(error || (qty !== "" && problem)) && <p className="text-[12px] text-error">{error || problem}</p>}
 
           <div className="flex gap-3 pt-1">
-            <button onClick={onClose} className="flex-1 px-4 py-2.5 bg-white border border-[#D0D5DD] text-[#344054] rounded-lg text-[14px] font-[600]">Cancel</button>
+            <button onClick={onClose} className="flex-1 px-4 py-2.5 bg-surface border border-line-strong text-fg rounded-lg text-[14px] font-[600]">Cancel</button>
             <button onClick={submit} disabled={!!problem || saving}
-              className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg text-[14px] font-[600] disabled:opacity-50">
+              className="flex-1 px-4 py-2.5 bg-error-solid text-on-brand rounded-lg text-[14px] font-[600] disabled:opacity-50">
               {saving ? "Sending..." : "Report wastage"}
             </button>
           </div>

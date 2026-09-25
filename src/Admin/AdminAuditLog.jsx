@@ -40,17 +40,17 @@ const ACTION_LABELS = {
 };
 
 const ACTION_STYLES = {
-  CREATE: "bg-green-50 text-green-700 border-green-200",
-  UPDATE: "bg-blue-50 text-blue-700 border-blue-200",
-  DELETE: "bg-red-50 text-red-700 border-red-200",
-  BULK_UPDATE: "bg-blue-50 text-blue-700 border-blue-200",
-  BULK_DELETE: "bg-red-50 text-red-700 border-red-200",
-  LOGIN: "bg-gray-100 text-gray-700 border-gray-200",
-  LOGIN_FAILED: "bg-red-100 text-red-800 border-red-300",
-  LOGIN_BLOCKED: "bg-red-100 text-red-800 border-red-300",
-  LOGOUT: "bg-gray-100 text-gray-700 border-gray-200",
-  EXPORT: "bg-purple-50 text-purple-700 border-purple-200",
-  SYSTEM: "bg-amber-50 text-amber-700 border-amber-200",
+  CREATE: "bg-success/10 text-success border-success/30",
+  UPDATE: "bg-brand/10 text-brand-fg border-brand/20",
+  DELETE: "bg-error/10 text-error border-error/30",
+  BULK_UPDATE: "bg-brand/10 text-brand-fg border-brand/20",
+  BULK_DELETE: "bg-error/10 text-error border-error/30",
+  LOGIN: "bg-hover text-fg border-line",
+  LOGIN_FAILED: "bg-error/10 text-error border-error/30",
+  LOGIN_BLOCKED: "bg-error/10 text-error border-error/30",
+  LOGOUT: "bg-hover text-fg border-line",
+  EXPORT: "bg-plum/10 text-plum border-plum/30",
+  SYSTEM: "bg-warning/10 text-warning border-warning/30",
 };
 
 const MODULE_LABELS = {
@@ -105,12 +105,12 @@ function ActionBadge({ action }) {
 }
 
 function Who({ row }) {
-  if (row.username === "SYSTEM") return <span className="text-[#667085] italic">System</span>;
-  if (row.username === "ANONYMOUS") return <span className="text-red-600 font-[600]">Not logged in</span>;
+  if (row.username === "SYSTEM") return <span className="text-fg-secondary italic">System</span>;
+  if (row.username === "ANONYMOUS") return <span className="text-error font-[600]">Not logged in</span>;
   return (
     <div className="leading-tight">
-      <div className="font-[600] text-[#1D2939]">{row.userFullName || row.username}</div>
-      <div className="text-[11px] text-[#667085]">
+      <div className="font-[600] text-fg-strong">{row.userFullName || row.username}</div>
+      <div className="text-[11px] text-fg-secondary">
         {row.userFullName ? `${row.username} · ` : ""}
         {row.roleId ? getRoleName(row.roleId) : ""}
       </div>
@@ -119,22 +119,22 @@ function Who({ row }) {
 }
 
 function RecordRef({ row }) {
-  if (!row.entityType) return <span className="text-[#98A2B3]">—</span>;
+  if (!row.entityType) return <span className="text-fg-muted">—</span>;
   return (
     <div className="leading-tight">
-      <div className="text-[#344054]">{humanize(row.entityType)}{row.entityId ? ` #${row.entityId.length > 12 ? row.entityId.slice(0, 8) + "…" : row.entityId}` : ""}</div>
-      {row.entityLabel && <div className="text-[11px] text-[#667085]">{row.entityLabel}</div>}
+      <div className="text-fg">{humanize(row.entityType)}{row.entityId ? ` #${row.entityId.length > 12 ? row.entityId.slice(0, 8) + "…" : row.entityId}` : ""}</div>
+      {row.entityLabel && <div className="text-[11px] text-fg-secondary">{row.entityLabel}</div>}
     </div>
   );
 }
 
 function Stat({ label, value, icon: Icon, tone }) {
   return (
-    <div className="bg-white rounded-xl border border-[#E4E6EA] shadow-sm p-4 flex items-center gap-3">
+    <div className="bg-surface rounded-xl border border-line shadow-sm p-4 flex items-center gap-3">
       <div className={`p-2 rounded-lg ${tone}`}><Icon size={20} /></div>
       <div>
-        <div className="text-[22px] font-[700] text-[#1D2939]">{value ?? "—"}</div>
-        <div className="text-[12px] text-[#667085]">{label}</div>
+        <div className="text-[22px] font-[700] text-fg-strong">{value ?? "—"}</div>
+        <div className="text-[12px] text-fg-secondary">{label}</div>
       </div>
     </div>
   );
@@ -142,12 +142,12 @@ function Stat({ label, value, icon: Icon, tone }) {
 
 function AuditTable({ rows, onOpen, emptyText }) {
   if (!rows.length) {
-    return <div className="bg-white rounded-xl border border-[#E4E6EA] p-10 text-center text-[14px] text-[#667085]">{emptyText}</div>;
+    return <div className="bg-surface rounded-xl border border-line p-10 text-center text-[14px] text-fg-secondary">{emptyText}</div>;
   }
   return (
-    <div className="bg-white rounded-xl border border-[#E4E6EA] shadow-sm overflow-x-auto">
+    <div className="bg-surface rounded-xl border border-line shadow-sm overflow-x-auto">
       <table className="w-full text-[13px]">
-        <thead className="bg-[#F9FAFB] text-[#667085] text-[12px] uppercase">
+        <thead className="bg-subtle text-fg-secondary text-[12px] uppercase">
           <tr>
             <th className="text-left px-4 py-3 font-[600]">When</th>
             <th className="text-left px-4 py-3 font-[600]">Who</th>
@@ -159,20 +159,20 @@ function AuditTable({ rows, onOpen, emptyText }) {
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.id} className={`border-t border-[#F2F4F7] hover:bg-[#F9FAFB] ${(r.action === "LOGIN_FAILED" || r.action === "LOGIN_BLOCKED") ? "bg-red-50/40" : ""}`}>
-              <td className="px-4 py-3 whitespace-nowrap text-[#344054]">{when(r.occurredAt)}</td>
+            <tr key={r.id} className={`border-t border-line hover:bg-subtle ${(r.action === "LOGIN_FAILED" || r.action === "LOGIN_BLOCKED") ? "bg-error/10" : ""}`}>
+              <td className="px-4 py-3 whitespace-nowrap text-fg">{when(r.occurredAt)}</td>
               <td className="px-4 py-3"><Who row={r} /></td>
               <td className="px-4 py-3">
                 <ActionBadge action={r.action} />
-                <div className="text-[11px] text-[#667085] mt-1">{moduleLabel(r.module)}</div>
+                <div className="text-[11px] text-fg-secondary mt-1">{moduleLabel(r.module)}</div>
               </td>
               <td className="px-4 py-3"><RecordRef row={r} /></td>
-              <td className="px-4 py-3 text-[#344054] max-w-[420px]">
+              <td className="px-4 py-3 text-fg max-w-[420px]">
                 <div className="line-clamp-2">{r.summary}</div>
-                {r.operation && r.module !== "ACCOUNTS" && <div className="text-[11px] text-[#98A2B3] mt-0.5">Screen action: {r.operation}</div>}
+                {r.operation && r.module !== "ACCOUNTS" && <div className="text-[11px] text-fg-muted mt-0.5">Screen action: {r.operation}</div>}
               </td>
               <td className="px-4 py-3 text-right">
-                <button onClick={() => onOpen(r)} className="inline-flex items-center gap-1 text-[#0F50AA] hover:underline text-[13px] font-[600]">
+                <button onClick={() => onOpen(r)} className="inline-flex items-center gap-1 text-brand-fg hover:underline text-[13px] font-[600]">
                   <Eye size={14} /> View
                 </button>
               </td>
@@ -187,12 +187,12 @@ function AuditTable({ rows, onOpen, emptyText }) {
 function Pager({ page, totalPages, total, onPage }) {
   if (!total) return null;
   return (
-    <div className="flex items-center justify-between mt-3 text-[13px] text-[#667085]">
+    <div className="flex items-center justify-between mt-3 text-[13px] text-fg-secondary">
       <span>{total.toLocaleString()} entr{total === 1 ? "y" : "ies"}</span>
       <div className="flex items-center gap-2">
-        <button disabled={page <= 0} onClick={() => onPage(page - 1)} className="p-1.5 rounded border border-[#D0D5DD] bg-white disabled:opacity-40"><ChevronLeft size={16} /></button>
+        <button disabled={page <= 0} onClick={() => onPage(page - 1)} className="p-1.5 rounded border border-line-strong bg-surface disabled:opacity-40"><ChevronLeft size={16} /></button>
         <span>Page {page + 1} of {Math.max(totalPages, 1)}</span>
-        <button disabled={page + 1 >= totalPages} onClick={() => onPage(page + 1)} className="p-1.5 rounded border border-[#D0D5DD] bg-white disabled:opacity-40"><ChevronRight size={16} /></button>
+        <button disabled={page + 1 >= totalPages} onClick={() => onPage(page + 1)} className="p-1.5 rounded border border-line-strong bg-surface disabled:opacity-40"><ChevronRight size={16} /></button>
       </div>
     </div>
   );
@@ -213,33 +213,33 @@ function DetailModal({ row, onClose, onHistory }) {
     ["Request id", row.requestId || "—"],
   ];
   return (
-    <div className="fixed inset-0 bg-black/40 z-[100000] flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between p-5 border-b border-[#E4E6EA]">
+    <div className="fixed inset-0 bg-backdrop z-[100000] flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-elevated rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start justify-between p-5 border-b border-line">
           <div>
-            <div className="flex items-center gap-2 mb-1"><ActionBadge action={row.action} /><span className="text-[12px] text-[#667085]">Entry #{row.id}</span></div>
-            <h2 className="text-[16px] font-[700] text-[#1D2939]">{row.summary}</h2>
+            <div className="flex items-center gap-2 mb-1"><ActionBadge action={row.action} /><span className="text-[12px] text-fg-secondary">Entry #{row.id}</span></div>
+            <h2 className="text-[16px] font-[700] text-fg-strong">{row.summary}</h2>
           </div>
-          <button onClick={onClose} className="p-1 text-[#667085] hover:text-[#1D2939]"><X size={20} /></button>
+          <button onClick={onClose} className="p-1 text-fg-secondary hover:text-fg-strong"><X size={20} /></button>
         </div>
         <div className="p-5 space-y-5">
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-[13px]">
             {meta.map(([k, v]) => (
               <div key={k} className="flex gap-2 min-w-0">
-                <dt className="text-[#667085] whitespace-nowrap">{k}:</dt>
-                <dd className="text-[#1D2939] break-all">{v}</dd>
+                <dt className="text-fg-secondary whitespace-nowrap">{k}:</dt>
+                <dd className="text-fg-strong break-all">{v}</dd>
               </div>
             ))}
           </dl>
 
           {row.changes?.length > 0 && (
             <div>
-              <h3 className="text-[14px] font-[700] text-[#1D2939] mb-2">
+              <h3 className="text-[14px] font-[700] text-fg-strong mb-2">
                 {row.action === "CREATE" ? "Values when added" : row.action === "DELETE" ? "Values when deleted" : "What changed"}
               </h3>
-              <div className="border border-[#E4E6EA] rounded-lg overflow-hidden">
+              <div className="border border-line rounded-lg overflow-hidden">
                 <table className="w-full text-[13px]">
-                  <thead className="bg-[#F9FAFB] text-[#667085] text-[12px]">
+                  <thead className="bg-subtle text-fg-secondary text-[12px]">
                     <tr>
                       <th className="text-left px-3 py-2 font-[600]">Field</th>
                       {row.action !== "CREATE" && <th className="text-left px-3 py-2 font-[600]">Before</th>}
@@ -248,17 +248,17 @@ function DetailModal({ row, onClose, onHistory }) {
                   </thead>
                   <tbody>
                     {row.changes.map((c) => (
-                      <tr key={c.field} className="border-t border-[#F2F4F7]">
-                        <td className="px-3 py-2 text-[#344054] font-[600]">{humanize(c.field)}</td>
-                        {row.action !== "CREATE" && <td className="px-3 py-2 text-red-700 break-all">{c.old ?? <span className="text-[#98A2B3]">empty</span>}</td>}
-                        {row.action !== "DELETE" && <td className="px-3 py-2 text-green-700 break-all">{c.new ?? <span className="text-[#98A2B3]">empty</span>}</td>}
+                      <tr key={c.field} className="border-t border-line">
+                        <td className="px-3 py-2 text-fg font-[600]">{humanize(c.field)}</td>
+                        {row.action !== "CREATE" && <td className="px-3 py-2 text-error break-all">{c.old ?? <span className="text-fg-muted">empty</span>}</td>}
+                        {row.action !== "DELETE" && <td className="px-3 py-2 text-success break-all">{c.new ?? <span className="text-fg-muted">empty</span>}</td>}
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
               {row.changes.some((c) => c.old === "******" || c.new === "******") && (
-                <p className="text-[12px] text-[#667085] mt-2">Passwords and security codes are never stored; ****** only shows that they changed.</p>
+                <p className="text-[12px] text-fg-secondary mt-2">Passwords and security codes are never stored; ****** only shows that they changed.</p>
               )}
             </div>
           )}
@@ -266,7 +266,7 @@ function DetailModal({ row, onClose, onHistory }) {
           {row.entityType && row.entityId && (
             <button
               onClick={() => onHistory(row.entityType, row.entityId)}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-[#D0D5DD] rounded-lg text-[14px] text-[#344054] hover:bg-gray-50"
+              className="inline-flex items-center gap-2 px-4 py-2 border border-line-strong rounded-lg text-[14px] text-fg hover:bg-subtle"
             >
               <FileClock size={16} /> Full history of this {humanize(row.entityType).toLowerCase()}
             </button>
@@ -404,10 +404,10 @@ export default function AdminAuditLog() {
     { id: "history", label: "Record History", icon: FileClock },
   ];
 
-  const input = "px-3 py-2 border border-[#D0D5DD] rounded-lg text-[14px] bg-white";
+  const input = "px-3 py-2 border border-line-strong rounded-lg text-[14px] bg-surface";
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden relative font-sans">
+    <div className="flex bg-app h-screen overflow-hidden relative font-sans">
       <AdminSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -416,31 +416,31 @@ export default function AdminAuditLog() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-[22px] font-[700] text-[#1D2939] mb-1">Audit Log</h1>
-              <p className="text-[14px] text-[#667085]">
+              <h1 className="text-[22px] font-[700] text-fg-strong mb-1">Audit Log</h1>
+              <p className="text-[14px] text-fg-secondary">
                 Who added, changed or deleted what, and when. Entries are kept permanently and cannot be edited or removed.
               </p>
             </div>
-            <button onClick={refresh} className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 bg-white border border-[#D0D5DD] rounded-lg text-[14px] text-[#344054] hover:bg-gray-50">
+            <button onClick={refresh} className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 bg-surface border border-line-strong rounded-lg text-[14px] text-fg hover:bg-subtle">
               <RefreshCw size={16} className={loading ? "animate-spin" : ""} /> Refresh
             </button>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
-            <Stat label="Changes today" value={summary?.changesToday} icon={Activity} tone="bg-blue-50 text-blue-600" />
-            <Stat label="Logins today" value={summary?.loginsToday} icon={LogIn} tone="bg-gray-100 text-gray-600" />
-            <Stat label="Failed logins today" value={summary?.failedLoginsToday} icon={ShieldAlert} tone={summary?.failedLoginsToday ? "bg-red-100 text-red-600" : "bg-gray-100 text-gray-600"} />
-            <Stat label="Active users today" value={summary?.activeUsersToday} icon={Users} tone="bg-green-50 text-green-600" />
-            <Stat label="Exports today" value={summary?.exportsToday} icon={Download} tone="bg-purple-50 text-purple-600" />
+            <Stat label="Changes today" value={summary?.changesToday} icon={Activity} tone="bg-brand/10 text-brand-fg" />
+            <Stat label="Logins today" value={summary?.loginsToday} icon={LogIn} tone="bg-hover text-fg-secondary" />
+            <Stat label="Failed logins today" value={summary?.failedLoginsToday} icon={ShieldAlert} tone={summary?.failedLoginsToday ? "bg-error/10 text-error" : "bg-hover text-fg-secondary"} />
+            <Stat label="Active users today" value={summary?.activeUsersToday} icon={Users} tone="bg-success/10 text-success" />
+            <Stat label="Exports today" value={summary?.exportsToday} icon={Download} tone="bg-plum/10 text-plum" />
           </div>
 
-          <div className="flex gap-2 mb-4 border-b border-[#E4E6EA] overflow-x-auto overflow-y-hidden">
+          <div className="flex gap-2 mb-4 border-b border-line overflow-x-auto overflow-y-hidden">
             {tabs.map((t) => (
               <button
                 key={t.id}
                 onClick={() => { setTab(t.id); setPage(0); }}
                 className={`flex items-center gap-2 px-4 py-2.5 text-[14px] font-[600] border-b-2 -mb-px whitespace-nowrap ${
-                  tab === t.id ? "border-[#0F50AA] text-[#0F50AA]" : "border-transparent text-[#667085] hover:text-[#344054]"
+                  tab === t.id ? "border-brand-fg text-brand-fg" : "border-transparent text-fg-secondary hover:text-fg"
                 }`}
               >
                 <t.icon size={16} /> {t.label}
@@ -448,11 +448,11 @@ export default function AdminAuditLog() {
             ))}
           </div>
 
-          {error && <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-[14px] text-red-700">{error}</div>}
+          {error && <div className="mb-4 px-4 py-3 rounded-lg bg-error/10 border border-error/30 text-[14px] text-error">{error}</div>}
 
           {tab === "history" ? (
             <>
-              <div className="bg-white rounded-xl shadow-sm border border-[#E4E6EA] p-4 mb-4 flex flex-col md:flex-row gap-3">
+              <div className="bg-surface rounded-xl shadow-sm border border-line p-4 mb-4 flex flex-col md:flex-row gap-3">
                 <select className={input} value={historyKey.entityType} onChange={(e) => setHistoryKey((k) => ({ ...k, entityType: e.target.value }))}>
                   <option value="">Choose record type…</option>
                   {options.entityTypes.map((t) => <option key={t} value={t}>{humanize(t)}</option>)}
@@ -461,7 +461,7 @@ export default function AdminAuditLog() {
                   onChange={(e) => setHistoryKey((k) => ({ ...k, entityId: e.target.value }))}
                   onKeyDown={(e) => e.key === "Enter" && loadHistory()} />
                 <button onClick={() => loadHistory()} disabled={!historyKey.entityType || !historyKey.entityId}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-[#0F50AA] text-white rounded-lg text-[14px] font-[600] disabled:opacity-50">
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-brand text-on-brand rounded-lg text-[14px] font-[600] disabled:opacity-50">
                   <Search size={16} /> Show history
                 </button>
               </div>
@@ -472,18 +472,18 @@ export default function AdminAuditLog() {
             </>
           ) : (
             <>
-              <div className="bg-white rounded-xl shadow-sm border border-[#E4E6EA] p-4 mb-4 flex flex-col gap-3">
+              <div className="bg-surface rounded-xl shadow-sm border border-line p-4 mb-4 flex flex-col gap-3">
                 <div className="flex flex-wrap gap-3">
                   <div className="flex-1 min-w-[220px] relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#98A2B3]" size={18} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-muted" size={18} />
                     <input type="text" placeholder="Search description, user or record name…"
-                      className="w-full pl-10 pr-4 py-2 border border-[#D0D5DD] rounded-lg text-[14px] outline-none focus:ring-2 focus:ring-blue-100"
+                      className="w-full pl-10 pr-4 py-2 border border-line-strong rounded-lg text-[14px] outline-none focus:ring-2 focus:ring-brand-fg"
                       value={filters.q} onChange={(e) => set("q", e.target.value)} />
                   </div>
-                  <label className="flex items-center gap-2 text-[13px] text-[#667085]">From
+                  <label className="flex items-center gap-2 text-[13px] text-fg-secondary">From
                     <input type="date" className={input} value={filters.from} max={filters.to || undefined} onChange={(e) => set("from", e.target.value)} />
                   </label>
-                  <label className="flex items-center gap-2 text-[13px] text-[#667085]">To
+                  <label className="flex items-center gap-2 text-[13px] text-fg-secondary">To
                     <input type="date" className={input} value={filters.to} min={filters.from || undefined} onChange={(e) => set("to", e.target.value)} />
                   </label>
                 </div>
@@ -511,14 +511,14 @@ export default function AdminAuditLog() {
                     </select>
                   )}
                   <button onClick={exportCsv} disabled={exporting || !result.totalElements}
-                    className="ml-auto flex items-center justify-center gap-2 px-4 py-2 bg-white border border-[#D0D5DD] rounded-lg text-[14px] text-[#344054] hover:bg-gray-50 disabled:opacity-50 whitespace-nowrap">
+                    className="ml-auto flex items-center justify-center gap-2 px-4 py-2 bg-surface border border-line-strong rounded-lg text-[14px] text-fg hover:bg-subtle disabled:opacity-50 whitespace-nowrap">
                     {exporting ? <Loader variant="inline" /> : <><Download size={16} /> Export CSV</>}
                   </button>
                 </div>
               </div>
 
               {tab === "user" && !filters.username ? (
-                <div className="bg-white rounded-xl border border-[#E4E6EA] p-10 text-center text-[14px] text-[#667085]">
+                <div className="bg-surface rounded-xl border border-line p-10 text-center text-[14px] text-fg-secondary">
                   Choose a user to see everything they did in the selected dates.
                 </div>
               ) : loading ? (

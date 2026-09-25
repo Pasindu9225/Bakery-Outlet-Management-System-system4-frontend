@@ -21,10 +21,10 @@ export const expiryStatus = (expiryDate, warnDays = 3) => {
 export const isExpired = (expiryDate) => expiryStatus(expiryDate) === "EXPIRED";
 
 const STYLES = {
-  EXPIRED: "bg-red-50 text-red-700 border-red-200",
-  EXPIRING: "bg-amber-50 text-amber-700 border-amber-200",
-  OK: "bg-green-50 text-green-700 border-green-200",
-  NO_DATE: "bg-gray-50 text-gray-500 border-gray-200",
+  EXPIRED: "bg-error/10 text-error border-error/30",
+  EXPIRING: "bg-warning/10 text-warning border-warning/30",
+  OK: "bg-success/10 text-success border-success/30",
+  NO_DATE: "bg-subtle text-fg-secondary border-line",
 };
 
 const label = (left) => {

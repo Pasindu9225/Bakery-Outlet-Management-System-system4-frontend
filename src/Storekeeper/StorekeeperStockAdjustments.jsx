@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import {
   Search,
   Filter,
@@ -274,7 +275,7 @@ export default function StorekeeperStockAdjustments() {
       !newAdjustment.physicalQty ||
       !newAdjustment.reason
     ) {
-      alert("Please fill all required fields");
+      toast.error("Please fill all required fields");
       return;
     }
 
@@ -284,7 +285,7 @@ export default function StorekeeperStockAdjustments() {
         localStorage.getItem("userId") || sessionStorage.getItem("userId");
 
       if (!userId) {
-        alert("User ID not found. Please log in again.");
+        toast.error("User ID not found. Please log in again.");
         return;
       }
 
@@ -372,10 +373,10 @@ export default function StorekeeperStockAdjustments() {
         remarks: "",
       });
 
-      alert("Stock adjustment submitted for approval successfully!");
+      toast.success("Stock adjustment submitted for approval successfully!");
     } catch (error) {
       console.error("Failed to create stock adjustment:", error);
-      alert(`Failed to submit stock adjustment: ${error.message}`);
+      toast.error(`Failed to submit stock adjustment: ${error.message}`);
     }
   };
 
@@ -395,7 +396,7 @@ export default function StorekeeperStockAdjustments() {
         localStorage.getItem("userId") || sessionStorage.getItem("userId");
 
       if (!userId) {
-        alert("User ID not found. Please log in again.");
+        toast.error("User ID not found. Please log in again.");
         return;
       }
 
@@ -483,11 +484,11 @@ export default function StorekeeperStockAdjustments() {
         setAdjustments(mappedAdjustments);
       }
 
-      alert("Stock adjustment marked as approved successfully!");
+      toast.success("Stock adjustment marked as approved successfully!");
       setShowViewModal(false);
     } catch (error) {
       console.error("Failed to mark adjustment as approved:", error);
-      alert(`Failed to mark adjustment as approved: ${error.message}`);
+      toast.error(`Failed to mark adjustment as approved: ${error.message}`);
     } finally {
       setMarkAsAdjustLoading(false);
     }
@@ -503,7 +504,7 @@ export default function StorekeeperStockAdjustments() {
   };
 
   return (
-    <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+    <div className="flex bg-app h-screen overflow-hidden">
       <StorekeeperSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -517,22 +518,22 @@ export default function StorekeeperStockAdjustments() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-[20px] font-[600] text-[#383E49] mb-1">
+            <h1 className="text-[20px] font-[600] text-fg mb-1">
               Stock Adjustments
             </h1>
-            <p className="text-[14px] text-[#667085]">
+            <p className="text-[14px] text-fg-secondary">
               Correct inventory discrepancies between system records and
               physical stock
             </p>
           </div>
 
           {/* Controls */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 mb-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-4 mb-6">
             <div className="flex flex-col lg:flex-row gap-4">
               {/* Search Bar */}
               <div className="flex-1 relative">
                 <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
                   size={16}
                 />
                 <input
@@ -540,7 +541,7 @@ export default function StorekeeperStockAdjustments() {
                   placeholder="Search by adjustment ID, product, or batch number..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent text-[14px]"
+                  className="w-full pl-10 pr-4 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent text-[14px]"
                 />
               </div>
 
@@ -549,7 +550,7 @@ export default function StorekeeperStockAdjustments() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full lg:w-auto px-4 py-2 border border-[#E4E6EA] rounded-md text-[14px] text-[#667085] focus:outline-none focus:ring-2 focus:ring-[#0F50AA] focus:border-transparent"
+                  className="w-full lg:w-auto px-4 py-2 border border-line rounded-md text-[14px] text-fg-secondary focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent"
                 >
                   <option value="All">All</option>
                   <option value="Pending">Pending</option>
@@ -561,7 +562,7 @@ export default function StorekeeperStockAdjustments() {
               {/* Create New Button */}
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#0F50AA] text-white text-[14px] font-[500] rounded-md hover:bg-[#1366D9] transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-brand text-on-brand text-[14px] font-[500] rounded-md hover:bg-brand-hover transition-colors"
               >
                 <Plus size={16} />
                 New Adjustment
@@ -570,12 +571,12 @@ export default function StorekeeperStockAdjustments() {
           </div>
 
           {/* Adjustments Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-6">
+          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
-              <h3 className="text-[18px] font-[600] text-[#383E49]">
+              <h3 className="text-[18px] font-[600] text-fg">
                 Stock Adjustments
               </h3>
-              <span className="text-[12px] text-[#667085] mt-2 sm:mt-0">
+              <span className="text-[12px] text-fg-secondary mt-2 sm:mt-0">
                 Showing {filteredAdjustments.length} adjustments
               </span>
             </div>
@@ -586,28 +587,28 @@ export default function StorekeeperStockAdjustments() {
               <div className="text-center py-12">
                 <AlertTriangle
                   size={48}
-                  className="mx-auto text-[#EF4444] mb-4"
+                  className="mx-auto text-error mb-4"
                 />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   Error loading adjustments
                 </p>
-                <p className="text-[14px] text-[#667085] mb-4">
+                <p className="text-[14px] text-fg-secondary mb-4">
                   {adjustmentsError}
                 </p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors"
+                  className="px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors"
                 >
                   Try Again
                 </button>
               </div>
             ) : filteredAdjustments.length === 0 ? (
               <div className="text-center py-12">
-                <Package size={48} className="mx-auto text-[#667085] mb-4" />
-                <p className="text-[16px] font-[500] text-[#383E49] mb-2">
+                <Package size={48} className="mx-auto text-fg-secondary mb-4" />
+                <p className="text-[16px] font-[500] text-fg mb-2">
                   No adjustments found
                 </p>
-                <p className="text-[14px] text-[#667085]">
+                <p className="text-[14px] text-fg-secondary">
                   {searchTerm
                     ? "Try adjusting your search criteria"
                     : "No adjustments match the selected filter"}
@@ -617,29 +618,29 @@ export default function StorekeeperStockAdjustments() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#E4E6EA]">
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                    <tr className="border-b border-line">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Adjustment ID
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Product & Batch
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         System Qty
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Physical Qty
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Adjustment
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Reason
                       </th>
-                      <th className="text-left py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                         Status
                       </th>
-                      <th className="text-center py-3 text-[12px] font-[600] text-[#383E49] uppercase">
+                      <th className="text-center py-3 text-[12px] font-[600] text-fg uppercase">
                         Actions
                       </th>
                     </tr>
@@ -648,38 +649,38 @@ export default function StorekeeperStockAdjustments() {
                     {filteredAdjustments.map((adjustment) => (
                       <tr
                         key={adjustment.id}
-                        className="border-b border-[#E4E6EA] hover:bg-[#F8F9FA]"
+                        className="border-b border-line hover:bg-subtle"
                       >
                         <td className="py-4">
                           <div>
-                            <p className="text-[14px] font-[600] text-[#383E49]">
+                            <p className="text-[14px] font-[600] text-fg">
                               {adjustment.adjustmentId}
                             </p>
-                            <p className="text-[12px] text-[#667085]">
+                            <p className="text-[12px] text-fg-secondary">
                               {new Date(adjustment.date).toLocaleDateString()}
                             </p>
                           </div>
                         </td>
                         <td className="py-4">
                           <div>
-                            <p className="text-[14px] font-[500] text-[#383E49]">
+                            <p className="text-[14px] font-[500] text-fg">
                               {adjustment.productName}
                             </p>
-                            <p className="text-[12px] text-[#667085]">
+                            <p className="text-[12px] text-fg-secondary">
                               Code: {adjustment.productCode}
                             </p>
-                            <p className="text-[12px] text-[#667085]">
+                            <p className="text-[12px] text-fg-secondary">
                               Batch: {adjustment.batchNo}
                             </p>
                           </div>
                         </td>
                         <td className="py-4">
-                          <p className="text-[14px] font-[600] text-[#383E49]">
+                          <p className="text-[14px] font-[600] text-fg">
                             {formatQuantity(adjustment.systemQty)}
                           </p>
                         </td>
                         <td className="py-4">
-                          <p className="text-[14px] font-[600] text-[#383E49]">
+                          <p className="text-[14px] font-[600] text-fg">
                             {formatQuantity(adjustment.physicalQty)}
                           </p>
                         </td>
@@ -688,46 +689,46 @@ export default function StorekeeperStockAdjustments() {
                             {adjustment.adjustmentQty > 0 ? (
                               <TrendingUp
                                 size={16}
-                                className="text-[#51CC5D]"
+                                className="text-success"
                               />
                             ) : adjustment.adjustmentQty < 0 ? (
                               <TrendingDown
                                 size={16}
-                                className="text-[#EF4444]"
+                                className="text-error"
                               />
                             ) : (
-                              <Minus size={16} className="text-[#667085]" />
+                              <Minus size={16} className="text-fg-secondary" />
                             )}
                             <span
                               className={`text-[14px] font-[600] ${adjustment.adjustmentQty > 0
-                                  ? "text-[#51CC5D]"
+                                  ? "text-success"
                                   : adjustment.adjustmentQty < 0
-                                    ? "text-[#EF4444]"
-                                    : "text-[#667085]"
+                                    ? "text-error"
+                                    : "text-fg-secondary"
                                 }`}
                             >
                               {adjustment.adjustmentQty > 0 ? "+" : ""}
                               {formatQuantity(adjustment.adjustmentQty)}
                             </span>
                           </div>
-                          <p className="text-[10px] text-[#667085] mt-1">
+                          <p className="text-[10px] text-fg-secondary mt-1">
                             {adjustment.adjustmentType}
                           </p>
                         </td>
                         <td className="py-4">
-                          <p className="text-[14px] font-[500] text-[#383E49]">
+                          <p className="text-[14px] font-[500] text-fg">
                             {adjustment.reason}
                           </p>
                         </td>
                         <td className="py-4">
                           <span
                             className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] ${adjustment.status === "Pending"
-                                ? "bg-[#FFF4E6] text-[#F4A100]"
+                                ? "bg-hover text-warning"
                                 : adjustment.status === "Approved"
-                                  ? "bg-[#DDFFE0] text-[#51CC5D]"
+                                  ? "bg-hover text-success"
                                   : adjustment.status === "Rejected"
-                                    ? "bg-[#FEE2E2] text-[#EF4444]"
-                                    : "bg-[#E4E6EA] text-[#667085]"
+                                    ? "bg-hover text-error"
+                                    : "bg-line text-fg-secondary"
                               }`}
                           >
                             {adjustment.status === "Pending" && (
@@ -745,7 +746,7 @@ export default function StorekeeperStockAdjustments() {
                         <td className="py-4 text-center">
                           <button
                             onClick={() => handleViewDetails(adjustment)}
-                            className="p-2 text-[#0F50AA] hover:bg-[#EBF8FF] rounded-lg transition-colors"
+                            className="p-2 text-brand-fg hover:bg-hover rounded-lg transition-colors"
                             title="View Details"
                           >
                             <Eye size={16} />
@@ -763,24 +764,24 @@ export default function StorekeeperStockAdjustments() {
 
       {/* Create Adjustment Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-[#E4E6EA]">
-              <h2 className="text-[20px] font-[600] text-[#383E49]">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-line">
+              <h2 className="text-[20px] font-[600] text-fg">
                 Create Stock Adjustment
               </h2>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >
-                <X size={20} className="text-[#667085]" />
+                <X size={20} className="text-fg-secondary" />
               </button>
             </div>
 
             <div className="p-6 space-y-6">
               {/* Date */}
               <div>
-                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                <label className="block text-[14px] font-[500] text-fg mb-2">
                   Adjustment Date *
                 </label>
                 <input
@@ -789,13 +790,13 @@ export default function StorekeeperStockAdjustments() {
                   onChange={(e) =>
                     setNewAdjustment({ ...newAdjustment, date: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                  className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                 />
               </div>
 
               {/* Product Selection (Searchable Combobox) */}
               <div className="relative">
-                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                <label className="block text-[14px] font-[500] text-fg mb-2">
                   Raw Material *
                 </label>
                 <div className="relative">
@@ -821,7 +822,7 @@ export default function StorekeeperStockAdjustments() {
                       }
                     }}
                     onFocus={() => setShowMaterialDropdown(true)}
-                    className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white pr-10"
+                    className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface pr-10"
                     disabled={loadingProducts}
                   />
                   {(materialSearchTerm || newAdjustment.productId) && (
@@ -832,7 +833,7 @@ export default function StorekeeperStockAdjustments() {
                         setNewAdjustment({ ...newAdjustment, productId: "", batchNo: "" });
                         setShowMaterialDropdown(true);
                       }}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-[#667085] hover:text-[#383E49]"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-fg-secondary hover:text-fg"
                     >
                       <X size={16} />
                     </button>
@@ -840,7 +841,7 @@ export default function StorekeeperStockAdjustments() {
                 </div>
 
                 {showMaterialDropdown && !loadingProducts && (
-                  <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-[#E4E6EA] rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  <div className="absolute z-50 left-0 right-0 mt-1 bg-elevated border border-line rounded-md shadow-lg max-h-60 overflow-y-auto">
                     {products.filter((product) => {
                       if (!materialSearchTerm) return true;
                       const term = materialSearchTerm.toLowerCase();
@@ -849,7 +850,7 @@ export default function StorekeeperStockAdjustments() {
                       const brand = (product.brand || "").toLowerCase();
                       return code.includes(term) || name.includes(term) || brand.includes(term);
                     }).length === 0 ? (
-                      <div className="px-4 py-3 text-[14px] text-[#667085] italic">
+                      <div className="px-4 py-3 text-[14px] text-fg-secondary italic">
                         No matching raw materials found
                       </div>
                     ) : (
@@ -876,15 +877,15 @@ export default function StorekeeperStockAdjustments() {
                                 setMaterialSearchTerm(label);
                                 setShowMaterialDropdown(false);
                               }}
-                              className={`px-4 py-2.5 hover:bg-[#EBF8FF] cursor-pointer text-[14px] border-b border-gray-50 last:border-0 ${
+                              className={`px-4 py-2.5 hover:bg-hover cursor-pointer text-[14px] border-b border-line last:border-0 ${
                                 String(product.id) === String(newAdjustment.productId)
-                                  ? "bg-[#EBF8FF] font-[600] text-[#0F50AA]"
-                                  : "text-[#383E49]"
+                                  ? "bg-hover font-[600] text-brand-fg"
+                                  : "text-fg"
                               }`}
                             >
                               <p className="font-[500]">{product.code} - {product.name}</p>
                               {product.brand && (
-                                <p className="text-[12px] text-[#667085]">Brand: {product.brand}</p>
+                                <p className="text-[12px] text-fg-secondary">Brand: {product.brand}</p>
                               )}
                             </div>
                           );
@@ -894,7 +895,7 @@ export default function StorekeeperStockAdjustments() {
                 )}
 
                 {productsError && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p className="text-error text-sm mt-1">
                     Error loading materials: {productsError}
                   </p>
                 )}
@@ -903,7 +904,7 @@ export default function StorekeeperStockAdjustments() {
               {/* Batch Selection */}
               {newAdjustment.productId && (
                 <div>
-                  <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                  <label className="block text-[14px] font-[500] text-fg mb-2">
                     Batch/Lot Number *
                   </label>
                   <select
@@ -914,7 +915,7 @@ export default function StorekeeperStockAdjustments() {
                         batchNo: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                    className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                   >
                     <option value="">Select Batch/Lot</option>
                     {getSelectedProduct()?.batches.map((batch) => (
@@ -929,21 +930,21 @@ export default function StorekeeperStockAdjustments() {
 
               {/* System Stock Details */}
               {getSelectedBatch() && (
-                <div className="bg-[#F8F9FA] p-4 rounded-lg">
-                  <h4 className="text-[14px] font-[600] text-[#383E49] mb-2">
+                <div className="bg-subtle p-4 rounded-lg">
+                  <h4 className="text-[14px] font-[600] text-fg mb-2">
                     Current System Stock
                   </h4>
                   <div className="grid grid-cols-2 gap-4 text-[14px]">
                     <div>
-                      <span className="text-[#667085]">System Quantity:</span>
-                      <span className="font-[600] text-[#383E49] ml-2">
+                      <span className="text-fg-secondary">System Quantity:</span>
+                      <span className="font-[600] text-fg ml-2">
                         {formatQuantity(getSelectedBatch().quantity)}{" "}
                         {getSelectedProduct().unit}
                       </span>
                     </div>
                     <div>
-                      <span className="text-[#667085]">Expiry Date:</span>
-                      <span className="font-[600] text-[#383E49] ml-2">
+                      <span className="text-fg-secondary">Expiry Date:</span>
+                      <span className="font-[600] text-fg ml-2">
                         {new Date(
                           getSelectedBatch().expiryDate
                         ).toLocaleDateString()}
@@ -952,15 +953,15 @@ export default function StorekeeperStockAdjustments() {
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-[14px] mt-2">
                     <div>
-                      <span className="text-[#667085]">Min Quantity:</span>
-                      <span className="font-[600] text-[#383E49] ml-2">
+                      <span className="text-fg-secondary">Min Quantity:</span>
+                      <span className="font-[600] text-fg ml-2">
                         {getSelectedProduct().minQty}{" "}
                         {getSelectedProduct().unit}
                       </span>
                     </div>
                     <div>
-                      <span className="text-[#667085]">Unit Cost:</span>
-                      <span className="font-[600] text-[#383E49] ml-2">
+                      <span className="text-fg-secondary">Unit Cost:</span>
+                      <span className="font-[600] text-fg ml-2">
                         Rs. {getSelectedProduct().unitCost}
                       </span>
                     </div>
@@ -970,7 +971,7 @@ export default function StorekeeperStockAdjustments() {
 
               {/* Physical Count */}
               <div>
-                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                <label className="block text-[14px] font-[500] text-fg mb-2">
                   Physical Quantity *
                 </label>
                 <input
@@ -985,25 +986,25 @@ export default function StorekeeperStockAdjustments() {
                       physicalQty: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px]"
+                  className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px]"
                 />
               </div>
 
               {/* Adjustment Summary */}
               {newAdjustment.physicalQty && getSelectedBatch() && (
-                <div className="bg-[#EBF8FF] p-4 rounded-lg">
-                  <h4 className="text-[14px] font-[600] text-[#383E49] mb-2">
+                <div className="bg-hover p-4 rounded-lg">
+                  <h4 className="text-[14px] font-[600] text-fg mb-2">
                     Adjustment Summary
                   </h4>
                   <div className="grid grid-cols-3 gap-4 text-[14px]">
                     <div>
-                      <span className="text-[#667085]">Adjustment Qty:</span>
+                      <span className="text-fg-secondary">Adjustment Qty:</span>
                       <div
                         className={`font-[600] ${getAdjustmentDetails().adjustmentQty > 0
-                            ? "text-[#51CC5D]"
+                            ? "text-success"
                             : getAdjustmentDetails().adjustmentQty < 0
-                              ? "text-[#EF4444]"
-                              : "text-[#667085]"
+                              ? "text-error"
+                              : "text-fg-secondary"
                           }`}
                       >
                         {getAdjustmentDetails().adjustmentQty > 0 ? "+" : ""}
@@ -1011,14 +1012,14 @@ export default function StorekeeperStockAdjustments() {
                       </div>
                     </div>
                     <div>
-                      <span className="text-[#667085]">Type:</span>
-                      <div className="font-[600] text-[#383E49]">
+                      <span className="text-fg-secondary">Type:</span>
+                      <div className="font-[600] text-fg">
                         {getAdjustmentDetails().adjustmentType}
                       </div>
                     </div>
                     <div>
-                      <span className="text-[#667085]">Unit:</span>
-                      <div className="font-[600] text-[#383E49]">
+                      <span className="text-fg-secondary">Unit:</span>
+                      <div className="font-[600] text-fg">
                         {getSelectedProduct().unit}
                       </div>
                     </div>
@@ -1028,7 +1029,7 @@ export default function StorekeeperStockAdjustments() {
 
               {/* Reason */}
               <div>
-                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                <label className="block text-[14px] font-[500] text-fg mb-2">
                   Reason for Adjustment *
                 </label>
                 <select
@@ -1039,7 +1040,7 @@ export default function StorekeeperStockAdjustments() {
                       reason: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] bg-white"
+                  className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] bg-surface"
                 >
                   <option value="">Select Reason</option>
                   <option value="LOSS">Loss</option>
@@ -1052,7 +1053,7 @@ export default function StorekeeperStockAdjustments() {
 
               {/* Remarks */}
               <div>
-                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">
+                <label className="block text-[14px] font-[500] text-fg mb-2">
                   Remarks
                 </label>
                 <textarea
@@ -1065,22 +1066,22 @@ export default function StorekeeperStockAdjustments() {
                     })
                   }
                   rows="3"
-                  className="w-full px-3 py-2 border border-[#E4E6EA] rounded-md focus:outline-none focus:ring-2 focus:ring-[#0F50AA] text-[14px] resize-none"
+                  className="w-full px-3 py-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] resize-none"
                 />
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="flex justify-end items-center gap-3 p-6 border-t border-[#E4E6EA]">
+            <div className="flex justify-end items-center gap-3 p-6 border-t border-line">
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="px-4 py-2 text-[14px] font-[500] text-[#667085] bg-white border border-[#E4E6EA] hover:bg-[#F8F9FA] rounded-md transition-colors"
+                className="px-4 py-2 text-[14px] font-[500] text-fg-secondary bg-surface border border-line hover:bg-subtle rounded-md transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreateAdjustment}
-                className="px-4 py-2 text-[14px] font-[500] text-white bg-[#0F50AA] hover:bg-[#1366D9] rounded-md transition-colors"
+                className="px-4 py-2 text-[14px] font-[500] text-on-brand bg-brand hover:bg-brand-hover rounded-md transition-colors"
               >
                 Submit for Approval
               </button>
@@ -1091,16 +1092,16 @@ export default function StorekeeperStockAdjustments() {
 
       {/* View Details Modal */}
       {showViewModal && selectedAdjustment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-elevated rounded-lg shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-6 border-b border-[#E4E6EA] gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-6 border-b border-line gap-4">
               {/* Title & Info */}
               <div className="text-center sm:text-left">
-                <h2 className="text-[20px] font-[600] text-[#383E49]">
+                <h2 className="text-[20px] font-[600] text-fg">
                   Stock Adjustment Details
                 </h2>
-                <p className="text-[14px] text-[#667085] mt-1">
+                <p className="text-[14px] text-fg-secondary mt-1">
                   {selectedAdjustment.adjustmentId}
                 </p>
               </div>
@@ -1108,16 +1109,16 @@ export default function StorekeeperStockAdjustments() {
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2">
                 <button
-                  onClick={() => alert("Downloading adjustment report...")}
-                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-[#0F50AA] bg-[#EBF8FF] hover:bg-[#DBEAFE] rounded-lg transition-colors"
+                  onClick={() => toast("Downloading adjustment report...")}
+                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-brand-fg bg-hover hover:bg-line rounded-lg transition-colors"
                 >
                   <Download size={16} />
                   Download
                 </button>
 
                 <button
-                  onClick={() => alert("Printing adjustment record...")}
-                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-[#0F50AA] bg-[#EBF8FF] hover:bg-[#DBEAFE] rounded-lg transition-colors"
+                  onClick={() => toast("Printing adjustment record...")}
+                  className="flex items-center gap-2 px-3 py-2 text-[14px] font-[500] text-brand-fg bg-hover hover:bg-line rounded-lg transition-colors"
                 >
                   <Printer size={16} />
                   Print
@@ -1125,9 +1126,9 @@ export default function StorekeeperStockAdjustments() {
 
                 <button
                   onClick={() => setShowViewModal(false)}
-                  className="p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+                  className="p-2 hover:bg-subtle rounded-lg transition-colors"
                 >
-                  <X size={20} className="text-[#667085]" />
+                  <X size={20} className="text-fg-secondary" />
                 </button>
               </div>
             </div>
@@ -1136,51 +1137,51 @@ export default function StorekeeperStockAdjustments() {
               {/* Status Banner */}
               <div
                 className={`p-4 rounded-lg mb-6 ${selectedAdjustment.status === "Pending"
-                    ? "bg-[#FFF4E6] border border-[#F4A100]"
+                    ? "bg-hover border border-warning"
                     : selectedAdjustment.status === "Approved"
-                      ? "bg-[#DDFFE0] border border-[#51CC5D]"
+                      ? "bg-hover border border-success"
                       : selectedAdjustment.status === "Rejected"
-                        ? "bg-[#FEE2E2] border border-[#EF4444]"
-                        : "bg-[#F8F9FA] border border-[#E4E6EA]"
+                        ? "bg-hover border border-error"
+                        : "bg-subtle border border-line"
                   }`}
               >
                 <div className="flex items-center gap-2">
                   {selectedAdjustment.status === "Pending" && (
-                    <Clock size={20} className="text-[#F4A100]" />
+                    <Clock size={20} className="text-warning" />
                   )}
                   {selectedAdjustment.status === "Approved" && (
-                    <CheckCircle2 size={20} className="text-[#51CC5D]" />
+                    <CheckCircle2 size={20} className="text-success" />
                   )}
                   {selectedAdjustment.status === "Rejected" && (
-                    <AlertTriangle size={20} className="text-[#EF4444]" />
+                    <AlertTriangle size={20} className="text-error" />
                   )}
                   <span
                     className={`text-[16px] font-[600] ${selectedAdjustment.status === "Pending"
-                        ? "text-[#F4A100]"
+                        ? "text-warning"
                         : selectedAdjustment.status === "Approved"
-                          ? "text-[#51CC5D]"
+                          ? "text-success"
                           : selectedAdjustment.status === "Rejected"
-                            ? "text-[#EF4444]"
-                            : "text-[#667085]"
+                            ? "text-error"
+                            : "text-fg-secondary"
                       }`}
                   >
                     {selectedAdjustment.status}
                   </span>
                 </div>
                 {selectedAdjustment.status === "Pending" && (
-                  <p className="text-[14px] text-[#667085] mt-1">
+                  <p className="text-[14px] text-fg-secondary mt-1">
                     This adjustment is awaiting admin approval
                   </p>
                 )}
                 {selectedAdjustment.status === "Approved" &&
                   selectedAdjustment.adminRemarks && (
-                    <p className="text-[14px] text-[#667085] mt-1">
+                    <p className="text-[14px] text-fg-secondary mt-1">
                       Admin: {selectedAdjustment.adminRemarks}
                     </p>
                   )}
                 {selectedAdjustment.status === "Rejected" &&
                   selectedAdjustment.adminRemarks && (
-                    <p className="text-[14px] text-[#667085] mt-1">
+                    <p className="text-[14px] text-fg-secondary mt-1">
                       Rejection reason: {selectedAdjustment.adminRemarks}
                     </p>
                   )}
@@ -1189,31 +1190,31 @@ export default function StorekeeperStockAdjustments() {
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="space-y-4">
-                  <h4 className="text-[16px] font-[600] text-[#383E49]">
+                  <h4 className="text-[16px] font-[600] text-fg">
                     Basic Information
                   </h4>
                   <div className="space-y-3">
                     <div>
-                      <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                      <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                         Adjustment Date
                       </span>
-                      <p className="text-[14px] font-[500] text-[#383E49]">
+                      <p className="text-[14px] font-[500] text-fg">
                         {new Date(selectedAdjustment.date).toLocaleDateString()}
                       </p>
                     </div>
                     <div>
-                      <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                      <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                         Submitted By
                       </span>
-                      <p className="text-[14px] font-[500] text-[#383E49]">
+                      <p className="text-[14px] font-[500] text-fg">
                         {selectedAdjustment.storekeeperName}
                       </p>
                     </div>
                     <div>
-                      <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                      <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                         Submitted At
                       </span>
-                      <p className="text-[14px] font-[500] text-[#383E49]">
+                      <p className="text-[14px] font-[500] text-fg">
                         {new Date(
                           selectedAdjustment.submittedAt
                         ).toLocaleString()}
@@ -1223,23 +1224,23 @@ export default function StorekeeperStockAdjustments() {
                 </div>
 
                 <div className="space-y-4">
-                  <h4 className="text-[16px] font-[600] text-[#383E49]">
+                  <h4 className="text-[16px] font-[600] text-fg">
                     Review Information
                   </h4>
                   <div className="space-y-3">
                     <div>
-                      <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                      <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                         Reviewed By
                       </span>
-                      <p className="text-[14px] font-[500] text-[#383E49]">
+                      <p className="text-[14px] font-[500] text-fg">
                         {selectedAdjustment.reviewedBy || "Pending"}
                       </p>
                     </div>
                     <div>
-                      <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                      <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                         Reviewed At
                       </span>
-                      <p className="text-[14px] font-[500] text-[#383E49]">
+                      <p className="text-[14px] font-[500] text-fg">
                         {selectedAdjustment.reviewedAt
                           ? new Date(
                             selectedAdjustment.reviewedAt
@@ -1252,27 +1253,27 @@ export default function StorekeeperStockAdjustments() {
               </div>
 
               {/* Product Details */}
-              <div className="bg-[#F8F9FA] p-4 rounded-lg mb-6">
-                <h4 className="text-[16px] font-[600] text-[#383E49] mb-4">
+              <div className="bg-subtle p-4 rounded-lg mb-6">
+                <h4 className="text-[16px] font-[600] text-fg mb-4">
                   Product Details
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                    <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                       Product
                     </span>
-                    <p className="text-[14px] font-[600] text-[#383E49]">
+                    <p className="text-[14px] font-[600] text-fg">
                       {selectedAdjustment.productName}
                     </p>
-                    <p className="text-[12px] text-[#667085]">
+                    <p className="text-[12px] text-fg-secondary">
                       Code: {selectedAdjustment.productCode}
                     </p>
                   </div>
                   <div>
-                    <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                    <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                       Batch/Lot
                     </span>
-                    <p className="text-[14px] font-[600] text-[#383E49]">
+                    <p className="text-[14px] font-[600] text-fg">
                       {selectedAdjustment.batchNo}
                     </p>
                   </div>
@@ -1280,60 +1281,60 @@ export default function StorekeeperStockAdjustments() {
               </div>
 
               {/* Adjustment Details */}
-              <div className="bg-[#EBF8FF] p-4 rounded-lg mb-6">
-                <h4 className="text-[16px] font-[600] text-[#383E49] mb-4">
+              <div className="bg-hover p-4 rounded-lg mb-6">
+                <h4 className="text-[16px] font-[600] text-fg mb-4">
                   Adjustment Summary
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                    <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                       System Quantity
                     </span>
-                    <p className="text-[18px] font-[700] text-[#383E49]">
+                    <p className="text-[18px] font-[700] text-fg">
                       {selectedAdjustment.systemQty}
                     </p>
                   </div>
                   <div>
-                    <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                    <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                       Physical Quantity
                     </span>
-                    <p className="text-[18px] font-[700] text-[#383E49]">
+                    <p className="text-[18px] font-[700] text-fg">
                       {selectedAdjustment.physicalQty}
                     </p>
                   </div>
                   <div>
-                    <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                    <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                       Adjustment
                     </span>
                     <div className="flex items-center gap-2">
                       {selectedAdjustment.adjustmentQty > 0 ? (
-                        <TrendingUp size={16} className="text-[#51CC5D]" />
+                        <TrendingUp size={16} className="text-success" />
                       ) : selectedAdjustment.adjustmentQty < 0 ? (
-                        <TrendingDown size={16} className="text-[#EF4444]" />
+                        <TrendingDown size={16} className="text-error" />
                       ) : (
-                        <Minus size={16} className="text-[#667085]" />
+                        <Minus size={16} className="text-fg-secondary" />
                       )}
                       <span
                         className={`text-[18px] font-[700] ${selectedAdjustment.adjustmentQty > 0
-                            ? "text-[#51CC5D]"
+                            ? "text-success"
                             : selectedAdjustment.adjustmentQty < 0
-                              ? "text-[#EF4444]"
-                              : "text-[#667085]"
+                              ? "text-error"
+                              : "text-fg-secondary"
                           }`}
                       >
                         {selectedAdjustment.adjustmentQty > 0 ? "+" : ""}
                         {selectedAdjustment.adjustmentQty}
                       </span>
                     </div>
-                    <p className="text-[12px] text-[#667085]">
+                    <p className="text-[12px] text-fg-secondary">
                       {selectedAdjustment.adjustmentType}
                     </p>
                   </div>
                   <div>
-                    <span className="text-[12px] font-[500] text-[#667085] uppercase">
+                    <span className="text-[12px] font-[500] text-fg-secondary uppercase">
                       Reason
                     </span>
-                    <p className="text-[14px] font-[600] text-[#383E49]">
+                    <p className="text-[14px] font-[600] text-fg">
                       {selectedAdjustment.reason}
                     </p>
                   </div>
@@ -1343,11 +1344,11 @@ export default function StorekeeperStockAdjustments() {
               {/* Remarks */}
               {selectedAdjustment.remarks && (
                 <div className="mb-6">
-                  <h4 className="text-[16px] font-[600] text-[#383E49] mb-2">
+                  <h4 className="text-[16px] font-[600] text-fg mb-2">
                     Storekeeper Remarks
                   </h4>
-                  <div className="bg-[#F8F9FA] p-4 rounded-lg">
-                    <p className="text-[14px] text-[#383E49]">
+                  <div className="bg-subtle p-4 rounded-lg">
+                    <p className="text-[14px] text-fg">
                       {selectedAdjustment.remarks}
                     </p>
                   </div>
@@ -1357,11 +1358,11 @@ export default function StorekeeperStockAdjustments() {
               {/* Admin Remarks */}
               {selectedAdjustment.adminRemarks && (
                 <div>
-                  <h4 className="text-[16px] font-[600] text-[#383E49] mb-2">
+                  <h4 className="text-[16px] font-[600] text-fg mb-2">
                     Admin Remarks
                   </h4>
-                  <div className="bg-[#F8F9FA] p-4 rounded-lg">
-                    <p className="text-[14px] text-[#383E49]">
+                  <div className="bg-subtle p-4 rounded-lg">
+                    <p className="text-[14px] text-fg">
                       {selectedAdjustment.adminRemarks}
                     </p>
                   </div>
@@ -1370,13 +1371,13 @@ export default function StorekeeperStockAdjustments() {
             </div>
 
             {/* Modal Footer */}
-            <div className="flex justify-between items-center p-6 border-t border-[#E4E6EA]">
+            <div className="flex justify-between items-center p-6 border-t border-line">
               {/* Mark As Adjust Button - Only show for approved adjustments */}
               {selectedAdjustment.status === "Approved" && (
                 <button
                   onClick={handleMarkAsAdjust}
                   disabled={markAsAdjustLoading}
-                  className="flex items-center gap-2 px-4 py-2 text-[14px] font-[500] text-white bg-[#199D26] hover:bg-[#15803D] disabled:bg-[#94D3A2] disabled:cursor-not-allowed rounded-md transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-[14px] font-[500] text-on-brand bg-success-solid hover:bg-success-solid disabled:bg-success-solid disabled:cursor-not-allowed rounded-md transition-colors"
                 >
                    {markAsAdjustLoading ? (
                     <>
@@ -1395,7 +1396,7 @@ export default function StorekeeperStockAdjustments() {
               {/* Close Button */}
               <button
                 onClick={() => setShowViewModal(false)}
-                className="px-4 py-2 text-[14px] font-[500] text-[#667085] bg-white border border-[#E4E6EA] hover:bg-[#F8F9FA] rounded-md transition-colors"
+                className="px-4 py-2 text-[14px] font-[500] text-fg-secondary bg-surface border border-line hover:bg-subtle rounded-md transition-colors"
               >
                 Close
               </button>
@@ -1407,7 +1408,7 @@ export default function StorekeeperStockAdjustments() {
       {/* Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+          className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

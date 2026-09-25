@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import toast from "react-hot-toast";
 import {
     Search,
     Filter,
@@ -90,7 +91,7 @@ export default function POSWaiterBilling() {
             setNewTableData({ name: '', status: 'available', seats: '' });
         } catch (error) {
             console.error("Error adding table:", error);
-            alert(error.response?.data?.message || "Failed to add table. Please try again.");
+            toast.error(error.response?.data?.message || "Failed to add table. Please try again.");
         }
     };
 
@@ -104,12 +105,12 @@ export default function POSWaiterBilling() {
                 instructions: item.instructions || null
             };
             await axios.post(`/api/pos/v1/waiter-billing/add-item`, requestBody);
-            alert(`Item ${item.name} added to waiter successfully!`);
+            toast.success(`Item ${item.name} added to waiter successfully!`);
             fetchWaiterDetails(); // Refresh billing details
             fetchTodayItems(); // Refresh stock in product grid
         } catch (error) {
             console.error("Error ordering item:", error);
-            alert("Failed to place order. Please try again.");
+            toast.error("Failed to place order. Please try again.");
         }
     };
 
@@ -338,7 +339,7 @@ export default function POSWaiterBilling() {
     // Add item to current order
     const addToOrder = (product, quantity = 1, instructions = '') => {
         if (!selectedWaiter) {
-            alert('Please select a table first');
+            toast.error('Please select a table first');
             return;
         }
 
@@ -393,7 +394,7 @@ export default function POSWaiterBilling() {
             fetchTodayItems();
         } catch (error) {
             console.error("Error removing item:", error);
-            alert("Failed to remove item. It might be already sent to KOT.");
+            toast.error("Failed to remove item. It might be already sent to KOT.");
         }
     };
 
@@ -406,7 +407,7 @@ export default function POSWaiterBilling() {
     // Promo verification
     const verifyPromo = async () => {
         const code = (promoCode || '').trim().toUpperCase();
-        if (!code) return alert('Enter a promo code');
+        if (!code) return toast.error('Enter a promo code');
 
         try {
             const response = await axios.get(`/api/pos/v1/promotions/validate?code=${code}`);
@@ -418,10 +419,10 @@ export default function POSWaiterBilling() {
                 type: promo.discountType,
                 value: promo.discountValue
             });
-            alert(`Promo applied: ${promo.discountValue}${promo.discountType === 'PERCENTAGE' ? '%' : ' Rs.'} discount`);
+            toast.success(`Promo applied: ${promo.discountValue}${promo.discountType === 'PERCENTAGE' ? '%' : ' Rs.'} discount`);
         } catch (error) {
             console.error("Error validating promo:", error);
-            alert(error.response?.data?.message || "Promotion Expired or Invalid");
+            toast.error(error.response?.data?.message || "Promotion Expired or Invalid");
             removePromo();
         }
     };
@@ -434,7 +435,7 @@ export default function POSWaiterBilling() {
     // Generate KOT
     const generateKOT = () => {
         if (currentOrder.length === 0) {
-            alert('No items in the order');
+            toast.error('No items in the order');
             return;
         }
         setShowKOTModal(true);
@@ -443,7 +444,7 @@ export default function POSWaiterBilling() {
     // Show bill
     const requestBill = () => {
         if (currentOrder.length === 0) {
-            alert('No items in the order');
+            toast.error('No items in the order');
             return;
         }
         setShowBillModal(true);
@@ -455,20 +456,20 @@ export default function POSWaiterBilling() {
 
         const selectedMethod = paymentMethods.find(m => m.name.toUpperCase() === paymentMethod.toUpperCase()) || null;
         if (!selectedMethod) {
-            alert('Please select a valid payment method');
+            toast.error('Please select a valid payment method');
             return;
         }
         const isFreeMeal = selectedMethod.category === 'FREE_MEAL';
 
         if (!isFreeMeal && receivedAmount < totalPayable) {
-            alert('Insufficient payment amount');
+            toast.error('Insufficient payment amount');
             return;
         }
 
         const effectiveReason = freeMealReason.trim() || (staffId.trim() ? `Staff ID: ${staffId.trim()}${staffReason.trim() ? ` - ${staffReason.trim()}` : ''}` : '');
 
         if (isFreeMeal && effectiveReason.length < 10) {
-            alert('Please enter a valid staff ID or reason (minimum 10 characters)');
+            toast.error('Please enter a valid staff ID or reason (minimum 10 characters)');
             return;
         }
         try {
@@ -553,7 +554,7 @@ export default function POSWaiterBilling() {
             setShowSuccessModal(true);
         } catch (error) {
             console.error("Error processing payment:", error);
-            alert("Failed to process payment. Please try again.");
+            toast.error("Failed to process payment. Please try again.");
         }
     };
     const handlePrintReceipt = async () => {
@@ -578,28 +579,28 @@ export default function POSWaiterBilling() {
         if (!selectedWaiter || !targetWaiterId) return;
         try {
             await posService.transferTable(selectedWaiter, targetWaiterId);
-            alert("Table items transferred successfully!");
+            toast.success("Table items transferred successfully!");
             setSelectedWaiter(targetWaiterId);
             setTargetWaiterId('');
             fetchWaiters();
         } catch (error) {
             console.error("Error transferring table:", error);
-            alert("Failed to transfer table");
+            toast.error("Failed to transfer table");
         }
     };
 
     const handleGenerateKOTForItem = async (item) => {
         if (!item.selectedCenterId) {
-            alert("Please select a production center");
+            toast.error("Please select a production center");
             return;
         }
         try {
             await posService.generateKOT(item.id, item.selectedCenterId);
-            alert("KOT generated successfully!");
+            toast.success("KOT generated successfully!");
             fetchWaiterDetails();
         } catch (error) {
             console.error("Error generating KOT:", error);
-            alert("Failed to generate KOT");
+            toast.error("Failed to generate KOT");
         }
     };
 
@@ -610,12 +611,12 @@ export default function POSWaiterBilling() {
 
     const handleVerifyAndCancelKOT = async () => {
         if (!verificationCode) {
-            alert("Please enter verification code");
+            toast.error("Please enter verification code");
             return;
         }
         try {
             await posService.cancelKOT(itemToCancel.id, verificationCode);
-            alert("KOT cancelled successfully!");
+            toast.success("KOT cancelled successfully!");
             setShowCancelVerification(false);
             setVerificationCode('');
             setItemToCancel(null);
@@ -623,7 +624,7 @@ export default function POSWaiterBilling() {
             fetchTodayItems();
         } catch (error) {
             console.error("Error cancelling KOT:", error);
-            alert(error.response?.data?.message || "Invalid verification code or failed to cancel KOT");
+            toast.error(error.response?.data?.message || "Invalid verification code or failed to cancel KOT");
         }
     };
 
@@ -631,26 +632,26 @@ export default function POSWaiterBilling() {
         if (!selectedWaiter || !newStatus) return;
         try {
             await posService.updateTableStatus(selectedWaiter, newStatus);
-            alert(`Table status updated to ${newStatus}`);
+            toast.success(`Table status updated to ${newStatus}`);
             fetchWaiters();
         } catch (error) {
             console.error("Error updating table status:", error);
-            alert("Failed to update table status");
+            toast.error("Failed to update table status");
         }
     };
 
     // Get table status color
     const getTableStatusColor = (status) => {
         switch (status) {
-            case 'available': return 'bg-[#51CC5D]/10 text-[#199D26]';
-            case 'occupied': return 'bg-[#EF4444]/10 text-[#EF4444]';
-            case 'reserved': return 'bg-[#F4A100]/10 text-[#F4A100]';
-            default: return 'bg-[#E4E6EA] text-[#667085]';
+            case 'available': return 'bg-success/10 text-success';
+            case 'occupied': return 'bg-error/10 text-error';
+            case 'reserved': return 'bg-warning/10 text-warning';
+            default: return 'bg-line text-fg-secondary';
         }
     };
 
     return (
-        <div className="flex bg-[#F0F1F3] h-screen overflow-hidden">
+        <div className="flex bg-app h-screen overflow-hidden">
             <POSSidebar sidebarOpen={sidebarOpen} />
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -668,10 +669,10 @@ export default function POSWaiterBilling() {
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
                                         <div className="min-w-0 flex-1">
-                                            <h1 className="text-base sm:text-lg md:text-xl font-semibold text-[#383E49] truncate">
+                                            <h1 className="text-base sm:text-lg md:text-xl font-semibold text-fg truncate">
                                                 Waiter Management
                                             </h1>
-                                            <p className="text-xs sm:text-sm text-[#667085] truncate">
+                                            <p className="text-xs sm:text-sm text-fg-secondary truncate">
                                                 Manage waiter orders and process payments
                                             </p>
                                         </div>
@@ -679,23 +680,23 @@ export default function POSWaiterBilling() {
                                 </div>
 
                                 {/* Cashier Information */}
-                                <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4 xl:mb-6 mb-0">
+                                <div className="bg-surface rounded-lg shadow-sm border border-line p-4 xl:mb-6 mb-0">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                         <div>
-                                            <p className="text-[12px] text-[#667085] mb-1">Cashier Name</p>
-                                            <p className="text-[14px] font-[500] text-[#383E49]">{cashierInfo.name}</p>
+                                            <p className="text-[12px] text-fg-secondary mb-1">Cashier Name</p>
+                                            <p className="text-[14px] font-[500] text-fg">{cashierInfo.name}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[12px] text-[#667085] mb-1">Cashier ID</p>
-                                            <p className="text-[14px] font-[500] text-[#383E49]">{cashierInfo.id}</p>
+                                            <p className="text-[12px] text-fg-secondary mb-1">Cashier ID</p>
+                                            <p className="text-[14px] font-[500] text-fg">{cashierInfo.id}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[12px] text-[#667085] mb-1">Date</p>
-                                            <p className="text-[14px] font-[500] text-[#383E49]">{cashierInfo.date}</p>
+                                            <p className="text-[12px] text-fg-secondary mb-1">Date</p>
+                                            <p className="text-[14px] font-[500] text-fg">{cashierInfo.date}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[12px] text-[#667085] mb-1">Time</p>
-                                            <p className="text-[14px] font-[500] text-[#383E49]">{cashierInfo.time}</p>
+                                            <p className="text-[12px] text-fg-secondary mb-1">Time</p>
+                                            <p className="text-[14px] font-[500] text-fg">{cashierInfo.time}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -705,9 +706,9 @@ export default function POSWaiterBilling() {
                                 {/* Order Entry Section */}
                                 <div className="xl:col-span-2 space-y-4 xl:space-y-6">
                                     {/* Waiter Selection */}
-                                    <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+                                    <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
                                         <div className="flex items-center justify-between mb-4">
-                                            <h3 className="text-[16px] font-[600] text-[#383E49] flex items-center gap-2">
+                                            <h3 className="text-[16px] font-[600] text-fg flex items-center gap-2">
                                                 <TableProperties size={18} />
                                                 Waiter Selection
                                             </h3>
@@ -719,19 +720,19 @@ export default function POSWaiterBilling() {
                                                     key={table.id}
                                                     onClick={() => setSelectedWaiter(table.id)}
                                                     className={`p-3 rounded-lg border-2 transition-all ${selectedWaiter === table.id
-                                                        ? 'border-[#0F50AA] bg-[#0F50AA]/5'
-                                                        : 'border-[#E4E6EA] hover:border-[#0F50AA]/30'
+                                                        ? 'border-brand-fg bg-brand/5'
+                                                        : 'border-line hover:border-brand-fg/30'
                                                         }`}
                                                 >
                                                     <div className="text-center">
-                                                        <p className="text-[14px] font-[500] text-[#383E49]">{table.name}</p>
-                                                        <p className="text-[10px] text-[#667085]">@{table.username}</p>
+                                                        <p className="text-[14px] font-[500] text-fg">{table.name}</p>
+                                                        <p className="text-[10px] text-fg-secondary">@{table.username}</p>
                                                         <span className={`inline-flex px-2 py-1 text-[10px] font-[500] rounded-full mt-1 ${getTableStatusColor(table.status)}`}>
                                                             {table.status}
                                                         </span>
                                                         {waiterOrders[table.id] && (
                                                             <div className="mt-1">
-                                                                <span className="text-[10px] bg-[#0F50AA] text-white px-1 rounded">
+                                                                <span className="text-[10px] bg-brand text-on-brand px-1 rounded">
                                                                     {waiterOrders[table.id].length} items
                                                                 </span>
                                                             </div>
@@ -744,15 +745,15 @@ export default function POSWaiterBilling() {
 
                                     {/* Table Actions - Transfer Table */}
                                     {selectedWaiter && (
-                                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+                                        <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
                                             <div className="flex flex-col sm:flex-row items-center gap-4">
                                                 <div className="flex-1 w-full">
-                                                    <label className="block text-[12px] text-[#667085] mb-1">Transfer to Waiter</label>
+                                                    <label className="block text-[12px] text-fg-secondary mb-1">Transfer to Waiter</label>
                                                     <div className="flex gap-2">
                                                         <select
                                                             value={targetWaiterId}
                                                             onChange={(e) => setTargetWaiterId(e.target.value)}
-                                                            className="flex-1 px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none bg-white"
+                                                            className="flex-1 px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none bg-surface"
                                                         >
                                                             <option value="">Select waiter to transfer to</option>
                                                             {waiters
@@ -764,7 +765,7 @@ export default function POSWaiterBilling() {
                                                         <button
                                                             onClick={handleTransferWaiter}
                                                             disabled={!targetWaiterId}
-                                                            className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors text-[14px] font-[500] disabled:opacity-50"
+                                                            className="px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors text-[14px] font-[500] disabled:opacity-50"
                                                         >
                                                             Transfer
                                                         </button>
@@ -772,11 +773,11 @@ export default function POSWaiterBilling() {
                                                 </div>
 
                                                 <div className="w-full sm:w-48">
-                                                    <label className="block text-[12px] text-[#667085] mb-1">Update Table Status</label>
+                                                    <label className="block text-[12px] text-fg-secondary mb-1">Update Table Status</label>
                                                     <select
                                                         value={waiters.find(t => t.id === selectedWaiter)?.status || ''}
                                                         onChange={(e) => handleUpdateTableStatus(e.target.value)}
-                                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none bg-white font-[500]"
+                                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none bg-surface font-[500]"
                                                     >
                                                         <option value="available">Available</option>
                                                         <option value="occupied">Occupied</option>
@@ -789,16 +790,16 @@ export default function POSWaiterBilling() {
 
                                     {/* Product Search & Selection */}
                                     {selectedWaiter && (
-                                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
+                                        <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
                                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
-                                                <h3 className="text-[16px] font-[600] text-[#383E49] flex items-center gap-2">
+                                                <h3 className="text-[16px] font-[600] text-fg flex items-center gap-2">
                                                     <Package size={18} />
                                                     Product Selection
                                                 </h3>
 
                                                 <button
                                                     onClick={() => setShowProductGrid(!showProductGrid)}
-                                                    className="px-3 py-2 border border-[#E4E6EA] rounded-lg text-[#667085] hover:bg-[#F8F9FA] transition-colors flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
+                                                    className="px-3 py-2 border border-line rounded-lg text-fg-secondary hover:bg-subtle transition-colors flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
                                                 >
                                                     <Eye size={14} />
                                                     {showProductGrid ? 'Hide' : 'Show'} Products
@@ -808,19 +809,19 @@ export default function POSWaiterBilling() {
 
                                             <div className="flex flex-col sm:flex-row gap-3 mb-4">
                                                 <div className="flex-1 relative">
-                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]" size={18} />
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary" size={18} />
                                                     <input
                                                         type="text"
                                                         placeholder="Search products by name or code..."
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="w-full pl-10 pr-4 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none focus:ring-2 focus:ring-[#0F50AA]/10"
+                                                        className="w-full pl-10 pr-4 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                                     />
                                                 </div>
                                                 <select
                                                     value={categoryFilter}
                                                     onChange={(e) => setCategoryFilter(e.target.value)}
-                                                    className="px-4 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none bg-white"
+                                                    className="px-4 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none bg-surface"
                                                 >
                                                     {categories.map((category, index) => (
                                                         <option key={category} value={category === 'All' ? '' : category}>
@@ -833,19 +834,19 @@ export default function POSWaiterBilling() {
                                             {(showProductGrid || searchTerm) && (
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
                                                     {filteredProducts.map(product => (
-                                                        <div key={product.id} className="border border-[#E4E6EA] rounded-lg p-3 hover:border-[#0F50AA]/30 transition-colors">
+                                                        <div key={product.id} className="border border-line rounded-lg p-3 hover:border-brand-fg/30 transition-colors">
                                                             <div className="flex justify-between items-start mb-2">
                                                                 <div className="flex-1">
-                                                                    <p className="text-[14px] font-[500] text-[#383E49]">{product.name}</p>
-                                                                    <p className="text-[12px] text-[#667085]">{product.code} | {product.category}</p>
-                                                                    <p className="text-[11px] text-[#667085] mt-1">{product.description}</p>
-                                                                    <p className="text-[11px] font-[600] text-[#199D26] mt-1">Available Qty: {product.currentQty}</p>
+                                                                    <p className="text-[14px] font-[500] text-fg">{product.name}</p>
+                                                                    <p className="text-[12px] text-fg-secondary">{product.code} | {product.category}</p>
+                                                                    <p className="text-[11px] text-fg-secondary mt-1">{product.description}</p>
+                                                                    <p className="text-[11px] font-[600] text-success mt-1">Available Qty: {product.currentQty}</p>
                                                                 </div>
-                                                                <p className="text-[14px] font-[600] text-[#0F50AA]">Rs. {product.price}</p>
+                                                                <p className="text-[14px] font-[600] text-brand-fg">Rs. {product.price}</p>
                                                             </div>
                                                             <button
                                                                 onClick={() => addToOrder(product)}
-                                                                className="w-full px-3 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors text-[12px] font-[500] flex items-center justify-center gap-2"
+                                                                className="w-full px-3 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors text-[12px] font-[500] flex items-center justify-center gap-2"
                                                             >
                                                                 <Plus size={14} />
                                                                 Add to Order
@@ -854,8 +855,8 @@ export default function POSWaiterBilling() {
                                                     ))}
                                                     {filteredProducts.length === 0 && (
                                                         <div className="col-span-full text-center py-8">
-                                                            <Package size={32} className="text-[#E4E6EA] mx-auto mb-2" />
-                                                            <p className="text-[14px] text-[#667085]">No products found</p>
+                                                            <Package size={32} className="text-fg-muted mx-auto mb-2" />
+                                                            <p className="text-[14px] text-fg-secondary">No products found</p>
                                                         </div>
                                                     )}
                                                 </div>
@@ -865,9 +866,9 @@ export default function POSWaiterBilling() {
 
                                     {/* Current Table Order */}
                                     {selectedWaiter && (
-                                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA]">
-                                            <div className="p-4 border-b border-[#E4E6EA] flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                                                <h3 className="text-[16px] font-[600] text-[#383E49] flex items-center gap-2">
+                                        <div className="bg-surface rounded-lg shadow-sm border border-line">
+                                            <div className="p-4 border-b border-line flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                                                <h3 className="text-[16px] font-[600] text-fg flex items-center gap-2">
                                                     <Utensils size={18} />
                                                     Current Order - {waiters.find(t => t.id === selectedWaiter)?.name}
                                                 </h3>
@@ -875,7 +876,7 @@ export default function POSWaiterBilling() {
                                                 {currentOrder.length > 0 && (
                                                     <button
                                                         onClick={generateKOT}
-                                                        className="px-4 py-2 bg-[#B3A5FF] text-white rounded-lg hover:bg-[#A594FF] transition-colors text-[14px] font-[500] flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
+                                                        className="px-4 py-2 bg-plum/20 text-on-brand rounded-lg hover:bg-plum/20 transition-colors text-[14px] font-[500] flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
                                                     >
                                                         <ChefHat size={16} />
                                                         Generate KOT
@@ -888,49 +889,49 @@ export default function POSWaiterBilling() {
                                                 {currentOrder.length > 0 ? (
                                                     <div className="overflow-x-auto">
                                                         <table className="w-full">
-                                                            <thead className="bg-[#F8F9FA]">
+                                                            <thead className="bg-subtle">
                                                                 <tr>
-                                                                    <th className="text-left px-4 py-3 text-[12px] font-[600] text-[#383E49]">Item</th>
-                                                                    <th className="text-center px-4 py-3 text-[12px] font-[600] text-[#383E49]">Qty</th>
-                                                                    <th className="text-right px-4 py-3 text-[12px] font-[600] text-[#383E49]">Unit Price</th>
-                                                                    <th className="text-right px-4 py-3 text-[12px] font-[600] text-[#383E49]">Total</th>
-                                                                    <th className="text-left px-4 py-3 text-[12px] font-[600] text-[#383E49]">Production Center</th>
-                                                                    <th className="text-center px-4 py-3 text-[12px] font-[600] text-[#383E49]">Actions</th>
+                                                                    <th className="text-left px-4 py-3 text-[12px] font-[600] text-fg">Item</th>
+                                                                    <th className="text-center px-4 py-3 text-[12px] font-[600] text-fg">Qty</th>
+                                                                    <th className="text-right px-4 py-3 text-[12px] font-[600] text-fg">Unit Price</th>
+                                                                    <th className="text-right px-4 py-3 text-[12px] font-[600] text-fg">Total</th>
+                                                                    <th className="text-left px-4 py-3 text-[12px] font-[600] text-fg">Production Center</th>
+                                                                    <th className="text-center px-4 py-3 text-[12px] font-[600] text-fg">Actions</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
                                                                 {currentOrder.map((item) => (
-                                                                    <tr key={item.id} className={`border-b border-[#E4E6EA] transition-all ${highlightedItemId === item.id ? 'pulse-item bg-[#0F50AA]/5' : 'hover:bg-[#F8F9FA]'}`}>
+                                                                    <tr key={item.id} className={`border-b border-line transition-all ${highlightedItemId === item.id ? 'pulse-item bg-brand/5' : 'hover:bg-subtle'}`}>
                                                                         <td className="px-4 py-3">
                                                                             <div>
-                                                                                <p className="text-[14px] font-[500] text-[#383E49]">{item.name}</p>
-                                                                                <p className="text-[12px] text-[#667085]">{item.code}</p>
+                                                                                <p className="text-[14px] font-[500] text-fg">{item.name}</p>
+                                                                                <p className="text-[12px] text-fg-secondary">{item.code}</p>
                                                                             </div>
                                                                         </td>
                                                                         <td className="px-4 py-3">
                                                                             <div className="flex items-center justify-center gap-1">
                                                                                 <button
                                                                                     onClick={() => updateOrderQuantity(item.id, item.qty - 1)}
-                                                                                    className="w-6 h-6 flex items-center justify-center border border-[#E4E6EA] rounded text-[#667085] hover:bg-[#F8F9FA]"
+                                                                                    className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                                 >
                                                                                     <Minus size={12} />
                                                                                 </button>
-                                                                                <span className="w-8 text-center text-[14px] font-[500] text-[#383E49]">
+                                                                                <span className="w-8 text-center text-[14px] font-[500] text-fg">
                                                                                     {item.qty}
                                                                                 </span>
                                                                                 <button
                                                                                     onClick={() => updateOrderQuantity(item.id, item.qty + 1)}
-                                                                                    className="w-6 h-6 flex items-center justify-center border border-[#E4E6EA] rounded text-[#667085] hover:bg-[#F8F9FA]"
+                                                                                    className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                                 >
                                                                                     <Plus size={12} />
                                                                                 </button>
                                                                             </div>
                                                                         </td>
                                                                         <td className="px-4 py-3 text-right">
-                                                                            <span className="text-[14px] font-[500] text-[#383E49]">Rs. {item.unitPrice}</span>
+                                                                            <span className="text-[14px] font-[500] text-fg">Rs. {item.unitPrice}</span>
                                                                         </td>
                                                                         <td className="px-4 py-3 text-right">
-                                                                            <span className="text-[14px] font-[600] text-[#0F50AA]">Rs. {item.total}</span>
+                                                                            <span className="text-[14px] font-[600] text-brand-fg">Rs. {item.total}</span>
                                                                         </td>
                                                                          <td className="px-4 py-3">
                                                                             {item.isKotEnabled ? (
@@ -941,7 +942,7 @@ export default function POSWaiterBilling() {
                                                                                         setCurrentOrder(prev => prev.map(o => o.id === item.id ? { ...o, selectedCenterId: val } : o));
                                                                                     }}
                                                                                     disabled={!!item.kotId}
-                                                                                    className="w-full px-2 py-1 border border-[#E4E6EA] rounded text-[12px] focus:border-[#0F50AA] focus:outline-none disabled:bg-[#F8F9FA]"
+                                                                                    className="w-full px-2 py-1 border border-line rounded text-[12px] focus:border-brand-fg focus:outline-none disabled:bg-subtle"
                                                                                 >
                                                                                     <option value="">Select Center</option>
                                                                                     {productionCenters.map(pc => (
@@ -956,7 +957,7 @@ export default function POSWaiterBilling() {
                                                                                     <>
                                                                                         {!item.kotId ? (
                                                                                             <button
-                                                                                                className="px-3 py-1 bg-[#B3A5FF] text-white rounded-lg hover:bg-[#A594FF] transition-colors text-[12px] font-[500] flex items-center gap-1"
+                                                                                                className="px-3 py-1 bg-plum/20 text-on-brand rounded-lg hover:bg-plum/20 transition-colors text-[12px] font-[500] flex items-center gap-1"
                                                                                                 onClick={() => handleGenerateKOTForItem(item)}
                                                                                             >
                                                                                                 <ChefHat size={12} />
@@ -964,7 +965,7 @@ export default function POSWaiterBilling() {
                                                                                             </button>
                                                                                         ) : (
                                                                                             <button
-                                                                                                className="px-3 py-1 bg-[#EF4444] text-white rounded-lg hover:bg-[#D93030] transition-colors text-[12px] font-[500]"
+                                                                                                className="px-3 py-1 bg-error-solid text-on-brand rounded-lg hover:bg-error-solid transition-colors text-[12px] font-[500]"
                                                                                                 onClick={() => handleCancelKOTRequest(item)}
                                                                                             >
                                                                                                 Cancel KOT
@@ -975,7 +976,7 @@ export default function POSWaiterBilling() {
                                                                                 <button
                                                                                     onClick={() => removeOrderItem(item.id)}
                                                                                     disabled={!!item.kotId}
-                                                                                    className="p-1 text-[#EF4444] hover:bg-[#EF4444]/10 rounded transition-colors disabled:opacity-30"
+                                                                                    className="p-1 text-error hover:bg-error/10 rounded transition-colors disabled:opacity-30"
                                                                                 >
                                                                                     <Trash2 size={16} />
                                                                                 </button>
@@ -988,9 +989,9 @@ export default function POSWaiterBilling() {
                                                     </div>
                                                 ) : (
                                                     <div className="text-center py-12">
-                                                        <Utensils size={48} className="text-[#E4E6EA] mx-auto mb-3" />
-                                                        <p className="text-[14px] text-[#667085]">No items in the order</p>
-                                                        <p className="text-[12px] text-[#667085] mt-1">Add items to start building the order</p>
+                                                        <Utensils size={48} className="text-fg-muted mx-auto mb-3" />
+                                                        <p className="text-[14px] text-fg-secondary">No items in the order</p>
+                                                        <p className="text-[12px] text-fg-secondary mt-1">Add items to start building the order</p>
                                                     </div>
                                                 )}
                                             </div>
@@ -1003,29 +1004,29 @@ export default function POSWaiterBilling() {
                                     <div className="sticky top-0 space-y-4 xl:space-y-6">
                                         {/* Order Summary */}
                                         {selectedWaiter && currentOrder.length > 0 && (
-                                            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
-                                                <h3 className="text-[16px] font-[600] text-[#383E49] mb-4 flex items-center gap-2">
+                                            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
+                                                <h3 className="text-[16px] font-[600] text-fg mb-4 flex items-center gap-2">
                                                     <Receipt size={18} />
                                                     Order Summary
                                                 </h3>
 
                                                 <div className="space-y-3 mb-4">
                                                     <div className="flex justify-between text-[14px]">
-                                                        <span className="text-[#667085]">Items:</span>
-                                                        <span className="font-[500] text-[#383E49]">{currentOrder.length}</span>
+                                                        <span className="text-fg-secondary">Items:</span>
+                                                        <span className="font-[500] text-fg">{currentOrder.length}</span>
                                                     </div>
                                                     <div className="flex justify-between text-[14px]">
-                                                        <span className="text-[#667085]">Subtotal:</span>
-                                                        <span className="font-[500] text-[#383E49]">Rs. {subtotal}</span>
+                                                        <span className="text-fg-secondary">Subtotal:</span>
+                                                        <span className="font-[500] text-fg">Rs. {subtotal}</span>
                                                     </div>
                                                     <div className="flex justify-between text-[14px]">
-                                                        <span className="text-[#667085]">Tax (10%):</span>
-                                                        <span className="font-[500] text-[#383E49]">Rs. {tax.toFixed(2)}</span>
+                                                        <span className="text-fg-secondary">Tax (10%):</span>
+                                                        <span className="font-[500] text-fg">Rs. {tax.toFixed(2)}</span>
                                                     </div>
-                                                    <div className="border-t border-[#E4E6EA] pt-3">
+                                                    <div className="border-t border-line pt-3">
                                                         <div className="flex justify-between text-[16px]">
-                                                            <span className="text-[#383E49] font-[600]">Total Payable:</span>
-                                                            <span className="font-[600] text-[#0F50AA]">Rs. {totalPayable.toFixed(2)}</span>
+                                                            <span className="text-fg font-[600]">Total Payable:</span>
+                                                            <span className="font-[600] text-brand-fg">Rs. {totalPayable.toFixed(2)}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1034,7 +1035,7 @@ export default function POSWaiterBilling() {
                                                 <div className="space-y-3">
                                                     <button
                                                         onClick={requestBill}
-                                                        className="w-full px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors text-[14px] font-[500] flex items-center justify-center gap-2"
+                                                        className="w-full px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors text-[14px] font-[500] flex items-center justify-center gap-2"
                                                     >
                                                         <Receipt size={16} />
                                                         Request Bill
@@ -1042,7 +1043,7 @@ export default function POSWaiterBilling() {
 
                                                     <button
                                                         onClick={() => setCurrentOrder([])}
-                                                        className="w-full px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors text-[14px] font-[500] flex items-center justify-center gap-2"
+                                                        className="w-full px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors text-[14px] font-[500] flex items-center justify-center gap-2"
                                                     >
                                                         <RotateCcw size={16} />
                                                         Clear Order
@@ -1052,32 +1053,32 @@ export default function POSWaiterBilling() {
                                         )}
 
                                         {/* Table Status Overview */}
-                                        <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
-                                            <h3 className="text-[16px] font-[600] text-[#383E49] mb-4 flex items-center gap-2">
+                                        <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
+                                            <h3 className="text-[16px] font-[600] text-fg mb-4 flex items-center gap-2">
                                                 <Users size={18} />
                                                 Table Overview
                                             </h3>
 
                                             <div className="space-y-3">
                                                 <div className="flex justify-between text-[14px]">
-                                                    <span className="text-[#667085]">Total Tables:</span>
-                                                    <span className="font-[500] text-[#383E49]">{waiters.length}</span>
+                                                    <span className="text-fg-secondary">Total Tables:</span>
+                                                    <span className="font-[500] text-fg">{waiters.length}</span>
                                                 </div>
                                                 <div className="flex justify-between text-[14px]">
-                                                    <span className="text-[#667085]">Available:</span>
-                                                    <span className="font-[500] text-[#51CC5D]">
+                                                    <span className="text-fg-secondary">Available:</span>
+                                                    <span className="font-[500] text-success">
                                                         {waiters.filter(t => t.status === 'available').length}
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-between text-[14px]">
-                                                    <span className="text-[#667085]">Occupied:</span>
-                                                    <span className="font-[500] text-[#EF4444]">
+                                                    <span className="text-fg-secondary">Occupied:</span>
+                                                    <span className="font-[500] text-error">
                                                         {waiters.filter(t => t.status === 'occupied').length}
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-between text-[14px]">
-                                                    <span className="text-[#667085]">Reserved:</span>
-                                                    <span className="font-[500] text-[#F4A100]">
+                                                    <span className="text-fg-secondary">Reserved:</span>
+                                                    <span className="font-[500] text-warning">
                                                         {waiters.filter(t => t.status === 'reserved').length}
                                                     </span>
                                                 </div>
@@ -1086,12 +1087,12 @@ export default function POSWaiterBilling() {
 
                                         {/* Quick Actions */}
                                         {!selectedWaiter && (
-                                            <div className="bg-white rounded-lg shadow-sm border border-[#E4E6EA] p-4">
-                                                <h3 className="text-[16px] font-[600] text-[#383E49] mb-4">Quick Start</h3>
+                                            <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
+                                                <h3 className="text-[16px] font-[600] text-fg mb-4">Quick Start</h3>
                                                 <div className="text-center py-6">
-                                                    <TableProperties size={48} className="text-[#E4E6EA] mx-auto mb-3" />
-                                                    <p className="text-[14px] text-[#667085] mb-2">Select a table to start taking orders</p>
-                                                    <p className="text-[12px] text-[#667085]">Choose from available waiters above</p>
+                                                    <TableProperties size={48} className="text-fg-muted mx-auto mb-3" />
+                                                    <p className="text-[14px] text-fg-secondary mb-2">Select a table to start taking orders</p>
+                                                    <p className="text-[12px] text-fg-secondary">Choose from available waiters above</p>
                                                 </div>
                                             </div>
                                         )}
@@ -1105,26 +1106,26 @@ export default function POSWaiterBilling() {
 
             {/* KOT Modal */}
             {showKOTModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="text-center mb-6">
-                                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <ChefHat size={32} className="text-purple-600" />
+                                <div className="w-16 h-16 bg-plum/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <ChefHat size={32} className="text-plum" />
                                 </div>
-                                <h3 className="text-[18px] font-[600] text-[#383E49] mb-2">Generate KOT</h3>
-                                <p className="text-[14px] text-[#667085]">
+                                <h3 className="text-[18px] font-[600] text-fg mb-2">Generate KOT</h3>
+                                <p className="text-[14px] text-fg-secondary">
                                     Kitchen Order Ticket for {waiters.find(t => t.id === selectedWaiter)?.name}
                                 </p>
                             </div>
 
-                            <div className="bg-[#F8F9FA] rounded-lg p-4 mb-6">
+                            <div className="bg-subtle rounded-lg p-4 mb-6">
                                 <div className="text-center mb-4">
-                                    <p className="text-[12px] text-[#667085]">KOT #{Date.now()}</p>
-                                    <p className="text-[14px] font-[500] text-[#383E49]">
+                                    <p className="text-[12px] text-fg-secondary">KOT #{Date.now()}</p>
+                                    <p className="text-[14px] font-[500] text-fg">
                                         {waiters.find(t => t.id === selectedWaiter)?.name}
                                     </p>
-                                    <p className="text-[12px] text-[#667085]">{new Date().toLocaleString()}</p>
+                                    <p className="text-[12px] text-fg-secondary">{new Date().toLocaleString()}</p>
                                 </div>
 
                                 <div className="space-y-2">
@@ -1133,7 +1134,7 @@ export default function POSWaiterBilling() {
                                             <span className="flex-1">{item.name}</span>
                                             <span className="w-8 text-center">x{item.qty}</span>
                                             {item.instructions && (
-                                                <span className="text-[#667085] text-[10px]">({item.instructions})</span>
+                                                <span className="text-fg-secondary text-[10px]">({item.instructions})</span>
                                             )}
                                         </div>
                                     ))}
@@ -1143,7 +1144,7 @@ export default function POSWaiterBilling() {
                             <div className="flex flex-col sm:flex-row gap-3">
                                 <button
                                     onClick={() => setShowKOTModal(false)}
-                                    className="flex-1 px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors w-full"
+                                    className="flex-1 px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors w-full"
                                 >
                                     Cancel
                                 </button>
@@ -1151,9 +1152,9 @@ export default function POSWaiterBilling() {
                                 <button
                                     onClick={() => {
                                         setShowKOTModal(false);
-                                        alert('KOT sent to kitchen!');
+                                        toast.success('KOT sent to kitchen!');
                                     }}
-                                    className="flex-1 px-4 py-3 bg-[#B3A5FF] text-white rounded-lg hover:bg-[#A594FF] transition-colors flex items-center justify-center gap-2 w-full"
+                                    className="flex-1 px-4 py-3 bg-plum/20 text-on-brand rounded-lg hover:bg-plum/20 transition-colors flex items-center justify-center gap-2 w-full"
                                 >
                                     <Send size={16} />
                                     Send to Kitchen
@@ -1167,22 +1168,22 @@ export default function POSWaiterBilling() {
 
             {/* Bill Modal */}
             {showBillModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="text-center mb-6">
-                                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Receipt size={32} className="text-blue-600" />
+                                <div className="w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Receipt size={32} className="text-brand-fg" />
                                 </div>
-                                <h3 className="text-[18px] font-[600] text-[#383E49] mb-2">Process Payment</h3>
-                                <p className="text-[14px] text-[#667085]">
+                                <h3 className="text-[18px] font-[600] text-fg mb-2">Process Payment</h3>
+                                <p className="text-[14px] text-fg-secondary">
                                     Complete the payment for {waiters.find(t => t.id === selectedWaiter)?.name}
                                 </p>
                             </div>
 
                             {/* Bill Summary */}
-                            <div className="bg-[#F8F9FA] rounded-lg p-4 mb-6">
-                                <h4 className="text-[14px] font-[500] text-[#383E49] mb-3">Bill Summary</h4>
+                            <div className="bg-subtle rounded-lg p-4 mb-6">
+                                <h4 className="text-[14px] font-[500] text-fg mb-3">Bill Summary</h4>
 
                                 <div className="space-y-2 mb-4">
                                     {currentOrder.map(item => (
@@ -1198,7 +1199,7 @@ export default function POSWaiterBilling() {
                                                                 : [...prev, item.id]
                                                         );
                                                     }}
-                                                    className="w-3 h-3 accent-[#0F50AA]"
+                                                    className="w-3 h-3 accent-brand"
                                                 />
                                             )}
                                             <span className="flex-1">{item.name} x{item.qty}</span>
@@ -1207,31 +1208,31 @@ export default function POSWaiterBilling() {
                                     ))}
                                 </div>
 
-                                <div className="border-t border-[#E4E6EA] pt-3 space-y-2">
+                                <div className="border-t border-line pt-3 space-y-2">
                                     <div className="flex justify-between text-[14px]">
-                                        <span className="text-[#667085]">Subtotal:</span>
+                                        <span className="text-fg-secondary">Subtotal:</span>
                                         <span className="font-[500]">Rs. {subtotal}</span>
                                     </div>
                                     {totalDiscount > 0 && (
-                                        <div className="flex justify-between text-[14px] text-[#D92D20]">
+                                        <div className="flex justify-between text-[14px] text-error">
                                             <span>Promotion Discount:</span>
                                             <span className="font-[500]">-Rs. {totalDiscount.toFixed(2)}</span>
                                         </div>
                                     )}
                                     <div className="flex justify-between text-[14px]">
-                                        <span className="text-[#667085]">Tax (10%):</span>
+                                        <span className="text-fg-secondary">Tax (10%):</span>
                                         <span className="font-[500]">Rs. {tax.toFixed(2)}</span>
                                     </div>
-                                    <div className="flex justify-between text-[16px] font-[600] border-t border-[#E4E6EA] pt-2">
-                                        <span className="text-[#383E49]">Total:</span>
-                                        <span className="text-[#0F50AA]">Rs. {totalPayable.toFixed(2)}</span>
+                                    <div className="flex justify-between text-[16px] font-[600] border-t border-line pt-2">
+                                        <span className="text-fg">Total:</span>
+                                        <span className="text-brand-fg">Rs. {totalPayable.toFixed(2)}</span>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Promo Section */}
                             <div className="mb-6">
-                                <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Discount / Promo</label>
+                                <label className="block text-[14px] font-[500] text-fg mb-2">Discount / Promo</label>
                                 <div className="flex gap-2">
                                     <div className="relative flex-1">
                                         <input
@@ -1240,10 +1241,10 @@ export default function POSWaiterBilling() {
                                             value={promoCode}
                                             onChange={(e) => setPromoCode(e.target.value)}
                                             disabled={!!appliedPromo}
-                                            className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none disabled:bg-[#F8F9FA] disabled:text-[#A0AEC0]"
+                                            className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none disabled:bg-subtle disabled:text-fg-muted"
                                         />
                                         {appliedPromo && (
-                                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1 text-[#51CC5D] text-[12px] font-[500]">
+                                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1 text-success text-[12px] font-[500]">
                                                 <Check size={14} />
                                                 Applied
                                             </div>
@@ -1252,14 +1253,14 @@ export default function POSWaiterBilling() {
                                     {appliedPromo ? (
                                         <button
                                             onClick={removePromo}
-                                            className="px-4 py-2 bg-[#FEE4E2] text-[#D92D20] rounded-lg hover:bg-[#Fecdca] transition-colors text-[14px] font-[500]"
+                                            className="px-4 py-2 bg-hover text-error rounded-lg hover:bg-error/20 transition-colors text-[14px] font-[500]"
                                         >
                                             Remove
                                         </button>
                                     ) : (
                                         <button
                                             onClick={verifyPromo}
-                                            className="px-4 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors text-[14px] font-[500]"
+                                            className="px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors text-[14px] font-[500]"
                                         >
                                             Apply
                                         </button>
@@ -1267,8 +1268,8 @@ export default function POSWaiterBilling() {
                                 </div>
                                 {appliedPromo && (
                                     <div className="mt-4">
-                                        <h4 className="text-[13px] font-[500] text-[#383E49] mb-2">Discount Scope</h4>
-                                        <div className="flex gap-2 p-1 bg-[#F8F9FA] rounded-md border border-[#E4E6EA]">
+                                        <h4 className="text-[13px] font-[500] text-fg mb-2">Discount Scope</h4>
+                                        <div className="flex gap-2 p-1 bg-subtle rounded-md border border-line">
                                             {[
                                                 { id: 'EVERY', label: 'Every Item' },
                                                 { id: 'TOTAL', label: 'Full Total' },
@@ -1279,8 +1280,8 @@ export default function POSWaiterBilling() {
                                                     onClick={() => setPromoScope(scope.id)}
                                                     className={`flex-1 py-1 px-2 rounded-md text-[11px] font-[500] transition-all ${
                                                         promoScope === scope.id 
-                                                            ? 'bg-white text-[#0F50AA] shadow-sm' 
-                                                            : 'text-[#667085] hover:text-[#383E49]'
+                                                            ? 'bg-surface text-brand-fg shadow-sm' 
+                                                            : 'text-fg-secondary hover:text-fg'
                                                     }`}
                                                 >
                                                     {scope.label}
@@ -1293,11 +1294,11 @@ export default function POSWaiterBilling() {
                             {/* Payment Section */}
                             <div className="space-y-4 mb-6">
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Payment Method</label>
+                                    <label className="block text-[14px] font-[500] text-fg mb-2">Payment Method</label>
                                     <select
                                         value={paymentMethod}
                                         onChange={(e) => setPaymentMethod(e.target.value)}
-                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                     >
                                         {paymentMethods.map(method => (
                                             <option key={method.paymentMethodId} value={method.name}>
@@ -1316,41 +1317,41 @@ export default function POSWaiterBilling() {
                                         <>
                                             {isFreeMeal ? (
                                                 <div>
-                                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Reason for Free Meal *</label>
+                                                    <label className="block text-[14px] font-[500] text-fg mb-2">Reason for Free Meal *</label>
                                                     <textarea
                                                         placeholder="Please specify the reason (minimum 10 characters)"
                                                         value={freeMealReason}
                                                         onChange={(e) => setFreeMealReason(e.target.value)}
-                                                        className="w-full px-3 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none resize-none"
+                                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none resize-none"
                                                         rows="3"
                                                     />
-                                                    <div className="mt-2 p-2 bg-[#F0F8FF] border border-[#0F50AA] rounded-lg text-[13px] text-[#0F50AA]">
+                                                    <div className="mt-2 p-2 bg-subtle border border-brand-fg rounded-lg text-[13px] text-brand-fg">
                                                         Free Meal: No charge for this transaction.
                                                     </div>
                                                 </div>
                                             ) : (
                                                 <>
                                                     <div>
-                                                        <label className="block text-[14px] font-[500] text-[#383E49] mb-2">Amount Received</label>
+                                                        <label className="block text-[14px] font-[500] text-fg mb-2">Amount Received</label>
                                                         <div className="relative">
-                                                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#667085]">Rs.</span>
+                                                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary">Rs.</span>
                                                             <input
                                                                 type="number"
                                                                 min="0"
                                                                 step="0.01"
                                                                 value={amountReceived}
                                                                 onChange={(e) => setAmountReceived(e.target.value)}
-                                                                className="w-full pl-12 pr-4 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                                                className="w-full pl-12 pr-4 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                                                 placeholder="0.00"
                                                             />
                                                         </div>
                                                     </div>
 
                                                     {amountReceived && (
-                                                        <div className="p-3 bg-[#F0F8FF] border border-[#0F50AA] rounded-lg">
+                                                        <div className="p-3 bg-subtle border border-brand-fg rounded-lg">
                                                             <div className="flex justify-between text-[14px]">
-                                                                <span className="text-[#383E49]">Change Due:</span>
-                                                                <span className="font-[600] text-[#0F50AA]">
+                                                                <span className="text-fg">Change Due:</span>
+                                                                <span className="font-[600] text-brand-fg">
                                                                     Rs. {Math.max(0, parseFloat(amountReceived || 0) - totalPayable).toFixed(2)}
                                                                 </span>
                                                             </div>
@@ -1366,7 +1367,7 @@ export default function POSWaiterBilling() {
                             <div className="flex flex-col sm:flex-row gap-3">
                                 <button
                                     onClick={() => setShowBillModal(false)}
-                                    className="flex-1 px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors w-full"
+                                    className="flex-1 px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors w-full"
                                 >
                                     Cancel
                                 </button>
@@ -1378,7 +1379,7 @@ export default function POSWaiterBilling() {
                                         const isFreeMeal = selectedMethodObj.category === 'FREE_MEAL';
                                         return isFreeMeal ? freeMealReason.trim().length < 10 : (!amountReceived || parseFloat(amountReceived) < totalPayable);
                                     })()}
-                                    className="flex-1 px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 w-full"
+                                    className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 w-full"
                                 >
                                     <CreditCard size={16} />
                                     Process Payment
@@ -1392,46 +1393,46 @@ export default function POSWaiterBilling() {
 
             {/* Success Modal */}
             {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="text-center mb-6">
-                                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Check size={40} className="text-green-600" />
+                                <div className="w-20 h-20 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Check size={40} className="text-success" />
                                 </div>
-                                <h3 className="text-[20px] font-[600] text-[#383E49] mb-2">Payment Successful!</h3>
-                                <p className="text-[14px] text-[#667085] mb-4">
+                                <h3 className="text-[20px] font-[600] text-fg mb-2">Payment Successful!</h3>
+                                <p className="text-[14px] text-fg-secondary mb-4">
                                     The order has been completed and the table is now available
                                 </p>
-                                <div className="bg-[#F0F8FF] border border-[#0F50AA] rounded-lg p-4">
-                                    <p className="text-[12px] text-[#667085] mb-1">Bill ID</p>
-                                    <p className="text-[18px] font-[600] text-[#0F50AA]">{generatedBillId}</p>
+                                <div className="bg-subtle border border-brand-fg rounded-lg p-4">
+                                    <p className="text-[12px] text-fg-secondary mb-1">Bill ID</p>
+                                    <p className="text-[18px] font-[600] text-brand-fg">{generatedBillId}</p>
                                 </div>
                             </div>
 
                             <div className="space-y-4 mb-6">
-                                <div className="p-4 bg-[#F8F9FA] rounded-lg">
-                                    <h4 className="text-[14px] font-[500] text-[#383E49] mb-3">Payment Summary</h4>
+                                <div className="p-4 bg-subtle rounded-lg">
+                                    <h4 className="text-[14px] font-[500] text-fg mb-3">Payment Summary</h4>
                                     <div className="space-y-2 text-[14px]">
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Total Amount:</span>
-                                            <span className="font-[500] text-[#383E49]">Rs. {successPaymentDetails?.totalAmount?.toFixed(2) || "0.00"}</span>
+                                            <span className="text-fg-secondary">Total Amount:</span>
+                                            <span className="font-[500] text-fg">Rs. {successPaymentDetails?.totalAmount?.toFixed(2) || "0.00"}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Received Amount:</span>
-                                            <span className="font-[500] text-[#383E49]">Rs. {successPaymentDetails?.amountReceived?.toFixed(2) || "0.00"}</span>
+                                            <span className="text-fg-secondary">Received Amount:</span>
+                                            <span className="font-[500] text-fg">Rs. {successPaymentDetails?.amountReceived?.toFixed(2) || "0.00"}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Change Due:</span>
-                                            <span className="font-[500] text-[#0F50AA]">Rs. {successPaymentDetails?.changeAmount?.toFixed(2) || "0.00"}</span>
+                                            <span className="text-fg-secondary">Change Due:</span>
+                                            <span className="font-[500] text-brand-fg">Rs. {successPaymentDetails?.changeAmount?.toFixed(2) || "0.00"}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Payment Method:</span>
-                                            <span className="font-[500] text-[#383E49]">{paymentMethod}</span>
+                                            <span className="text-fg-secondary">Payment Method:</span>
+                                            <span className="font-[500] text-fg">{paymentMethod}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-[#667085]">Completed At:</span>
-                                            <span className="font-[500] text-[#383E49]">{new Date().toLocaleString()}</span>
+                                            <span className="text-fg-secondary">Completed At:</span>
+                                            <span className="font-[500] text-fg">{new Date().toLocaleString()}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1440,13 +1441,13 @@ export default function POSWaiterBilling() {
                             <div className="flex flex-col sm:flex-row gap-3">
                                 <button
                                     onClick={() => setShowSuccessModal(false)}
-                                    className="flex-1 px-4 py-3 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                    className="flex-1 px-4 py-3 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors"
                                 >
                                     Close
                                 </button>
                                 <button
                                     onClick={handlePrintReceipt}
-                                    className="flex-1 px-4 py-3 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors flex items-center justify-center gap-2"
+                                    className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors flex items-center justify-center gap-2"
                                 >
                                     <Receipt size={16} />
                                     Print Receipt
@@ -1459,14 +1460,14 @@ export default function POSWaiterBilling() {
 
             {/* New Table Modal */}
             {showNewTableModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-md">
                         <div className="p-6">
                             <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-[18px] font-[600] text-[#383E49]">Add New Table</h3>
+                                <h3 className="text-[18px] font-[600] text-fg">Add New Table</h3>
                                 <button
                                     onClick={() => setShowNewTableModal(false)}
-                                    className="p-1 text-[#667085] hover:bg-[#F8F9FA] rounded"
+                                    className="p-1 text-fg-secondary hover:bg-subtle rounded"
                                 >
                                     <X size={20} />
                                 </button>
@@ -1474,7 +1475,7 @@ export default function POSWaiterBilling() {
 
                             <form onSubmit={handleAddTable} className="space-y-4">
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
                                         Table Name
                                     </label>
                                     <input
@@ -1483,18 +1484,18 @@ export default function POSWaiterBilling() {
                                         value={newTableData.name}
                                         onChange={(e) => setNewTableData({ ...newTableData, name: e.target.value })}
                                         placeholder="e.g. Table 7"
-                                        className="w-full px-4 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                        className="w-full px-4 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
                                         Status
                                     </label>
                                     <select
                                         value={newTableData.status}
                                         onChange={(e) => setNewTableData({ ...newTableData, status: e.target.value })}
-                                        className="w-full px-4 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none bg-white"
+                                        className="w-full px-4 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none bg-surface"
                                     >
                                         <option value="available">Available</option>
                                         <option value="occupied">Occupied</option>
@@ -1503,7 +1504,7 @@ export default function POSWaiterBilling() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
                                         Seat Count
                                     </label>
                                     <input
@@ -1513,7 +1514,7 @@ export default function POSWaiterBilling() {
                                         value={newTableData.seats}
                                         onChange={(e) => setNewTableData({ ...newTableData, seats: e.target.value })}
                                         placeholder="e.g. 4"
-                                        className="w-full px-4 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                        className="w-full px-4 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                     />
                                 </div>
 
@@ -1521,13 +1522,13 @@ export default function POSWaiterBilling() {
                                     <button
                                         type="button"
                                         onClick={() => setShowNewTableModal(false)}
-                                        className="flex-1 px-4 py-2 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                        className="flex-1 px-4 py-2 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
-                                        className="flex-1 px-4 py-2 bg-[#0F50AA] text-white rounded-lg hover:bg-[#0D4494] transition-colors"
+                                        className="flex-1 px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors"
                                     >
                                         Save Table
                                     </button>
@@ -1540,22 +1541,22 @@ export default function POSWaiterBilling() {
 
             {/* KOT Cancellation Verification Modal */}
             {showCancelVerification && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                    <div className="bg-elevated rounded-lg shadow-xl w-full max-w-md">
                         <div className="p-6">
                             <div className="text-center mb-6">
-                                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <AlertTriangle size={32} className="text-red-600" />
+                                <div className="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <AlertTriangle size={32} className="text-error" />
                                 </div>
-                                <h3 className="text-[18px] font-[600] text-[#383E49] mb-2">Manager Verification Required</h3>
-                                <p className="text-[14px] text-[#667085]">
+                                <h3 className="text-[18px] font-[600] text-fg mb-2">Manager Verification Required</h3>
+                                <p className="text-[14px] text-fg-secondary">
                                     Please enter your manager verification code to cancel KOT for {itemToCancel?.name}
                                 </p>
                             </div>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-[14px] font-[500] text-[#383E49] mb-1">
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">
                                         Verification Code
                                     </label>
                                     <input
@@ -1563,7 +1564,7 @@ export default function POSWaiterBilling() {
                                         value={verificationCode}
                                         onChange={(e) => setVerificationCode(e.target.value)}
                                         placeholder="Enter code"
-                                        className="w-full px-4 py-2 border border-[#E4E6EA] rounded-lg text-[14px] focus:border-[#0F50AA] focus:outline-none"
+                                        className="w-full px-4 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                     />
                                 </div>
 
@@ -1574,13 +1575,13 @@ export default function POSWaiterBilling() {
                                             setVerificationCode('');
                                             setItemToCancel(null);
                                         }}
-                                        className="flex-1 px-4 py-2 border border-[#E4E6EA] text-[#667085] rounded-lg hover:bg-[#F8F9FA] transition-colors"
+                                        className="flex-1 px-4 py-2 border border-line text-fg-secondary rounded-lg hover:bg-subtle transition-colors"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         onClick={handleVerifyAndCancelKOT}
-                                        className="flex-1 px-4 py-2 bg-[#EF4444] text-white rounded-lg hover:bg-[#D93030] transition-colors"
+                                        className="flex-1 px-4 py-2 bg-error-solid text-on-brand rounded-lg hover:bg-error-solid transition-colors"
                                     >
                                         Verify & Cancel
                                     </button>
@@ -1593,14 +1594,14 @@ export default function POSWaiterBilling() {
 
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-[9998] md:hidden"
+                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}
 
             {/* Hidden Print Receipt Template */}
             {printData && (
-                <div id="print-receipt" className="hidden print:block fixed inset-0 bg-white z-[9999] p-4 text-black font-mono w-[80mm] text-xs">
+                <div id="print-receipt" className="hidden print:block fixed inset-0 bg-surface z-[9999] p-4 text-fg-strong font-mono w-[80mm] text-xs">
                     <style dangerouslySetInnerHTML={{__html: `
                         @media print {
                             body * {
@@ -1711,7 +1712,7 @@ export default function POSWaiterBilling() {
                                 <div className="text-[12px] font-bold">KOT ITEM: {item.productName || item.name}</div>
                                 <div className="text-[12px] font-bold mt-1">QTY: {item.qty || item.quantity}</div>
                                 {item.specialInstructions && (
-                                    <div className="text-[10px] text-gray-800 italic font-mono mt-1">
+                                    <div className="text-[10px] text-fg italic font-mono mt-1">
                                         * Note: {item.specialInstructions}
                                     </div>
                                 )}
