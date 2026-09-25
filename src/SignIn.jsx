@@ -120,6 +120,8 @@ const SignIn = ({ targetModule }) => {
           setError("Invalid username or password");
         } else if (response.status === 403) {
           setError("Account is inactive. Please contact your administrator.");
+        } else if (response.status === 429) {
+          setError("Too many failed attempts. Please try again in 15 minutes.");
         } else if (response.status === 404) {
           setError("Username does not exist");
         } else {

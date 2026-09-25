@@ -33,6 +33,7 @@ const ACTION_LABELS = {
   BULK_DELETE: "Bulk delete",
   LOGIN: "Logged in",
   LOGIN_FAILED: "Failed login",
+  LOGIN_BLOCKED: "Login blocked",
   LOGOUT: "Logged out",
   EXPORT: "Exported",
   SYSTEM: "System",
@@ -46,6 +47,7 @@ const ACTION_STYLES = {
   BULK_DELETE: "bg-red-50 text-red-700 border-red-200",
   LOGIN: "bg-gray-100 text-gray-700 border-gray-200",
   LOGIN_FAILED: "bg-red-100 text-red-800 border-red-300",
+  LOGIN_BLOCKED: "bg-red-100 text-red-800 border-red-300",
   LOGOUT: "bg-gray-100 text-gray-700 border-gray-200",
   EXPORT: "bg-purple-50 text-purple-700 border-purple-200",
   SYSTEM: "bg-amber-50 text-amber-700 border-amber-200",
@@ -157,7 +159,7 @@ function AuditTable({ rows, onOpen, emptyText }) {
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.id} className={`border-t border-[#F2F4F7] hover:bg-[#F9FAFB] ${r.action === "LOGIN_FAILED" ? "bg-red-50/40" : ""}`}>
+            <tr key={r.id} className={`border-t border-[#F2F4F7] hover:bg-[#F9FAFB] ${(r.action === "LOGIN_FAILED" || r.action === "LOGIN_BLOCKED") ? "bg-red-50/40" : ""}`}>
               <td className="px-4 py-3 whitespace-nowrap text-[#344054]">{when(r.occurredAt)}</td>
               <td className="px-4 py-3"><Who row={r} /></td>
               <td className="px-4 py-3">
@@ -498,7 +500,7 @@ export default function AdminAuditLog() {
                   )}
                   <select className={input} value={filters.action} onChange={(e) => set("action", e.target.value)}>
                     <option value="">All actions</option>
-                    {(tab === "security" ? ["LOGIN", "LOGIN_FAILED", "LOGOUT"] : options.actions).map((a) => (
+                    {(tab === "security" ? ["LOGIN", "LOGIN_FAILED", "LOGIN_BLOCKED", "LOGOUT"] : options.actions).map((a) => (
                       <option key={a} value={a}>{ACTION_LABELS[a] || a}</option>
                     ))}
                   </select>
