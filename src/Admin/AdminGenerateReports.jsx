@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { FileText, Calendar, Download, Filter, FileSpreadsheet, TrendingUp, Package, ShoppingCart, AlertTriangle, Store, ChevronDown } from "lucide-react";
 import axiosInstance from "../services/api";
 import jsPDF from 'jspdf';
+import { logExport } from "../services/auditLog";
 import autoTable from 'jspdf-autotable';
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
@@ -185,6 +186,7 @@ export default function AdminGenerateReports() {
         const link = document.createElement('a');
         link.setAttribute('href', encodedUri);
         link.setAttribute('download', `${reportType}_Report_${new Date().toISOString().split('T')[0]}.csv`);
+        logExport("ADMIN", `Exported ${reportType} report as CSV`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -243,6 +245,7 @@ export default function AdminGenerateReports() {
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = `${reportType}_Report_${new Date().toISOString().split('T')[0]}.xls`;
+        logExport("ADMIN", `Exported ${reportType} report as Excel`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -360,6 +363,7 @@ export default function AdminGenerateReports() {
 
         // === SAVE FILE ===
         doc.save(`${reportType}_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+        logExport("ADMIN", `Exported ${reportType} report as PDF`);
     };
 
     const renderTableContent = () => {

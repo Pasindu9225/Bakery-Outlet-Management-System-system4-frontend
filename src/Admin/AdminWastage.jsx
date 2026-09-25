@@ -20,6 +20,7 @@ import AdminSidebar from "../component/AdminSidebar.jsx";
 import Loader from "../component/Loader.jsx";
 import ExpiryTag from "../component/ExpiryTag.jsx";
 import axiosInstance from "../services/api";
+import { logExport } from "../services/auditLog";
 
 const STAGE_LABELS = {
   MAIN_STORE: "Main Store",
@@ -218,6 +219,7 @@ export default function AdminWastage() {
     a.download = `wastage-${historyStatus.toLowerCase()}-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+    logExport("WASTAGE", `Exported ${rows.length} ${historyStatus.toLowerCase()} wastage entries as CSV`);
   };
 
   const tabs = [

@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { logExport } from "../services/auditLog";
 
 /**
  * Universal PDF Generator for Bakery Management System
@@ -138,6 +139,7 @@ export const generatePDF = ({
 
     // ── SAVE ────────────────────────────────────────────────────────────
     doc.save(`${fileName || "Report"}_${new Date().toISOString().split("T")[0]}.pdf`);
+    logExport(null, `Exported ${title || fileName || "report"}${subtitle ? ` (${subtitle})` : ""} as PDF, ${data?.length ?? 0} rows`);
 };
 
 /**
@@ -162,4 +164,5 @@ export const generateExcel = ({ headers, data, fileName }) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    logExport(null, `Exported ${fileName || "report"} as CSV, ${data?.length ?? 0} rows`);
 };

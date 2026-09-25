@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  ScrollText,
   TrendingUp,
   FileText,
   Package,
@@ -55,6 +56,12 @@ export default function AdminSidebar({ sidebarOpen }) {
       icon: Trash2,
       path: "/adminWastage",
       color: "text-red-600",
+    },
+    {
+      name: "Audit Log",
+      icon: ScrollText,
+      path: "/adminAuditLog",
+      color: "text-slate-700",
     },
     {
       name: "Customer Ledgers",

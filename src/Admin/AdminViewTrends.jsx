@@ -3,6 +3,7 @@ import { TrendingUp, Calendar, Download, FileText, FileSpreadsheet, Filter, BarC
 import axios from "axios";
 import { Line, Bar } from 'react-chartjs-2';
 import jsPDF from 'jspdf';
+import { logExport } from "../services/auditLog";
 import autoTable from 'jspdf-autotable';
 import {
     Chart as ChartJS,
@@ -217,6 +218,7 @@ export default function AdminViewTrends() {
         const link = document.createElement('a');
         link.setAttribute('href', encodedUri);
         link.setAttribute('download', `${metric}_trend_${dateRange.replace(/\s+/g, '_')}.csv`);
+        logExport("ADMIN", `Exported ${metric} trend (${dateRange}) as CSV`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -274,6 +276,7 @@ export default function AdminViewTrends() {
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = `${metric}_trend_${dateRange.replace(/\s+/g, '_')}.xls`;
+        logExport("ADMIN", `Exported ${metric} trend (${dateRange}) as Excel`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -385,6 +388,7 @@ export default function AdminViewTrends() {
 
         // === SAVE FILE ===
         doc.save(`${metric}_Trend_Report_${dateRange.replace(/\s+/g, "_")}.pdf`);
+        logExport("ADMIN", `Exported ${metric} trend (${dateRange}) as PDF`);
     };
 
     const renderChart = () => {

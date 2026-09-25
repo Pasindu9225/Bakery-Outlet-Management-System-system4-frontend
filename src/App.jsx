@@ -53,6 +53,7 @@ import AdminPromoCodes from "./Admin/AdminPromoCodes";
 import AdminDiscountRules from "./Admin/AdminDiscountRules";
 import AdminVerificationCodes from "./Admin/AdminVerificationCodes";
 import AdminWastage from "./Admin/AdminWastage";
+import AdminAuditLog from "./Admin/AdminAuditLog";
 import AdminStockEntry from "./Admin/AdminStockEntry";
 import AdminMpcRequests from "./Admin/AdminMpcRequests";
 
@@ -650,6 +651,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["1"]}>
               <AdminWastage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/adminAuditLog"
+          element={
+            <ProtectedRoute allowedRoles={["1"]}>
+              <AdminAuditLog />
             </ProtectedRoute>
           }
         />
