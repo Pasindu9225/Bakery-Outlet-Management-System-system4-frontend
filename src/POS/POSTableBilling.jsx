@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { defaultPaymentMethodName } from "../utils/paymentDefaults";
 import { friendlyError } from "../utils/friendlyError";
 import CashQuickButtons from "../component/CashQuickButtons.jsx";
 import { confirmDialog } from "../component/ConfirmDialog";
@@ -248,7 +249,7 @@ export default function POSTableBilling() {
                 const response = await axios.get(`/api/pos/v1/payment-methods`);
                 setPaymentMethods(response.data);
                 if (response.data.length > 0) {
-                    setPaymentMethod(response.data[0].name);
+                    setPaymentMethod(defaultPaymentMethodName(response.data)); // Cash first, not alphabetical
                 }
             } catch (error) {
                 console.error("Error fetching payment methods:", error);
@@ -614,7 +615,7 @@ export default function POSTableBilling() {
             setFreeMealReason('');
             setStaffId('');
             setStaffReason('');
-            setPaymentMethod('Cash');
+            setPaymentMethod(defaultPaymentMethodName(paymentMethods));
             setShowBillModal(false);
             setShowSuccessModal(true);
         } catch (error) {

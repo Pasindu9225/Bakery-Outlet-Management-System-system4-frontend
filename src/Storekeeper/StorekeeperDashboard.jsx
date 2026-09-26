@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { formatQuantity } from "../utils/quantityFormatter";
 import { onEnterClick } from "../utils/a11y";
 import { ChevronDown, ChevronRight, info } from "lucide-react";
 import axios from "axios";
@@ -286,7 +287,7 @@ export default function StorekeeperDashboard({ onBackToDashboard }) {
                                             <div>
                                                 <p className="text-[14px] font-[500] text-fg">{item.materialName}</p>
                                                 <p className="text-[12px] text-fg-secondary">
-                                                    Current: {item.currentStock} {item.unit} | Min: {item.minLevel} {item.unit}
+                                                    Current: {formatQuantity(item.currentStock)} {item.unit} | Min: {formatQuantity(item.minLevel)} {item.unit}
                                                 </p>
                                             </div>
                                         </div>
@@ -338,7 +339,7 @@ export default function StorekeeperDashboard({ onBackToDashboard }) {
                                                     <td className="px-4 py-4 text-[14px] text-fg-secondary">{generic.category}</td>
                                                     <td className="px-4 py-4 text-[14px] font-[500] text-fg">{generic.genericMaterialName}</td>
                                                     <td className="px-4 py-4 text-[14px] font-[600] text-fg text-right">
-                                                        {generic.totalStock}
+                                                        {formatQuantity(generic.totalStock)}
                                                     </td>
                                                     <td className="px-4 py-4 text-[14px] text-fg-secondary">{generic.unit}</td>
                                                     <td className="px-4 py-4 text-fg-secondary">
