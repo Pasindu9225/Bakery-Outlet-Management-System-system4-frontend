@@ -226,7 +226,7 @@ export default function ManagerPromoCodes() {
                           </button>
                         </td>
                         <td className="py-4 text-center">
-                            <button onClick={() => openView(code)} className="p-2 text-fg-secondary hover:text-brand-fg"><Eye size={18} /></button>
+                            <button aria-label="View details" onClick={() => openView(code)} className="p-2 text-fg-secondary hover:text-brand-fg"><Eye size={18} /></button>
                         </td>
                       </tr>
                     ))}
@@ -243,7 +243,7 @@ export default function ManagerPromoCodes() {
           <div className="bg-elevated rounded-lg shadow-xl w-full max-w-lg">
             <div className="p-5 border-b flex justify-between items-center">
               <h3 className="font-[600]">Promo Code Details</h3>
-              <button onClick={closeModal}><X size={18} /></button>
+              <button aria-label="Close" onClick={closeModal}><X size={18} /></button>
             </div>
             <div className="p-5 space-y-4">
               <div className="bg-subtle p-4 rounded-lg text-center">
@@ -252,13 +252,13 @@ export default function ManagerPromoCodes() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-subtle p-3 rounded-lg text-center">
-                    <p className="text-[11px] text-fg-secondary">Discount</p>
+                    <p className="text-[12px] text-fg-secondary">Discount</p>
                     <p className="font-[700] text-[18px]">
                         {selected.discountType === "FLAT" ? "Rs." : ""}{selected.discountValue}{selected.discountType === "PERCENTAGE" ? "%" : ""}
                     </p>
                 </div>
                 <div className="bg-subtle p-3 rounded-lg text-center">
-                    <p className="text-[11px] text-fg-secondary">Max Capped</p>
+                    <p className="text-[12px] text-fg-secondary">Max Capped</p>
                     <p className="font-[700] text-[18px]">
                          {selected.maximumDiscountValue ? `Rs.${selected.maximumDiscountValue}` : "None"}
                     </p>

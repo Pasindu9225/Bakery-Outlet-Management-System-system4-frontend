@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import toast from "react-hot-toast";
 import {
   Search,
@@ -115,7 +116,7 @@ export default function StorekeeperIOUPurchase() {
         setRawMaterials(mappedMaterials);
       } catch (error) {
         console.error("Failed to fetch raw materials:", error);
-        setMaterialsError(error.message);
+        setMaterialsError(friendlyError(error));
       } finally {
         setLoadingMaterials(false);
       }
@@ -194,7 +195,7 @@ export default function StorekeeperIOUPurchase() {
         setEssentialPurchases(mappedPurchases);
       } catch (error) {
         console.error("Failed to fetch essential purchases:", error);
-        setPurchasesError(error.message);
+        setPurchasesError(friendlyError(error));
       } finally {
         setLoadingPurchases(false);
       }
@@ -472,7 +473,7 @@ export default function StorekeeperIOUPurchase() {
       setActiveTab("pending");
     } catch (error) {
       console.error("Failed to submit IOU request:", error);
-      toast.error(`Failed to submit IOU request: ${error.message}`);
+      toast.error(friendlyError(error, "Failed to submit IOU request"));
     }
   };
 
@@ -703,7 +704,7 @@ export default function StorekeeperIOUPurchase() {
       await refreshPurchases();
     } catch (error) {
       console.error("Failed to submit GRN:", error);
-      toast.error(`Failed to submit GRN: ${error.message}`);
+      toast.error(friendlyError(error, "Failed to submit GRN"));
     }
   };
 
@@ -1014,7 +1015,7 @@ export default function StorekeeperIOUPurchase() {
                             </span>
                           </td>
                           <td className="py-4 text-center">
-                            <button
+                            <button aria-label="Delete"
                               onClick={() => removeIOUItem(item.id)}
                               className="p-2 text-error hover:bg-hover rounded-lg transition-colors"
                               disabled={iouRequest.items.length === 1}
@@ -1150,7 +1151,7 @@ export default function StorekeeperIOUPurchase() {
                           </td>
                           <td className="py-4">
                             <span
-                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-[500] ${getStatusColor(
+                              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[12px] font-[500] ${getStatusColor(
                                 iou.status
                               )}`}
                             >
@@ -1296,7 +1297,7 @@ export default function StorekeeperIOUPurchase() {
                         </td>
                         <td className="py-4">
                           <span
-                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-[500] ${getStatusColor(
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[12px] font-[500] ${getStatusColor(
                               iou.status
                             )}`}
                           >
@@ -1380,7 +1381,7 @@ export default function StorekeeperIOUPurchase() {
                   <Download size={16} />
                   Download
                 </button>
-                <button
+                <button aria-label="Close"
                   onClick={() => setShowIOUDetails(false)}
                   className="p-2 hover:bg-subtle rounded-lg transition-colors"
                 >
@@ -1571,7 +1572,7 @@ export default function StorekeeperIOUPurchase() {
                   Record actual goods received for approved IOU request
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowGRNModal(false)}
                 className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >

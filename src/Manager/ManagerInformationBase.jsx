@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import toast from "react-hot-toast";
 import { confirmDialog } from "../component/ConfirmDialog";
 import {
@@ -70,7 +71,7 @@ export default function ManagerInformationBase() {
 
         } catch (err) {
             console.error("Error fetching information base data:", err);
-            setError("Failed to load storekeeper information. " + err.message);
+            setError(friendlyError(err, "Failed to load storekeeper information."));
         } finally {
             setLoading(false);
         }
@@ -106,11 +107,11 @@ export default function ManagerInformationBase() {
                 fetchAllData(); // Refresh to show it as APPROVED and populate the GRNs tab
             } else {
                 const errorData = await response.json();
-                toast.error(`Error approving PO: ${errorData.message || 'Unknown error'}`);
+                toast.error(friendlyError({ message: errorData.message, response: { status: response.status, data: errorData } }, "Couldn't approve the purchase order"));
             }
         } catch (err) {
             console.error("Failed to approve PO:", err);
-            toast.error("Network error: Failed to connect to backend");
+            toast.error(friendlyError(err, "Couldn't approve the purchase order"));
         }
     };
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
   Package,
   Clock,
@@ -8,6 +9,7 @@ import {
   RefreshCw,
   Layers,
   Trash2,
+  Search,
 } from "lucide-react";
 import MPCWorkerSideBar from "../component/MPCWorkerSideBar";
 import toast from "react-hot-toast";
@@ -39,6 +41,7 @@ export default function MPCWorkerDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("kots"); // opens on the live order queue (the urgent work); 'requestMaterials', 'deliveries', 'storeInventory', 'kots'
   const [me, setMe] = useState(null);
+  const [stockQuery, setStockQuery] = useState(""); // MPC stock search
   const token = localStorage.getItem("authToken");
 
   // KOT-enabled products, for the "which dish" dropdown on the request form
@@ -195,10 +198,10 @@ export default function MPCWorkerDashboard() {
         setActiveTab("deliveries");
       } else {
         const errData = await res.json().catch(() => ({}));
-        toast.error(errData.message || "Failed to submit material request.");
+        toast.error(friendlyError(errData, { fallback: "Failed to submit material request." }));
       }
     } catch (err) {
-      toast.error("Failed to submit material request: " + err.message);
+      toast.error(friendlyError(err, "Failed to submit material request"));
     } finally {
       setSubmittingRequest(false);
     }
@@ -267,7 +270,7 @@ export default function MPCWorkerDashboard() {
                         />
                       </div>
                       {selectedPlanItems.length > 1 && (
-                        <button
+                        <button aria-label="Delete"
                           type="button"
                           onClick={() => removePlanItem(idx)}
                           className="p-2 text-error hover:bg-hover rounded-lg transition-colors mt-5"
@@ -427,11 +430,19 @@ export default function MPCWorkerDashboard() {
                     Refresh
                   </button>
                 </div>
+                {store.items.length > 0 && (
+                  <div className="relative mb-4">
+                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" aria-hidden="true" />
+                    <input value={stockQuery} onChange={(e) => setStockQuery(e.target.value)} placeholder="Search materials"
+                      aria-label="Search materials"
+                      className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none" />
+                  </div>
+                )}
                 {store.items.length === 0 ? (
                   <p className="text-[13px] text-fg-secondary">No stock yet — approved material requests arrive here automatically.</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                    {store.items.map((item) => (
+                    {store.items.filter((i) => !stockQuery.trim() || (i.rawMaterialName || "").toLowerCase().includes(stockQuery.trim().toLowerCase())).map((item) => (
                       <div key={item.materialKey} className="border border-line rounded-lg p-4 bg-subtle">
                         <p className="text-[12px] text-fg-secondary">Raw Material</p>
                         <p className="text-[15px] font-[600] text-fg mb-1">{item.rawMaterialName}</p>

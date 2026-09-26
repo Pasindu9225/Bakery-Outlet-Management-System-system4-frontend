@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
 import toast from "react-hot-toast";
 import {
   Search,
@@ -548,7 +549,7 @@ export default function StorekeeperViewStore() {
                          {/* Generic Material Parent Row */}
                          <tr
                            className="bg-subtle border-b border-line cursor-pointer hover:bg-hover"
-                           onClick={() => toggleGroup(group.name)}
+                           role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => toggleGroup(group.name)}
                          >
                            <td className="py-4 pl-4">
                              <div className="flex items-center gap-3">
@@ -571,19 +572,19 @@ export default function StorekeeperViewStore() {
                              <div className="flex flex-col gap-1">
                                <div className="flex flex-wrap gap-1">
                                  {group.items.slice(0, 3).map(item => (
-                                   <span key={item.id} className="inline-flex items-center px-2 py-0.5 rounded bg-surface border border-line text-[10px] text-fg-secondary">
+                                   <span key={item.id} className="inline-flex items-center px-2 py-0.5 rounded bg-surface border border-line text-[12px] text-fg-secondary">
                                      {item.brand}
                                    </span>
                                  ))}
                                  {group.items.length > 3 && (
-                                   <span className="text-[10px] text-fg-secondary">+{group.items.length - 3} more</span>
+                                   <span className="text-[12px] text-fg-secondary">+{group.items.length - 3} more</span>
                                  )}
                                </div>
                                {searchTerm && (
                                  <div className="flex flex-wrap gap-1 mt-1">
                                    {group.items.map(item => 
                                      item.batches && item.batches.filter(b => b.batchNo && b.batchNo.toLowerCase().includes(searchTerm.toLowerCase())).map(b => (
-                                       <span key={b.batchNo} className="inline-flex items-center px-2 py-0.5 rounded bg-hover border border-brand-fg/20 text-[10px] text-brand-fg">
+                                       <span key={b.batchNo} className="inline-flex items-center px-2 py-0.5 rounded bg-hover border border-brand-fg/20 text-[12px] text-brand-fg">
                                          Batch: {b.batchNo}
                                        </span>
                                      ))
@@ -601,7 +602,7 @@ export default function StorekeeperViewStore() {
                                  {group.totalQuantity} {group.unit}
                                </p>
                                {group.isBelowMin && (
-                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-[600] bg-hover text-error mt-1">
+                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[12px] font-[600] bg-hover text-error mt-1">
                                    LOW STOCK
                                  </span>
                                )}
@@ -613,7 +614,7 @@ export default function StorekeeperViewStore() {
                                  <p className={`text-[13px] font-[500] ${group.isExpired ? "text-error" : group.isNearExpiry ? "text-warning" : "text-fg"}`}>
                                    {new Date(group.nearestExpiry).toLocaleDateString()}
                                  </p>
-                                 {group.isExpired && <p className="text-[10px] font-[600] text-error">EXPIRED</p>}
+                                 {group.isExpired && <p className="text-[12px] font-[600] text-error">EXPIRED</p>}
                                </div>
                              )}
                            </td>
@@ -648,11 +649,11 @@ export default function StorekeeperViewStore() {
                                  <p className="text-[13px] font-[600] text-fg">
                                    Batches: {item.batchCount}
                                  </p>
-                                 <p className="text-[11px] text-fg-secondary">
+                                 <p className="text-[12px] text-fg-secondary">
                                    Unit: {item.unit}
                                  </p>
                                  {searchTerm && item.batches && item.batches.filter(b => b.batchNo && b.batchNo.toLowerCase().includes(searchTerm.toLowerCase())).map(b => (
-                                   <p key={b.batchNo} className="text-[11px] text-brand-fg font-[600] mt-1">
+                                   <p key={b.batchNo} className="text-[12px] text-brand-fg font-[600] mt-1">
                                      Batch: {b.batchNo}
                                    </p>
                                  ))}
@@ -668,7 +669,7 @@ export default function StorekeeperViewStore() {
                                   <p className={`text-[13px] font-[600] ${item.isBelowMin ? "text-error" : "text-fg"}`}>
                                     {formatQuantity(item.totalQuantity)}
                                   </p>
-                                 <p className="text-[11px] text-fg-secondary">
+                                 <p className="text-[12px] text-fg-secondary">
                                    Min: {item.minQty}
                                  </p>
                                </div>
@@ -678,7 +679,7 @@ export default function StorekeeperViewStore() {
                                  <p className={`text-[13px] ${item.isExpired ? "text-error" : item.isNearExpiry ? "text-warning" : "text-fg"}`}>
                                    {item.nearestExpiry ? new Date(item.nearestExpiry).toLocaleDateString() : "-"}
                                  </p>
-                                 <p className="text-[10px]">
+                                 <p className="text-[12px]">
                                    {item.isExpired ? "EXPIRED" : item.isNearExpiry ? "SOON" : ""}
                                  </p>
                                </div>
@@ -690,14 +691,14 @@ export default function StorekeeperViewStore() {
                              </td>
                              <td className="py-4 text-center">
                                <div className="flex items-center justify-center gap-2">
-                                 <button
+                                 <button aria-label="View details"
                                    onClick={(e) => { e.stopPropagation(); handleViewBinCard(item.id); }}
                                    className="p-1.5 text-brand-fg hover:bg-hover rounded"
                                  >
                                    <Eye size={16} />
                                  </button>
                                  {item.isBelowMin && (
-                                   <button
+                                   <button aria-label="Open cart"
                                      onClick={(e) => { e.stopPropagation(); handleCreatePO(item.code); }}
                                      className="p-1.5 text-success hover:bg-hover rounded"
                                    >
@@ -752,7 +753,7 @@ export default function StorekeeperViewStore() {
                   <Printer size={16} />
                   Print
                 </button>
-                <button
+                <button aria-label="Close"
                   onClick={() => setShowBinCardModal(false)}
                   className="p-2 hover:bg-subtle rounded-lg transition-colors"
                 >

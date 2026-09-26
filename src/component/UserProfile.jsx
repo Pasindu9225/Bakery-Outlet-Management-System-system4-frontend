@@ -85,7 +85,7 @@ export default function UserProfile() {
           <Icon size={15} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-[500] text-fg-secondary uppercase tracking-wide mb-0.5">
+          <p className="text-[12px] font-[500] text-fg-secondary uppercase tracking-wide mb-0.5">
             {label}
           </p>
           <p className="text-[14px] font-[500] text-fg break-words">

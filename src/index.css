@@ -16,3 +16,15 @@ body {
 .pulse-item {
     animation: pulse-highlight 1s ease-out;
 }
+
+/* Collapsible side menu (desktop/tablet only; phones keep the slide-in menu). */
+.app-sidebar { transition: width 0.2s ease; }
+@media (min-width: 768px) {
+  html[data-sidebar="collapsed"] .app-sidebar { width: 4.5rem; }
+  html[data-sidebar="collapsed"] .app-sidebar .sb-hide { display: none; }
+  html[data-sidebar="collapsed"] .app-sidebar .sb-center { justify-content: center; }
+  html[data-sidebar="collapsed"] .app-sidebar nav { padding-left: 0.5rem; padding-right: 0.5rem; }
+  html[data-sidebar="collapsed"] .app-sidebar .logo-plate { height: 2.25rem; max-width: 3.25rem; object-fit: cover; object-position: left; }
+  html[data-sidebar="collapsed"] .app-sidebar .sb-pad { padding-left: 0.5rem; padding-right: 0.5rem; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) { .app-sidebar { transition: none; } }

@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
+import FieldError from "../component/FieldError.jsx";
+import { friendlyError } from "../utils/friendlyError";
 import toast from "react-hot-toast";
 import {
   Search,
@@ -84,7 +87,7 @@ export default function StorekeeperStockAdjustments() {
         setProducts(mappedProducts);
       } catch (error) {
         console.error("Failed to fetch raw materials:", error);
-        setProductsError(error.message);
+        setProductsError(friendlyError(error));
       } finally {
         setLoadingProducts(false);
       }
@@ -192,7 +195,7 @@ export default function StorekeeperStockAdjustments() {
         setAdjustments(mappedAdjustments);
       } catch (error) {
         console.error("Failed to fetch stock adjustments:", error);
-        setAdjustmentsError(error.message);
+        setAdjustmentsError(friendlyError(error));
       } finally {
         setLoadingAdjustments(false);
       }
@@ -264,18 +267,29 @@ export default function StorekeeperStockAdjustments() {
     return filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
   };
 
+  // What is wrong with each field (shown under the field once Submit was pressed; updates as it is fixed).
+  const validateAdjustment = () => {
+    const e = {};
+    if (!getSelectedProduct()) e.material = "Choose the raw material.";
+    else if (!getSelectedBatch()) e.batch = "Choose the batch / lot you counted.";
+    if (newAdjustment.physicalQty === "" || newAdjustment.physicalQty == null) e.physicalQty = "Enter the quantity you counted (0 if none).";
+    if (!newAdjustment.reason) e.reason = "Choose why the stock is different.";
+    return e;
+  };
+  const [fieldErrors, setFieldErrors] = useState({});
+  useEffect(() => {
+    if (Object.keys(fieldErrors).length) setFieldErrors(validateAdjustment());
+  }, [newAdjustment]);
+
   const handleCreateAdjustment = async () => {
     const product = getSelectedProduct();
     const batch = getSelectedBatch();
     const { adjustmentQty, adjustmentType, systemQty } = getAdjustmentDetails();
 
-    if (
-      !product ||
-      !batch ||
-      !newAdjustment.physicalQty ||
-      !newAdjustment.reason
-    ) {
-      toast.error("Please fill all required fields");
+    const problems = validateAdjustment();
+    setFieldErrors(problems);
+    if (Object.keys(problems).length) {
+      toast.error("Please fix the highlighted fields.");
       return;
     }
 
@@ -376,7 +390,7 @@ export default function StorekeeperStockAdjustments() {
       toast.success("Stock adjustment submitted for approval successfully!");
     } catch (error) {
       console.error("Failed to create stock adjustment:", error);
-      toast.error(`Failed to submit stock adjustment: ${error.message}`);
+      toast.error(friendlyError(error, "Failed to submit stock adjustment"));
     }
   };
 
@@ -488,7 +502,7 @@ export default function StorekeeperStockAdjustments() {
       setShowViewModal(false);
     } catch (error) {
       console.error("Failed to mark adjustment as approved:", error);
-      toast.error(`Failed to mark adjustment as approved: ${error.message}`);
+      toast.error(friendlyError(error, "Failed to mark adjustment as approved"));
     } finally {
       setMarkAsAdjustLoading(false);
     }
@@ -561,7 +575,7 @@ export default function StorekeeperStockAdjustments() {
 
               {/* Create New Button */}
               <button
-                onClick={() => setShowCreateModal(true)}
+                onClick={() => { setFieldErrors({}); setShowCreateModal(true); }}
                 className="flex items-center gap-2 px-4 py-2 bg-brand text-on-brand text-[14px] font-[500] rounded-md hover:bg-brand-hover transition-colors"
               >
                 <Plus size={16} />
@@ -711,7 +725,7 @@ export default function StorekeeperStockAdjustments() {
                               {formatQuantity(adjustment.adjustmentQty)}
                             </span>
                           </div>
-                          <p className="text-[10px] text-fg-secondary mt-1">
+                          <p className="text-[12px] text-fg-secondary mt-1">
                             {adjustment.adjustmentType}
                           </p>
                         </td>
@@ -722,7 +736,7 @@ export default function StorekeeperStockAdjustments() {
                         </td>
                         <td className="py-4">
                           <span
-                            className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] ${adjustment.status === "Pending"
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] ${adjustment.status === "Pending"
                                 ? "bg-hover text-warning"
                                 : adjustment.status === "Approved"
                                   ? "bg-hover text-success"
@@ -770,7 +784,7 @@ export default function StorekeeperStockAdjustments() {
               <h2 className="text-[20px] font-[600] text-fg">
                 Create Stock Adjustment
               </h2>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowCreateModal(false)}
                 className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >
@@ -868,7 +882,7 @@ export default function StorekeeperStockAdjustments() {
                           return (
                             <div
                               key={product.id}
-                              onClick={() => {
+                              role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => {
                                 setNewAdjustment({
                                   ...newAdjustment,
                                   productId: String(product.id),
@@ -901,6 +915,7 @@ export default function StorekeeperStockAdjustments() {
                 )}
               </div>
 
+              <FieldError className="!mt-1.5" msg={fieldErrors.material} />
               {/* Batch Selection */}
               {newAdjustment.productId && (
                 <div>
@@ -928,6 +943,7 @@ export default function StorekeeperStockAdjustments() {
                 </div>
               )}
 
+              <FieldError className="!mt-1.5" msg={fieldErrors.batch} />
               {/* System Stock Details */}
               {getSelectedBatch() && (
                 <div className="bg-subtle p-4 rounded-lg">
@@ -990,6 +1006,7 @@ export default function StorekeeperStockAdjustments() {
                 />
               </div>
 
+              <FieldError className="!mt-1.5" msg={fieldErrors.physicalQty} />
               {/* Adjustment Summary */}
               {newAdjustment.physicalQty && getSelectedBatch() && (
                 <div className="bg-hover p-4 rounded-lg">
@@ -1051,6 +1068,7 @@ export default function StorekeeperStockAdjustments() {
                 </select>
               </div>
 
+              <FieldError className="!mt-1.5" msg={fieldErrors.reason} />
               {/* Remarks */}
               <div>
                 <label className="block text-[14px] font-[500] text-fg mb-2">
@@ -1124,7 +1142,7 @@ export default function StorekeeperStockAdjustments() {
                   Print
                 </button>
 
-                <button
+                <button aria-label="Close"
                   onClick={() => setShowViewModal(false)}
                   className="p-2 hover:bg-subtle rounded-lg transition-colors"
                 >

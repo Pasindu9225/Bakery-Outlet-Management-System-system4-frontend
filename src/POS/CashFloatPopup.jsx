@@ -134,7 +134,7 @@ const CashFloatPopup = ({ isOpen, onConfirm, cashierInfo }) => {
             </div>
             {error && (
               <p className="mt-2 text-[13px] text-error flex items-center gap-1">
-                <span className="w-4 h-4 bg-error-solid rounded-full flex items-center justify-center text-on-brand text-[10px] font-bold">!</span>
+                <span className="w-4 h-4 bg-error-solid rounded-full flex items-center justify-center text-on-brand text-[12px] font-bold">!</span>
                 {error}
               </p>
             )}

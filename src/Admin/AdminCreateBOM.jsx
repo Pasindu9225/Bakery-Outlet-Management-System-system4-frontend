@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { onEnterClick } from "../utils/a11y";
 import { confirmDialog } from "../component/ConfirmDialog";
 import toast from "react-hot-toast";
 import { Package, Search, Plus, Edit, Trash2, X, Check, AlertTriangle, ChevronDown, ChevronRight, FileText } from "lucide-react";
@@ -788,25 +789,25 @@ export default function AdminCreateBOM() {
                                                 <div className="flex flex-wrap items-center gap-2 justify-end w-full sm:w-auto">
                                                     <div className="flex items-center gap-6 mr-4">
                                                         <div className="flex flex-col items-end">
-                                                            <span className="text-[11px] text-fg-secondary uppercase font-[600]">Expected GP</span>
+                                                            <span className="text-[12px] text-fg-secondary uppercase font-[600]">Expected GP</span>
                                                             <span className="text-[15px] font-[700] text-fg-secondary">
                                                                 {bom.parentProduct.expectedGP != null ? `${bom.parentProduct.expectedGP.toFixed(2)}%` : '0.00%'}
                                                             </span>
                                                         </div>
                                                         <div className="flex flex-col items-end">
-                                                            <span className="text-[11px] text-fg-secondary uppercase font-[600]">Actual GP</span>
+                                                            <span className="text-[12px] text-fg-secondary uppercase font-[600]">Actual GP</span>
                                                             <span className={`text-[15px] font-[700] ${bom.parentProduct.actualGP != null && bom.parentProduct.actualGP > 0 ? 'text-success' : 'text-error'}`}>
                                                                 {bom.parentProduct.actualGP != null ? `${bom.parentProduct.actualGP.toFixed(2)}%` : '0.00%'}
                                                             </span>
                                                         </div>
                                                         <div className="flex flex-col items-end">
-                                                            <span className="text-[11px] text-fg-secondary uppercase font-[600]">Cost</span>
+                                                            <span className="text-[12px] text-fg-secondary uppercase font-[600]">Cost</span>
                                                             <span className="text-[15px] font-[700] text-brand-fg">
                                                                 Rs. {(bom.parentProduct.totalCost || 0).toFixed(2)}
                                                             </span>
                                                         </div>
                                                         <div className="flex flex-col items-end">
-                                                            <span className="text-[11px] text-fg-secondary uppercase font-[600]">Sale Price</span>
+                                                            <span className="text-[12px] text-fg-secondary uppercase font-[600]">Sale Price</span>
                                                             <span className="text-[15px] font-[700] text-brand-fg">
                                                                 Rs. {(bom.parentProduct.salePrice || 0).toFixed(2)}
                                                             </span>
@@ -933,7 +934,7 @@ export default function AdminCreateBOM() {
                                     }
                                 </p>
                             </div>
-                            <button
+                            <button aria-label="Close"
                                 onClick={handleCancel}
                                 className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
                             >
@@ -979,7 +980,7 @@ export default function AdminCreateBOM() {
                                                         getFilteredProducts().map(product => (
                                                             <div
                                                                 key={product.id}
-                                                                onClick={() => {
+                                                                role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => {
                                                                     handleChange('parentProduct', product);
                                                                     setProductSearchTerm('');
                                                                     setShowProductDropdown(false);
@@ -1040,7 +1041,7 @@ export default function AdminCreateBOM() {
                                                     <h4 className="text-[14px] font-[600] text-fg">
                                                         Item #{index + 1}
                                                     </h4>
-                                                    <button
+                                                    <button aria-label="Delete"
                                                         type="button"
                                                         onClick={() => handleRemoveChildItem(item.tempId)}
                                                         className="p-1 text-error hover:bg-hover rounded transition-colors"
@@ -1109,7 +1110,7 @@ export default function AdminCreateBOM() {
                                                                     getFilteredChildItems(item.selectedType, item.searchTerm).map(ci => (
                                                                         <div
                                                                             key={ci.id}
-                                                                            onClick={() => {
+                                                                            role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => {
                                                                                 handleChildItemChange(item.tempId, 'itemCode', ci.code);
                                                                                 handleChildItemChange(item.tempId, 'searchTerm', '');
                                                                                 handleChildItemChange(item.tempId, 'showDropdown', false);

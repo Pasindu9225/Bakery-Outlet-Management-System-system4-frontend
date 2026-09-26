@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
 import toast from "react-hot-toast";
 import { confirmDialog } from "../component/ConfirmDialog";
 import {
@@ -278,9 +279,9 @@ export default function AdminDiscountRules() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center justify-end gap-2">
-                                                        <button onClick={() => { setSelected(rule); setModal('view'); }} className="p-2 text-fg-muted hover:text-brand-fg"><Eye size={18} /></button>
-                                                        <button onClick={() => handleEdit(rule)} className="p-2 text-fg-muted hover:text-success"><Edit size={18} /></button>
-                                                        <button onClick={() => handleDelete(rule.discountId)} className="p-2 text-fg-muted hover:text-error"><Trash2 size={18} /></button>
+                                                        <button aria-label="View details" onClick={() => { setSelected(rule); setModal('view'); }} className="p-2 text-fg-muted hover:text-brand-fg"><Eye size={18} /></button>
+                                                        <button aria-label="Edit" onClick={() => handleEdit(rule)} className="p-2 text-fg-muted hover:text-success"><Edit size={18} /></button>
+                                                        <button aria-label="Delete" onClick={() => handleDelete(rule.discountId)} className="p-2 text-fg-muted hover:text-error"><Trash2 size={18} /></button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -298,7 +299,7 @@ export default function AdminDiscountRules() {
                     <div className="bg-elevated rounded-xl w-full max-w-2xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col">
                         <div className="p-4 border-b bg-subtle flex justify-between items-center">
                             <h3 className="font-[600]">{modal === 'create' ? 'Create New Discount' : 'Edit Discount Rule'}</h3>
-                            <button onClick={() => setModal(null)}><X size={20} /></button>
+                            <button aria-label="Close" onClick={() => setModal(null)}><X size={20} /></button>
                         </div>
                         <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 p-6">
                             <div className="space-y-4">
@@ -336,16 +337,16 @@ export default function AdminDiscountRules() {
                                         <p className="text-[12px] font-[600] text-brand-fg uppercase flex items-center gap-1"><Clock size={14}/> Schedule Setting</p>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-[11px] text-brand-fg mb-1">Start Time</label>
+                                                <label className="block text-[12px] text-brand-fg mb-1">Start Time</label>
                                                 <input type="time" value={formData.startTime} onChange={e => setFormData({...formData, startTime: e.target.value})} className="w-full px-3 py-1.5 border border-brand/20 rounded" />
                                             </div>
                                             <div>
-                                                <label className="block text-[11px] text-brand-fg mb-1">End Time</label>
+                                                <label className="block text-[12px] text-brand-fg mb-1">End Time</label>
                                                 <input type="time" value={formData.endTime} onChange={e => setFormData({...formData, endTime: e.target.value})} className="w-full px-3 py-1.5 border border-brand/20 rounded" />
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-[11px] text-brand-fg mb-1">Active Days</label>
+                                            <label className="block text-[12px] text-brand-fg mb-1">Active Days</label>
                                             <div className="flex flex-wrap gap-2">
                                                 {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map(day => {
                                                     const isSelected = Array.isArray(formData.daysOfWeek) && formData.daysOfWeek.includes(day);
@@ -364,7 +365,7 @@ export default function AdminDiscountRules() {
                                                                     };
                                                                 });
                                                             }}
-                                                            className={`px-3 py-1.5 rounded text-[11px] font-[600] transition-colors border ${
+                                                            className={`px-3 py-1.5 rounded text-[12px] font-[600] transition-colors border ${
                                                                 isSelected
                                                                     ? 'bg-brand text-on-brand border-brand-fg'
                                                                     : 'bg-surface text-brand-fg border-brand/20 hover:bg-brand/10'
@@ -389,7 +390,7 @@ export default function AdminDiscountRules() {
                                     {!formData.appliedToAllProducts && (
                                         <div className="border rounded-lg p-2 max-h-48 overflow-y-auto grid grid-cols-2 gap-2">
                                             {products.map(p => (
-                                                <div key={p.id} onClick={() => toggleProduct(p.id)} className={`p-2 rounded border cursor-pointer text-[12px] transition-all ${formData.applicableProductIds.includes(p.id) ? 'bg-brand/10 border-brand-fg text-brand-fg' : 'hover:bg-subtle'}`}>
+                                                <div key={p.id} role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => toggleProduct(p.id)} className={`p-2 rounded border cursor-pointer text-[12px] transition-all ${formData.applicableProductIds.includes(p.id) ? 'bg-brand/10 border-brand-fg text-brand-fg' : 'hover:bg-subtle'}`}>
                                                     {p.productName}
                                                 </div>
                                             ))}
@@ -413,7 +414,7 @@ export default function AdminDiscountRules() {
                     <div className="bg-elevated rounded-xl w-full max-w-lg shadow-xl overflow-hidden">
                         <div className="p-4 border-b bg-subtle flex justify-between items-center">
                             <h3 className="font-[600]">Discount Details</h3>
-                            <button onClick={() => setModal(null)}><X size={20} /></button>
+                            <button aria-label="Close" onClick={() => setModal(null)}><X size={20} /></button>
                         </div>
                         <div className="p-6 space-y-4">
                              <div>
@@ -422,11 +423,11 @@ export default function AdminDiscountRules() {
                              </div>
                              <div className="grid grid-cols-2 gap-4 border-y py-4">
                                 <div>
-                                    <p className="text-[11px] text-fg-muted uppercase">Discount Value</p>
+                                    <p className="text-[12px] text-fg-muted uppercase">Discount Value</p>
                                     <p className="font-[600]">{selected.discountType === 'PERCENTAGE' ? `${selected.discountValue}%` : `Rs.${selected.discountValue}`}</p>
                                 </div>
                                 <div>
-                                    <p className="text-[11px] text-fg-muted uppercase">Max Capped</p>
+                                    <p className="text-[12px] text-fg-muted uppercase">Max Capped</p>
                                     <p className="font-[600]">{selected.maximumDiscountValue ? `Rs.${selected.maximumDiscountValue}` : 'None'}</p>
                                 </div>
                              </div>
@@ -434,7 +435,7 @@ export default function AdminDiscountRules() {
                                 <div className="bg-brand/10 p-3 rounded-lg">
                                     <p className="text-[12px] font-[600] text-brand-fg flex items-center gap-1 mb-1"><Clock size={14} /> Schedule Details</p>
                                     <p className="text-[13px]">{selected.startTime} - {selected.endTime}</p>
-                                    <p className="text-[11px] text-brand-fg font-[500]">{Array.isArray(selected.daysOfWeek) ? selected.daysOfWeek.join(', ') : selected.daysOfWeek}</p>
+                                    <p className="text-[12px] text-brand-fg font-[500]">{Array.isArray(selected.daysOfWeek) ? selected.daysOfWeek.join(', ') : selected.daysOfWeek}</p>
                                 </div>
                              )}
                              <div>
@@ -445,7 +446,7 @@ export default function AdminDiscountRules() {
                                     ) : (
                                         <div className="flex flex-wrap gap-1">
                                             {selected.applicableProducts?.map(p => (
-                                                <span key={p.id} className="bg-hover px-2 py-1 rounded text-[11px]">{p.productName}</span>
+                                                <span key={p.id} className="bg-hover px-2 py-1 rounded text-[12px]">{p.productName}</span>
                                             ))}
                                         </div>
                                     )}

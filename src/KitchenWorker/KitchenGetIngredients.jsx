@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
   RefreshCw,
   Package,
@@ -65,7 +66,7 @@ function ConfirmReceiptModal({ request, onClose, onConfirm, loading }) {
             <h3 className="text-[16px] font-[600] text-fg">Confirm Receipt</h3>
             <p className="text-[12px] text-fg-secondary mt-0.5">Request #{request.id}</p>
           </div>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="p-1.5 hover:bg-app rounded-lg transition-colors"
           >
@@ -176,7 +177,7 @@ function NewRequestForm({ rawMaterials, onSubmit, submitting }) {
               className="w-24 px-3 py-2 border border-line rounded-lg text-[13px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
             />
             {items.length > 1 && (
-              <button
+              <button aria-label="Delete"
                 type="button"
                 onClick={() => removeItem(idx)}
                 className="p-2 text-error hover:bg-subtle rounded-lg"
@@ -260,7 +261,7 @@ export default function KitchenGetIngredients() {
       const data = await res.json();
       setRequests(data);
     } catch (err) {
-      setError(err.message);
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
@@ -306,7 +307,7 @@ export default function KitchenGetIngredients() {
       setShowNewForm(false);
       setSuccessMsg("Ingredient request submitted successfully!");
     } catch (err) {
-      setError(err.message);
+      setError(friendlyError(err));
     } finally {
       setSubmitting(false);
     }
@@ -332,7 +333,7 @@ export default function KitchenGetIngredients() {
       setConfirmRequest(null);
       setSuccessMsg("Receipt confirmed!");
     } catch (err) {
-      setError(err.message);
+      setError(friendlyError(err));
     } finally {
       setConfirmLoading(false);
     }
@@ -467,7 +468,7 @@ export default function KitchenGetIngredients() {
                             <p className="text-[14px] font-[600] text-fg">
                               Request #{request.id}
                             </p>
-                            <p className="text-[11px] text-fg-secondary">
+                            <p className="text-[12px] text-fg-secondary">
                               {request.createdAt
                                 ? new Date(request.createdAt).toLocaleString()
                                 : "—"}
@@ -477,7 +478,7 @@ export default function KitchenGetIngredients() {
                         </div>
                         <div className="flex items-center gap-3">
                           <span
-                            className={`inline-flex items-center gap-1.5 text-[11px] font-[500] px-2.5 py-1 rounded-full ${meta.color}`}
+                            className={`inline-flex items-center gap-1.5 text-[12px] font-[500] px-2.5 py-1 rounded-full ${meta.color}`}
                           >
                             {meta.icon}
                             {meta.label}

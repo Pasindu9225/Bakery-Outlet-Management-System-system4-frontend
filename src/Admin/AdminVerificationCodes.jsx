@@ -141,7 +141,7 @@ export default function AdminVerificationCodes() {
                 <ShieldCheck size={20} />
               </div>
               <div>
-                <p className="text-[11px] text-brand-fg font-[700] uppercase tracking-wider">Security Status</p>
+                <p className="text-[12px] text-brand-fg font-[700] uppercase tracking-wider">Security Status</p>
                 <p className="text-[14px] font-[600] text-brand-fg">Admin Only Access</p>
               </div>
             </div>
@@ -297,7 +297,7 @@ export default function AdminVerificationCodes() {
                   <p className="text-[12px] text-fg-secondary">Assign a special code to {selectedUser.firstName}</p>
                 </div>
               </div>
-              <button 
+              <button aria-label="Close" 
                 onClick={closeModal} 
                 className="p-2 hover:bg-line rounded-full transition-all text-fg-muted"
               >

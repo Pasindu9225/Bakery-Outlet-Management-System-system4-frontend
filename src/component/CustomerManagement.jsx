@@ -307,7 +307,7 @@ export default function CustomerManagement() {
                             const nicInfo = extractNicDetails(customer.idCardNumber);
                             return nicInfo ? (
                               <span className="font-[600] text-fg-strong">
-                                {nicInfo.birthdate} <span className="text-[11px] text-fg-secondary font-[400]">({nicInfo.gender})</span>
+                                {nicInfo.birthdate} <span className="text-[12px] text-fg-secondary font-[400]">({nicInfo.gender})</span>
                               </span>
                             ) : (
                               <span className="text-error font-[500] text-[13px]">Invalid NIC</span>
@@ -362,7 +362,7 @@ export default function CustomerManagement() {
                 <User size={18} className="text-brand-fg" />
                 {regStep === 1 ? "Register New Customer" : "Verify SMS OTP"}
               </h3>
-              <button
+              <button aria-label="Close"
                 onClick={() => {
                   setModal(null);
                   setRegStep(1);
@@ -530,7 +530,7 @@ export default function CustomerManagement() {
                   Customer: {selectedCustomer.name} ({selectedCustomer.contactNumber})
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={() => setModal(null)}
                 className="text-fg-secondary hover:bg-hover p-1.5 rounded-lg transition-all"
               >
@@ -568,7 +568,7 @@ export default function CustomerManagement() {
                             <p className="text-[14px] font-[500] text-fg leading-tight">
                               {log.description}
                             </p>
-                            <p className="text-[11px] text-fg-secondary mt-1.5 flex items-center gap-1">
+                            <p className="text-[12px] text-fg-secondary mt-1.5 flex items-center gap-1">
                               <Calendar size={12} />
                               {new Date(log.createdAt).toLocaleString()}
                             </p>

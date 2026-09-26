@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import ButtonHint from "../component/ButtonHint.jsx";
 import {
     DollarSign,
@@ -299,7 +300,7 @@ export default function POSDayEnd() {
                 window.location.href = '/posDashboard';
             }, 1500);
         } catch (error) {
-            toast.error(error.response?.data?.message || "Error finalizing day end.");
+            toast.error(friendlyError(error, { fallback: "Error finalizing day end." }));
             setShowConfirmation(false);
         }
     };
@@ -323,7 +324,7 @@ export default function POSDayEnd() {
                                     <User size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                                 }
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${
+                            <span className={`mt-1 text-[12px] sm:text-xs text-center whitespace-nowrap ${
                                 currentStep === 1 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                             }`}>
                                 Shift
@@ -347,7 +348,7 @@ export default function POSDayEnd() {
                                     <DollarSign size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                                 }
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${
+                            <span className={`mt-1 text-[12px] sm:text-xs text-center whitespace-nowrap ${
                                 currentStep === 2 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                             }`}>
                                 Cash
@@ -373,7 +374,7 @@ export default function POSDayEnd() {
                                             <Package size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                                         }
                                     </div>
-                                    <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${
+                                    <span className={`mt-1 text-[12px] sm:text-xs text-center whitespace-nowrap ${
                                         currentStep === 3 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                                     }`}>
                                         Stock
@@ -397,7 +398,7 @@ export default function POSDayEnd() {
                                     <FileText size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                                 }
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${
+                            <span className={`mt-1 text-[12px] sm:text-xs text-center whitespace-nowrap ${
                                 currentStep === 4 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                             }`}>
                                 Review
@@ -416,7 +417,7 @@ export default function POSDayEnd() {
                             }`}>
                                 <Lock size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${
+                            <span className={`mt-1 text-[12px] sm:text-xs text-center whitespace-nowrap ${
                                 currentStep === 5 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                             }`}>
                                 Confirm
@@ -573,8 +574,8 @@ export default function POSDayEnd() {
                                     <DollarSign className="text-success" size={24} />
                                     <h4 className="text-[16px] font-[600] text-fg">Cash Count & Denominations Breakdown</h4>
                                 </div>
-                                <span className="text-[11px] font-[600] text-fg bg-surface px-2.5 py-1 rounded border border-line">
-                                    DB Recorded: Rs. {expectedCashTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                <span className="text-[12px] font-[600] text-fg bg-surface px-2.5 py-1 rounded border border-line">
+                                    System total: Rs. {expectedCashTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </span>
                             </div>
 
@@ -583,7 +584,7 @@ export default function POSDayEnd() {
                                 <div className="bg-surface p-4 rounded-lg border border-line space-y-3">
                                     <h5 className="text-[13px] font-[700] text-fg uppercase tracking-wider mb-2 border-b pb-2 flex justify-between items-center">
                                         <span>Currency Notes</span>
-                                        <span className="text-[11px] text-fg-secondary font-normal">Count x Value</span>
+                                        <span className="text-[12px] text-fg-secondary font-normal">Count x Value</span>
                                     </h5>
                                     {[
                                         { label: 'Rs. 5000 Note', key: 'n5000', val: 5000 },
@@ -619,7 +620,7 @@ export default function POSDayEnd() {
                                     <div>
                                         <h5 className="text-[13px] font-[700] text-fg uppercase tracking-wider mb-2 border-b pb-2 flex justify-between items-center">
                                             <span>Currency Coins</span>
-                                            <span className="text-[11px] text-fg-secondary font-normal">Count x Value</span>
+                                            <span className="text-[12px] text-fg-secondary font-normal">Count x Value</span>
                                         </h5>
                                         <div className="space-y-3">
                                             {[
@@ -680,8 +681,8 @@ export default function POSDayEnd() {
                                     <CreditCard className="text-brand-fg" size={24} />
                                     <h4 className="text-[16px] font-[600] text-fg">Card Total</h4>
                                 </div>
-                                <span className="text-[11px] font-[600] text-brand-fg bg-brand/10 px-2.5 py-1 rounded border border-brand/20">
-                                    DB Recorded: Rs. {expectedCardTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                <span className="text-[12px] font-[600] text-brand-fg bg-brand/10 px-2.5 py-1 rounded border border-brand/20">
+                                    System total: Rs. {expectedCardTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </span>
                             </div>
                             <div className="grid grid-cols-1 gap-4">
@@ -691,7 +692,7 @@ export default function POSDayEnd() {
                                         <button
                                             type="button"
                                             onClick={() => setDayEndData(prev => ({ ...prev, cardCounted: String(expectedCardTotal) }))}
-                                            className="text-[11px] text-brand-fg hover:underline font-[500]"
+                                            className="text-[12px] text-brand-fg hover:underline font-[500]"
                                         >
                                             Use DB Amount
                                         </button>
@@ -701,7 +702,7 @@ export default function POSDayEnd() {
                                         value={dayEndData.cardCounted}
                                         onChange={(e) => setDayEndData(prev => ({ ...prev, cardCounted: e.target.value }))}
                                         className="w-full px-3 py-3 border border-line rounded-md focus:ring-2 focus:ring-brand-fg focus:border-transparent text-[14px]"
-                                        placeholder={`DB Recorded Total: Rs. ${expectedCardTotal.toFixed(2)}`}
+                                        placeholder={`System total: Rs. ${expectedCardTotal.toFixed(2)}`}
                                     />
                                 </div>
                             </div>
@@ -714,8 +715,8 @@ export default function POSDayEnd() {
                                     <TrendingUp className="text-plum" size={24} />
                                     <h4 className="text-[16px] font-[600] text-fg">PickMe / Uber Total</h4>
                                 </div>
-                                <span className="text-[11px] font-[600] text-plum bg-plum/10 px-2.5 py-1 rounded border border-plum/30">
-                                    DB Recorded: Rs. {expectedUberPickmeTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                <span className="text-[12px] font-[600] text-plum bg-plum/10 px-2.5 py-1 rounded border border-plum/30">
+                                    System total: Rs. {expectedUberPickmeTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </span>
                             </div>
                             <div className="grid grid-cols-1 gap-4">
@@ -725,7 +726,7 @@ export default function POSDayEnd() {
                                         <button
                                             type="button"
                                             onClick={() => setDayEndData(prev => ({ ...prev, uberPickmeCounted: String(expectedUberPickmeTotal) }))}
-                                            className="text-[11px] text-brand-fg hover:underline font-[500]"
+                                            className="text-[12px] text-brand-fg hover:underline font-[500]"
                                         >
                                             Use DB Amount
                                         </button>
@@ -735,7 +736,7 @@ export default function POSDayEnd() {
                                         value={dayEndData.uberPickmeCounted}
                                         onChange={(e) => setDayEndData(prev => ({ ...prev, uberPickmeCounted: e.target.value }))}
                                         className="w-full px-3 py-3 border border-line rounded-md focus:ring-2 focus:ring-brand-fg focus:border-transparent text-[14px]"
-                                        placeholder={`DB Recorded Total: Rs. ${expectedUberPickmeTotal.toFixed(2)}`}
+                                        placeholder={`System total: Rs. ${expectedUberPickmeTotal.toFixed(2)}`}
                                     />
                                 </div>
                             </div>
@@ -794,7 +795,7 @@ export default function POSDayEnd() {
                                                 className={`w-20 px-2 py-1 border rounded focus:ring-1 focus:ring-brand-fg text-[14px] disabled:bg-subtle ${rowError ? 'border-error' : 'border-line'}`}
                                                 placeholder="0"
                                             />
-                                            {rowError && <p className="text-[11px] text-error mt-1 max-w-[160px]">{rowError}</p>}
+                                            {rowError && <p className="text-[12px] text-error mt-1 max-w-[160px]">{rowError}</p>}
                                         </td>
                                         <td className="py-3 px-4">
                                             {(parseInt(item.wastageQty) || 0) > 0 ? (
@@ -865,19 +866,19 @@ export default function POSDayEnd() {
                         <div className="p-4 bg-subtle rounded-lg h-[96px] flex flex-col justify-center">
                             <div className="grid grid-cols-3 gap-3">
                                 <div className="text-center p-2 bg-surface rounded border border-line flex flex-col justify-center">
-                                    <span className="text-[10px] text-fg-secondary block uppercase font-[600]">Total Sales</span>
+                                    <span className="text-[12px] text-fg-secondary block uppercase font-[600]">Total Sales</span>
                                     <span className="text-[13px] font-[700] text-brand-fg truncate">
                                         Rs. {(dayEndSummary?.totalSalesAmount || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </span>
                                 </div>
                                 <div className="text-center p-2 bg-surface rounded border border-line flex flex-col justify-center">
-                                    <span className="text-[10px] text-fg-secondary block uppercase font-[600]">Total Bills</span>
+                                    <span className="text-[12px] text-fg-secondary block uppercase font-[600]">Total Bills</span>
                                     <span className="text-[13px] font-[700] text-warning">
                                         {dayEndSummary?.totalBills || 0}
                                     </span>
                                 </div>
                                 <div className="text-center p-2 bg-surface rounded border border-line flex flex-col justify-center">
-                                    <span className="text-[10px] text-fg-secondary block uppercase font-[600]">Loyal Cust.</span>
+                                    <span className="text-[12px] text-fg-secondary block uppercase font-[600]">Loyal Cust.</span>
                                     <span className="text-[13px] font-[700] text-success">
                                         {dayEndSummary?.loyaltyCustomersCount || 0}
                                     </span>

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
+import { friendlyError } from "../utils/friendlyError";
 import { toast } from "react-hot-toast";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -90,7 +92,7 @@ function TaskDetailModal({ request, onClose, onUpdateStatus, onDispatch }) {
             </h3>
             <p className="text-[13px] text-fg-secondary mt-1">ID: {request.id}</p>
           </div>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="p-2 hover:bg-app rounded-lg transition-colors"
           >
@@ -103,13 +105,13 @@ function TaskDetailModal({ request, onClose, onUpdateStatus, onDispatch }) {
           <div className="bg-gradient-to-r from-subtle to-subtle rounded-xl p-5 border border-line">
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <p className="text-[11px] text-fg-secondary mb-1">Plan Name</p>
+                <p className="text-[12px] text-fg-secondary mb-1">Plan Name</p>
                 <p className="text-[14px] font-[600] text-fg">
                   {request.requestName}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] text-fg-secondary mb-1">Requested Date</p>
+                <p className="text-[12px] text-fg-secondary mb-1">Requested Date</p>
                 <p className="text-[14px] font-[500] text-fg">
                   {new Date(request.requestDate).toLocaleDateString("en-US", {
                     day: "numeric",
@@ -119,7 +121,7 @@ function TaskDetailModal({ request, onClose, onUpdateStatus, onDispatch }) {
                 </p>
               </div>
               <div>
-                <p className="text-[11px] text-fg-secondary mb-1">Status</p>
+                <p className="text-[12px] text-fg-secondary mb-1">Status</p>
                 <span
                   className={`inline-flex items-center gap-1.5 text-[12px] font-[500] px-3 py-1 rounded-full ${meta.color}`}
                 >
@@ -128,7 +130,7 @@ function TaskDetailModal({ request, onClose, onUpdateStatus, onDispatch }) {
                 </span>
               </div>
               <div>
-                <p className="text-[11px] text-fg-secondary mb-1">Created By</p>
+                <p className="text-[12px] text-fg-secondary mb-1">Created By</p>
                 <p className="text-[14px] font-[500] text-fg">
                   {request.createdBy}
                 </p>
@@ -200,7 +202,7 @@ function TaskDetailModal({ request, onClose, onUpdateStatus, onDispatch }) {
                                   {product.name}
                                 </span>
                                 {product.isBlocked && (
-                                  <span className="ml-2 px-2 py-0.5 text-[10px] font-[600] bg-error/10 text-error border border-error/30 rounded-md">
+                                  <span className="ml-2 px-2 py-0.5 text-[12px] font-[600] bg-error/10 text-error border border-error/30 rounded-md">
                                     Blocked ({product.uncompletedChildCount} child items pending)
                                   </span>
                                 )}
@@ -211,7 +213,7 @@ function TaskDetailModal({ request, onClose, onUpdateStatus, onDispatch }) {
                             <span className="text-[13px] font-[600] text-fg">
                               {product.quantity}
                             </span>
-                            <span className="text-[11px] text-fg-secondary ml-1">
+                            <span className="text-[12px] text-fg-secondary ml-1">
                               {product.unit}
                             </span>
                           </td>
@@ -219,7 +221,7 @@ function TaskDetailModal({ request, onClose, onUpdateStatus, onDispatch }) {
                             <span className="text-[13px] font-[600] text-success">
                               {product.produced}
                             </span>
-                            <span className="text-[11px] text-fg-secondary ml-1">
+                            <span className="text-[12px] text-fg-secondary ml-1">
                               {product.unit}
                             </span>
                           </td>
@@ -233,7 +235,7 @@ function TaskDetailModal({ request, onClose, onUpdateStatus, onDispatch }) {
                             >
                               {remaining}
                             </span>
-                            <span className="text-[11px] text-fg-secondary ml-1">
+                            <span className="text-[12px] text-fg-secondary ml-1">
                               {product.unit}
                             </span>
                           </td>
@@ -251,19 +253,19 @@ function TaskDetailModal({ request, onClose, onUpdateStatus, onDispatch }) {
                                     <span className="text-[12px] font-[500] text-plum">
                                       {child.name}
                                     </span>
-                                    <span className="px-2 py-0.5 rounded text-[10px] font-[600] bg-plum/10 text-plum">
+                                    <span className="px-2 py-0.5 rounded text-[12px] font-[600] bg-plum/10 text-plum">
                                       {child.productionCenterName || "Sub-assembly Center"}
                                     </span>
                                     {child.miniStoreFulfilled || (child.reservedFromMiniStore && child.reservedFromMiniStore > 0) ? (
-                                      <span className="px-2 py-0.5 rounded text-[10px] font-[600] bg-brand/10 text-brand-fg border border-brand/20">
+                                      <span className="px-2 py-0.5 rounded text-[12px] font-[600] bg-brand/10 text-brand-fg border border-brand/20">
                                         📦 In Mini Store ({child.reservedFromMiniStore} {child.unit} reserved)
                                       </span>
                                     ) : child.isCompleted ? (
-                                      <span className="px-2 py-0.5 rounded text-[10px] font-[600] bg-success/10 text-success">
+                                      <span className="px-2 py-0.5 rounded text-[12px] font-[600] bg-success/10 text-success">
                                         ✅ Ready
                                       </span>
                                     ) : (
-                                      <span className="px-2 py-0.5 rounded text-[10px] font-[600] bg-warning/10 text-warning">
+                                      <span className="px-2 py-0.5 rounded text-[12px] font-[600] bg-warning/10 text-warning">
                                         ⏳ In Progress
                                       </span>
                                     )}
@@ -521,7 +523,7 @@ export default function BakeryProductionRequests() {
       setTimeout(() => window.location.reload(), 1000); 
     } catch (e) {
       console.error("Failed to dispatch:", e);
-      toast.error(e.message);
+      toast.error(friendlyError(e));
     }
   };
 
@@ -690,7 +692,7 @@ export default function BakeryProductionRequests() {
   ].map((card, i) => (
     <div
       key={i}
-      onClick={() => setStatusFilter(card.filterValue || "ALL")}
+      role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => setStatusFilter(card.filterValue || "ALL")}
       className={`
         ${card.color} 
         ${card.hoverColor}
@@ -926,7 +928,7 @@ export default function BakeryProductionRequests() {
                         <tr
                           key={request.id}
                           className="border-b border-line hover:bg-app transition-colors cursor-pointer"
-                          onClick={() => {
+                          role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => {
                             setSelectedRequest(request);
                             setShowModal(true);
                           }}
@@ -943,7 +945,7 @@ export default function BakeryProductionRequests() {
                                 }
                               )}
                             </p>
-                            <p className="text-[11px] text-fg-secondary mt-0.5">
+                            <p className="text-[12px] text-fg-secondary mt-0.5">
                               {new Date(request.requestDate).toLocaleTimeString(
                                 "en-US",
                                 { hour: "2-digit", minute: "2-digit" }
@@ -956,7 +958,7 @@ export default function BakeryProductionRequests() {
                             <p className="text-[13px] font-[600] text-fg">
                               {request.requestName}
                             </p>
-                            <p className="text-[11px] text-fg-secondary mt-0.5 flex items-center gap-1">
+                            <p className="text-[12px] text-fg-secondary mt-0.5 flex items-center gap-1">
                               <Hash size={10} />
                               {request.id}
                             </p>
@@ -967,7 +969,7 @@ export default function BakeryProductionRequests() {
                             <p className="text-[14px] font-[700] text-fg">
                               {request.totalQty}
                             </p>
-                            <p className="text-[11px] text-fg-secondary">
+                            <p className="text-[12px] text-fg-secondary">
                               {request.products.length} product type
                               {request.products.length !== 1 ? "s" : ""}
                             </p>
@@ -976,10 +978,10 @@ export default function BakeryProductionRequests() {
                           {/* Progress Bar */}
                           <td className="py-4 px-2 min-w-[140px]">
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-[11px] text-fg-secondary">
+                              <span className="text-[12px] text-fg-secondary">
                                 {request.producedQty}/{request.totalQty}
                               </span>
-                              <span className="text-[11px] font-[600] text-fg">
+                              <span className="text-[12px] font-[600] text-fg">
                                 {pct}%
                               </span>
                             </div>

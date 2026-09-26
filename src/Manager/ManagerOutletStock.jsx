@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
+import { friendlyError } from "../utils/friendlyError";
 import toast from "react-hot-toast";
 import { Search, Store, Package, RefreshCw } from "lucide-react";
 import ManagerNavBar from "../component/ManagerNavBar.jsx";
@@ -69,7 +71,7 @@ export default function ManagerOutletStock() {
       setStockItems(data);
     } catch (err) {
       console.error(err);
-      setError(err.message);
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
@@ -155,16 +157,16 @@ export default function ManagerOutletStock() {
               <table className="w-full min-w-[600px]">
                 <thead className="bg-subtle sticky top-0 z-10">
                   <tr>
-                    <th className="px-4 py-3 text-left text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">
                       Product
                     </th>
-                    <th className="px-4 py-3 text-left text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">
                       Category
                     </th>
-                    <th className="px-4 py-3 text-center text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
+                    <th className="px-4 py-3 text-center text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">
                       Received Qty
                     </th>
-                    <th className="px-4 py-3 text-center text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
+                    <th className="px-4 py-3 text-center text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">
                       Current Stock
                     </th>
                   </tr>
@@ -200,7 +202,7 @@ export default function ManagerOutletStock() {
                       <tr 
                         key={item.dayProductionItemId} 
                         className="hover:bg-subtle/50 transition-colors cursor-pointer"
-                        onClick={() => {
+                        role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => {
                           setSelectedItemForTransfer(item);
                           setIsModalOpen(true);
                         }}

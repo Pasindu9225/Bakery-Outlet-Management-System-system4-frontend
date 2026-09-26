@@ -359,7 +359,7 @@ export default function ManagerIouApprovals() {
                   </span>
                 </div>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={() => setIsViewModalOpen(false)}
                 className="p-1 hover:bg-subtle rounded text-fg-secondary"
               >

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
 import ButtonHint from "../component/ButtonHint.jsx";
 import {
     RotateCcw,
@@ -146,7 +147,7 @@ export default function POSReturns() {
                                     <Search size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                                 }
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 1 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
+                            <span className={`mt-1 text-[12px] sm:text-xs text-center whitespace-nowrap ${currentStep === 1 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                                 }`}>
                                 Search
                             </span>
@@ -168,7 +169,7 @@ export default function POSReturns() {
                                     <Package size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                                 }
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 2 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
+                            <span className={`mt-1 text-[12px] sm:text-xs text-center whitespace-nowrap ${currentStep === 2 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                                 }`}>
                                 Items
                             </span>
@@ -190,7 +191,7 @@ export default function POSReturns() {
                                     <RefreshCw size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                                 }
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 3 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
+                            <span className={`mt-1 text-[12px] sm:text-xs text-center whitespace-nowrap ${currentStep === 3 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                                 }`}>
                                 Type
                             </span>
@@ -212,7 +213,7 @@ export default function POSReturns() {
                                     <DollarSign size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                                 }
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 4 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
+                            <span className={`mt-1 text-[12px] sm:text-xs text-center whitespace-nowrap ${currentStep === 4 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                                 }`}>
                                 Process
                             </span>
@@ -229,7 +230,7 @@ export default function POSReturns() {
                                 }`}>
                                 <Check size={12} className="sm:w-3 sm:h-3 md:w-4 md:h-4" />
                             </div>
-                            <span className={`mt-1 text-[10px] sm:text-xs text-center whitespace-nowrap ${currentStep === 5 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
+                            <span className={`mt-1 text-[12px] sm:text-xs text-center whitespace-nowrap ${currentStep === 5 ? 'text-brand-fg font-medium' : 'text-fg-secondary'
                                 }`}>
                                 Confirm
                             </span>
@@ -590,7 +591,7 @@ export default function POSReturns() {
                                                         onKeyPress={(e) => e.key === 'Enter' && handleReceiptSearch()}
                                                         className="w-full pl-10 pr-12 py-3 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                                     />
-                                                    <button
+                                                    <button aria-label="Scan"
                                                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-fg-secondary hover:text-brand-fg transition-colors"
                                                     >
                                                         <Scan size={18} />
@@ -660,7 +661,7 @@ export default function POSReturns() {
                                                             <div className="flex items-center gap-2">
                                                                 <label className="text-[12px] text-fg-secondary whitespace-nowrap">Return Qty:</label>
                                                                 <div className="flex items-center gap-1">
-                                                                    <button
+                                                                    <button aria-label="Decrease quantity"
                                                                         onClick={() => updateReturnQuantity(item.id, item.returnQuantity - 1)}
                                                                         className="w-8 h-8 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle transition-colors"
                                                                         disabled={item.returnQuantity <= 0}
@@ -675,7 +676,7 @@ export default function POSReturns() {
                                                                         onChange={(e) => updateReturnQuantity(item.id, parseInt(e.target.value) || 0)}
                                                                         className="w-16 text-center py-1 border border-line rounded text-[14px] focus:border-brand-fg focus:outline-none"
                                                                     />
-                                                                    <button
+                                                                    <button aria-label="Increase quantity"
                                                                         onClick={() => updateReturnQuantity(item.id, item.returnQuantity + 1)}
                                                                         className="w-8 h-8 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle transition-colors"
                                                                         disabled={item.returnQuantity >= item.quantity}
@@ -704,7 +705,7 @@ export default function POSReturns() {
                                                                 <p className="text-[16px] font-[600] text-success">
                                                                     Rs. {(item.price * item.returnQuantity).toLocaleString()}
                                                                 </p>
-                                                                <p className="text-[10px] text-fg-secondary">
+                                                                <p className="text-[12px] text-fg-secondary">
                                                                     {item.resellable ? 'Back to stock' : 'Mark as wastage'}
                                                                 </p>
                                                             </div>
@@ -958,14 +959,14 @@ export default function POSReturns() {
                                                                     </div>
                                                                     <div className="flex items-center gap-3">
                                                                         <div className="flex items-center gap-1">
-                                                                            <button
+                                                                            <button aria-label="Decrease quantity"
                                                                                 onClick={() => updateExchangeItemQuantity(item.id, item.quantity - 1)}
                                                                                 className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                             >
                                                                                 <Minus size={12} />
                                                                             </button>
                                                                             <span className="text-[14px] font-[500] text-fg w-8 text-center">{item.quantity}</span>
-                                                                            <button
+                                                                            <button aria-label="Increase quantity"
                                                                                 onClick={() => updateExchangeItemQuantity(item.id, item.quantity + 1)}
                                                                                 className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                             >
@@ -975,7 +976,7 @@ export default function POSReturns() {
                                                                         <p className="text-[14px] font-[500] text-brand-fg w-20 text-right">
                                                                             Rs. {(item.price * item.quantity).toLocaleString()}
                                                                         </p>
-                                                                        <button
+                                                                        <button aria-label="Close"
                                                                             onClick={() => removeExchangeItem(item.id)}
                                                                             className="text-error hover:bg-error/10 rounded p-1"
                                                                         >
@@ -1024,7 +1025,7 @@ export default function POSReturns() {
                                                                 {exchangeProducts.map((product) => (
                                                                     <div
                                                                         key={product.id}
-                                                                        onClick={() => addExchangeItem(product)}
+                                                                        role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => addExchangeItem(product)}
                                                                         className="p-4 hover:bg-subtle transition-colors border-b border-line last:border-0 cursor-pointer"
                                                                     >
                                                                         <div className="flex justify-between items-center">

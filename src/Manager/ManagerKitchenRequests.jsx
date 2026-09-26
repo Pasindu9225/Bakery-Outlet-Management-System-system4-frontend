@@ -218,7 +218,7 @@ export default function ManagerKitchenRequests() {
                   Request ID: {selectedRequest.id}
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowViewModal(false)}
                 className="p-2 hover:bg-app rounded-lg transition-colors"
               >

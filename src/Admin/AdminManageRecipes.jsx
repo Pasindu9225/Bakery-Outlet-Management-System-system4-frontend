@@ -434,13 +434,13 @@ export default function AdminManageRecipes() {
                                                         {recipe.materials.slice(0, 2).map((material) => (
                                                             <span
                                                                 key={material.id}
-                                                                className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-hover text-brand-fg"
+                                                                className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-brand-fg"
                                                             >
                                                                 {material.name}
                                                             </span>
                                                         ))}
                                                         {recipe.materials.length > 2 && (
-                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-subtle text-fg-secondary">
+                                                            <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-subtle text-fg-secondary">
                                                                 +{recipe.materials.length - 2} more
                                                             </span>
                                                         )}
@@ -510,7 +510,7 @@ export default function AdminManageRecipes() {
                                     }
                                 </p>
                             </div>
-                            <button
+                            <button aria-label="Close"
                                 onClick={handleCancel}
                                 className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
                             >

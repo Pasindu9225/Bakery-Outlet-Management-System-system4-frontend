@@ -207,7 +207,7 @@ function MiniBarChart({ data, valueKey, labelKey, color = "rgb(var(--brand-fg))"
                             opacity: 0.7 + (i / data.length) * 0.3,
                         }}
                     />
-                    <span className="text-[9px] text-fg-secondary truncate w-full text-center">{d[labelKey]}</span>
+                    <span className="text-[12px] text-fg-secondary truncate w-full text-center">{d[labelKey]}</span>
                 </div>
             ))}
         </div>
@@ -218,7 +218,7 @@ function FilterDropdown({ open, setOpen, value, options, onChange, icon, label, 
     const display = (o) => (getLabel ? getLabel(o) : o);
     return (
         <div className="relative">
-            {label && <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">{label}</label>}
+            {label && <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">{label}</label>}
             <button
                 onClick={() => setOpen(!open)}
                 className="flex items-center gap-2 px-3 py-2.5 border border-line rounded-lg text-[13px] text-fg bg-surface hover:bg-subtle transition-colors min-w-[150px] w-full"
@@ -263,7 +263,7 @@ function ReportDetailModal({ row, reportType, onClose }) {
                         <h3 className="text-[16px] font-[600] text-fg">Record Details</h3>
                         <p className="text-[12px] text-fg-secondary mt-0.5">{row.ref || row.product || row.id}</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-app rounded-lg">
+                    <button aria-label="Close" onClick={onClose} className="p-2 hover:bg-app rounded-lg">
                         <X size={16} className="text-fg-secondary" />
                     </button>
                 </div>
@@ -410,10 +410,10 @@ function PaymentTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
                                     <td className="py-3.5 px-4"><span className="text-[13px] font-[600] text-success">Rs. {row.paid.toLocaleString()}</span></td>
                                     <td className="py-3.5 px-4"><span className={`text-[13px] font-[700] ${row.outstanding > 0 ? "text-error" : "text-success"}`}>Rs. {row.outstanding.toLocaleString()}</span></td>
                                     <td className="py-3.5 px-4">
-                                        <span className={`inline-flex items-center gap-1 text-[11px] font-[500] px-2.5 py-1 rounded-full ${ss.bg} ${ss.text}`}>{ss.icon}{row.status}</span>
+                                        <span className={`inline-flex items-center gap-1 text-[12px] font-[500] px-2.5 py-1 rounded-full ${ss.bg} ${ss.text}`}>{ss.icon}{row.status}</span>
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <button onClick={() => onView(row)} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[11px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors">
+                                        <button onClick={() => onView(row)} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[12px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors">
                                             <Eye size={12} /> View
                                         </button>
                                     </td>
@@ -427,13 +427,13 @@ function PaymentTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
                 <div className="flex items-center justify-between mt-5 pt-4 border-t border-line">
                     <p className="text-[12px] text-fg-secondary">Page {page} of {totalPages} · {data.length} records</p>
                     <div className="flex items-center gap-2">
-                        <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
+                        <button aria-label="Previous" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
                             <ChevronLeft size={15} className="text-fg-secondary" />
                         </button>
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                             <button key={p} onClick={() => setPage(p)} className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-brand text-on-brand" : "text-fg-secondary hover:bg-app"}`}>{p}</button>
                         ))}
-                        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
+                        <button aria-label="Next" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
                             <ChevronRight size={15} className="text-fg-secondary" />
                         </button>
                     </div>
@@ -492,7 +492,7 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
                                 <tr key={row.id} className="border-b border-line hover:bg-subtle transition-colors">
                                     <td className="py-3.5 px-4"><p className="text-[13px] text-fg whitespace-nowrap">{row.date}</p></td>
                                     <td className="py-3.5 px-4"><p className="text-[13px] font-[600] text-fg">{row.product}</p></td>
-                                    <td className="py-3.5 px-4"><span className="text-[11px] font-[500] px-2 py-0.5 rounded-full bg-hover text-brand-fg">{row.category}</span></td>
+                                    <td className="py-3.5 px-4"><span className="text-[12px] font-[500] px-2 py-0.5 rounded-full bg-hover text-brand-fg">{row.category}</span></td>
                                     <td className="py-3.5 px-4"><p className="text-[12px] text-fg-secondary">{row.outlet}</p></td>
                                     <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-fg">Rs. {row.sales.toLocaleString()}</span></td>
                                     <td className="py-3.5 px-4"><span className="text-[12px] text-warning font-[600]">{row.discounts > 0 ? `-Rs. ${row.discounts.toLocaleString()}` : "—"}</span></td>
@@ -501,7 +501,7 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
                                     <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-plum">Rs. {row.totalCost.toLocaleString()}</span></td>
                                     <td className="py-3.5 px-4"><span className={`text-[13px] font-[700] ${gp >= 0 ? "text-success" : "text-error"}`}>Rs. {gp.toLocaleString()}</span></td>
                                     <td className="py-3.5 px-4">
-                                        <button onClick={() => onView(row)} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[11px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors">
+                                        <button onClick={() => onView(row)} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[12px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors">
                                             <Eye size={12} /> View
                                         </button>
                                     </td>
@@ -515,13 +515,13 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
                 <div className="flex items-center justify-between mt-5 pt-4 border-t border-line">
                     <p className="text-[12px] text-fg-secondary">Page {page} of {totalPages} · {data.length} records</p>
                     <div className="flex items-center gap-2">
-                        <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
+                        <button aria-label="Previous" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
                             <ChevronLeft size={15} className="text-fg-secondary" />
                         </button>
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                             <button key={p} onClick={() => setPage(p)} className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-brand text-on-brand" : "text-fg-secondary hover:bg-app"}`}>{p}</button>
                         ))}
-                        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
+                        <button aria-label="Next" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
                             <ChevronRight size={15} className="text-fg-secondary" />
                         </button>
                     </div>
@@ -586,16 +586,16 @@ function WastageTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
                                 <tr key={row.id} className="border-b border-line hover:bg-subtle transition-colors">
                                     <td className="py-3.5 px-4"><p className="text-[13px] text-fg whitespace-nowrap">{row.date}</p></td>
                                     <td className="py-3.5 px-4"><p className="text-[13px] font-[600] text-fg">{row.product}</p></td>
-                                    <td className="py-3.5 px-4"><span className="text-[11px] font-[500] px-2 py-0.5 rounded-full bg-hover text-brand-fg">{row.category}</span></td>
+                                    <td className="py-3.5 px-4"><span className="text-[12px] font-[500] px-2 py-0.5 rounded-full bg-hover text-brand-fg">{row.category}</span></td>
                                     <td className="py-3.5 px-4"><p className="text-[12px] text-fg-secondary">{row.outlet}</p></td>
                                     <td className="py-3.5 px-4"><p className="text-[13px] font-[600] text-fg">{row.qty ?? "—"} {row.unit}</p></td>
                                     <td className="py-3.5 px-4"><span className="text-[13px] text-fg">Rs. {row.costPerUnit.toLocaleString()}</span></td>
                                     <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-error">Rs. {row.totalCost.toLocaleString()}</span></td>
                                     <td className="py-3.5 px-4">
-                                        <span className={`inline-flex items-center text-[11px] font-[500] px-2.5 py-1 rounded-full ${rs.bg} ${rs.text}`}>{row.reason}</span>
+                                        <span className={`inline-flex items-center text-[12px] font-[500] px-2.5 py-1 rounded-full ${rs.bg} ${rs.text}`}>{row.reason}</span>
                                     </td>
                                     <td className="py-3.5 px-4">
-                                        <button onClick={() => onView(row)} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[11px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors">
+                                        <button onClick={() => onView(row)} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[12px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors">
                                             <Eye size={12} /> View
                                         </button>
                                     </td>
@@ -609,13 +609,13 @@ function WastageTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
                 <div className="flex items-center justify-between mt-5 pt-4 border-t border-line">
                     <p className="text-[12px] text-fg-secondary">Page {page} of {totalPages} · {data.length} records</p>
                     <div className="flex items-center gap-2">
-                        <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
+                        <button aria-label="Previous" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
                             <ChevronLeft size={15} className="text-fg-secondary" />
                         </button>
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                             <button key={p} onClick={() => setPage(p)} className={`w-8 h-8 rounded-lg text-[13px] font-[500] transition-colors ${page === p ? "bg-brand text-on-brand" : "text-fg-secondary hover:bg-app"}`}>{p}</button>
                         ))}
-                        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
+                        <button aria-label="Next" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed">
                             <ChevronRight size={15} className="text-fg-secondary" />
                         </button>
                     </div>
@@ -1003,7 +1003,7 @@ export default function FinanceReports() {
                                 <div className={`w-9 h-9 rounded-lg ${cat.color} flex items-center justify-center text-on-brand`}>
                                     {cat.icon}
                                 </div>
-                                <p className={`text-[10px] font-[600] leading-tight ${selectedCategory.id === cat.id ? "text-brand-fg" : "text-fg-secondary"}`}>
+                                <p className={`text-[12px] font-[600] leading-tight ${selectedCategory.id === cat.id ? "text-brand-fg" : "text-fg-secondary"}`}>
                                     {cat.label}
                                 </p>
                             </button>
@@ -1015,7 +1015,7 @@ export default function FinanceReports() {
                         <div className="flex items-center gap-2 mb-4">
                             <Sliders size={15} className="text-brand-fg" />
                             <h3 className="text-[14px] font-[600] text-fg">Report Parameters</h3>
-                            <span className="ml-auto text-[11px] text-fg-secondary bg-subtle px-2 py-0.5 rounded-full border border-line">
+                            <span className="ml-auto text-[12px] text-fg-secondary bg-subtle px-2 py-0.5 rounded-full border border-line">
                                 {selectedCategory.label}
                             </span>
                         </div>
@@ -1062,7 +1062,7 @@ export default function FinanceReports() {
 
                             {/* From Date */}
                             <div className="lg:col-span-2">
-                                <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">From</label>
+                                <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">From</label>
                                 <div className="relative">
                                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                                     <input
@@ -1075,7 +1075,7 @@ export default function FinanceReports() {
 
                             {/* To Date */}
                             <div className="lg:col-span-2">
-                                <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">To</label>
+                                <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">To</label>
                                 <div className="relative">
                                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                                     <input
@@ -1171,7 +1171,7 @@ export default function FinanceReports() {
                         {/* Mini Chart Row (when generated, data available, and we have rows) */}
                         {generated && !dataUnavailable && chartData.length > 0 && (
                             <div className="mb-6 p-4 bg-subtle rounded-xl border border-line">
-                                <p className="text-[11px] font-[600] text-fg-secondary uppercase tracking-wide mb-3">Quick Overview</p>
+                                <p className="text-[12px] font-[600] text-fg-secondary uppercase tracking-wide mb-3">Quick Overview</p>
                                 <MiniBarChart data={chartData} valueKey="value" labelKey="label" />
                             </div>
                         )}

@@ -42,7 +42,7 @@ export default function ExpiryTag({ expiryDate, warnDays = 3, showDate = false, 
   const status = expiryStatus(expiryDate, warnDays);
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[11px] font-[600] whitespace-nowrap ${STYLES[status]} ${className}`}
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[12px] font-[600] whitespace-nowrap ${STYLES[status]} ${className}`}
       title={expiryDate ? `Expiry date ${String(expiryDate).slice(0, 10)}` : "No expiry date recorded"}
     >
       {status === "EXPIRED" && <span aria-hidden="true">●</span>}

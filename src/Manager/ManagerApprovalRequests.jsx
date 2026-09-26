@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import toast from "react-hot-toast";
 import {
   Search,
@@ -125,7 +126,7 @@ export default function ManagerApprovalRequests() {
         setReturnRequests(mappedReturns);
       } catch (error) {
         console.error("Failed to fetch return requests:", error);
-        setReturnsError(error.message);
+        setReturnsError(friendlyError(error));
       } finally {
         setLoadingReturns(false);
       }
@@ -226,7 +227,7 @@ export default function ManagerApprovalRequests() {
         setStockAdjustments(mappedAdjustments);
       } catch (error) {
         console.error("Failed to fetch stock adjustments:", error);
-        setAdjustmentsError(error.message);
+        setAdjustmentsError(friendlyError(error));
       } finally {
         setLoadingAdjustments(false);
       }
@@ -288,7 +289,7 @@ export default function ManagerApprovalRequests() {
         setPurchaseOrders(mappedOrders);
       } catch (error) {
         console.error("Failed to fetch purchase orders:", error);
-        setPurchaseOrdersError(error.message);
+        setPurchaseOrdersError(friendlyError(error));
       } finally {
         setLoadingPurchaseOrders(false);
       }
@@ -339,7 +340,7 @@ export default function ManagerApprovalRequests() {
       setOutletReturns(mappedOutletReturns);
     } catch (error) {
       console.error("Failed to fetch outlet returns:", error);
-      setOutletReturnsError(error.message);
+      setOutletReturnsError(friendlyError(error));
     } finally {
       setLoadingOutletReturns(false);
     }
@@ -917,7 +918,7 @@ export default function ManagerApprovalRequests() {
                         </td>
                         <td className="py-4">
                           <span
-                            className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] ${getPriorityColor(
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] ${getPriorityColor(
                               request.priority
                             )}`}
                           >
@@ -926,7 +927,7 @@ export default function ManagerApprovalRequests() {
                         </td>
                         <td className="py-4">
                           <span
-                            className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] ${getStatusColor(
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] ${getStatusColor(
                               request.status
                             )}`}
                           >
@@ -1025,7 +1026,7 @@ export default function ManagerApprovalRequests() {
               </div>
 
               <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2">
-                <button
+                <button aria-label="Close"
                   onClick={() => setShowDetailsModal(false)}
                   className="p-2 hover:bg-subtle rounded-lg transition-colors"
                 >
@@ -1075,7 +1076,7 @@ export default function ManagerApprovalRequests() {
                     {selectedRequest.status}
                   </span>
                   <span
-                    className={`ml-2 inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] ${getPriorityColor(
+                    className={`ml-2 inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] ${getPriorityColor(
                       selectedRequest.priority
                     )}`}
                   >
@@ -1320,12 +1321,12 @@ export default function ManagerApprovalRequests() {
                                     </p>
                                   </td>
                                   <td className="py-3 px-4">
-                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-warning">
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-warning">
                                       {item.reason}
                                     </span>
                                   </td>
                                   <td className="py-3 px-4">
-                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-app text-fg-secondary">
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-app text-fg-secondary">
                                       {item.status}
                                     </span>
                                   </td>
@@ -1380,7 +1381,7 @@ export default function ManagerApprovalRequests() {
                               <p className="text-[14px] font-[600] text-fg">{item.returnQuantity} {item.unit}</p>
                             </td>
                             <td className="py-3 px-4">
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-warning">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-warning">
                                 {item.reason}
                               </span>
                             </td>

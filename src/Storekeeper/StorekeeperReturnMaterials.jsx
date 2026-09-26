@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
+import { friendlyError } from "../utils/friendlyError";
 import toast from "react-hot-toast";
 import {
   Search,
@@ -90,7 +92,7 @@ export default function StorekeeperReturnMaterials() {
         setSuppliers(data.suppliers || []);
       } catch (err) {
         if (err.name !== "AbortError") {
-          setSupplierError(err.message);
+          setSupplierError(friendlyError(err));
         }
       } finally {
         setLoadingSuppliers(false);
@@ -205,7 +207,7 @@ export default function StorekeeperReturnMaterials() {
       } catch (err) {
         if (err.name !== "AbortError") {
           console.error("Failed to fetch returns:", err);
-          setReturnsError(err.message || "Failed to load returns");
+          setReturnsError(friendlyError(err, { fallback: "Failed to load returns" }));
         }
       } finally {
         setLoadingReturns(false);
@@ -251,7 +253,7 @@ export default function StorekeeperReturnMaterials() {
       setOutletReturns(mappedOutletReturns);
     } catch (err) {
       console.error("Failed to fetch outlet returns:", err);
-      setOutletReturnsError(err.message);
+      setOutletReturnsError(friendlyError(err));
     } finally {
       setLoadingOutletReturns(false);
     }
@@ -350,7 +352,7 @@ export default function StorekeeperReturnMaterials() {
       setAvailableStock(mappedMaterials);
     } catch (error) {
       console.error("Failed to fetch raw materials:", error);
-      setRawMaterialsError(error.message);
+      setRawMaterialsError(friendlyError(error));
       setAvailableStock([]);
     } finally {
       setLoadingRawMaterials(false);
@@ -504,8 +506,8 @@ export default function StorekeeperReturnMaterials() {
       toast.success("Return note submitted successfully for approval!");
     } catch (err) {
       console.error("Failed to submit return note:", err);
-      setSubmitError(err.message || "Failed to submit return note");
-      toast.error(`Failed to submit: ${err.message || "Unknown error"}`);
+      setSubmitError(friendlyError(err, { fallback: "Failed to submit return note" }));
+      toast.error(friendlyError(err, "Couldn't submit the return note"));
     } finally {
       setSubmitLoading(false);
     }
@@ -609,7 +611,7 @@ export default function StorekeeperReturnMaterials() {
       toast.success("Return processed successfully.");
     } catch (err) {
       console.error("Failed to approve return:", err);
-      toast.error(`Failed to approve return: ${err.message || "Unknown error"}`);
+      toast.error(friendlyError(err, "Couldn't approve the return"));
     } finally {
       setApproveLoadingId(null);
     }
@@ -630,7 +632,7 @@ export default function StorekeeperReturnMaterials() {
       toast.success("Outlet return received and inventory updated successfully!");
     } catch (err) {
       console.error("Failed to receive outlet return:", err);
-      toast.error(`Failed to receive: ${err.message || "Unknown error"}`);
+      toast.error(friendlyError(err, "Couldn't receive the return"));
     } finally {
       setApproveLoadingId(null);
     }
@@ -850,7 +852,7 @@ export default function StorekeeperReturnMaterials() {
       toast.success("Return note updated successfully on server.");
     } catch (err) {
       console.error("Failed to update return note:", err);
-      toast.error(`Failed to update return note: ${err.message || "Unknown error"}`);
+      toast.error(friendlyError(err, "Couldn't update the return note"));
     }
   };
 
@@ -1178,7 +1180,7 @@ export default function StorekeeperReturnMaterials() {
                               {new Date(item.expiryDate).toLocaleDateString()}
                             </p>
                             {isExpired(item.expiryDate) && (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-error mt-1">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-error mt-1">
                                 EXPIRED
                               </span>
                             )}
@@ -1631,7 +1633,7 @@ export default function StorekeeperReturnMaterials() {
                   Return Note ID: {editingReturnNote.returnNoteId}
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={() => {
                   setShowEditModal(false);
                   setEditingReturnNote(null);
@@ -1787,7 +1789,7 @@ export default function StorekeeperReturnMaterials() {
                                 {new Date(item.expiryDate).toLocaleDateString()}
                               </p>
                               {isExpired(item.expiryDate) && (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-error mt-1">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-error mt-1">
                                   EXPIRED
                                 </span>
                               )}
@@ -1910,7 +1912,7 @@ export default function StorekeeperReturnMaterials() {
               <h2 className="text-[20px] font-[600] text-fg">
                 Add Raw Materials to Return
               </h2>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowAddItemModal(false)}
                 className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >
@@ -1969,7 +1971,7 @@ export default function StorekeeperReturnMaterials() {
                   Print
                 </button>
 
-                <button
+                <button aria-label="Close"
                   onClick={() => setShowReturnDetailsModal(false)}
                   className="p-2 hover:bg-subtle rounded-lg transition-colors"
                 >
@@ -2130,7 +2132,7 @@ export default function StorekeeperReturnMaterials() {
                                 <span className="text-[12px]">
                                   {item.reason}
                                 </span>
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-app text-fg-secondary">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-app text-fg-secondary">
                                   {item.status}
                                 </span>
                               </div>
@@ -2300,7 +2302,7 @@ function AddItemModalContent({
                   className={`p-4 cursor-pointer transition-colors ${
                     isSelected ? "bg-hover" : "hover:bg-subtle"
                   }`}
-                  onClick={() => handleItemSelect(item)}
+                  role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => handleItemSelect(item)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -2352,7 +2354,7 @@ function AddItemModalContent({
                       </div>
                       {expired && (
                         <div className="ml-7 mt-2">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-error">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-error">
                             <AlertTriangle size={10} className="mr-1" />
                             EXPIRED
                           </span>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
   Search,
   Filter,
@@ -92,7 +93,7 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
       } catch (err) {
         if (cancelled) return;
         console.error("MIS supplier detail load failed:", err);
-        setError(err.message || "Failed to load supplier details");
+        setError(friendlyError(err, { fallback: "Failed to load supplier details" }));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -207,7 +208,7 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
               className="inline-flex items-center gap-1.5 px-3 py-2 bg-brand text-on-brand text-[12px] font-[500] rounded-lg hover:bg-brand-hover">
               <FileSpreadsheet size={13} /> Excel
             </button>
-            <button onClick={onClose} className="p-2 hover:bg-app rounded-lg transition-colors ml-1">
+            <button aria-label="Close" onClick={onClose} className="p-2 hover:bg-app rounded-lg transition-colors ml-1">
               <X size={18} className="text-fg-secondary" />
             </button>
           </div>
@@ -241,46 +242,46 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
                   <div className="flex items-start gap-2">
                     <Phone size={15} className="text-brand-fg mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-fg-secondary">Phone</p>
+                      <p className="text-[12px] text-fg-secondary">Phone</p>
                       <p className="text-[13px] font-[500] text-fg">{detail.phone || "—"}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <Mail size={15} className="text-brand-fg mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-fg-secondary">Email</p>
+                      <p className="text-[12px] text-fg-secondary">Email</p>
                       <p className="text-[13px] font-[500] text-fg">{detail.email || "—"}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <MapPin size={15} className="text-brand-fg mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-fg-secondary">Address</p>
+                      <p className="text-[12px] text-fg-secondary">Address</p>
                       <p className="text-[13px] font-[500] text-fg">{detail.address || "—"}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <Calendar size={15} className="text-brand-fg mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-fg-secondary">Registration Date</p>
+                      <p className="text-[12px] text-fg-secondary">Registration Date</p>
                       <p className="text-[13px] font-[500] text-fg">{formatDate(detail.registrationDate)}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <Hash size={15} className="text-brand-fg mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-fg-secondary">Registration ID</p>
+                      <p className="text-[12px] text-fg-secondary">Registration ID</p>
                       <p className="text-[13px] font-[500] text-fg">{detail.registrationId || "—"}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <Banknote size={15} className="text-brand-fg mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-[11px] text-fg-secondary">Outstanding Balance</p>
+                      <p className="text-[12px] text-fg-secondary">Outstanding Balance</p>
                       <p className={`text-[13px] font-[700] ${Number(detail.outstandingBalance) > 0 ? (detail.overdue ? "text-error" : "text-warning") : "text-success"}`}>
                         {formatMoney(detail.outstandingBalance)}
                         {detail.overdue && Number(detail.outstandingBalance) > 0 && (
-                          <span className="ml-1.5 text-[10px] font-[500] px-1.5 py-0.5 bg-error/10 text-error rounded-full">Overdue</span>
+                          <span className="ml-1.5 text-[12px] font-[500] px-1.5 py-0.5 bg-error/10 text-error rounded-full">Overdue</span>
                         )}
                       </p>
                     </div>
@@ -369,7 +370,7 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
                           <td className="py-3 px-4 text-[12px] text-fg">{r.qty != null ? Number(r.qty).toLocaleString() : "—"} {r.unit || ""}</td>
                           <td className="py-3 px-4 text-[12px] font-[600] text-fg">{formatMoney(r.amount)}</td>
                           <td className="py-3 px-4">
-                            <span className={`text-[11px] font-[500] px-2.5 py-1 rounded-full ${deliveryStatus(r.status)}`}>
+                            <span className={`text-[12px] font-[500] px-2.5 py-1 rounded-full ${deliveryStatus(r.status)}`}>
                               {r.status}
                             </span>
                           </td>
@@ -444,7 +445,7 @@ export default function MISSupplierOverview() {
     } catch (err) {
       console.error("MIS supplier summary load failed:", err);
       // Surface to the table-level banner so users see a single error.
-      setPageError(err.message || "Failed to load supplier summary");
+      setPageError(friendlyError(err, { fallback: "Failed to load supplier summary" }));
     }
   }, [baseUrl, authHeaders]);
 
@@ -471,7 +472,7 @@ export default function MISSupplierOverview() {
       setPage(1);
     } catch (err) {
       console.error("MIS supplier list load failed:", err);
-      setPageError(err.message || "Failed to load suppliers");
+      setPageError(friendlyError(err, { fallback: "Failed to load suppliers" }));
       setSuppliers([]);
     } finally {
       setLoading(false);
@@ -819,7 +820,7 @@ export default function MISSupplierOverview() {
                               </div>
                               <div>
                                 <p className="text-[13px] font-[600] text-fg">{s.name}</p>
-                                <p className="text-[11px] text-fg-secondary flex items-center gap-1 mt-0.5">
+                                <p className="text-[12px] text-fg-secondary flex items-center gap-1 mt-0.5">
                                   <Hash size={9} />{s.id}
                                 </p>
                               </div>
@@ -862,19 +863,19 @@ export default function MISSupplierOverview() {
                               {formatMoney(s.outstandingBalance)}
                             </p>
                             {s.overdue && Number(s.outstandingBalance) > 0 && (
-                              <span className="text-[10px] font-[500] text-error flex items-center gap-0.5 mt-0.5">
+                              <span className="text-[12px] font-[500] text-error flex items-center gap-0.5 mt-0.5">
                                 <AlertTriangle size={9} /> Overdue
                               </span>
                             )}
                             {Number(s.outstandingBalance) === 0 && (
-                              <span className="text-[10px] font-[500] text-success">Cleared</span>
+                              <span className="text-[12px] font-[500] text-success">Cleared</span>
                             )}
                           </td>
 
                           {/* Last Transaction */}
                           <td className="py-4 px-4">
                             <p className="text-[13px] font-[500] text-fg">{formatDate(s.lastTransactionDate)}</p>
-                            <p className="text-[11px] text-fg-secondary mt-0.5">{s.totalPos ?? 0} POs · {s.totalGrns ?? 0} GRNs</p>
+                            <p className="text-[12px] text-fg-secondary mt-0.5">{s.totalPos ?? 0} POs · {s.totalGrns ?? 0} GRNs</p>
                           </td>
 
                           {/* Actions */}
@@ -906,7 +907,7 @@ export default function MISSupplierOverview() {
                       Page {page} of {totalPages} · {sorted.length} suppliers
                     </p>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
+                      <button aria-label="Previous" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
                         className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                         <ChevronLeft size={15} className="text-fg-secondary" />
                       </button>
@@ -916,7 +917,7 @@ export default function MISSupplierOverview() {
                           {p}
                         </button>
                       ))}
-                      <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                      <button aria-label="Next" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
                         className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                         <ChevronRight size={15} className="text-fg-secondary" />
                       </button>

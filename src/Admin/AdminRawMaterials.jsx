@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import toast from "react-hot-toast";
 import { confirmDialog } from "../component/ConfirmDialog";
 import { Package, Search, Plus, Edit, Trash2, X, Check, AlertTriangle, Archive, Calendar, Download } from "lucide-react";
@@ -543,7 +544,7 @@ export default function AdminRawMaterials() {
                 setTimeout(() => setShowToast(false), 3000);
             } catch (error) {
                 console.error('Error saving material:', error);
-                toast.error(error.message);
+                toast.error(friendlyError(error));
             } finally {
                 setIsSubmitting(false);
             }
@@ -606,7 +607,7 @@ export default function AdminRawMaterials() {
             setNewGenericPackUnit('kg');
         } catch (error) {
             console.error('Error adding generic:', error);
-            toast.error(error.message || 'Failed to add generic material');
+            toast.error(friendlyError(error, { fallback: "Failed to add generic material" }));
         }
     };
 
@@ -641,7 +642,7 @@ export default function AdminRawMaterials() {
             setTimeout(() => setShowToast(false), 3000);
         } catch (error) {
             console.error('Error adding category:', error);
-            toast.error(error.message || 'Failed to add category');
+            toast.error(friendlyError(error, { fallback: "Failed to add category" }));
         }
     };
 
@@ -668,7 +669,7 @@ export default function AdminRawMaterials() {
             setTimeout(() => setShowToast(false), 3000);
         } catch (error) {
             console.error('Error updating category:', error);
-            toast.error(error.message || 'Failed to update category');
+            toast.error(friendlyError(error, { fallback: "Failed to update category" }));
         }
     };
 
@@ -721,7 +722,7 @@ export default function AdminRawMaterials() {
             setTimeout(() => setShowToast(false), 3000);
         } catch (error) {
             console.error('Error updating generic material:', error);
-            toast.error(error.message || 'Failed to update generic material');
+            toast.error(friendlyError(error, { fallback: "Failed to update generic material" }));
         }
     };
 
@@ -744,7 +745,7 @@ export default function AdminRawMaterials() {
             setTimeout(() => setShowToast(false), 3000);
         } catch (error) {
             console.error('Error updating brand:', error);
-            toast.error(error.message || 'Failed to update brand');
+            toast.error(friendlyError(error, { fallback: "Failed to update brand" }));
         }
     };
 
@@ -1154,7 +1155,7 @@ export default function AdminRawMaterials() {
                                     }
                                 </p>
                             </div>
-                            <button
+                            <button aria-label="Close"
                                 type="button"
                                 onClick={handleCancel}
                                 className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
@@ -1540,7 +1541,7 @@ export default function AdminRawMaterials() {
                                                                     }
                                                                 }}
                                                             />
-                                                            <button
+                                                            <button aria-label="Close"
                                                                 type="button"
                                                                 onClick={() => {
                                                                     setShowAddPackSize(false);
@@ -1550,7 +1551,7 @@ export default function AdminRawMaterials() {
                                                             >
                                                                 <X className="w-4 h-4" />
                                                             </button>
-                                                            <button
+                                                            <button aria-label="Confirm"
                                                                 type="button"
                                                                 onClick={handleAddPackSize}
                                                                 className="px-3 py-2.5 bg-brand text-on-brand rounded-md hover:bg-brand-hover transition-colors"
@@ -1721,7 +1722,7 @@ export default function AdminRawMaterials() {
                                     {selectedBatchMaterial.name} ({selectedBatchMaterial.code})
                                 </p>
                             </div>
-                            <button
+                            <button aria-label="Close"
                                 onClick={() => setShowBatchModal(false)}
                                 className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
                             >
@@ -1781,7 +1782,7 @@ export default function AdminRawMaterials() {
                     <div className="bg-elevated rounded-lg shadow-xl w-full max-w-md p-6">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-[18px] font-[600] text-fg">Add New Category</h3>
-                            <button onClick={() => setShowAddCategoryModal(false)} className="text-fg-secondary hover:bg-subtle rounded-md p-1">
+                            <button aria-label="Close" onClick={() => setShowAddCategoryModal(false)} className="text-fg-secondary hover:bg-subtle rounded-md p-1">
                                 <X size={20} />
                             </button>
                         </div>
@@ -1830,7 +1831,7 @@ export default function AdminRawMaterials() {
                     <div className="bg-elevated rounded-lg shadow-xl w-full max-w-md p-6">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-[18px] font-[600] text-fg">Add New Generic Material</h3>
-                            <button onClick={() => setShowAddGenericModal(false)} className="text-fg-secondary hover:bg-subtle rounded-md p-1">
+                            <button aria-label="Close" onClick={() => setShowAddGenericModal(false)} className="text-fg-secondary hover:bg-subtle rounded-md p-1">
                                 <X size={20} />
                             </button>
                         </div>
@@ -1972,7 +1973,7 @@ export default function AdminRawMaterials() {
                     <div className="bg-elevated rounded-xl shadow-xl w-full max-w-md overflow-hidden">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-line">
                             <h3 className="text-[18px] font-[600] text-fg-strong">Edit Category</h3>
-                            <button onClick={() => setShowEditCategoryModal(false)} className="text-fg-muted hover:text-fg">
+                            <button aria-label="Close" onClick={() => setShowEditCategoryModal(false)} className="text-fg-muted hover:text-fg">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
@@ -2014,7 +2015,7 @@ export default function AdminRawMaterials() {
                     <div className="bg-elevated rounded-xl shadow-xl w-full max-w-md overflow-hidden">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-line">
                             <h3 className="text-[18px] font-[600] text-fg-strong">Edit Generic Material</h3>
-                            <button onClick={() => setShowEditGenericModal(false)} className="text-fg-muted hover:text-fg">
+                            <button aria-label="Close" onClick={() => setShowEditGenericModal(false)} className="text-fg-muted hover:text-fg">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
@@ -2137,7 +2138,7 @@ export default function AdminRawMaterials() {
                     <div className="bg-elevated rounded-xl shadow-xl w-full max-w-md overflow-hidden">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-line">
                             <h3 className="text-[18px] font-[600] text-fg-strong">Edit Brand</h3>
-                            <button onClick={() => setShowEditBrandModal(false)} className="text-fg-muted hover:text-fg">
+                            <button aria-label="Close" onClick={() => setShowEditBrandModal(false)} className="text-fg-muted hover:text-fg">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>

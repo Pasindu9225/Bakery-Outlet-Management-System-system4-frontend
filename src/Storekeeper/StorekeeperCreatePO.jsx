@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
   Search,
   Filter,
@@ -452,7 +453,7 @@ export default function StorekeeperCreatePO() {
       setActiveTab("poHistory");
     } catch (error) {
       console.error("Error creating purchase order:", error);
-      toast.error(`Error creating purchase order: ${error.message}`);
+      toast.error(friendlyError(error, "Error creating purchase order"));
     }
   };
 
@@ -668,7 +669,7 @@ export default function StorekeeperCreatePO() {
                                 <p className="text-[12px] text-fg-secondary">
                                   Stock: {item.minStockLevel} (Min) - {item.maxStockLevel} (Max)
                                 </p>
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-error mt-1">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-error mt-1">
                                   <TrendingDown size={10} className="mr-1" />
                                   LOW STOCK
                                 </span>
@@ -693,12 +694,12 @@ export default function StorekeeperCreatePO() {
                             </td>
                             <td className="py-4 min-w-[100px]">
                               {item.alreadyPOCreated ? (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-success">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-success">
                                   <CheckCircle2 size={10} className="mr-1" />
                                   PO CREATED
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-warning">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-warning">
                                   <Clock size={10} className="mr-1" />
                                   PENDING
                                 </span>
@@ -903,7 +904,7 @@ export default function StorekeeperCreatePO() {
                                 </div>
 
                                 {/* Helper text showing Stock Thresholds */}
-                                <div className="flex flex-col text-[10px] text-fg-secondary mt-1">
+                                <div className="flex flex-col text-[12px] text-fg-secondary mt-1">
                                   <span>Min Stock: {item.minStockLevel}</span>
                                   <span>Max Stock: {item.maxStockLevel}</span>
                                 </div>
@@ -1055,7 +1056,7 @@ export default function StorekeeperCreatePO() {
                           </td>
                           <td className="py-4">
                             <span
-                              className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] ${po.status === "Pending"
+                              className={`inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] ${po.status === "Pending"
                                   ? "bg-hover text-warning"
                                   : po.status === "Approved"
                                     ? "bg-hover text-brand-fg"
@@ -1125,7 +1126,7 @@ export default function StorekeeperCreatePO() {
                   PO Number: {poForm.poNumber}
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowPOForm(false)}
                 className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >
@@ -1227,7 +1228,7 @@ export default function StorekeeperCreatePO() {
                           {item.quantity} {item.unit}
                         </p>
                         {item.quantity > item.maxOrderQty && (
-                          <p className="text-[10px] text-warning flex items-center justify-center gap-1 mt-1">
+                          <p className="text-[12px] text-warning flex items-center justify-center gap-1 mt-1">
                             <AlertTriangle size={10} />
                             Needs Approval
                           </p>
@@ -1328,7 +1329,7 @@ export default function StorekeeperCreatePO() {
                   {new Date(selectedPO.date).toLocaleDateString()}
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowPODetails(false)}
                 className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >
@@ -1361,7 +1362,7 @@ export default function StorekeeperCreatePO() {
                     Status
                   </p>
                   <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] ${selectedPO.status === "Pending"
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] ${selectedPO.status === "Pending"
                         ? "bg-hover text-warning"
                         : selectedPO.status === "Approved"
                           ? "bg-hover text-brand-fg"

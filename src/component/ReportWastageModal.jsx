@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import { AlertTriangle, X } from "lucide-react";
 import axiosInstance from "../services/api";
 import ExpiryTag, { isExpired } from "./ExpiryTag.jsx";
@@ -65,7 +66,7 @@ export default function ReportWastageModal({ item, onClose, onDone }) {
       });
       onDone?.(res.data);
     } catch (err) {
-      setError(err.message || "Could not report wastage");
+      setError(friendlyError(err, { fallback: "Could not report wastage" }));
     } finally {
       setSaving(false);
     }
@@ -85,7 +86,7 @@ export default function ReportWastageModal({ item, onClose, onDone }) {
               {item.locationName ? ` · ${item.locationName}` : ""}
             </p>
           </div>
-          <button onClick={onClose} className="p-1 text-fg-muted hover:text-fg"><X size={20} /></button>
+          <button aria-label="Close" onClick={onClose} className="p-1 text-fg-muted hover:text-fg"><X size={20} /></button>
         </div>
 
         <div className="p-5 space-y-3">

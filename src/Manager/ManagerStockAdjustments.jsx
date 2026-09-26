@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import toast from "react-hot-toast";
 import {
   Calendar,
@@ -81,7 +82,7 @@ export default function ManagerStockAdjustments() {
       setMiniStores(data);
     } catch (err) {
       console.error("Error fetching mini stores:", err);
-      setMiniStoresError(err.message);
+      setMiniStoresError(friendlyError(err));
     } finally {
       setMiniStoresLoading(false);
     }
@@ -103,7 +104,7 @@ export default function ManagerStockAdjustments() {
       setStockData(data);
     } catch (err) {
       console.error("Error fetching stock items:", err);
-      setStockItemsError(err.message);
+      setStockItemsError(friendlyError(err));
     } finally {
       setStockItemsLoading(false);
     }
@@ -368,7 +369,7 @@ export default function ManagerStockAdjustments() {
               </h3>
               <p className="text-[14px] text-fg-secondary">ID: {record.id}</p>
             </div>
-            <button
+            <button aria-label="Close"
               onClick={onClose}
               className="p-2 hover:bg-subtle rounded-lg transition-colors"
             >
@@ -694,7 +695,7 @@ export default function ManagerStockAdjustments() {
                                         <p className="text-[12px] text-fg-secondary font-[500]">
                                           {item.name}
                                         </p>
-                                        <div className="flex flex-col gap-0.5 mt-1 text-[10px] text-fg-muted">
+                                        <div className="flex flex-col gap-0.5 mt-1 text-[12px] text-fg-muted">
                                           <span>ID: {item.rawMaterialId || item.productId}</span>
                                         </div>
                                       </div>
@@ -892,7 +893,7 @@ export default function ManagerStockAdjustments() {
                             return (
                               <span
                                 key={index}
-                                className={`text-[11px] px-2 py-1 rounded border ${varianceStyle.bg}`}
+                                className={`text-[12px] px-2 py-1 rounded border ${varianceStyle.bg}`}
                               >
                                 {item.itemName}: {item.variance >= 0 ? "+" : ""}
                                 {item.variance}
@@ -901,7 +902,7 @@ export default function ManagerStockAdjustments() {
                           })}
                         {record.items.filter((item) => item.variance !== 0)
                           .length === 0 && (
-                          <span className="text-[11px] text-fg-secondary">
+                          <span className="text-[12px] text-fg-secondary">
                             No variances recorded
                           </span>
                         )}

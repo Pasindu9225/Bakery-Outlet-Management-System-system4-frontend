@@ -1,4 +1,6 @@
 import { confirmDialog } from "../component/ConfirmDialog";
+import { onEnterClick } from "../utils/a11y";
+import { friendlyError } from "../utils/friendlyError";
 import {
   CheckCircle,
   Check,
@@ -221,7 +223,7 @@ export default function ManagerProductionPlanning() {
         setProductionPlans(approvedPlans);
       } catch (err) {
         console.error("Error fetching production plans:", err);
-        setError(err.message);
+        setError(friendlyError(err));
       } finally {
         setLoading(false);
       }
@@ -309,7 +311,7 @@ export default function ManagerProductionPlanning() {
           { outletId: 5, name: "Matara Outlet", address: "Matara" },
         ];
         setOutlets(fallbackOutlets);
-        setOutletsError("Using fallback data - Network error: " + err.message);
+        setOutletsError(friendlyError(err, "Using fallback data - Network error"));
       } finally {
         setOutletsLoading(false);
       }
@@ -1324,7 +1326,7 @@ export default function ManagerProductionPlanning() {
                   </span>
                 )}
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={handleCloseModal}
                 className="p-2 hover:bg-app rounded-lg"
               >
@@ -1434,7 +1436,7 @@ export default function ManagerProductionPlanning() {
                           {/* Collapsed Header - always visible, clicking selects */}
                           <div
                             className="p-3 cursor-pointer"
-                            onClick={() => !isAlreadyAdded && toggleProductSelection(product)}
+                            role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => !isAlreadyAdded && toggleProductSelection(product)}
                           >
                             <div className="flex items-start justify-between mb-0">
                               <div className="flex-1">
@@ -1482,7 +1484,7 @@ export default function ManagerProductionPlanning() {
                                   </span>
                                 </div>
                               </div>
-                              <span className="text-[10px] px-2 py-1 rounded-full bg-brand/10 text-brand-fg">
+                              <span className="text-[12px] px-2 py-1 rounded-full bg-brand/10 text-brand-fg">
                                 {product.category}
                               </span>
                             </div>
@@ -1498,7 +1500,7 @@ export default function ManagerProductionPlanning() {
                                       (center, idx) => (
                                         <span
                                           key={idx}
-                                          className="px-2 py-1 bg-brand/10 text-brand-fg rounded text-[10px]"
+                                          className="px-2 py-1 bg-brand/10 text-brand-fg rounded text-[12px]"
                                         >
                                           {center.centerName}
                                         </span>
@@ -1515,12 +1517,12 @@ export default function ManagerProductionPlanning() {
                             (product.outletAvailability && product.outletAvailability.length > 0)) && (
                             <div
                               className="flex items-center justify-center py-1 border-t border-line cursor-pointer hover:bg-subtle transition-colors"
-                              onClick={(e) => {
+                              role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={(e) => {
                                 e.stopPropagation();
                                 toggleExpand(product.id);
                               }}
                             >
-                              <span className="text-[10px] text-fg-secondary mr-1">
+                              <span className="text-[12px] text-fg-secondary mr-1">
                                 {isExpanded ? 'Hide' : 'Store & Outlet Availability'}
                               </span>
                               <svg
@@ -1545,10 +1547,10 @@ export default function ManagerProductionPlanning() {
                             <div className="px-3 pb-3 border-t border-line bg-surface rounded-b-lg">
                               {product.miniStoreAvailability && product.miniStoreAvailability.length > 0 && (
                                 <>
-                                  <p className="text-[11px] font-[600] text-fg mt-2 mb-1">Store Availability:</p>
+                                  <p className="text-[12px] font-[600] text-fg mt-2 mb-1">Store Availability:</p>
                                   <div className="grid grid-cols-1 gap-1 pl-2">
                                     {product.miniStoreAvailability.map((store, idx) => (
-                                      <div key={idx} className="flex justify-between text-[10px]">
+                                      <div key={idx} className="flex justify-between text-[12px]">
                                         <span className="text-fg-secondary">{store.miniStoreName}:</span>
                                         <span className={`font-[500] ${store.availableQty > 0 ? "text-success" : "text-error"}`}>
                                           {store.availableQty}
@@ -1560,10 +1562,10 @@ export default function ManagerProductionPlanning() {
                               )}
                               {product.outletAvailability && product.outletAvailability.length > 0 && (
                                 <>
-                                  <p className="text-[11px] font-[600] text-fg mt-2 mb-1">Outlet Availability:</p>
+                                  <p className="text-[12px] font-[600] text-fg mt-2 mb-1">Outlet Availability:</p>
                                   <div className="grid grid-cols-1 gap-1 pl-2">
                                     {product.outletAvailability.map((outlet, idx) => (
-                                      <div key={idx} className="flex justify-between text-[10px]">
+                                      <div key={idx} className="flex justify-between text-[12px]">
                                         <span className="text-fg-secondary">{outlet.outletName}:</span>
                                         <span className={`font-[500] ${outlet.availableQty > 0 ? "text-success" : "text-error"}`}>
                                           {outlet.availableQty}
@@ -1612,7 +1614,7 @@ export default function ManagerProductionPlanning() {
             <h3 className="text-[20px] font-[600] text-fg">
               Load Previous Plan
             </h3>
-            <button
+            <button aria-label="Close"
               onClick={() => setShowLoadPlanModal(false)}
               className="p-2 hover:bg-app rounded-lg"
             >
@@ -1636,14 +1638,14 @@ export default function ManagerProductionPlanning() {
                 <div
                   key={plan.id}
                   className="border border-line rounded-lg p-4 hover:border-brand-fg cursor-pointer"
-                  onClick={() => loadPreviousPlan(plan)}
+                  role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => loadPreviousPlan(plan)}
                 >
                   <div className="flex justify-between items-start">
                     <div>
                       <h4 className="text-[14px] font-[600] text-fg flex items-center gap-2">
                         {plan.planName}
                         {plan.isTemplate && (
-                          <span className="px-2 py-0.5 bg-plum/10 text-plum text-[10px] font-bold rounded-full uppercase">
+                          <span className="px-2 py-0.5 bg-plum/10 text-plum text-[12px] font-bold rounded-full uppercase">
                             Template
                           </span>
                         )}
@@ -1720,7 +1722,7 @@ export default function ManagerProductionPlanning() {
                 Preview plan items, raw material needs, and distribution allocations.
               </p>
             </div>
-            <button
+            <button aria-label="Close"
               onClick={onClose}
               className="p-2 hover:bg-app rounded-lg transition-colors"
             >
@@ -1733,7 +1735,7 @@ export default function ManagerProductionPlanning() {
             {/* Meta Stats info */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-subtle p-4 rounded-xl border border-line">
               <div>
-                <p className="text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">Status</p>
+                <p className="text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">Status</p>
                 <span className={`inline-block mt-1 px-3 py-1 rounded-full text-[12px] font-[600] ${
                   plan.status === "APPROVED" ? "bg-success/10 text-success" : "bg-brand/10 text-brand-fg"
                 }`}>
@@ -1741,19 +1743,19 @@ export default function ManagerProductionPlanning() {
                 </span>
               </div>
               <div>
-                <p className="text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">Plan Date</p>
+                <p className="text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">Plan Date</p>
                 <p className="text-[14px] font-[600] text-fg mt-1">
                   {plan.planDate ? new Date(plan.planDate).toLocaleDateString() : "N/A"}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">Total Est. Cost</p>
+                <p className="text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">Total Est. Cost</p>
                 <p className="text-[14px] font-[600] text-fg mt-1">
                   Rs. {plan.totalEstimatedCost?.toLocaleString() || "0.00"}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">Raw Material Cost</p>
+                <p className="text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">Raw Material Cost</p>
                 <p className="text-[14px] font-[600] text-fg mt-1">
                   Rs. {plan.totalRawMaterialCost?.toLocaleString() || "0.00"}
                 </p>
@@ -1792,7 +1794,7 @@ export default function ManagerProductionPlanning() {
                             {item.productName}
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-[500] uppercase ${
+                            <span className={`inline-block px-2 py-0.5 rounded text-[12px] font-[500] uppercase ${
                               item.type === "raw_material" ? "bg-warning/10 text-warning" : "bg-brand/10 text-brand-fg"
                             }`}>
                               {item.type || "product"}
@@ -1845,7 +1847,7 @@ export default function ManagerProductionPlanning() {
                           <tr key={idx} className={`hover:bg-subtle/30 transition-colors ${isShortage ? "bg-error/10" : ""}`}>
                             <td className="py-3 px-4">
                               <p className="text-[14px] font-[600] text-fg">{mat.rawMaterialName}</p>
-                              {mat.materialCode && <p className="text-[11px] text-fg-secondary">Code: {mat.materialCode}</p>}
+                              {mat.materialCode && <p className="text-[12px] text-fg-secondary">Code: {mat.materialCode}</p>}
                             </td>
                             <td className="py-3 px-4 text-[13px] text-fg">
                               {mat.productionCenterName || "N/A"}
@@ -1961,7 +1963,7 @@ export default function ManagerProductionPlanning() {
                 Verify available inventory before finalizing the production plan.
               </p>
             </div>
-            <button
+            <button aria-label="Close"
               onClick={() => setShowComparisonModal(false)}
               className="p-2 hover:bg-app rounded-lg transition-colors"
             >
@@ -1996,7 +1998,7 @@ export default function ManagerProductionPlanning() {
                           <p className="text-[14px] font-[600] text-fg">
                             {mat.rawMaterialName}
                           </p>
-                          <p className="text-[11px] text-fg-secondary">
+                          <p className="text-[12px] text-fg-secondary">
                             Code: {mat.materialCode || "-"} | Center: {mat.productionCenterName}
                           </p>
                         </td>
@@ -2138,7 +2140,7 @@ export default function ManagerProductionPlanning() {
                 Production Plan Submitted
               </h3>
             </div>
-            <button
+            <button aria-label="Close"
               onClick={() => setShowConfirmationPopup(false)}
               className="p-2 hover:bg-app rounded-lg"
             >
@@ -2406,7 +2408,7 @@ export default function ManagerProductionPlanning() {
               Manage Outlet Distribution -{" "}
               {selectedProductForDistribution?.productName}
             </h3>
-            <button
+            <button aria-label="Close"
               onClick={() => setShowOutletDistributionModal(false)}
               className="p-2 hover:bg-app rounded-lg"
             >
@@ -2517,7 +2519,7 @@ export default function ManagerProductionPlanning() {
                             {dist.qty}
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <button
+                            <button aria-label="Delete"
                               onClick={() =>
                                 removeOutletDistribution(
                                   selectedProductForDistribution.productId,
@@ -2954,7 +2956,7 @@ export default function ManagerProductionPlanning() {
                                 </span>
 
                                 {((miniStores && miniStores.length > 0) || (outletsList && outletsList.length > 0)) && (
-                                  <div className="text-[10px] text-fg-secondary mt-1 space-y-0.5 text-left bg-subtle/80 p-1.5 rounded border border-line max-w-[180px]">
+                                  <div className="text-[12px] text-fg-secondary mt-1 space-y-0.5 text-left bg-subtle/80 p-1.5 rounded border border-line max-w-[180px]">
                                     {miniStores && miniStores.length > 0 && (
                                       <div>
                                         <span className="font-[600] text-fg">Mini Stores:</span>
@@ -3004,7 +3006,7 @@ export default function ManagerProductionPlanning() {
                             </td>
                             <td className="py-4 px-6 text-right">
                               <div className="flex justify-end gap-2">
-                                <button
+                                <button aria-label="Delete"
                                   onClick={() => removeFromPlan(item.id)}
                                   className="p-2 text-error hover:bg-error/10 rounded-lg transition-colors"
                                 >

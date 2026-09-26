@@ -537,7 +537,7 @@ export default function AdminOutletManagement() {
                                     }
                                 </p>
                             </div>
-                            <button
+                            <button aria-label="Close"
                                 onClick={handleCancel}
                                 className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
                             >

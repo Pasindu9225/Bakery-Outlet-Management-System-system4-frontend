@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
   Package,
   Plus,
@@ -163,7 +164,7 @@ export default function POSGoodsEntry() {
 
       setExpectedDeliveries(items);
     } catch (err) {
-      setExpectedError(err.message || "Failed to load expected deliveries");
+      setExpectedError(friendlyError(err, { fallback: "Failed to load expected deliveries" }));
     } finally {
       setLoadingExpected(false);
     }
@@ -187,7 +188,7 @@ export default function POSGoodsEntry() {
       const data = await response.json();
       setPendingTransfers(data);
     } catch (err) {
-      setTransferError(err.message);
+      setTransferError(friendlyError(err));
     } finally {
       setLoadingTransfers(false);
     }
@@ -280,13 +281,12 @@ export default function POSGoodsEntry() {
   };
 
   const addManualEntry = () => {
-    if (
-      !manualEntry.productId ||
-      !manualEntry.productName ||
-      !manualEntry.quantity ||
-      manualEntry.quantity <= 0
-    ) {
-      toast.error("Please fill all required fields with valid quantities");
+    if (!manualEntry.productId || !manualEntry.productName) {
+      toast.error("Choose the product first.");
+      return;
+    }
+    if (!manualEntry.quantity || manualEntry.quantity <= 0) {
+      toast.error("Enter a quantity above 0.");
       return;
     }
 
@@ -411,7 +411,7 @@ export default function POSGoodsEntry() {
       setTimeout(() => setIsConfirmed(false), 3000);
     } catch (err) {
       console.error("Error confirming goods entry:", err);
-      toast.error(`Failed to confirm goods entry: ${err.message}`);
+      toast.error(friendlyError(err, "Failed to confirm goods entry"));
     }
   };
 
@@ -581,7 +581,7 @@ export default function POSGoodsEntry() {
 
                               {/* Entry status badge */}
                               {/* {item.entryStatus && (
-                                <span className="px-2 py-1 rounded-full text-[11px] font-[500] bg-brand/10 text-brand-fg">
+                                <span className="px-2 py-1 rounded-full text-[12px] font-[500] bg-brand/10 text-brand-fg">
                                   {item.entryStatus}
                                 </span>
                               )} */}
@@ -590,7 +590,7 @@ export default function POSGoodsEntry() {
                                   const s = item.itemStatus.toUpperCase().replace(/ /g, "_");
                                   return (
                                     <span
-                                      className={`px-2 py-1 rounded-full text-[11px] font-[500] ${
+                                      className={`px-2 py-1 rounded-full text-[12px] font-[500] ${
                                         s === "OVER_RECEIVED"
                                           ? "bg-error/10 text-error"
                                           : s === "PARTIALLY_RECEIVED" || s === "PARTIALY_RECEIVED"
@@ -1026,7 +1026,7 @@ export default function POSGoodsEntry() {
                         </div>
 
                         {!isConfirmed && (
-                          <button
+                          <button aria-label="Delete"
                             onClick={() => removeManualEntry(entry.id)}
                             className="p-2 text-error hover:bg-error/10 rounded-lg transition-colors"
                           >
@@ -1136,7 +1136,7 @@ export default function POSGoodsEntry() {
                     setSelectedTransfer(null);
                     fetchPendingTransfers();
                   } catch (err) {
-                    setApproveError(err.message);
+                    setApproveError(friendlyError(err));
                   }
                 }}
                 className="px-4 py-2 bg-brand text-on-brand rounded-lg text-sm hover:bg-brand-hover"

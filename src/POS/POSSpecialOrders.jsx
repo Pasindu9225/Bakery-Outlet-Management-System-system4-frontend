@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
+import { friendlyError } from "../utils/friendlyError";
 import ButtonHint from "../component/ButtonHint.jsx";
 import {
     Search,
@@ -234,7 +236,7 @@ export default function POSSpecialOrders() {
             console.error("Manager verification error:", error);
             setIsManagerVerified(false);
             setVerifiedManagerName('');
-            setVerificationError(error.response?.data?.message || 'Invalid manager code or unauthorized');
+            setVerificationError(friendlyError(error, { fallback: "Invalid manager code or unauthorized" }));
         } finally {
             setIsLoading(false);
         }
@@ -270,7 +272,7 @@ export default function POSSpecialOrders() {
     // Submit order
     const submitSpecialOrder = async () => {
         if (!isFormValid()) {
-            toast.error('Please complete all required fields');
+            toast.error(formHint());
             return;
         }
 
@@ -298,7 +300,7 @@ export default function POSSpecialOrders() {
             setShowSuccessModal(true);
         } catch (error) {
             console.error("Error submitting credit order:", error);
-            toast.error(error.response?.data?.message || "Failed to submit credit order. Please try again.");
+            toast.error(friendlyError(error, { fallback: "Failed to submit credit order. Please try again." }));
         } finally {
             setIsLoading(false);
         }
@@ -495,7 +497,7 @@ export default function POSSpecialOrders() {
             setFinalPaymentAmount('');
         } catch (error) {
             console.error("Error recording final payment:", error);
-            toast.error(error.response?.data?.message || "Failed to record payment.");
+            toast.error(friendlyError(error, { fallback: "Failed to record payment." }));
         } finally {
             setIsLoading(false);
         }
@@ -522,7 +524,7 @@ export default function POSSpecialOrders() {
             setManagerOtp('');
         } catch (error) {
             console.error("Error approving order:", error);
-            toast.error(error.response?.data?.message || "Manager approval failed. Please verify the PIN.");
+            toast.error(friendlyError(error, { fallback: "Manager approval failed. Please verify the PIN." }));
         } finally {
             setIsLoading(false);
         }
@@ -671,13 +673,13 @@ export default function POSSpecialOrders() {
                                                         </button>
                                                     </div>
                                                     {customerLookupStatus === 'found' && (
-                                                        <p className="text-success text-[11px] mt-1.5 flex items-center gap-1">
+                                                        <p className="text-success text-[12px] mt-1.5 flex items-center gap-1">
                                                             <CheckCircle size={12} />
                                                             Customer found: {customerDetails.name} ({customerDetails.type === 'Credit' ? 'Credit Allowed' : 'Regular'})
                                                         </p>
                                                     )}
                                                     {customerLookupStatus === 'new' && (
-                                                        <p className="text-brand-fg text-[11px] mt-1.5 flex items-center gap-1">
+                                                        <p className="text-brand-fg text-[12px] mt-1.5 flex items-center gap-1">
                                                             <AlertCircle size={12} />
                                                             New Customer: Will be registered automatically on submit.
                                                         </p>
@@ -762,7 +764,7 @@ export default function POSSpecialOrders() {
                                                         {filteredProducts.map((product) => (
                                                             <div
                                                                 key={product.id}
-                                                                onClick={() => addProductToOrder(product)}
+                                                                role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => addProductToOrder(product)}
                                                                 className="p-3 bg-surface rounded-lg border border-line hover:border-brand-fg cursor-pointer transition-colors"
                                                             >
                                                                 <div className="flex justify-between items-start">
@@ -796,7 +798,7 @@ export default function POSSpecialOrders() {
                                                                 <h4 className="text-[14px] font-[500] text-fg">{product.name}</h4>
                                                                 <p className="text-[12px] text-fg-secondary">{product.code} | {product.category}</p>
                                                             </div>
-                                                            <button
+                                                            <button aria-label="Delete"
                                                                 onClick={() => removeProduct(product.id)}
                                                                 className="text-error hover:bg-error/10 p-1 rounded"
                                                             >
@@ -808,7 +810,7 @@ export default function POSSpecialOrders() {
                                                             <div>
                                                                 <label className="block text-[12px] text-fg-secondary mb-1">Quantity</label>
                                                                 <div className="flex items-center gap-2">
-                                                                    <button
+                                                                    <button aria-label="Decrease quantity"
                                                                         onClick={() => updateProductQuantity(product.id, product.quantity - 1)}
                                                                         className="w-10 h-10 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                     >
@@ -821,7 +823,7 @@ export default function POSSpecialOrders() {
                                                                         onChange={(e) => updateProductQuantity(product.id, parseInt(e.target.value) || 1)}
                                                                         className="w-16 text-center py-1 border border-line rounded text-[12px] focus:border-brand-fg focus:outline-none"
                                                                     />
-                                                                    <button
+                                                                    <button aria-label="Increase quantity"
                                                                         onClick={() => updateProductQuantity(product.id, product.quantity + 1)}
                                                                         className="w-10 h-10 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                     >
@@ -1006,7 +1008,7 @@ export default function POSSpecialOrders() {
                                                             <CheckCircle size={18} className="text-brand-fg" />
                                                             <div>
                                                                 <p className="text-[12px] font-[600] text-brand-fg">No Manager Authorization Required</p>
-                                                                <p className="text-[11px] text-brand-fg">Advance amount is Rs. 0.00. Credit order can be submitted directly.</p>
+                                                                <p className="text-[12px] text-brand-fg">Advance amount is Rs. 0.00. Credit order can be submitted directly.</p>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1031,13 +1033,13 @@ export default function POSSpecialOrders() {
                                                                 </button>
                                                             </div>
                                                             {verificationError && (
-                                                                <p className="text-error text-[11px] mt-1 flex items-center gap-1">
+                                                                <p className="text-error text-[12px] mt-1 flex items-center gap-1">
                                                                     <AlertCircle size={12} />
                                                                     {verificationError}
                                                                 </p>
                                                             )}
                                                         </div>
-                                                        <p className="text-[11px] text-fg-secondary">
+                                                        <p className="text-[12px] text-fg-secondary">
                                                             * Manager verification is required when an advance amount is added.
                                                         </p>
                                                     </div>
@@ -1057,7 +1059,7 @@ export default function POSSpecialOrders() {
                                                                     setVerifiedManagerName('');
                                                                     setManagerVerificationCode('');
                                                                 }}
-                                                                className="text-success hover:text-success text-[11px] underline"
+                                                                className="text-success hover:text-success text-[12px] underline"
                                                             >
                                                                 Change
                                                             </button>
@@ -1401,7 +1403,7 @@ export default function POSSpecialOrders() {
                                     <h3 className="text-[18px] font-[600] text-fg">Order Details</h3>
                                     <p className="text-[14px] text-fg-secondary">Order ID: {selectedOrder.id}</p>
                                 </div>
-                                <button
+                                <button aria-label="Close"
                                     onClick={() => {
                                         setShowOrderDetails(false);
                                         setSelectedOrder(null);

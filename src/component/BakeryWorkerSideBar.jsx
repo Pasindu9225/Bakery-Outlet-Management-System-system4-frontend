@@ -1,4 +1,5 @@
 import React from "react";
+import SidebarCollapseButton from "./SidebarCollapseButton";
 import {
   LayoutDashboard,
   ArrowLeft,
@@ -30,9 +31,9 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       } md:translate-x-0`}
     >
-      <div className="w-64 bg-surface shadow-lg h-screen flex flex-col">
+      <div className="app-sidebar w-64 bg-surface shadow-lg h-screen flex flex-col">
         {/* Logo & Back Button */}
-        <div className="p-4 border-b border-line flex items-center justify-between">
+        <div className="sb-pad p-4 border-b border-line flex items-center justify-between">
           <div className="flex items-center">
             <img src="/logo.png" alt="logo" className="logo-plate h-14 w-auto" />
           </div>
@@ -47,7 +48,7 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
         </div>
 
         {/* Bakery Worker Module Title */}
-        <div className="px-4 py-3 bg-gradient-to-r from-brand to-brand-hover text-on-brand">
+        <div className="sb-hide px-4 py-3 bg-gradient-to-r from-brand to-brand-hover text-on-brand">
           <h2 className="text-[16px] font-[600]">Bakery Worker Module</h2>
           <p className="text-[12px] text-on-brand/80">
             Not used in this deployment
@@ -63,8 +64,9 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
                 <li key={item.path}>
                   <NavLink
                     to={item.path}
+                    title={item.name}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 p-3 rounded-lg w-full transition-all text-[13px] text-left ${
+                      `sb-center flex items-center gap-3 p-3 rounded-lg w-full transition-all text-[13px] text-left ${
                         isActive
                           ? "bg-brand text-on-brand shadow-sm"
                           : "text-fg-secondary hover:bg-app hover:text-fg"
@@ -77,9 +79,9 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
                           size={18}
                           className={isActive ? "text-on-brand" : item.color}
                         />
-                        <span className="font-[500]">{item.name}</span>
+                        <span className="sb-hide font-[500]">{item.name}</span>
                         {isActive && (
-                          <div className="ml-auto w-2 h-2 bg-surface rounded-full"></div>
+                          <div className="sb-hide ml-auto w-2 h-2 bg-surface rounded-full"></div>
                         )}
                       </>
                     )}
@@ -91,10 +93,11 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
         </nav>
 
         {/* User Profile */}
-        <div className="p-4 border-t border-line">
-          <div className="flex items-center gap-3">
+        <SidebarCollapseButton />
+        <div className="sb-pad p-4 border-t border-line">
+          <div className="sb-center flex items-center gap-3">
             <RoleAvatar roleId={localStorage.getItem("userRole")} />
-            <div className="flex-1">
+            <div className="sb-hide flex-1">
               <p className="text-[14px] font-[500] text-fg">
                 {localStorage.getItem("firstName") || localStorage.getItem("lastName")
                   ? `${localStorage.getItem("firstName") || ""} ${localStorage.getItem("lastName") || ""}`.trim()
@@ -105,7 +108,7 @@ export default function BakeryWorkerSidebar({ sidebarOpen }) {
               </p>
             </div>
             <button
-              className="p-1 text-fg-secondary hover:text-error transition-colors"
+              className="sb-hide p-1 text-fg-secondary hover:text-error transition-colors"
               onClick={onLogout}
             >
               <LogOut size={16} />

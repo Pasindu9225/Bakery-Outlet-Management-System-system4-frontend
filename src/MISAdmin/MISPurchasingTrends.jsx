@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { onEnterClick } from "../utils/a11y";
+import { friendlyError } from "../utils/friendlyError";
 import { useTheme } from "../context/ThemeContext";
 import { themeColor, categoryToken } from "../utils/themeColors";
 import {
@@ -109,7 +111,7 @@ function DrillDownModal({ title, rows, onClose }) {
             <h3 className="text-[17px] font-[600] text-fg">{title}</h3>
             <p className="text-[12px] text-fg-secondary mt-0.5">{rows.length} record{rows.length !== 1 ? "s" : ""} found</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-app rounded-lg transition-colors">
+          <button aria-label="Close" onClick={onClose} className="p-2 hover:bg-app rounded-lg transition-colors">
             <X size={18} className="text-fg-secondary" />
           </button>
         </div>
@@ -133,7 +135,7 @@ function DrillDownModal({ title, rows, onClose }) {
                   <td className="py-3 px-4 text-[12px] text-fg">{formatMoney(r.unitCost)}</td>
                   <td className="py-3 px-4 text-[12px] font-[600] text-fg">{formatMoney(r.totalCost)}</td>
                   <td className="py-3 px-4">
-                    <span className={`text-[11px] font-[500] px-2.5 py-1 rounded-full ${r.status === "Received" ? "text-success bg-hover" : r.status === "Cancelled" ? "text-error bg-hover" : "text-warning bg-hover"}`}>
+                    <span className={`text-[12px] font-[500] px-2.5 py-1 rounded-full ${r.status === "Received" ? "text-success bg-hover" : r.status === "Cancelled" ? "text-error bg-hover" : "text-warning bg-hover"}`}>
                       {r.status}
                     </span>
                   </td>
@@ -513,7 +515,7 @@ export default function MISPurchasingTrends() {
       setPage(1);
     } catch (err) {
       console.error("MIS purchasing dashboard load failed:", err);
-      setPageError(err.message || "Failed to load purchasing trends.");
+      setPageError(friendlyError(err, { fallback: "Failed to load purchasing trends." }));
       setDashboard(null);
     } finally {
       setLoading(false);
@@ -925,13 +927,13 @@ export default function MISPurchasingTrends() {
                         const pct = Math.round((val / (topSpend || 1)) * 100);
                         return (
                           <div key={`${s.supplierName}-${i}`} className="cursor-pointer group"
-                            onClick={() => setDrillDown({
+                            role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => setDrillDown({
                               title: `Supplier – ${s.supplierName}`,
                               rows: records.filter((r) => r.supplier === s.supplierName),
                             })}>
                             <div className="flex items-center justify-between mb-1">
                               <div className="flex items-center gap-2">
-                                <span className="w-5 h-5 rounded-full bg-brand text-on-brand text-[10px] flex items-center justify-center font-[600]">{i + 1}</span>
+                                <span className="w-5 h-5 rounded-full bg-brand text-on-brand text-[12px] flex items-center justify-center font-[600]">{i + 1}</span>
                                 <span className="text-[13px] font-[500] text-fg group-hover:text-brand-fg transition-colors">{s.supplierName}</span>
                               </div>
                               <span className="text-[12px] font-[600] text-fg">{formatMoney(val)}</span>
@@ -1017,7 +1019,7 @@ export default function MISPurchasingTrends() {
                             <div className="flex items-center gap-2">
                               <p className="text-[13px] font-[500] text-brand-fg">{r.poNo}</p>
                             </div>
-                            <p className="text-[10px] text-fg-secondary flex items-center gap-1 mt-0.5">
+                            <p className="text-[12px] text-fg-secondary flex items-center gap-1 mt-0.5">
                               <Truck size={9} /> {r.grnNo && r.grnNo !== "—" ? r.grnNo : "GRN Pending"}
                             </p>
                           </td>
@@ -1028,7 +1030,7 @@ export default function MISPurchasingTrends() {
                           {/* Supplier */}
                           <td className="py-4 px-4">
                             <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 bg-hover rounded-md flex items-center justify-center text-brand-fg font-[700] text-[11px] flex-shrink-0">
+                              <div className="w-7 h-7 bg-hover rounded-md flex items-center justify-center text-brand-fg font-[700] text-[12px] flex-shrink-0">
                                 {(r.supplier || "?").charAt(0)}
                               </div>
                               <span className="text-[12px] font-[500] text-fg">{r.supplier || "—"}</span>
@@ -1037,7 +1039,7 @@ export default function MISPurchasingTrends() {
 
                           {/* Category */}
                           <td className="py-4 px-4">
-                            <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full"
+                            <span className="text-[12px] font-[500] px-2 py-0.5 rounded-full"
                               style={{ color: categoryColor(r.category), backgroundColor: categoryColor(r.category, 0.1) }}>
                               {r.category || "Uncategorized"}
                             </span>
@@ -1049,13 +1051,13 @@ export default function MISPurchasingTrends() {
                           {/* Qty */}
                           <td className="py-4 px-4">
                             <span className="text-[14px] font-[600] text-fg">{Number(r.qty || 0)}</span>
-                            <span className="text-[11px] text-fg-secondary ml-1">{r.unit || ""}</span>
+                            <span className="text-[12px] text-fg-secondary ml-1">{r.unit || ""}</span>
                           </td>
 
                           {/* Total Cost */}
                           <td className="py-4 px-4">
                             <p className="text-[14px] font-[700] text-fg">{formatMoney(r.totalCost)}</p>
-                            <p className="text-[11px] text-fg-secondary mt-0.5">{formatMoney(r.unitCost)}/{r.unit || "u"}</p>
+                            <p className="text-[12px] text-fg-secondary mt-0.5">{formatMoney(r.unitCost)}/{r.unit || "u"}</p>
                           </td>
 
                           {/* Status */}
@@ -1086,7 +1088,7 @@ export default function MISPurchasingTrends() {
                       Page {page} of {totalPages} · {sorted.length} records
                     </p>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
+                      <button aria-label="Previous" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
                         className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                         <ChevronLeft size={15} className="text-fg-secondary" />
                       </button>
@@ -1096,7 +1098,7 @@ export default function MISPurchasingTrends() {
                           {p}
                         </button>
                       ))}
-                      <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                      <button aria-label="Next" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
                         className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                         <ChevronRight size={15} className="text-fg-secondary" />
                       </button>

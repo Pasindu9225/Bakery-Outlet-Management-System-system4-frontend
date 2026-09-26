@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import toast from "react-hot-toast";
 import {
   Search,
@@ -91,7 +92,7 @@ function IssueIngredientsModal({ request, onClose, onIssue, loading }) {
             <h3 className="text-[20px] font-[600] text-fg">Issue Ingredients</h3>
             <p className="text-[13px] text-fg-secondary mt-1">Request ID: {request.id}</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-app rounded-lg transition-colors">
+          <button aria-label="Close" onClick={onClose} className="p-2 hover:bg-app rounded-lg transition-colors">
             <X size={20} className="text-fg-secondary" />
           </button>
         </div>
@@ -100,17 +101,17 @@ function IssueIngredientsModal({ request, onClose, onIssue, loading }) {
           <div className="bg-subtle rounded-xl p-5 border border-line">
              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-[11px] text-fg-secondary mb-1">Production Center ID</p>
+                  <p className="text-[12px] text-fg-secondary mb-1">Production Center ID</p>
                   <p className="text-[14px] font-[600] text-fg">{request.productionCenterId}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] text-fg-secondary mb-1">Requested On</p>
+                  <p className="text-[12px] text-fg-secondary mb-1">Requested On</p>
                   <p className="text-[14px] font-[500] text-fg">{new Date(request.createdAt).toLocaleString()}</p>
                 </div>
              </div>
              {request.notes && (
                <div className="mt-4 pt-4 border-t border-line">
-                 <p className="text-[11px] text-fg-secondary mb-1">Worker Notes</p>
+                 <p className="text-[12px] text-fg-secondary mb-1">Worker Notes</p>
                  <p className="text-[13px] text-fg italic">"{request.notes}"</p>
                </div>
              )}
@@ -157,7 +158,7 @@ function IssueIngredientsModal({ request, onClose, onIssue, loading }) {
                             onChange={(e) => handleQtyChange(item.id, e.target.value)}
                            />
                            {issuedQtys[item.id] > item.availableQty && (
-                             <span className="text-[10px] text-error font-[500]">Exceeds Stock!</span>
+                             <span className="text-[12px] text-error font-[500]">Exceeds Stock!</span>
                            )}
                         </div>
                       </td>
@@ -211,7 +212,7 @@ export default function StorekeeperIngredientRequests() {
       const data = await res.json();
       setRequests(data.sort((a, b) => b.id - a.id));
     } catch (err) {
-      setError(err.message);
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
@@ -241,7 +242,7 @@ export default function StorekeeperIngredientRequests() {
       setShowIssueModal(false);
       fetchRequests();
     } catch (err) {
-      toast.error(err.message);
+      toast.error(friendlyError(err));
     } finally {
       setSubmitting(false);
     }
@@ -312,7 +313,7 @@ export default function StorekeeperIngredientRequests() {
                                     ? r.notes.replace("Auto-generated for Production Plan: ", "") 
                                     : `Request #${r.id}`}
                                 </h4>
-                                <span className={`inline-flex items-center gap-1.5 text-[11px] font-[500] px-2.5 py-1 rounded-full ${meta.color}`}>
+                                <span className={`inline-flex items-center gap-1.5 text-[12px] font-[500] px-2.5 py-1 rounded-full ${meta.color}`}>
                                   {meta.icon} {meta.label}
                                 </span>
                             </div>

@@ -270,7 +270,7 @@ export default function POSDashboard({ onBackToDashboard }) {
                           </span>
                         </div>
                       </div>
-                      <button className="p-2 text-fg-secondary hover:bg-surface rounded-lg">
+                      <button aria-label="View details" className="p-2 text-fg-secondary hover:bg-surface rounded-lg">
                         <Eye size={16} />
                       </button>
                     </div>
@@ -311,7 +311,7 @@ export default function POSDashboard({ onBackToDashboard }) {
                           </p>
                         </div>
                       </div>
-                      <button className="p-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors">
+                      <button aria-label="Increase quantity" className="p-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors">
                         <Plus size={16} />
                       </button>
                     </div>

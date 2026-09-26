@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
 import { confirmDialog } from "../component/ConfirmDialog";
 import {
   Truck,
@@ -878,7 +879,7 @@ export default function AdminManageSuppliers() {
                           <div className="min-w-[120px]">
                             {supplier.isVatRegistered ? (
                               <div>
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-line text-success mb-1">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-line text-success mb-1">
                                   Registered
                                 </span>
                                 <p className="text-[12px] text-fg">
@@ -886,7 +887,7 @@ export default function AdminManageSuppliers() {
                                 </p>
                               </div>
                             ) : (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-hover text-fg-secondary">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-fg-secondary">
                                 Not Registered
                               </span>
                             )}
@@ -911,13 +912,13 @@ export default function AdminManageSuppliers() {
                                   {uniqueGenerics.slice(0, 2).map((gen, idx) => (
                                     <span
                                       key={idx}
-                                      className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-hover text-brand-fg"
+                                      className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-brand-fg"
                                     >
                                       {gen}
                                     </span>
                                   ))}
                                   {uniqueGenerics.length > 2 && (
-                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[11px] font-[500] bg-subtle text-fg-secondary">
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-subtle text-fg-secondary">
                                       +{uniqueGenerics.length - 2} more
                                     </span>
                                   )}
@@ -982,7 +983,7 @@ export default function AdminManageSuppliers() {
                     : "Fill in the details to add a new supplier"}
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={handleCancel}
                 className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
               >
@@ -1303,17 +1304,17 @@ export default function AdminManageSuppliers() {
                                   {material.name}
                                 </span>
                                 <div className="flex items-center gap-1">
-                                  <span className="text-[10px] text-fg-secondary">
+                                  <span className="text-[12px] text-fg-secondary">
                                     {material.code}
                                   </span>
                                   {material.brand && (
-                                    <span className="text-[10px] font-[500] text-brand-fg bg-hover px-1 rounded">
+                                    <span className="text-[12px] font-[500] text-brand-fg bg-hover px-1 rounded">
                                       {material.brand}
                                     </span>
                                   )}
                                 </div>
                               </div>
-                              <button
+                              <button aria-label="Close"
                                 type="button"
                                 onClick={() =>
                                   handleRemoveMaterial(material.id)
@@ -1378,7 +1379,7 @@ export default function AdminManageSuppliers() {
                   Choose which raw materials this supplier provides
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowMaterialsModal(false)}
                 className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
               >
@@ -1477,7 +1478,7 @@ export default function AdminManageSuppliers() {
                         return (
                           <div key={brandName} className="flex flex-col gap-2">
                             <div
-                              onClick={handleBrandToggle}
+                              role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={handleBrandToggle}
                               className={`p-3 border-2 rounded-lg cursor-pointer transition-all ${
                                 allSelected
                                   ? "border-brand-fg bg-hover"
@@ -1523,7 +1524,7 @@ export default function AdminManageSuppliers() {
                                 return (
                                   <div
                                     key={material.id}
-                                    onClick={() => handleMaterialToggle(material)}
+                                    role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => handleMaterialToggle(material)}
                                     className={`p-2 border rounded-md cursor-pointer flex items-center justify-between transition-colors ${
                                       isSelected 
                                         ? "border-brand-fg bg-subtle" 
@@ -1532,7 +1533,7 @@ export default function AdminManageSuppliers() {
                                   >
                                     <div className="flex flex-col">
                                       <span className="text-[13px] font-[500] text-fg">{material.name}</span>
-                                      <span className="text-[11px] text-fg-secondary">{material.code}</span>
+                                      <span className="text-[12px] text-fg-secondary">{material.code}</span>
                                     </div>
                                     <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? "border-brand-fg bg-brand" : "border-line"}`}>
                                       {isSelected && <Check className="w-3 h-3 text-on-brand" />}
@@ -1616,7 +1617,7 @@ export default function AdminManageSuppliers() {
                   Materials supplied by {viewingSupplierName}
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowViewMaterialsModal(false)}
                 className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
               >

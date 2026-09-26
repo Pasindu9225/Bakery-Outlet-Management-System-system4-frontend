@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import ButtonHint from "../component/ButtonHint.jsx";
 import toast from "react-hot-toast";
 import {
@@ -300,7 +301,7 @@ export default function POSReturnToStore() {
             await fetchStock();
         } catch (error) {
             console.error('Return submission failed:', error);
-            toast.error(error.response?.data?.message || "Failed to submit return request. Please try again.");
+            toast.error(friendlyError(error, { fallback: "Failed to submit return request. Please try again." }));
         } finally {
             setLoading(false);
         }
@@ -501,7 +502,7 @@ export default function POSReturnToStore() {
                                                                         </div>
                                                                     </td>
                                                                     <td className="px-2 py-2 min-w-[110px]">
-                                                                        <span className={`inline-flex px-2 py-1 text-[10px] font-[500] rounded-full ${item.type === 'Raw Material'
+                                                                        <span className={`inline-flex px-2 py-1 text-[12px] font-[500] rounded-full ${item.type === 'Raw Material'
                                                                                 ? 'bg-brand/10 text-brand-fg'
                                                                                 : item.type === 'Semi-Finished'
                                                                                     ? 'bg-plum/20 text-plum'
@@ -516,7 +517,7 @@ export default function POSReturnToStore() {
                                                                     <td className="px-2 py-2 min-w-[100px]">
                                                                         <div className="text-[12px] text-fg-secondary">{item.expiryDate}</div>
                                                                         {new Date(item.expiryDate) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) && (
-                                                                            <div className="flex items-center gap-1 text-[10px] text-warning mt-1">
+                                                                            <div className="flex items-center gap-1 text-[12px] text-warning mt-1">
                                                                                 <AlertTriangle size={10} />
                                                                                 <span>Expiring Soon</span>
                                                                             </div>
@@ -529,7 +530,7 @@ export default function POSReturnToStore() {
                                                                     </td>
                                                                     <td className="px-2 py-2">
                                                                         <div className="flex items-center justify-center gap-1">
-                                                                            <button
+                                                                            <button aria-label="Decrease quantity"
                                                                                 onClick={() => updateReturnQuantity(item.id, item.returnQty - 1)}
                                                                                 className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle disabled:opacity-50"
                                                                                 disabled={item.returnQty <= 0}
@@ -544,7 +545,7 @@ export default function POSReturnToStore() {
                                                                                 onChange={(e) => updateReturnQuantity(item.id, e.target.value)}
                                                                                 className="w-16 text-center py-1 border border-line rounded text-[12px] focus:border-brand-fg focus:outline-none"
                                                                             />
-                                                                            <button
+                                                                            <button aria-label="Increase quantity"
                                                                                 onClick={() => updateReturnQuantity(item.id, item.returnQty + 1)}
                                                                                 className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle disabled:opacity-50"
                                                                                 disabled={item.returnQty >= item.availableQty}
@@ -552,7 +553,7 @@ export default function POSReturnToStore() {
                                                                                 <Plus size={12} />
                                                                             </button>
                                                                         </div>
-                                                                        <div className="text-center text-[10px] text-fg-secondary mt-1">
+                                                                        <div className="text-center text-[12px] text-fg-secondary mt-1">
                                                                             {item.uom}
                                                                         </div>
                                                                     </td>
@@ -627,13 +628,13 @@ export default function POSReturnToStore() {
                                                                     <div className="flex justify-between items-start">
                                                                         <div className="flex-1">
                                                                             <p className="text-[12px] font-[500] text-fg">{item.name}</p>
-                                                                            <p className="text-[10px] text-fg-secondary">{item.code}</p>
+                                                                            <p className="text-[12px] text-fg-secondary">{item.code}</p>
                                                                         </div>
                                                                         <div className="text-right">
                                                                             <p className="text-[12px] font-[500] text-brand-fg">
                                                                                 {item.returnQty} {item.uom}
                                                                             </p>
-                                                                            <p className="text-[10px] text-fg-secondary">{item.reason}</p>
+                                                                            <p className="text-[12px] text-fg-secondary">{item.reason}</p>
                                                                         </div>
                                                                     </div>
                                                                 </div>

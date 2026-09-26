@@ -269,7 +269,7 @@ export default function AdminDashboard() {
                         </div>
                         <p className="text-[13px] font-[500] text-fg mb-1">{approval.type}</p>
                         <p className="text-[12px] text-fg-secondary mb-2">{approval.description}</p>
-                        <p className="text-[11px] text-fg-secondary">By: {approval.requester} • {approval.date}</p>
+                        <p className="text-[12px] text-fg-secondary">By: {approval.requester} • {approval.date}</p>
                       </div>
                     </div>
                     <div className="flex gap-2 mt-3">

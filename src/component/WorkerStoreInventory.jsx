@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
+import { friendlyError } from "../utils/friendlyError";
 import { toast } from "react-hot-toast";
 import {
   Store,
@@ -43,7 +45,7 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
       setItems(data || []);
     } catch (err) {
       console.error("Error fetching worker store inventory:", err);
-      setError(err.message || "Failed to load store inventory.");
+      setError(friendlyError(err, { fallback: "Failed to load store inventory." }));
     } finally {
       setLoading(false);
     }
@@ -121,7 +123,7 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div
-          onClick={() => setCategoryFilter("ALL")}
+          role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => setCategoryFilter("ALL")}
           className={`p-5 rounded-xl border bg-surface shadow-sm cursor-pointer transition-all hover:shadow-md ${
             categoryFilter === "ALL" ? "ring-2 ring-brand-fg border-brand-fg" : "border-line"
           }`}
@@ -138,7 +140,7 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
         </div>
 
         <div
-          onClick={() => setCategoryFilter("RAW_MATERIAL")}
+          role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => setCategoryFilter("RAW_MATERIAL")}
           className={`p-5 rounded-xl border bg-surface shadow-sm cursor-pointer transition-all hover:shadow-md ${
             categoryFilter === "RAW_MATERIAL" ? "ring-2 ring-success border-success" : "border-line"
           }`}
@@ -155,7 +157,7 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
         </div>
 
         <div
-          onClick={() => setCategoryFilter("SEMI_FINISHED")}
+          role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => setCategoryFilter("SEMI_FINISHED")}
           className={`p-5 rounded-xl border bg-surface shadow-sm cursor-pointer transition-all hover:shadow-md ${
             categoryFilter === "SEMI_FINISHED" ? "ring-2 ring-plum border-plum" : "border-line"
           }`}
@@ -172,7 +174,7 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
         </div>
 
         <div
-          onClick={() => setCategoryFilter("FINISHED_PRODUCT")}
+          role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => setCategoryFilter("FINISHED_PRODUCT")}
           className={`p-5 rounded-xl border bg-surface shadow-sm cursor-pointer transition-all hover:shadow-md ${
             categoryFilter === "FINISHED_PRODUCT" ? "ring-2 ring-warning border-warning" : "border-line"
           }`}
@@ -279,12 +281,12 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
                           <span>{item.name}</span>
                           {item.expiryDate && !isExpired && <ExpiryTag expiryDate={item.expiryDate} warnDays={1} />}
                           {Number(item.expiredQty) > 0 && (
-                            <span className="text-[11px] font-[600] text-error" title="Expired stock is hidden here and sent to the Admin for review">
+                            <span className="text-[12px] font-[600] text-error" title="Expired stock is hidden here and sent to the Admin for review">
                               +{Number(item.expiredQty)} expired
                             </span>
                           )}
                           {isExpired && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-[700] bg-error/10 text-error border border-error/30 uppercase tracking-wider">
+                            <span className="px-2 py-0.5 rounded text-[12px] font-[700] bg-error/10 text-error border border-error/30 uppercase tracking-wider">
                               EXPIRED
                             </span>
                           )}
@@ -293,17 +295,17 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
 
                       <td className="py-3.5 px-4">
                         {cat === "RAW_MATERIAL" && (
-                          <span className="px-2.5 py-1 rounded-full text-[11px] font-[600] bg-success/10 text-success border border-success/30">
+                          <span className="px-2.5 py-1 rounded-full text-[12px] font-[600] bg-success/10 text-success border border-success/30">
                             Raw Material
                           </span>
                         )}
                         {cat === "SEMI_FINISHED" && (
-                          <span className="px-2.5 py-1 rounded-full text-[11px] font-[600] bg-plum/10 text-plum border border-plum/30">
+                          <span className="px-2.5 py-1 rounded-full text-[12px] font-[600] bg-plum/10 text-plum border border-plum/30">
                             Semi-Finished Sub-assembly
                           </span>
                         )}
                         {cat === "FINISHED_PRODUCT" && (
-                          <span className="px-2.5 py-1 rounded-full text-[11px] font-[600] bg-warning/10 text-warning border border-warning/30">
+                          <span className="px-2.5 py-1 rounded-full text-[12px] font-[600] bg-warning/10 text-warning border border-warning/30">
                             Finished Product
                           </span>
                         )}

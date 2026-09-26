@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
+import { friendlyError } from "../utils/friendlyError";
 import {
   Search,
   Plus,
@@ -518,8 +520,8 @@ export default function StorekeeperGRN() {
       });
     } catch (error) {
       console.error("Failed to submit GRN receive:", error);
-      setSubmitError(error.message || "Failed to submit GRN. Please try again.");
-      toast.error(error.message || "Failed to submit GRN. Please try again.");
+      setSubmitError(friendlyError(error, { fallback: "Failed to submit GRN. Please try again." }));
+      toast.error(friendlyError(error, { fallback: "Failed to submit GRN. Please try again." }));
     } finally {
       setSubmitLoading(false);
     }
@@ -686,7 +688,7 @@ export default function StorekeeperGRN() {
                           <div
                             key={po.id}
                             className="border border-line rounded-lg p-4 hover:border-brand-fg hover:bg-hover cursor-pointer transition-colors"
-                            onClick={() => handleSelectPO(po)}
+                            role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => handleSelectPO(po)}
                           >
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                               <div className="flex-1">
@@ -694,7 +696,7 @@ export default function StorekeeperGRN() {
                                   <h4 className="text-[16px] font-[600] text-fg">
                                     {po.poNumber}
                                   </h4>
-                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-success">
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-success">
                                     {po.status}
                                   </span>
                                 </div>
@@ -774,7 +776,7 @@ export default function StorekeeperGRN() {
                           {selectedPO.supplier.name}
                         </p>
                       </div>
-                      <button
+                      <button aria-label="Close"
                         onClick={() => setSelectedPO(null)}
                         className="p-2 hover:bg-surface rounded-lg transition-colors"
                       >
@@ -908,7 +910,7 @@ export default function StorekeeperGRN() {
                               {grnData.storekeeperSignature.file.name}
                             </p>
                           </div>
-                          <button
+                          <button aria-label="Close"
                             onClick={() =>
                               setGrnData((prev) => ({
                                 ...prev,
@@ -1061,12 +1063,12 @@ export default function StorekeeperGRN() {
                                     disabled={!item.accepted}
                                   />
                                   {item.variance > 0 && (
-                                    <p className="text-[10px] text-error mt-1">
+                                    <p className="text-[12px] text-error mt-1">
                                       Short: {item.variance}
                                     </p>
                                   )}
                                   {item.variance < 0 && (
-                                    <p className="text-[10px] text-warning mt-1">
+                                    <p className="text-[12px] text-warning mt-1">
                                       Excess: {Math.abs(item.variance)}
                                     </p>
                                   )}
@@ -1105,18 +1107,18 @@ export default function StorekeeperGRN() {
                                     disabled={!item.accepted}
                                   />
                                   {item.actualTotal > 0 && (
-                                    <p className="text-[10px] text-fg-secondary mt-1">
+                                    <p className="text-[12px] text-fg-secondary mt-1">
                                       Total: Rs.{item.actualTotal.toFixed(2)}
                                     </p>
                                   )}
                                 </td>
                                 <td className="py-4 px-2 text-center">
                                   {isMatched ? (
-                                    <span className="px-2 py-1 bg-hover text-success rounded text-[11px] font-[600] inline-flex items-center gap-1">
+                                    <span className="px-2 py-1 bg-hover text-success rounded text-[12px] font-[600] inline-flex items-center gap-1">
                                       <CheckCircle2 size={12} /> Match
                                     </span>
                                   ) : (
-                                    <span className="px-2 py-1 bg-hover text-error rounded text-[11px] font-[600] inline-flex items-center gap-1" title="Invoice Qty & Price must match Actual Qty & Price">
+                                    <span className="px-2 py-1 bg-hover text-error rounded text-[12px] font-[600] inline-flex items-center gap-1" title="Invoice Qty & Price must match Actual Qty & Price">
                                       <AlertCircle size={12} /> Mismatch
                                     </span>
                                   )}
@@ -1176,7 +1178,7 @@ export default function StorekeeperGRN() {
                                       <div className="w-10 h-5 bg-line-strong peer-checked:bg-success-solid rounded-full peer transition-colors"></div>
                                       <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-surface rounded-full shadow transform peer-checked:translate-x-5 transition-transform"></div>
                                     </label>
-                                    <span className="text-[11px] text-fg">
+                                    <span className="text-[12px] text-fg">
                                       {item.accepted ? "Accept" : "Reject"}
                                     </span>
                                   </div>
@@ -1343,7 +1345,7 @@ export default function StorekeeperGRN() {
                           </td>
                           <td className="py-4 text-center">
                             <span
-                              className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] ${
+                              className={`inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] ${
                                 grn.status === "Completed"
                                   ? "bg-hover text-success"
                                   : grn.status === "Pending"
@@ -1453,7 +1455,7 @@ export default function StorekeeperGRN() {
                   Purchase Order: {selectedGRNForView.poNumber}
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowGRNDetails(false)}
                 className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >
@@ -1522,7 +1524,7 @@ export default function StorekeeperGRN() {
                     <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                       STATUS
                     </label>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-[500] bg-hover text-success">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-[500] bg-hover text-success">
                       <CheckCircle2 size={10} className="mr-1" />
                       {selectedGRNForView.status}
                     </span>

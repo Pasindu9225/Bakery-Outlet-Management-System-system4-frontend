@@ -347,7 +347,7 @@ export default function AdminPromoCodes() {
           <div className="bg-elevated rounded-xl shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-5 border-b flex justify-between items-center bg-subtle">
               <h3 className="font-[600] text-[18px] text-fg">{modal === "create" ? "Create Promo Code" : "Edit Promo Code"}</h3>
-              <button onClick={closeModal} className="p-2 hover:bg-line rounded-full transition-all"><X size={20} /></button>
+              <button aria-label="Close" onClick={closeModal} className="p-2 hover:bg-line rounded-full transition-all"><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
@@ -415,7 +415,7 @@ export default function AdminPromoCodes() {
                       value={formData.maximumDiscountValue}
                       onChange={(e) => setFormData({ ...formData, maximumDiscountValue: e.target.value })}
                     />
-                    <p className="text-[11px] text-fg-secondary mt-1">Limits the maximum Rs. amount discounted</p>
+                    <p className="text-[12px] text-fg-secondary mt-1">Limits the maximum Rs. amount discounted</p>
                   </div>
 
                   <div className="col-span-2 grid grid-cols-2 gap-4 border-t pt-4">
@@ -466,7 +466,7 @@ export default function AdminPromoCodes() {
           <div className="bg-elevated rounded-lg border shadow-xl w-full max-w-lg overflow-hidden">
              <div className="p-4 border-b flex justify-between items-center bg-subtle">
                <h3 className="font-[600]">Promo Code Details</h3>
-               <button onClick={closeModal}><X size={18} /></button>
+               <button aria-label="Close" onClick={closeModal}><X size={18} /></button>
              </div>
              <div className="p-6 space-y-6">
                 <div className="text-center p-6 bg-brand/10 rounded-xl border border-brand/20">
@@ -477,13 +477,13 @@ export default function AdminPromoCodes() {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="p-3 bg-subtle rounded-lg border border-dashed border-line-strong">
-                        <p className="text-[11px] text-fg-muted font-[600] uppercase">Discount Value</p>
+                        <p className="text-[12px] text-fg-muted font-[600] uppercase">Discount Value</p>
                         <p className="text-[18px] font-[700] text-fg">
                              {selected.discountType === "FLAT" ? "Rs." : ""}{selected.discountValue}{selected.discountType === "PERCENTAGE" ? "%" : ""}
                         </p>
                     </div>
                     <div className="p-3 bg-subtle rounded-lg border border-dashed border-line-strong">
-                        <p className="text-[11px] text-fg-muted font-[600] uppercase">Maximum Cap</p>
+                        <p className="text-[12px] text-fg-muted font-[600] uppercase">Maximum Cap</p>
                         <p className="text-[18px] font-[700] text-fg">
                              {selected.maximumDiscountValue ? `Rs.${selected.maximumDiscountValue}` : "Infinity"}
                         </p>
@@ -492,12 +492,12 @@ export default function AdminPromoCodes() {
 
                 <div className="flex items-center gap-4 py-4 border-y border-dashed">
                     <div className="flex-1">
-                        <p className="text-[11px] text-fg-muted font-[600] uppercase mb-1">Starts From</p>
+                        <p className="text-[12px] text-fg-muted font-[600] uppercase mb-1">Starts From</p>
                         <p className="text-[14px] flex items-center gap-2"><Calendar size={14}/> {fmt(selected.startDate)}</p>
                     </div>
                     <div className="w-px h-8 bg-line"></div>
                     <div className="flex-1">
-                        <p className="text-[11px] text-fg-muted font-[600] uppercase mb-1">Expires On</p>
+                        <p className="text-[12px] text-fg-muted font-[600] uppercase mb-1">Expires On</p>
                         <p className="text-[14px] flex items-center gap-2"><Calendar size={14}/> {fmt(selected.endDate)}</p>
                     </div>
                 </div>

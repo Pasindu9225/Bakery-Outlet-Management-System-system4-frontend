@@ -148,7 +148,7 @@ export default function ManagerDiscountRules() {
                                                     </button>
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
-                                                    <button onClick={() => openView(rule)} className="p-2 text-fg-secondary hover:text-brand-fg"><Eye size={18} /></button>
+                                                    <button aria-label="View details" onClick={() => openView(rule)} className="p-2 text-fg-secondary hover:text-brand-fg"><Eye size={18} /></button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -165,7 +165,7 @@ export default function ManagerDiscountRules() {
                     <div className="bg-elevated rounded-xl w-full max-w-lg shadow-xl overflow-hidden">
                         <div className="p-4 border-b bg-subtle flex justify-between items-center">
                             <h3 className="font-[600]">Discount Details</h3>
-                            <button onClick={() => setModal(null)}><X size={20} /></button>
+                            <button aria-label="Close" onClick={() => setModal(null)}><X size={20} /></button>
                         </div>
                         <div className="p-6 space-y-4">
                              <div>
@@ -174,11 +174,11 @@ export default function ManagerDiscountRules() {
                              </div>
                              <div className="grid grid-cols-2 gap-4 border-y py-4">
                                 <div>
-                                    <p className="text-[11px] text-fg-muted uppercase">Discount Value</p>
+                                    <p className="text-[12px] text-fg-muted uppercase">Discount Value</p>
                                     <p className="font-[600]">{selected.discountType === 'PERCENTAGE' ? `${selected.discountValue}%` : `Rs.${selected.discountValue}`}</p>
                                 </div>
                                 <div>
-                                    <p className="text-[11px] text-fg-muted uppercase">Max Capped</p>
+                                    <p className="text-[12px] text-fg-muted uppercase">Max Capped</p>
                                     <p className="font-[600]">{selected.maximumDiscountValue ? `Rs.${selected.maximumDiscountValue}` : 'None'}</p>
                                 </div>
                              </div>
@@ -186,7 +186,7 @@ export default function ManagerDiscountRules() {
                                 <div className="bg-brand/10 p-3 rounded-lg">
                                     <p className="text-[12px] font-[600] text-brand-fg flex items-center gap-1 mb-1"><Clock size={14} /> Schedule Details</p>
                                     <p className="text-[13px]">{selected.startTime} - {selected.endTime}</p>
-                                    <p className="text-[11px] text-brand-fg font-[500]">{selected.daysOfWeek}</p>
+                                    <p className="text-[12px] text-brand-fg font-[500]">{selected.daysOfWeek}</p>
                                 </div>
                              )}
                              <div>
@@ -197,7 +197,7 @@ export default function ManagerDiscountRules() {
                                     ) : (
                                         <div className="flex flex-wrap gap-1">
                                             {selected.applicableProducts?.map(p => (
-                                                <span key={p.id} className="bg-hover px-2 py-1 rounded text-[11px]">{p.productName}</span>
+                                                <span key={p.id} className="bg-hover px-2 py-1 rounded text-[12px]">{p.productName}</span>
                                             ))}
                                         </div>
                                     )}

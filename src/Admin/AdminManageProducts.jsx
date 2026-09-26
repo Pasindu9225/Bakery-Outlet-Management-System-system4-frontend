@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import { confirmDialog } from "../component/ConfirmDialog";
 import { Package, Search, Edit, Trash2, X, Check, Plus, Tag, DollarSign, FileText, Building2, Calendar, Download } from "lucide-react";
 import toast from "react-hot-toast";
@@ -257,7 +258,7 @@ export default function AdminManageProducts() {
             setTimeout(() => setShowToast(false), 3000);
         } catch (error) {
             console.error('Error adding category:', error);
-            toast.error(error.message || 'Failed to add category');
+            toast.error(friendlyError(error, { fallback: "Failed to add category" }));
         }
     };
 
@@ -291,7 +292,7 @@ export default function AdminManageProducts() {
             setTimeout(() => setShowToast(false), 3000);
         } catch (error) {
             console.error('Error updating category:', error);
-            toast.error(error.message || 'Failed to update category');
+            toast.error(friendlyError(error, { fallback: "Failed to update category" }));
         }
     };
 
@@ -369,7 +370,7 @@ export default function AdminManageProducts() {
             }
         } catch (error) {
             console.error('Error adding production stage:', error);
-            toast.error(error.message || 'Failed to add production stage');
+            toast.error(friendlyError(error, { fallback: "Failed to add production stage" }));
         }
     };
 
@@ -417,7 +418,7 @@ export default function AdminManageProducts() {
             }
         } catch (error) {
             console.error('Error updating production stage:', error);
-            toast.error(error.message || 'Failed to update production stage');
+            toast.error(friendlyError(error, { fallback: "Failed to update production stage" }));
         }
     };
 
@@ -1183,7 +1184,7 @@ export default function AdminManageProducts() {
                                     }
                                 </p>
                             </div>
-                            <button
+                            <button aria-label="Close"
                                 onClick={handleCancel}
                                 className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
                             >
@@ -1240,7 +1241,7 @@ export default function AdminManageProducts() {
                                                     <Edit className="w-4 h-4" />
                                                 </button>
 
-                                                <button
+                                                <button aria-label="Increase quantity"
                                                     type="button"
                                                     onClick={() => setShowAddStage(true)}
                                                     className="px-3 py-2.5 border border-brand-fg
@@ -1259,14 +1260,14 @@ export default function AdminManageProducts() {
                                                     className="flex-1 px-4 py-2.5 border border-line
                 rounded-md text-[14px]"
                                                 />
-                                                <button
+                                                <button aria-label="Close"
                                                     type="button"
                                                     onClick={() => setShowAddStage(false)}
                                                     className="px-3 py-2.5 border border-line"
                                                 >
                                                     <X className="w-4 h-4" />
                                                 </button>
-                                                <button
+                                                <button aria-label="Confirm"
                                                     type="button"
                                                     onClick={handleAddStage}
                                                     className="px-3 py-2.5 bg-brand text-on-brand rounded-md"
@@ -1809,7 +1810,7 @@ export default function AdminManageProducts() {
                     <div className="bg-elevated rounded-xl shadow-xl w-full max-w-md overflow-hidden">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-line">
                             <h3 className="text-[18px] font-[600] text-fg-strong">Edit Category</h3>
-                            <button onClick={() => setShowEditCategoryModal(false)} className="text-fg-muted hover:text-fg">
+                            <button aria-label="Close" onClick={() => setShowEditCategoryModal(false)} className="text-fg-muted hover:text-fg">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
@@ -1851,7 +1852,7 @@ export default function AdminManageProducts() {
                     <div className="bg-elevated rounded-xl shadow-xl w-full max-w-md overflow-hidden">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-line">
                             <h3 className="text-[18px] font-[600] text-fg-strong">Edit Production Stage</h3>
-                            <button onClick={() => setShowEditStageModal(false)} className="text-fg-muted hover:text-fg">
+                            <button aria-label="Close" onClick={() => setShowEditStageModal(false)} className="text-fg-muted hover:text-fg">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>

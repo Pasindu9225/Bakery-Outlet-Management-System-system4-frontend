@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
   Package,
   Search,
@@ -51,7 +52,7 @@ export default function ManagerActualProduction() {
       setInventory(data);
     } catch (err) {
       console.error(err);
-      setError(err.message);
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
@@ -286,15 +287,15 @@ export default function ManagerActualProduction() {
                                           batchRef: `Lot ${lot.id}`, expiryDate: lot.expiryDate,
                                           stockRef: `actual_production_lot:${lot.id}`, available: lot.availableQty,
                                         })}
-                                        className="text-[11px] font-[600] text-error hover:underline"
+                                        className="text-[12px] font-[600] text-error hover:underline"
                                       >
                                         Report
                                       </button>
                                     </div>
                                   ))}
-                                  {item.lots.length > 3 && <span className="text-[11px] text-fg-muted">+{item.lots.length - 3} more lots</span>}
+                                  {item.lots.length > 3 && <span className="text-[12px] text-fg-muted">+{item.lots.length - 3} more lots</span>}
                                   {item.expiredQuantity > 0 && (
-                                    <span className="text-[11px] font-[600] text-error">{item.expiredQuantity} expired - cannot be sent to stores</span>
+                                    <span className="text-[12px] font-[600] text-error">{item.expiredQuantity} expired - cannot be sent to stores</span>
                                   )}
                                 </div>
                               ) : (
@@ -432,7 +433,7 @@ export default function ManagerActualProduction() {
           <div className="bg-elevated rounded-lg shadow-xl w-full max-w-md">
             <div className="flex items-center justify-between p-4 border-b border-line">
               <h3 className="text-[16px] font-[600] text-fg">Send to Store</h3>
-              <button 
+              <button aria-label="Close" 
                 onClick={() => setShowDistributeModal(false)}
                 className="text-fg-secondary hover:text-fg transition-colors"
               >

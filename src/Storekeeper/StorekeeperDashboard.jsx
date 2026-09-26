@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
 import { ChevronDown, ChevronRight, info } from "lucide-react";
 import axios from "axios";
 import rawMaterialService from "../services/rawMaterialService";
@@ -332,7 +333,7 @@ export default function StorekeeperDashboard({ onBackToDashboard }) {
                                             <React.Fragment key={generic.genericMaterialId}>
                                                 <tr 
                                                     className="hover:bg-subtle cursor-pointer transition-colors"
-                                                    onClick={() => setExpandedGenericId(expandedGenericId === generic.genericMaterialId ? null : generic.genericMaterialId)}
+                                                    role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => setExpandedGenericId(expandedGenericId === generic.genericMaterialId ? null : generic.genericMaterialId)}
                                                 >
                                                     <td className="px-4 py-4 text-[14px] text-fg-secondary">{generic.category}</td>
                                                     <td className="px-4 py-4 text-[14px] font-[500] text-fg">{generic.genericMaterialName}</td>

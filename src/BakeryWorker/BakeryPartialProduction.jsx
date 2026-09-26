@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import { useLocation } from "react-router-dom";
 import {
   RefreshCw,
@@ -111,7 +112,7 @@ function BatchHistoryModal({ planName, planId, itemId, onClose }) {
               <Hash size={11} /> Item #{itemId} — {planName}
             </p>
           </div>
-          <button
+          <button aria-label="Close"
             onClick={onClose}
             className="p-1.5 hover:bg-app rounded-lg transition-colors"
           >
@@ -146,11 +147,11 @@ function BatchHistoryModal({ planName, planId, itemId, onClose }) {
                     <span className="text-[13px] font-[600] text-fg">
                       Batch #{batch.id}
                     </span>
-                    <span className="text-[11px] text-fg-secondary bg-surface border border-line px-2 py-0.5 rounded-full">
+                    <span className="text-[12px] text-fg-secondary bg-surface border border-line px-2 py-0.5 rounded-full">
                       Entry {batches.length - i}
                     </span>
                   </div>
-                  <span className="text-[11px] text-fg-secondary">
+                  <span className="text-[12px] text-fg-secondary">
                     {batch.createdAt
                       ? new Date(batch.createdAt).toLocaleString("en-US", {
                           day: "numeric",
@@ -166,13 +167,13 @@ function BatchHistoryModal({ planName, planId, itemId, onClose }) {
                   <table className="w-full mb-3">
                     <thead>
                       <tr className="text-left">
-                        <th className="text-[11px] font-[500] text-fg-secondary pb-2">
+                        <th className="text-[12px] font-[500] text-fg-secondary pb-2">
                           Product
                         </th>
-                        <th className="text-center text-[11px] font-[500] text-fg-secondary pb-2">
+                        <th className="text-center text-[12px] font-[500] text-fg-secondary pb-2">
                           Produced
                         </th>
-                        <th className="text-center text-[11px] font-[500] text-fg-secondary pb-2">
+                        <th className="text-center text-[12px] font-[500] text-fg-secondary pb-2">
                           Wastage
                         </th>
                       </tr>
@@ -272,36 +273,36 @@ function ItemTreeNode({ item, selectedItemId, onSelectItem, isRoot = false }) {
                 {item.productName}
               </span>
               {isRoot ? (
-                <span className="text-[10px] uppercase tracking-wider font-[600] px-2 py-0.5 rounded bg-warning/10 text-warning">
+                <span className="text-[12px] uppercase tracking-wider font-[600] px-2 py-0.5 rounded bg-warning/10 text-warning">
                   Parent Product
                 </span>
               ) : (
-                <span className="text-[10px] uppercase tracking-wider font-[500] px-2 py-0.5 rounded bg-brand/10 text-brand-fg">
+                <span className="text-[12px] uppercase tracking-wider font-[500] px-2 py-0.5 rounded bg-brand/10 text-brand-fg">
                   Sub-Assembly
                 </span>
               )}
 
               {/* Status Badges */}
               {isCompleted ? (
-                <span className="text-[10px] font-[600] px-2 py-0.5 rounded-full bg-success-solid text-on-brand flex items-center gap-1">
+                <span className="text-[12px] font-[600] px-2 py-0.5 rounded-full bg-success-solid text-on-brand flex items-center gap-1">
                   <CheckCircle2 size={10} /> Completed ({item.producedQuantity || item.quantity}/{item.quantity})
                 </span>
               ) : !isLocalCenter ? (
-                <span className="text-[10px] font-[600] px-2 py-0.5 rounded-full bg-plum/10 text-plum flex items-center gap-1">
+                <span className="text-[12px] font-[600] px-2 py-0.5 rounded-full bg-plum/10 text-plum flex items-center gap-1">
                   <Lock size={10} /> Produced in {centerName}
                 </span>
               ) : isBlocked ? (
-                <span className="text-[10px] font-[600] px-2 py-0.5 rounded-full bg-warning/10 text-warning flex items-center gap-1">
+                <span className="text-[12px] font-[600] px-2 py-0.5 rounded-full bg-warning/10 text-warning flex items-center gap-1">
                   <AlertTriangle size={10} /> Waiting for Sub-Assemblies
                 </span>
               ) : (
-                <span className="text-[10px] font-[600] px-2 py-0.5 rounded-full bg-brand/10 text-brand-fg flex items-center gap-1">
+                <span className="text-[12px] font-[600] px-2 py-0.5 rounded-full bg-brand/10 text-brand-fg flex items-center gap-1">
                   <Clock size={10} /> Ready to Produce
                 </span>
               )}
             </div>
 
-            <div className="text-[11px] text-fg-secondary mt-1 flex items-center gap-2 flex-wrap">
+            <div className="text-[12px] text-fg-secondary mt-1 flex items-center gap-2 flex-wrap">
               <span>Planned: <strong className="text-fg">{item.quantity}</strong></span>
               {item.producedQuantity != null && (
                 <span>Produced: <strong className={isCompleted ? "text-success" : "text-brand-fg"}>{item.producedQuantity}</strong></span>
@@ -319,7 +320,7 @@ function ItemTreeNode({ item, selectedItemId, onSelectItem, isRoot = false }) {
               <CheckCircle2 size={13} /> Selected
             </span>
           ) : isCompleted ? (
-            <span className="text-[11px] text-success bg-hover border border-success/30 px-2.5 py-1 rounded-lg font-[500]">
+            <span className="text-[12px] text-success bg-hover border border-success/30 px-2.5 py-1 rounded-lg font-[500]">
               Done ✓
             </span>
           ) : (
@@ -333,7 +334,7 @@ function ItemTreeNode({ item, selectedItemId, onSelectItem, isRoot = false }) {
       {/* Render Child Sub-Assemblies inside Parent Box */}
       {hasChildren && (
         <div className="mt-3 space-y-2">
-          <p className="text-[11px] font-[600] uppercase tracking-wider text-fg-secondary ml-1 flex items-center gap-1.5">
+          <p className="text-[12px] font-[600] uppercase tracking-wider text-fg-secondary ml-1 flex items-center gap-1.5">
             <Layers size={12} className="text-brand-fg" />
             Required Sub-Assemblies & Ingredients ({item.children.length})
           </p>
@@ -429,7 +430,7 @@ export default function BakeryPartialProduction() {
       })
       .catch((err) => {
         console.error("[BakeryPartialProduction] Error fetching plans:", err);
-        setSubmitError(err.message);
+        setSubmitError(friendlyError(err));
         setLoading(false);
       });
   }, []);
@@ -547,7 +548,7 @@ export default function BakeryPartialProduction() {
       setSubmitted(true);
       setTimeout(() => setSubmitted(false), 4000);
     } catch (e) {
-      setSubmitError(e.message);
+      setSubmitError(friendlyError(e));
     } finally {
       setSubmitting(false);
     }
@@ -647,14 +648,14 @@ export default function BakeryPartialProduction() {
                         >
                           <div className="flex-1 min-w-0">
                             <p className="font-[500] truncate">{plan.planName}</p>
-                            <p className="text-[11px] text-fg-secondary flex items-center gap-1 mt-0.5">
+                            <p className="text-[12px] text-fg-secondary flex items-center gap-1 mt-0.5">
                               <Hash size={10} /> #{plan.id}
                               {totalPlanned > 0 && (
                                 <span className="ml-2">{plan.items?.length || 0} item(s)</span>
                               )}
                             </p>
                           </div>
-                          <span className={`text-[11px] font-[500] px-2 py-0.5 rounded-full flex-shrink-0 ${meta.color}`}>
+                          <span className={`text-[12px] font-[500] px-2 py-0.5 rounded-full flex-shrink-0 ${meta.color}`}>
                             {meta.label}
                           </span>
                         </button>
@@ -738,7 +739,7 @@ export default function BakeryPartialProduction() {
                     <History size={14} />
                     View History
                     {itemProgress && itemProgress.batches?.length > 0 && (
-                      <span className="bg-brand text-on-brand text-[10px] font-[600] px-1.5 py-0.5 rounded-full">
+                      <span className="bg-brand text-on-brand text-[12px] font-[600] px-1.5 py-0.5 rounded-full">
                         {itemProgress.batches.length}
                       </span>
                     )}
@@ -763,7 +764,7 @@ export default function BakeryPartialProduction() {
                         style={{ width: `${productPct}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-[11px] text-fg-secondary">
+                    <div className="flex justify-between text-[12px] text-fg-secondary">
                       <span>{productPct}% complete</span>
                       {validProgress?.wastageQty > 0 && (
                         <span className="text-error">Total wastage: {validProgress.wastageQty}</span>
@@ -815,7 +816,7 @@ export default function BakeryPartialProduction() {
                           Produced Qty This Batch
                         </label>
                         <div className="flex items-center gap-2">
-                          <button
+                          <button aria-label="Decrease quantity"
                             onClick={() => setProducedQty((v) => Math.max(0, v - 1))}
                             className="w-8 h-8 flex items-center justify-center border border-line rounded-lg text-fg-secondary hover:bg-app transition-colors"
                           >
@@ -829,7 +830,7 @@ export default function BakeryPartialProduction() {
                             onChange={(e) => setProducedQty(parseInt(e.target.value, 10) || 0)}
                             className="flex-1 text-center px-3 py-2 border border-line rounded-lg text-[14px] font-[600] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg focus:border-transparent"
                           />
-                          <button
+                          <button aria-label="Increase quantity"
                             onClick={() => setProducedQty((v) => v + 1)}
                             className="w-8 h-8 flex items-center justify-center border border-line rounded-lg text-fg-secondary hover:bg-app transition-colors"
                           >
@@ -837,12 +838,12 @@ export default function BakeryPartialProduction() {
                           </button>
                           <button
                             onClick={() => setProducedQty(remaining)}
-                            className="px-2.5 py-1.5 text-[11px] font-[500] text-brand-fg bg-hover border border-brand/20 rounded-lg hover:bg-line transition-colors whitespace-nowrap"
+                            className="px-2.5 py-1.5 text-[12px] font-[500] text-brand-fg bg-hover border border-brand/20 rounded-lg hover:bg-line transition-colors whitespace-nowrap"
                           >
                             Target
                           </button>
                         </div>
-                        <p className="text-[11px] text-fg-secondary mt-1">
+                        <p className="text-[12px] text-fg-secondary mt-1">
                           Planned remaining: {remaining}
                         </p>
                       </div>
@@ -853,7 +854,7 @@ export default function BakeryPartialProduction() {
                           Wastage / Defective
                         </label>
                         <div className="flex items-center gap-2">
-                          <button
+                          <button aria-label="Decrease quantity"
                             onClick={() => setWastageQty((v) => Math.max(0, v - 1))}
                             className="w-8 h-8 flex items-center justify-center border border-line rounded-lg text-fg-secondary hover:bg-app transition-colors"
                           >
@@ -868,14 +869,14 @@ export default function BakeryPartialProduction() {
                             onChange={(e) => setWastageQty(parseInt(e.target.value, 10) || 0)}
                             className="flex-1 text-center px-3 py-2 border border-line rounded-lg text-[14px] font-[600] text-fg focus:outline-none focus:ring-2 focus:ring-error focus:border-transparent"
                           />
-                          <button
+                          <button aria-label="Increase quantity"
                             onClick={() => setWastageQty((v) => Math.min(producedQty, v + 1))}
                             className="w-8 h-8 flex items-center justify-center border border-line rounded-lg text-fg-secondary hover:bg-app transition-colors"
                           >
                             <Plus size={13} />
                           </button>
                         </div>
-                        <p className="text-[11px] text-fg-secondary mt-1">
+                        <p className="text-[12px] text-fg-secondary mt-1">
                           Max: {producedQty}
                         </p>
                       </div>

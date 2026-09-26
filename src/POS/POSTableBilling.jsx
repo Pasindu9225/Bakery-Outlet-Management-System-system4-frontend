@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import CashQuickButtons from "../component/CashQuickButtons.jsx";
 import { confirmDialog } from "../component/ConfirmDialog";
 import {
@@ -93,7 +94,7 @@ export default function POSTableBilling() {
             setNewTableData({ name: '', status: 'available', seats: '' });
         } catch (error) {
             console.error("Error adding table:", error);
-            toast.error(error.response?.data?.message || "Failed to add table. Please try again.");
+            toast.error(friendlyError(error, { fallback: "Failed to add table. Please try again." }));
         }
     };
 
@@ -122,7 +123,7 @@ export default function POSTableBilling() {
 
     // Product Search and Selection
     const [searchTerm, setSearchTerm] = useState('');
-    const [showProductGrid, setShowProductGrid] = useState(false);
+    const [showProductGrid, setShowProductGrid] = useState(true); // products shown at once (was an extra "Show Products" tap)
     // Products Data
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState(['All']);
@@ -486,7 +487,7 @@ export default function POSTableBilling() {
             toast.success(`Promo applied: ${promo.discountValue}${promo.discountType === 'PERCENTAGE' ? '%' : ' Rs.'} discount`);
         } catch (error) {
             console.error("Error validating promo:", error);
-            toast.error(error.response?.data?.message || "Promotion Expired or Invalid");
+            toast.error(friendlyError(error, { fallback: "Promotion Expired or Invalid" }));
             removePromo();
         }
     };
@@ -688,7 +689,7 @@ export default function POSTableBilling() {
             fetchTodayItems();
         } catch (error) {
             console.error("Error cancelling KOT:", error);
-            toast.error(error.response?.data?.message || "Invalid verification code or failed to cancel KOT");
+            toast.error(friendlyError(error, { fallback: "Invalid verification code or failed to cancel KOT" }));
         }
     };
 
@@ -793,13 +794,13 @@ export default function POSTableBilling() {
                                                 >
                                                     <div className="text-center">
                                                         <p className="text-[14px] font-[500] text-fg">{table.name}</p>
-                                                        <p className="text-[10px] text-fg-secondary">{table.seats} seats</p>
-                                                        <span className={`inline-flex px-2 py-1 text-[10px] font-[500] rounded-full mt-1 ${getTableStatusColor(table.status)}`}>
+                                                        <p className="text-[12px] text-fg-secondary">{table.seats} seats</p>
+                                                        <span className={`inline-flex px-2 py-1 text-[12px] font-[500] rounded-full mt-1 ${getTableStatusColor(table.status)}`}>
                                                             {table.status}
                                                         </span>
                                                         {tableOrders[table.id] && (
                                                             <div className="mt-1">
-                                                                <span className="text-[10px] bg-brand text-on-brand px-1 rounded">
+                                                                <span className="text-[12px] bg-brand text-on-brand px-1 rounded">
                                                                     {tableOrders[table.id].length} items
                                                                 </span>
                                                             </div>
@@ -906,8 +907,8 @@ export default function POSTableBilling() {
                                                                 <div className="flex-1">
                                                                     <p className="text-[14px] font-[500] text-fg">{product.name}</p>
                                                                     <p className="text-[12px] text-fg-secondary">{product.code} | {product.category}</p>
-                                                                    <p className="text-[11px] text-fg-secondary mt-1">{product.description}</p>
-                                                                    <p className="text-[11px] font-[600] text-success mt-1">Available Qty: {product.currentQty}</p>
+                                                                    <p className="text-[12px] text-fg-secondary mt-1">{product.description}</p>
+                                                                    <p className="text-[12px] font-[600] text-success mt-1">Available Qty: {product.currentQty}</p>
                                                                 </div>
                                                                 <p className="text-[14px] font-[600] text-brand-fg">Rs. {product.price}</p>
                                                             </div>
@@ -974,7 +975,7 @@ export default function POSTableBilling() {
                                                                         </td>
                                                                         <td className="px-4 py-3">
                                                                             <div className="flex items-center justify-center gap-1">
-                                                                                <button
+                                                                                <button aria-label="Decrease quantity"
                                                                                     onClick={() => updateCartQuantity(item.id, item.qty - 1)}
                                                                                     className="w-10 h-10 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                                 >
@@ -983,7 +984,7 @@ export default function POSTableBilling() {
                                                                                 <span className="w-8 text-center text-[14px] font-[500] text-fg">
                                                                                     {item.qty}
                                                                                 </span>
-                                                                                <button
+                                                                                <button aria-label="Increase quantity"
                                                                                     onClick={() => updateCartQuantity(item.id, item.qty + 1)}
                                                                                     className="w-10 h-10 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                                 >
@@ -999,7 +1000,7 @@ export default function POSTableBilling() {
                                                                         </td>
                                                                         <td className="px-4 py-3">
                                                                             <div className="flex items-center justify-center">
-                                                                                <button
+                                                                                <button aria-label="Delete"
                                                                                     onClick={() => removeCartItem(item.id)}
                                                                                     className="p-1 text-error hover:bg-error/10 rounded transition-colors"
                                                                                 >
@@ -1023,144 +1024,117 @@ export default function POSTableBilling() {
                                         </div>
                                     )}
 
-                                    {/* Current Table Order */}
-                                    {selectedTable && (
-                                        <div className="bg-surface rounded-lg shadow-sm border border-line">
-                                            <div className="p-4 border-b border-line flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                                                <h3 className="text-[16px] font-[600] text-fg flex items-center gap-2">
-                                                    <Utensils size={18} />
-                                                    Current Order - {tables.find(t => t.id === selectedTable)?.name}
-                                                </h3>
-
-                                                {currentOrder.length > 0 && (
-                                                    <button
-                                                        onClick={generateKOT}
-                                                        className="px-4 py-2 bg-plum/20 text-on-brand rounded-lg hover:bg-plum/20 transition-colors text-[14px] font-[500] flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
-                                                    >
-                                                        <ChefHat size={16} />
-                                                        Generate KOT
-                                                    </button>
-                                                )}
-                                            </div>
-
-
-                                            <div className="px-2">
-                                                {currentOrder.length > 0 ? (
-                                                    <div className="overflow-x-auto">
-                                                        <table className="w-full">
-                                                            <thead className="bg-subtle">
-                                                                <tr>
-                                                                    <th className="text-left px-4 py-3 text-[12px] font-[600] text-fg">Item</th>
-                                                                    <th className="text-center px-4 py-3 text-[12px] font-[600] text-fg">Qty</th>
-                                                                    <th className="text-right px-4 py-3 text-[12px] font-[600] text-fg">Unit Price</th>
-                                                                    <th className="text-right px-4 py-3 text-[12px] font-[600] text-fg">Total</th>
-                                                                    <th className="text-left px-4 py-3 text-[12px] font-[600] text-fg">Production Center</th>
-                                                                    <th className="text-center px-4 py-3 text-[12px] font-[600] text-fg">Actions</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                {currentOrder.map((item) => (
-                                                                    <tr key={item.id} className={`border-b border-line transition-all ${highlightedItemId === item.id ? 'pulse-item bg-brand/5' : 'hover:bg-subtle'}`}>
-                                                                        <td className="px-4 py-3">
-                                                                            <div>
-                                                                                <p className="text-[14px] font-[500] text-fg">{item.name}</p>
-                                                                                <p className="text-[12px] text-fg-secondary">{item.code}</p>
-                                                                            </div>
-                                                                        </td>
-                                                                        <td className="px-4 py-3">
-                                                                            <div className="flex items-center justify-center gap-1">
-                                                                                <button
-                                                                                    onClick={() => updateOrderQuantity(item.id, item.qty - 1)}
-                                                                                    className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
-                                                                                >
-                                                                                    <Minus size={12} />
-                                                                                </button>
-                                                                                <span className="w-8 text-center text-[14px] font-[500] text-fg">
-                                                                                    {item.qty}
-                                                                                </span>
-                                                                                <button
-                                                                                    onClick={() => updateOrderQuantity(item.id, item.qty + 1)}
-                                                                                    className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
-                                                                                >
-                                                                                    <Plus size={12} />
-                                                                                </button>
-                                                                            </div>
-                                                                        </td>
-                                                                        <td className="px-4 py-3 text-right">
-                                                                            <span className="text-[14px] font-[500] text-fg">Rs. {item.unitPrice}</span>
-                                                                        </td>
-                                                                        <td className="px-4 py-3 text-right">
-                                                                            <span className="text-[14px] font-[600] text-brand-fg">Rs. {item.total}</span>
-                                                                        </td>
-                                                                         <td className="px-4 py-3">
-                                                                            {item.isKotEnabled ? (
-                                                                                <select
-                                                                                    value={item.selectedCenterId || ''}
-                                                                                    onChange={(e) => {
-                                                                                        const val = e.target.value;
-                                                                                        setCurrentOrder(prev => prev.map(o => o.id === item.id ? { ...o, selectedCenterId: val } : o));
-                                                                                    }}
-                                                                                    disabled={!!item.kotId}
-                                                                                    className="w-full px-2 py-1 border border-line rounded text-[12px] focus:border-brand-fg focus:outline-none disabled:bg-subtle"
-                                                                                >
-                                                                                    <option value="">Select Center</option>
-                                                                                    {productionCenters.map(pc => (
-                                                                                        <option key={pc.id} value={pc.id}>{pc.centerName}</option>
-                                                                                    ))}
-                                                                                </select>
-                                                                            ) : null}
-                                                                        </td>
-                                                                        <td className="px-4 py-3">
-                                                                            <div className="flex items-center justify-center gap-2">
-                                                                                {item.isKotEnabled && (
-                                                                                    <>
-                                                                                        {!item.kotId ? (
-                                                                                            <button
-                                                                                                className="px-3 py-1 bg-plum/20 text-on-brand rounded-lg hover:bg-plum/20 transition-colors text-[12px] font-[500] flex items-center gap-1"
-                                                                                                onClick={() => handleGenerateKOTForItem(item)}
-                                                                                            >
-                                                                                                <ChefHat size={12} />
-                                                                                                KOT
-                                                                                            </button>
-                                                                                        ) : (
-                                                                                            <button
-                                                                                                className="px-3 py-1 bg-error-solid text-on-brand rounded-lg hover:bg-error-solid transition-colors text-[12px] font-[500]"
-                                                                                                onClick={() => handleCancelKOTRequest(item)}
-                                                                                            >
-                                                                                                Cancel KOT
-                                                                                            </button>
-                                                                                        )}
-                                                                                    </>
-                                                                                )}
-                                                                                <button
-                                                                                    onClick={() => removeOrderItem(item.id)}
-                                                                                    disabled={!!item.kotId}
-                                                                                    className="p-1 text-error hover:bg-error/10 rounded transition-colors disabled:opacity-30"
-                                                                                >
-                                                                                    <Trash2 size={16} />
-                                                                                </button>
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                ))}
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                ) : (
-                                                    <div className="text-center py-12">
-                                                        <Utensils size={48} className="text-fg-muted mx-auto mb-3" />
-                                                        <p className="text-[14px] text-fg-secondary">No items in the order</p>
-                                                        <p className="text-[12px] text-fg-secondary mt-1">Add items to start building the order</p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
 
                                 {/* Order Summary & Payment */}
                                 <div className="xl:col-span-1">
                                     <div className="sticky top-0 space-y-4 xl:space-y-6">
+                                        {/* Current Table Order */}
+                                        {selectedTable && (
+                                            <div className="bg-surface rounded-lg shadow-sm border border-line">
+                                                <div className="p-4 border-b border-line flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                                                    <h3 className="text-[16px] font-[600] text-fg flex items-center gap-2">
+                                                        <Utensils size={18} />
+                                                        Current Order - {tables.find(t => t.id === selectedTable)?.name}
+                                                    </h3>
+
+                                                    {currentOrder.length > 0 && (
+                                                        <button
+                                                            onClick={generateKOT}
+                                                            className="px-4 py-2 bg-plum-solid text-on-brand rounded-lg hover:bg-plum-solid transition-colors text-[14px] font-[500] flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
+                                                        >
+                                                            <ChefHat size={16} />
+                                                            Generate KOT
+                                                        </button>
+                                                    )}
+                                                </div>
+
+
+                                                <div className="px-2">
+                                                    {currentOrder.length > 0 ? (
+                                                        <ul className="divide-y divide-line">
+                                                            {currentOrder.map((item) => (
+                                                                <li key={item.id} className={`px-2 py-3 transition-all ${highlightedItemId === item.id ? 'pulse-item bg-brand/5' : ''}`}>
+                                                                    <div className="flex items-start justify-between gap-3">
+                                                                        <div className="min-w-0">
+                                                                            <p className="text-[14px] font-[500] text-fg break-words">{item.name}</p>
+                                                                            <p className="text-[13px] text-fg-secondary">{item.qty} × Rs. {item.unitPrice}</p>
+                                                                        </div>
+                                                                        <span className="text-[14px] font-[600] text-brand-fg whitespace-nowrap">Rs. {item.total}</span>
+                                                                    </div>
+                                                                    <div className="mt-2 flex items-center justify-between gap-2">
+                                                                        <div className="flex items-center gap-1">
+                                                                            <button aria-label={`One less ${item.name}`}
+                                                                                onClick={() => updateOrderQuantity(item.id, item.qty - 1)}
+                                                                                className="w-9 h-9 flex items-center justify-center border border-line rounded-lg text-fg-secondary hover:bg-hover"
+                                                                            >
+                                                                                <Minus size={16} />
+                                                                            </button>
+                                                                            <span className="w-8 text-center text-[14px] font-[600] text-fg">{item.qty}</span>
+                                                                            <button aria-label={`One more ${item.name}`}
+                                                                                onClick={() => updateOrderQuantity(item.id, item.qty + 1)}
+                                                                                className="w-9 h-9 flex items-center justify-center border border-line rounded-lg text-fg-secondary hover:bg-hover"
+                                                                            >
+                                                                                <Plus size={16} />
+                                                                            </button>
+                                                                        </div>
+                                                                        <div className="flex items-center gap-2">
+                                                                            {item.isKotEnabled && (!item.kotId ? (
+                                                                                <button
+                                                                                    className="h-9 px-3 bg-plum-solid text-on-brand rounded-lg hover:bg-plum-solid transition-colors text-[13px] font-[500] flex items-center gap-1"
+                                                                                    onClick={() => handleGenerateKOTForItem(item)}
+                                                                                >
+                                                                                    <ChefHat size={14} />
+                                                                                    KOT
+                                                                                </button>
+                                                                            ) : (
+                                                                                <button
+                                                                                    className="h-9 px-3 bg-error-solid text-on-brand rounded-lg hover:bg-error-solid transition-colors text-[13px] font-[500]"
+                                                                                    onClick={() => handleCancelKOTRequest(item)}
+                                                                                >
+                                                                                    Cancel KOT
+                                                                                </button>
+                                                                            ))}
+                                                                            <button aria-label={`Remove ${item.name}`}
+                                                                                onClick={() => removeOrderItem(item.id)}
+                                                                                disabled={!!item.kotId}
+                                                                                title={item.kotId ? "Already sent to the kitchen - use Cancel KOT" : "Remove from order"}
+                                                                                className="w-9 h-9 flex items-center justify-center text-error hover:bg-error/10 rounded-lg transition-colors disabled:opacity-30"
+                                                                            >
+                                                                                <Trash2 size={16} />
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                    {item.isKotEnabled && (
+                                                                        <select
+                                                                            aria-label={`Kitchen for ${item.name}`}
+                                                                            value={item.selectedCenterId || ''}
+                                                                            onChange={(e) => {
+                                                                                const val = e.target.value;
+                                                                                setCurrentOrder(prev => prev.map(o => o.id === item.id ? { ...o, selectedCenterId: val } : o));
+                                                                            }}
+                                                                            disabled={!!item.kotId}
+                                                                            className="mt-2 w-full px-2 py-2 border border-line rounded-lg text-[13px] focus:border-brand-fg focus:outline-none disabled:bg-subtle"
+                                                                        >
+                                                                            <option value="">Select kitchen / production center</option>
+                                                                            {productionCenters.map(pc => (
+                                                                                <option key={pc.id} value={pc.id}>{pc.centerName}</option>
+                                                                            ))}
+                                                                        </select>
+                                                                    )}
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    ) : (
+                                                        <div className="text-center py-12">
+                                                            <Utensils size={48} className="text-fg-muted mx-auto mb-3" />
+                                                            <p className="text-[14px] text-fg-secondary">No items in the order</p>
+                                                            <p className="text-[12px] text-fg-secondary mt-1">Add items to start building the order</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
                                         {/* Order Summary */}
                                         {selectedTable && currentOrder.length > 0 && (
                                             <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
@@ -1299,7 +1273,7 @@ export default function POSTableBilling() {
                                             <span className="flex-1">{item.name}</span>
                                             <span className="w-8 text-center">x{item.qty}</span>
                                             {item.instructions && (
-                                                <span className="text-fg-secondary text-[10px]">({item.instructions})</span>
+                                                <span className="text-fg-secondary text-[12px]">({item.instructions})</span>
                                             )}
                                         </div>
                                     ))}
@@ -1319,7 +1293,7 @@ export default function POSTableBilling() {
                                         setShowKOTModal(false);
                                         toast.success('KOT sent to kitchen!');
                                     }}
-                                    className="flex-1 px-4 py-3 bg-plum/20 text-on-brand rounded-lg hover:bg-plum/20 transition-colors flex items-center justify-center gap-2 w-full"
+                                    className="flex-1 px-4 py-3 bg-plum-solid text-on-brand rounded-lg hover:bg-plum-solid transition-colors flex items-center justify-center gap-2 w-full"
                                 >
                                     <Send size={16} />
                                     Send to Kitchen
@@ -1443,7 +1417,7 @@ export default function POSTableBilling() {
                                                 <button
                                                     key={scope.id}
                                                     onClick={() => setPromoScope(scope.id)}
-                                                    className={`flex-1 py-1 px-2 rounded-md text-[11px] font-[500] transition-all ${
+                                                    className={`flex-1 py-1 px-2 rounded-md text-[12px] font-[500] transition-all ${
                                                         promoScope === scope.id 
                                                             ? 'bg-surface text-brand-fg shadow-sm' 
                                                             : 'text-fg-secondary hover:text-fg'
@@ -1631,7 +1605,7 @@ export default function POSTableBilling() {
                         <div className="p-6">
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-[18px] font-[600] text-fg">Add New Table</h3>
-                                <button
+                                <button aria-label="Close"
                                     onClick={() => setShowNewTableModal(false)}
                                     className="p-1 text-fg-secondary hover:bg-subtle rounded"
                                 >

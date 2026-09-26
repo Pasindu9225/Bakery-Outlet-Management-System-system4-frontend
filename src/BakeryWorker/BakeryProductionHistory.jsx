@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
+import { friendlyError } from "../utils/friendlyError";
 import { useNavigate } from "react-router-dom";
 import {
   Search,
@@ -56,7 +58,7 @@ function TaskDetailModal({ request, onClose }) {
             <h3 className="text-[20px] font-[600] text-fg">History Details</h3>
             <p className="text-[13px] text-fg-secondary mt-1">ID: {request.id}</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-app rounded-lg transition-colors">
+          <button aria-label="Close" onClick={onClose} className="p-2 hover:bg-app rounded-lg transition-colors">
             <X size={20} className="text-fg-secondary" />
           </button>
         </div>
@@ -65,17 +67,17 @@ function TaskDetailModal({ request, onClose }) {
           <div className="bg-gradient-to-r from-subtle to-subtle rounded-xl p-5 border border-line">
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <p className="text-[11px] text-fg-secondary mb-1">Plan Name</p>
+                <p className="text-[12px] text-fg-secondary mb-1">Plan Name</p>
                 <p className="text-[14px] font-[600] text-fg">{request.requestName}</p>
               </div>
               <div>
-                <p className="text-[11px] text-fg-secondary mb-1">Date</p>
+                <p className="text-[12px] text-fg-secondary mb-1">Date</p>
                 <p className="text-[14px] font-[500] text-fg">
                   {new Date(request.requestDate).toLocaleDateString()}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] text-fg-secondary mb-1">Status</p>
+                <p className="text-[12px] text-fg-secondary mb-1">Status</p>
                 <span className={`inline-flex items-center gap-1.5 text-[12px] font-[500] px-3 py-1 rounded-full ${meta.color}`}>
                   {meta.icon}
                   {meta.label}
@@ -105,7 +107,7 @@ function TaskDetailModal({ request, onClose }) {
                       </td>
                       <td className="py-3 px-4 text-center">
                         <span className="text-[13px] font-[600] text-success">{product.produced}</span>
-                        <span className="text-[11px] text-fg-secondary ml-1">{product.unit}</span>
+                        <span className="text-[12px] text-fg-secondary ml-1">{product.unit}</span>
                       </td>
                     </tr>
                   ))}
@@ -169,7 +171,7 @@ export default function BakeryProductionHistory() {
         }));
       setRequests(mapped);
     } catch (err) {
-      setError(err.message);
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
@@ -223,17 +225,17 @@ export default function BakeryProductionHistory() {
                   </thead>
                   <tbody>
                     {filteredRequests.map((r) => (
-                      <tr key={r.id} className="border-b border-line hover:bg-app cursor-pointer" onClick={() => { setSelectedRequest(r); setShowModal(true); }}>
+                      <tr key={r.id} className="border-b border-line hover:bg-app cursor-pointer" role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => { setSelectedRequest(r); setShowModal(true); }}>
                         <td className="py-4 px-2 text-[13px]">{new Date(r.requestDate).toLocaleDateString()}</td>
-                        <td className="py-4 px-2 text-[13px] font-[600]">{r.requestName} <span className="text-[11px] text-fg-muted">#{r.id}</span></td>
+                        <td className="py-4 px-2 text-[13px] font-[600]">{r.requestName} <span className="text-[12px] text-fg-muted">#{r.id}</span></td>
                         <td className="py-4 px-2 text-center text-[13px] font-[700]">{r.totalQty}</td>
                         <td className="py-4 px-2 text-center">
-                          <span className={`inline-flex items-center gap-1.5 text-[11px] font-[500] px-2 py-0.5 rounded-full ${getStatusMeta(r.status).color}`}>
+                          <span className={`inline-flex items-center gap-1.5 text-[12px] font-[500] px-2 py-0.5 rounded-full ${getStatusMeta(r.status).color}`}>
                             {getStatusMeta(r.status).icon} {getStatusMeta(r.status).label}
                           </span>
                         </td>
                         <td className="py-4 px-2 text-center">
-                          <button className="p-1.5 bg-app text-fg-secondary rounded-lg hover:bg-line"><Eye size={14} /></button>
+                          <button aria-label="View details" className="p-1.5 bg-app text-fg-secondary rounded-lg hover:bg-line"><Eye size={14} /></button>
                         </td>
                       </tr>
                     ))}

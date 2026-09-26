@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
+import { friendlyError } from "../utils/friendlyError";
 import { confirmDialog } from "../component/ConfirmDialog";
 import {
   UserPlus,
@@ -156,9 +158,7 @@ export default function AdminCreateUser() {
       setUsers(mappedUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
-      setFetchError(
-        error.message || "Failed to fetch users. Please try again."
-      );
+      setFetchError(friendlyError(error, { fallback: "Failed to fetch users. Please try again." }));
     } finally {
       setLoading(false);
     }
@@ -904,7 +904,7 @@ export default function AdminCreateUser() {
                     : "Fill in the details to create a new user account"}
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={handleCancel}
                 className="p-2 text-fg-secondary hover:bg-subtle rounded-lg transition-colors"
               >
@@ -1157,7 +1157,7 @@ export default function AdminCreateUser() {
                           ).map((role) => (
                             <div
                               key={role}
-                              onClick={() => {
+                              role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => {
                                 setFormData((prev) => ({
                                   ...prev,
                                   role: role,

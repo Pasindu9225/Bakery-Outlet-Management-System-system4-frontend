@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
   RefreshCw,
   ChevronDown,
@@ -69,7 +70,7 @@ function TNDetailModal({ tn, onClose, onMarkReceived }) {
             </h3>
             <p className="text-[12px] text-fg-secondary mt-0.5">{tn.transferNumber}</p>
           </div>
-          <button onClick={onClose} className="p-1.5 hover:bg-app rounded-lg transition-colors">
+          <button aria-label="Close" onClick={onClose} className="p-1.5 hover:bg-app rounded-lg transition-colors">
             <X size={18} className="text-fg-secondary" />
           </button>
         </div>
@@ -77,28 +78,28 @@ function TNDetailModal({ tn, onClose, onMarkReceived }) {
         <div className="p-5 space-y-4">
           <div className="bg-subtle rounded-lg p-4 border border-line grid grid-cols-2 gap-3">
             <div>
-              <p className="text-[11px] text-fg-secondary mb-0.5">Source PC</p>
+              <p className="text-[12px] text-fg-secondary mb-0.5">Source PC</p>
               <p className="text-[13px] font-[600] text-fg">PC-{tn.sourceProductionCenterId}</p>
             </div>
             <div>
-              <p className="text-[11px] text-fg-secondary mb-0.5">Destination</p>
+              <p className="text-[12px] text-fg-secondary mb-0.5">Destination</p>
               <p className="text-[13px] font-[600] text-fg flex items-center gap-1">
                 <Warehouse size={13} className="text-brand-fg" />
                 {tn.destinationOutletId ? `Outlet #${tn.destinationOutletId}` : tn.destinationMpcId ? `MPC #${tn.destinationMpcId}` : "—"}
               </p>
             </div>
             <div>
-              <p className="text-[11px] text-fg-secondary mb-0.5">Date & Time</p>
+              <p className="text-[12px] text-fg-secondary mb-0.5">Date & Time</p>
               <p className="text-[13px] font-[500] text-fg">
                 {tn.createdAt ? new Date(tn.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }) : "—"}
               </p>
-              <p className="text-[11px] text-fg-secondary">
+              <p className="text-[12px] text-fg-secondary">
                 {tn.createdAt ? new Date(tn.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : ""}
               </p>
             </div>
             <div>
-              <p className="text-[11px] text-fg-secondary mb-0.5">Status</p>
-              <span className={`inline-flex items-center gap-1.5 text-[11px] font-[500] px-2 py-0.5 rounded-full ${meta.color}`}>
+              <p className="text-[12px] text-fg-secondary mb-0.5">Status</p>
+              <span className={`inline-flex items-center gap-1.5 text-[12px] font-[500] px-2 py-0.5 rounded-full ${meta.color}`}>
                 {meta.icon} {meta.label}
               </span>
             </div>
@@ -106,7 +107,7 @@ function TNDetailModal({ tn, onClose, onMarkReceived }) {
 
           {tn.notes && (
             <div>
-              <p className="text-[11px] text-fg-secondary mb-0.5">Notes</p>
+              <p className="text-[12px] text-fg-secondary mb-0.5">Notes</p>
               <p className="text-[13px] text-fg">{tn.notes}</p>
             </div>
           )}
@@ -137,7 +138,7 @@ function TNDetailModal({ tn, onClose, onMarkReceived }) {
                         <span className="text-[13px] font-[600] text-fg">{p.quantity}</span>
                       </td>
                       <td className="py-2.5 px-3 text-center">
-                        <span className="text-[11px] text-fg-secondary">{p.unit || "—"}</span>
+                        <span className="text-[12px] text-fg-secondary">{p.unit || "—"}</span>
                       </td>
                     </tr>
                   ))}
@@ -215,7 +216,7 @@ export default function KitchenTransferNote() {
         return r.json();
       })
       .then((data) => { setTransfers(Array.isArray(data) ? data : []); setLoadingHistory(false); })
-      .catch((e) => { setHistError(e.message); setLoadingHistory(false); });
+      .catch((e) => { setHistError(friendlyError(e)); setLoadingHistory(false); });
   };
 
   useEffect(() => { loadHistory(); }, []);
@@ -274,7 +275,7 @@ export default function KitchenTransferNote() {
       setActiveTab("HISTORY");
       setTimeout(() => setSuccessBanner(""), 5000);
     } catch (e) {
-      setFormError(e.message || "Failed to create transfer note.");
+      setFormError(friendlyError(e, { fallback: "Failed to create transfer note." }));
     } finally {
       setSubmitting(false);
     }
@@ -407,7 +408,7 @@ export default function KitchenTransferNote() {
                     ))}
                   </select>
                   {outlets.length === 0 && (
-                    <p className="text-[11px] text-fg-secondary mt-1">No outlets loaded. Enter the ID manually if needed.</p>
+                    <p className="text-[12px] text-fg-secondary mt-1">No outlets loaded. Enter the ID manually if needed.</p>
                   )}
                 </div>
               ) : (
@@ -490,7 +491,7 @@ export default function KitchenTransferNote() {
                           </td>
                           <td className="py-2 px-3">
                             {formItems.length > 1 && (
-                              <button onClick={() => removeItem(idx)} className="p-1 text-error hover:bg-subtle rounded">
+                              <button aria-label="Delete" onClick={() => removeItem(idx)} className="p-1 text-error hover:bg-subtle rounded">
                                 <Trash2 size={14} />
                               </button>
                             )}
@@ -599,18 +600,18 @@ export default function KitchenTransferNote() {
                             </td>
                             <td className="py-3.5 px-3 text-center">
                               <span className="text-[13px] font-[600] text-fg">{(tn.items || []).length}</span>
-                              <span className="text-[11px] text-fg-secondary ml-1">item{(tn.items || []).length !== 1 ? "s" : ""}</span>
+                              <span className="text-[12px] text-fg-secondary ml-1">item{(tn.items || []).length !== 1 ? "s" : ""}</span>
                             </td>
                             <td className="py-3.5 px-3 text-center">
                               <p className="text-[12px] font-[500] text-fg">
                                 {tn.createdAt ? new Date(tn.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }) : "—"}
                               </p>
-                              <p className="text-[11px] text-fg-secondary">
+                              <p className="text-[12px] text-fg-secondary">
                                 {tn.createdAt ? new Date(tn.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : ""}
                               </p>
                             </td>
                             <td className="py-3.5 px-3 text-center">
-                              <span className={`inline-flex items-center gap-1.5 text-[11px] font-[500] px-2.5 py-1 rounded-full ${meta.color}`}>
+                              <span className={`inline-flex items-center gap-1.5 text-[12px] font-[500] px-2.5 py-1 rounded-full ${meta.color}`}>
                                 {meta.icon} {meta.label}
                               </span>
                             </td>

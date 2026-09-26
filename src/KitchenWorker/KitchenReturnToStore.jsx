@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
     RefreshCw,
     Search,
@@ -53,24 +54,24 @@ function ViewRNModal({ rn, onClose }) {
                         </h3>
                         <p className="text-[12px] text-fg-secondary mt-0.5">{rn.returnNumber}</p>
                     </div>
-                    <button onClick={onClose} className="p-1.5 hover:bg-app rounded-lg transition-colors">
+                    <button aria-label="Close" onClick={onClose} className="p-1.5 hover:bg-app rounded-lg transition-colors">
                         <X size={18} className="text-fg-secondary" />
                     </button>
                 </div>
                 <div className="p-5 space-y-4">
                     <div className="bg-subtle rounded-lg p-4 border border-line grid grid-cols-2 gap-3">
                         <div>
-                            <p className="text-[11px] text-fg-secondary mb-0.5">Return Note No</p>
+                            <p className="text-[12px] text-fg-secondary mb-0.5">Return Note No</p>
                             <p className="text-[13px] font-[600] text-brand-fg">{rn.returnNumber}</p>
                         </div>
                         <div>
-                            <p className="text-[11px] text-fg-secondary mb-0.5">Status</p>
-                            <span className={`inline-flex items-center gap-1.5 text-[11px] font-[500] px-2 py-0.5 rounded-full ${meta.color}`}>
+                            <p className="text-[12px] text-fg-secondary mb-0.5">Status</p>
+                            <span className={`inline-flex items-center gap-1.5 text-[12px] font-[500] px-2 py-0.5 rounded-full ${meta.color}`}>
                                 {meta.icon} {meta.label}
                             </span>
                         </div>
                         <div>
-                            <p className="text-[11px] text-fg-secondary mb-0.5">Date & Time</p>
+                            <p className="text-[12px] text-fg-secondary mb-0.5">Date & Time</p>
                             <p className="text-[13px] font-[500] text-fg">
                                 {rn.createdAt
                                     ? new Date(rn.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })
@@ -81,7 +82,7 @@ function ViewRNModal({ rn, onClose }) {
                             </p>
                         </div>
                         <div>
-                            <p className="text-[11px] text-fg-secondary mb-0.5">Destination</p>
+                            <p className="text-[12px] text-fg-secondary mb-0.5">Destination</p>
                             <p className="text-[13px] font-[500] text-fg flex items-center gap-1">
                                 <Warehouse size={13} className="text-brand-fg" /> Main Store
                             </p>
@@ -89,7 +90,7 @@ function ViewRNModal({ rn, onClose }) {
                     </div>
                     {rn.notes && (
                         <div>
-                            <p className="text-[11px] text-fg-secondary mb-0.5">Notes</p>
+                            <p className="text-[12px] text-fg-secondary mb-0.5">Notes</p>
                             <p className="text-[13px] text-fg">{rn.notes}</p>
                         </div>
                     )}
@@ -111,11 +112,11 @@ function ViewRNModal({ rn, onClose }) {
                                                 <p className="text-[13px] text-fg">
                                                     {item.rawMaterialName || `Material #${item.rawMaterialId}`}
                                                 </p>
-                                                {item.unit && <p className="text-[11px] text-fg-secondary">{item.unit}</p>}
+                                                {item.unit && <p className="text-[12px] text-fg-secondary">{item.unit}</p>}
                                             </td>
                                             <td className="py-2.5 px-3 text-center">
                                                 <span className="text-[13px] font-[600] text-fg">{item.quantity}</span>
-                                                {item.unit && <span className="text-[11px] text-fg-secondary ml-1">{item.unit}</span>}
+                                                {item.unit && <span className="text-[12px] text-fg-secondary ml-1">{item.unit}</span>}
                                             </td>
                                             <td className="py-2.5 px-3 text-[12px] text-fg">{item.reason || "—"}</td>
                                         </tr>
@@ -180,7 +181,7 @@ export default function KitchenReturnToStore() {
                 return r.json();
             })
             .then((data) => { setReturns(Array.isArray(data) ? data : []); setLoadingHistory(false); })
-            .catch((e) => { setHistError(e.message); setLoadingHistory(false); });
+            .catch((e) => { setHistError(friendlyError(e)); setLoadingHistory(false); });
     };
 
     useEffect(() => { loadHistory(); }, []);
@@ -227,7 +228,7 @@ export default function KitchenReturnToStore() {
             setActiveTab("HISTORY");
             setTimeout(() => setSuccessBanner(""), 6000);
         } catch (e) {
-            setFormError(e.message || "Failed to submit return.");
+            setFormError(friendlyError(e, { fallback: "Failed to submit return." }));
         } finally {
             setSubmitting(false);
         }
@@ -382,7 +383,7 @@ export default function KitchenReturnToStore() {
                                                     </td>
                                                     <td className="py-2 px-3">
                                                         {formItems.length > 1 && (
-                                                            <button onClick={() => removeItem(idx)} className="p-1 text-error hover:bg-subtle rounded">
+                                                            <button aria-label="Delete" onClick={() => removeItem(idx)} className="p-1 text-error hover:bg-subtle rounded">
                                                                 <Trash2 size={14} />
                                                             </button>
                                                         )}
@@ -393,7 +394,7 @@ export default function KitchenReturnToStore() {
                                     </table>
                                 </div>
                                 {rawMaterials.length === 0 && (
-                                    <p className="text-[11px] text-fg-secondary mt-1 flex items-center gap-1">
+                                    <p className="text-[12px] text-fg-secondary mt-1 flex items-center gap-1">
                                         <AlertTriangle size={11} className="text-warning" />
                                         Could not load materials list — enter the raw material ID manually.
                                     </p>
@@ -494,7 +495,7 @@ export default function KitchenReturnToStore() {
                                                                     ? new Date(rn.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })
                                                                     : "—"}
                                                             </p>
-                                                            <p className="text-[11px] text-fg-secondary">
+                                                            <p className="text-[12px] text-fg-secondary">
                                                                 {rn.createdAt
                                                                     ? new Date(rn.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
                                                                     : ""}
@@ -502,10 +503,10 @@ export default function KitchenReturnToStore() {
                                                         </td>
                                                         <td className="py-3.5 px-3 text-center">
                                                             <span className="text-[13px] font-[600] text-fg">{(rn.items || []).length}</span>
-                                                            <span className="text-[11px] text-fg-secondary ml-1">item{(rn.items || []).length !== 1 ? "s" : ""}</span>
+                                                            <span className="text-[12px] text-fg-secondary ml-1">item{(rn.items || []).length !== 1 ? "s" : ""}</span>
                                                         </td>
                                                         <td className="py-3.5 px-3 text-center">
-                                                            <span className={`inline-flex items-center gap-1.5 text-[11px] font-[500] px-2.5 py-1 rounded-full ${meta.color}`}>
+                                                            <span className={`inline-flex items-center gap-1.5 text-[12px] font-[500] px-2.5 py-1 rounded-full ${meta.color}`}>
                                                                 {meta.icon} {meta.label}
                                                             </span>
                                                         </td>

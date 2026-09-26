@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { onEnterClick } from "../utils/a11y";
+import { friendlyError } from "../utils/friendlyError";
 import {
     RefreshCw,
     ChevronDown,
@@ -84,7 +86,7 @@ function DrillDownModal({ title, rows, onClose }) {
                         <h3 className="text-[17px] font-[600] text-fg">{title}</h3>
                         <p className="text-[12px] text-fg-secondary mt-0.5">{rows.length} record{rows.length !== 1 ? "s" : ""} found</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-app rounded-lg transition-colors">
+                    <button aria-label="Close" onClick={onClose} className="p-2 hover:bg-app rounded-lg transition-colors">
                         <X size={18} className="text-fg-secondary" />
                     </button>
                 </div>
@@ -106,7 +108,7 @@ function DrillDownModal({ title, rows, onClose }) {
                                     <td className="py-3 px-4 text-[12px] text-fg">{r.qty} {r.unit}</td>
                                     <td className="py-3 px-4 text-[12px] text-fg">{formatMoney(r.value)}</td>
                                     <td className="py-3 px-4">
-                                        <span className="text-[11px] font-[500] px-2 py-0.5 rounded-full"
+                                        <span className="text-[12px] font-[500] px-2 py-0.5 rounded-full"
                                             style={{ color: REASON_COLORS[r.reason] || NEUTRAL, backgroundColor: tint(REASON_COLORS[r.reason] || NEUTRAL) }}>
                                             {reasonLabel(r.reason)}
                                         </span>
@@ -132,11 +134,11 @@ function SimpleBarChart({ data, color = BRAND, onBarClick }) {
     return (
         <div className="flex items-end gap-2 h-36 w-full">
             {data.map((d, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1 group cursor-pointer" onClick={() => onBarClick && onBarClick(d)}>
-                    <span className="text-[10px] text-fg-secondary opacity-0 group-hover:opacity-100 transition-opacity font-[500]">{d.value}</span>
+                <div key={i} className="flex-1 flex flex-col items-center gap-1 group cursor-pointer" role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => onBarClick && onBarClick(d)}>
+                    <span className="text-[12px] text-fg-secondary opacity-0 group-hover:opacity-100 transition-opacity font-[500]">{d.value}</span>
                     <div className="w-full rounded-t-md transition-all duration-300 hover:opacity-80"
                         style={{ height: `${(d.value / max) * 100}%`, backgroundColor: color, minHeight: 4 }} />
-                    <span className="text-[9px] text-fg-secondary truncate w-full text-center">{d.label}</span>
+                    <span className="text-[12px] text-fg-secondary truncate w-full text-center">{d.label}</span>
                 </div>
             ))}
         </div>
@@ -180,7 +182,7 @@ function SimpleLineChart({ data }) {
             </svg>
             <div className="flex justify-between mt-1">
                 {data.map((d, i) => (
-                    <span key={i} className="text-[9px] text-fg-secondary" style={{ width: `${100 / data.length}%`, textAlign: "center" }}>{d.label}</span>
+                    <span key={i} className="text-[12px] text-fg-secondary" style={{ width: `${100 / data.length}%`, textAlign: "center" }}>{d.label}</span>
                 ))}
             </div>
         </div>
@@ -222,10 +224,10 @@ function SimplePieChart({ data, onSliceClick }) {
             </svg>
             <div className="flex-1 space-y-1.5">
                 {slices.map((sl, i) => (
-                    <div key={i} className="flex items-center gap-2 cursor-pointer hover:opacity-80" onClick={() => onSliceClick && onSliceClick(sl)}>
+                    <div key={i} className="flex items-center gap-2 cursor-pointer hover:opacity-80" role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => onSliceClick && onSliceClick(sl)}>
                         <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: sl.color }} />
-                        <span className="text-[11px] text-fg-secondary flex-1 truncate">{sl.label}</span>
-                        <span className="text-[11px] font-[600] text-fg">{Math.round((sl.value / total) * 100)}%</span>
+                        <span className="text-[12px] text-fg-secondary flex-1 truncate">{sl.label}</span>
+                        <span className="text-[12px] font-[600] text-fg">{Math.round((sl.value / total) * 100)}%</span>
                     </div>
                 ))}
             </div>
@@ -310,7 +312,7 @@ export default function MISWastageDashboard() {
             setPage(1);
         } catch (err) {
             console.error("MIS wastage dashboard load failed:", err);
-            setPageError(err.message || "Failed to load wastage dashboard.");
+            setPageError(friendlyError(err, { fallback: "Failed to load wastage dashboard." }));
             setDashboard(null);
         } finally {
             setLoading(false);
@@ -735,7 +737,7 @@ export default function MISWastageDashboard() {
                                                 <p className="text-[13px] font-medium text-on-brand/80 mb-2">{card.label}</p>
                                                 <h2 className="text-[26px] font-bold leading-none">{card.value}</h2>
                                                 {card.subtitle && (
-                                                    <p className="text-[11px] text-on-brand/70 mt-2">{card.subtitle}</p>
+                                                    <p className="text-[12px] text-on-brand/70 mt-2">{card.subtitle}</p>
                                                 )}
                                             </div>
                                             <div className={`${card.iconBg} w-12 h-12 rounded-lg flex items-center justify-center backdrop-blur-sm`}>
@@ -815,10 +817,10 @@ export default function MISWastageDashboard() {
                                                 return (
                                                     <div key={`${p.label}-${i}`}
                                                         className="cursor-pointer group"
-                                                        onClick={() => setDrillDown({ title: `Top Waste – ${p.label}`, rows: records.filter((r) => r.product === p.label) })}>
+                                                        role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => setDrillDown({ title: `Top Waste – ${p.label}`, rows: records.filter((r) => r.product === p.label) })}>
                                                         <div className="flex items-center justify-between mb-1">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="w-5 h-5 rounded-full bg-brand text-on-brand text-[10px] flex items-center justify-center font-[600]">{i + 1}</span>
+                                                                <span className="w-5 h-5 rounded-full bg-brand text-on-brand text-[12px] flex items-center justify-center font-[600]">{i + 1}</span>
                                                                 <span className="text-[13px] font-[500] text-fg group-hover:text-brand-fg transition-colors">{p.label}</span>
                                                             </div>
                                                             <span className="text-[12px] font-[600] text-fg">{formatMoney(value)}</span>
@@ -847,7 +849,7 @@ export default function MISWastageDashboard() {
                                                 return (
                                                     <div key={`${o.label}-${i}`}
                                                         className="cursor-pointer group"
-                                                        onClick={() => setDrillDown({ title: `Outlet Waste – ${o.label}`, rows: records.filter((r) => r.outlet === o.label) })}>
+                                                        role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => setDrillDown({ title: `Outlet Waste – ${o.label}`, rows: records.filter((r) => r.outlet === o.label) })}>
                                                         <div className="flex items-center justify-between mb-1">
                                                             <div className="flex items-center gap-2">
                                                                 <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: OUTLET_COLORS[i] || NEUTRAL }} />
@@ -924,10 +926,10 @@ export default function MISWastageDashboard() {
                                             ) : paginated.map((r) => (
                                                 <tr key={r.id}
                                                     className="border-b border-line hover:bg-subtle transition-colors cursor-pointer"
-                                                    onClick={() => setDrillDown({ title: `Record ${r.id} Details`, rows: [r] })}>
+                                                    role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => setDrillDown({ title: `Record ${r.id} Details`, rows: [r] })}>
                                                     <td className="py-3.5 px-3">
                                                         <p className="text-[13px] font-[500] text-fg">{r.date || "—"}</p>
-                                                        <p className="text-[10px] text-fg-secondary flex items-center gap-1 mt-0.5"><Hash size={9} />{r.id}</p>
+                                                        <p className="text-[12px] text-fg-secondary flex items-center gap-1 mt-0.5"><Hash size={9} />{r.id}</p>
                                                     </td>
                                                     <td className="py-3.5 px-3 text-[13px] text-fg">{r.outlet || "—"}</td>
                                                     <td className="py-3.5 px-3">
@@ -935,13 +937,13 @@ export default function MISWastageDashboard() {
                                                     </td>
                                                     <td className="py-3.5 px-3">
                                                         <span className="text-[14px] font-[600] text-fg">{r.qty}</span>
-                                                        <span className="text-[11px] text-fg-secondary ml-1">{r.unit}</span>
+                                                        <span className="text-[12px] text-fg-secondary ml-1">{r.unit}</span>
                                                     </td>
                                                     <td className="py-3.5 px-3">
                                                         <span className="text-[13px] font-[600] text-fg">{formatMoney(r.value)}</span>
                                                     </td>
                                                     <td className="py-3.5 px-3">
-                                                        <span className="text-[11px] font-[500] px-2.5 py-1 rounded-full"
+                                                        <span className="text-[12px] font-[500] px-2.5 py-1 rounded-full"
                                                             style={{ color: REASON_COLORS[r.reason] || NEUTRAL, backgroundColor: tint(REASON_COLORS[r.reason] || NEUTRAL) }}>
                                                             {reasonLabel(r.reason)}
                                                         </span>
@@ -960,7 +962,7 @@ export default function MISWastageDashboard() {
                                             Page {page} of {totalPages} · {sorted.length} records
                                         </p>
                                         <div className="flex items-center gap-2">
-                                            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
+                                            <button aria-label="Previous" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
                                                 className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                                                 <ChevronLeft size={15} className="text-fg-secondary" />
                                             </button>
@@ -970,7 +972,7 @@ export default function MISWastageDashboard() {
                                                     {p}
                                                 </button>
                                             ))}
-                                            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                                            <button aria-label="Next" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
                                                 className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                                                 <ChevronRight size={15} className="text-fg-secondary" />
                                             </button>

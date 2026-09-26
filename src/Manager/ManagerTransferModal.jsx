@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { friendlyError } from "../utils/friendlyError";
 import { X, ArrowRight, Package } from 'lucide-react';
 
 export default function ManagerTransferModal({ 
@@ -66,7 +67,7 @@ export default function ManagerTransferModal({
       setDestinationOutletId('');
     } catch (err) {
       console.error(err);
-      setError(err.message);
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
@@ -77,7 +78,7 @@ export default function ManagerTransferModal({
       <div className="bg-elevated rounded-xl w-full max-w-md shadow-xl overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b border-line bg-subtle">
           <h3 className="font-semibold text-fg">Transfer Stock</h3>
-          <button 
+          <button aria-label="Close" 
             onClick={onClose}
             className="text-fg-muted hover:text-fg-secondary transition-colors"
           >
@@ -107,12 +108,12 @@ export default function ManagerTransferModal({
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="flex-1 p-2 bg-subtle border border-line rounded-lg text-center">
-                <span className="block text-[11px] text-fg-secondary uppercase font-semibold mb-1">From</span>
+                <span className="block text-[12px] text-fg-secondary uppercase font-semibold mb-1">From</span>
                 <span className="text-[13px] font-medium text-fg truncate">{sourceOutletName}</span>
               </div>
               <ArrowRight size={16} className="text-fg-muted" />
               <div className="flex-1">
-                <label className="block text-[11px] text-fg-secondary uppercase font-semibold mb-1 text-center">To</label>
+                <label className="block text-[12px] text-fg-secondary uppercase font-semibold mb-1 text-center">To</label>
                 <select
                   value={destinationOutletId}
                   onChange={(e) => setDestinationOutletId(e.target.value)}

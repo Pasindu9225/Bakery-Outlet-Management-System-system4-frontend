@@ -62,7 +62,7 @@ const locationOf = (e) => (e.locationName && e.locationName !== stageLabel(e.sta
 
 function StatusBadge({ status }) {
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[11px] font-[600] ${STATUS_STYLES[status] || ""}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[12px] font-[600] ${STATUS_STYLES[status] || ""}`}>
       {status === "PENDING" ? "Pending" : status === "CONFIRMED" ? "Confirmed" : "Dismissed"}
     </span>
   );
@@ -71,7 +71,7 @@ function StatusBadge({ status }) {
 function ExpiryNote({ entry }) {
   if (!entry.expiryDate) return null;
   return (
-    <span className={`text-[11px] ${entry.daysPastExpiry ? "text-error font-[600]" : "text-fg-secondary"}`}>
+    <span className={`text-[12px] ${entry.daysPastExpiry ? "text-error font-[600]" : "text-fg-secondary"}`}>
       Exp {entry.expiryDate}
       {entry.daysPastExpiry ? ` · ${entry.daysPastExpiry} day${entry.daysPastExpiry === 1 ? "" : "s"} ago` : ""}
     </span>
@@ -263,7 +263,7 @@ export default function AdminWastage() {
               >
                 <t.icon size={16} /> {t.label}
                 {t.count > 0 && (
-                  <span className="ml-1 px-2 py-0.5 rounded-full bg-warning/10 text-warning text-[11px]">{t.count}</span>
+                  <span className="ml-1 px-2 py-0.5 rounded-full bg-warning/10 text-warning text-[12px]">{t.count}</span>
                 )}
               </button>
             ))}
@@ -546,7 +546,7 @@ function EntryTable({ rows, empty, pending, onConfirm, onDismiss }) {
               <td className="py-3 px-4">
                 <p className="text-[14px] font-[500] text-fg-strong">{e.itemName}</p>
                 <div className="flex flex-col">
-                  {e.batchRef && <span className="text-[11px] text-fg-secondary">Batch {e.batchRef}</span>}
+                  {e.batchRef && <span className="text-[12px] text-fg-secondary">Batch {e.batchRef}</span>}
                   <ExpiryNote entry={e} />
                 </div>
               </td>
@@ -557,18 +557,18 @@ function EntryTable({ rows, empty, pending, onConfirm, onDismiss }) {
               <td className="py-3 px-4 text-[14px] text-fg whitespace-nowrap">
                 {qty(pending ? e.qty : e.actualQty ?? e.qty, e.uom)}
                 {pending && e.stockAvailable !== null && e.stockAvailable !== undefined && (
-                  <p className="text-[11px] text-fg-muted">In stock: {qty(e.stockAvailable, e.uom)}</p>
+                  <p className="text-[12px] text-fg-muted">In stock: {qty(e.stockAvailable, e.uom)}</p>
                 )}
               </td>
               <td className="py-3 px-4 text-[14px] text-fg whitespace-nowrap">{money(pending ? e.systemValue : e.actualValue)}</td>
               <td className="py-3 px-4">
                 <p className="text-[13px] text-fg">{e.reasonLabel}</p>
-                {e.notes && <p className="text-[11px] text-fg-muted max-w-[220px]">{e.notes}</p>}
-                {!pending && e.adminNotes && <p className="text-[11px] text-brand-fg max-w-[220px]">Admin: {e.adminNotes}</p>}
+                {e.notes && <p className="text-[12px] text-fg-muted max-w-[220px]">{e.notes}</p>}
+                {!pending && e.adminNotes && <p className="text-[12px] text-brand-fg max-w-[220px]">Admin: {e.adminNotes}</p>}
               </td>
               <td className="py-3 px-4">
                 <p className="text-[13px] text-fg">{SOURCE_LABELS[e.sourceType] || e.sourceType}</p>
-                <p className="text-[11px] text-fg-muted">{pending ? e.reportedByName : e.confirmedByName}</p>
+                <p className="text-[12px] text-fg-muted">{pending ? e.reportedByName : e.confirmedByName}</p>
               </td>
               <td className="py-3 px-4 whitespace-nowrap">
                 {pending ? (
@@ -723,7 +723,7 @@ function Modal({ title, subtitle, onClose, children }) {
             <h3 className="text-[18px] font-[700] text-fg-strong">{title}</h3>
             <p className="text-[13px] text-fg-secondary">{subtitle}</p>
           </div>
-          <button onClick={onClose} className="p-1 text-fg-muted hover:text-fg"><X size={20} /></button>
+          <button aria-label="Close" onClick={onClose} className="p-1 text-fg-muted hover:text-fg"><X size={20} /></button>
         </div>
         <div className="p-5">{children}</div>
       </div>
@@ -743,7 +743,7 @@ function Field({ label, children }) {
 function Info({ label, value }) {
   return (
     <div className="bg-subtle rounded-lg border border-line p-2.5">
-      <p className="text-[11px] text-fg-muted uppercase font-[600]">{label}</p>
+      <p className="text-[12px] text-fg-muted uppercase font-[600]">{label}</p>
       <p className="text-[13px] text-fg-strong">{value}</p>
     </div>
   );

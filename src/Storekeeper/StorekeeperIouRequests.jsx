@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import toast from "react-hot-toast";
 import {
   Plus,
@@ -98,7 +99,7 @@ export default function StorekeeperIouRequests() {
       const data = await res.json();
       setIous(data);
     } catch (err) {
-      setError(err.message);
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
@@ -159,7 +160,7 @@ export default function StorekeeperIouRequests() {
       setShowAddMaterialModal(false);
       setNewMaterialForm({ materialName: "", unitOfMeasure: "Kg", unitCost: 0, minimumStockLevel: 5 });
     } catch (err) {
-      toast.error("Error creating raw material: " + err.message);
+      toast.error(friendlyError(err, "Error creating raw material"));
     }
   };
 
@@ -195,7 +196,7 @@ export default function StorekeeperIouRequests() {
         ],
       });
     } catch (err) {
-      toast.error("Error: " + err.message);
+      toast.error(friendlyError(err, "Error"));
     }
   };
 
@@ -233,7 +234,7 @@ export default function StorekeeperIouRequests() {
       setShowSettleModal(false);
       fetchIous();
     } catch (err) {
-      toast.error("Error: " + err.message);
+      toast.error(friendlyError(err, "Error"));
     }
   };
 
@@ -520,7 +521,7 @@ export default function StorekeeperIouRequests() {
               <h2 className="text-[16px] font-[600] text-fg">
                 All IOU Requests
               </h2>
-              <button onClick={fetchIous} className="p-2 hover:bg-subtle rounded-md transition-colors">
+              <button aria-label="Refresh" onClick={fetchIous} className="p-2 hover:bg-subtle rounded-md transition-colors">
                 <RefreshCw size={18} className="text-fg-secondary hover:text-brand-fg" />
               </button>
             </div>
@@ -610,7 +611,7 @@ export default function StorekeeperIouRequests() {
           <div className="bg-elevated rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-line">
               <h2 className="text-[18px] font-[600] text-fg">Create IOU Request</h2>
-              <button onClick={() => setShowCreateModal(false)} className="p-2 hover:bg-subtle rounded-md transition-colors">
+              <button aria-label="Close" onClick={() => setShowCreateModal(false)} className="p-2 hover:bg-subtle rounded-md transition-colors">
                 <X size={20} className="text-fg-secondary" />
               </button>
             </div>
@@ -664,7 +665,7 @@ export default function StorekeeperIouRequests() {
                 {createForm.items.map((item, index) => (
                   <div key={index} className="bg-subtle rounded-lg p-4 mb-4 border border-line relative">
                     {createForm.items.length > 1 && (
-                      <button 
+                      <button aria-label="Close" 
                         type="button"
                         onClick={() => removeCreateItem(index)}
                         className="absolute right-3 top-3 text-error hover:bg-subtle p-1 rounded-md"
@@ -840,7 +841,7 @@ export default function StorekeeperIouRequests() {
                 <h2 className="text-[18px] font-[600] text-fg">Settle IOU - GRN & Invoice</h2>
                 <p className="text-[14px] text-fg-secondary">IOU-{selectedIou.id.toString().padStart(4, '0')} | Approved Est: Rs. {selectedIou.totalEstimatedAmount?.toFixed(2)}</p>
               </div>
-              <button onClick={() => setShowSettleModal(false)} className="p-2 hover:bg-subtle rounded-md transition-colors">
+              <button aria-label="Close" onClick={() => setShowSettleModal(false)} className="p-2 hover:bg-subtle rounded-md transition-colors">
                 <X size={20} className="text-fg-secondary" />
               </button>
             </div>
@@ -888,7 +889,7 @@ export default function StorekeeperIouRequests() {
                             <td className="py-3 px-4 align-top w-1/4">
                               <p className="text-[13px] font-[500] text-fg">{original.itemName}</p>
                               <p className="text-[12px] text-fg-secondary">{original.supplierName}</p>
-                              <p className="text-[11px] text-fg-muted">Est: {formatQuantity(original.estimatedQuantity)} x {original.estimatedPrice}</p>
+                              <p className="text-[12px] text-fg-muted">Est: {formatQuantity(original.estimatedQuantity)} x {original.estimatedPrice}</p>
                             </td>
                             <td className="py-3 px-4 align-top">
                               <input 

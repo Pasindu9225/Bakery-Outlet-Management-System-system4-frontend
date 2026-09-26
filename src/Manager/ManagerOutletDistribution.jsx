@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import toast from "react-hot-toast";
 import { confirmDialog } from "../component/ConfirmDialog";
 import {
@@ -218,7 +219,7 @@ export default function ManagerOutletDistribution() {
         setProductionPlans(approvedPlans);
       } catch (err) {
         console.error("Error fetching production plans:", err);
-        setError(err.message);
+        setError(friendlyError(err));
       } finally {
         setLoading(false);
       }
@@ -280,7 +281,7 @@ export default function ManagerOutletDistribution() {
         console.error("Error fetching outlets:", err);
 
         // Set error state for network errors
-        setOutletsError("Network error: " + err.message);
+        setOutletsError(friendlyError(err, "Network error"));
       } finally {
         setOutletsLoading(false);
       }
@@ -339,7 +340,7 @@ export default function ManagerOutletDistribution() {
         setDistributions(mappedDistributions);
       } catch (err) {
         console.error("Error fetching distribution plans:", err);
-        setDistributionsError(err.message);
+        setDistributionsError(friendlyError(err));
       } finally {
         setLoadingDistributions(false);
       }
@@ -484,7 +485,7 @@ export default function ManagerOutletDistribution() {
       setSelectedOutlet("");
       toast.success("Distribution plan saved successfully!");
     } catch (err) {
-      toast.error(`Error saving distribution plan: ${err.message}`);
+      toast.error(friendlyError(err, "Error saving distribution plan"));
     }
   };
 
@@ -596,7 +597,7 @@ export default function ManagerOutletDistribution() {
               <h3 className="text-[20px] font-[600] text-fg">
                 Edit Distribution
               </h3>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowProductListModal(false)}
                 className="p-2 hover:bg-app rounded-lg"
               >
@@ -664,7 +665,7 @@ export default function ManagerOutletDistribution() {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <button
+                        <button aria-label="Edit"
                           onClick={() => openOutletDistributionModal(product)}
                           className="p-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors"
                         >
@@ -743,7 +744,7 @@ export default function ManagerOutletDistribution() {
                 Manage Outlet Distribution -{" "}
                 {selectedProductForOutletEdit?.productName}
               </h3>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowOutletDistributionModal(false)}
                 className="p-2 hover:bg-app rounded-lg"
               >
@@ -856,7 +857,7 @@ export default function ManagerOutletDistribution() {
                             {dist.qty}
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <button
+                            <button aria-label="Delete"
                               onClick={() =>
                                 removeOutletDistribution(
                                   selectedProductForOutletEdit.id ||
@@ -981,7 +982,7 @@ export default function ManagerOutletDistribution() {
                           <span>Date: {distribution.date}</span>
                           <span>By: {distribution.createdBy}</span>
                           <span
-                            className={`px-2 py-1 rounded-full text-[10px] font-[500] ${
+                            className={`px-2 py-1 rounded-full text-[12px] font-[500] ${
                               distribution.status === "not-received"
                                 ? "bg-warning/10 text-warning"
                                 : distribution.status === "received"

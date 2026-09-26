@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { onEnterClick } from "../utils/a11y";
 import {
   Menu,
   Bell,
@@ -99,7 +100,7 @@ export default function ManagerNavBar({ sidebarOpen, setSidebarOpen, activeSecti
       <header className="bg-surface shadow-lg border-b border-line px-4 sm:px-6 lg:px-8 py-4 flex-shrink-0 z-10 relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button
+            <button aria-label="Open menu"
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="md:hidden p-2 rounded-lg text-fg-secondary hover:bg-app"
             >
@@ -139,7 +140,7 @@ export default function ManagerNavBar({ sidebarOpen, setSidebarOpen, activeSecti
               >
                 <Bell size={20} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-error-solid text-on-brand text-[10px] rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-error-solid text-on-brand text-[12px] rounded-full flex items-center justify-center">
                     {unreadCount}
                   </span>
                 )}
@@ -157,7 +158,7 @@ export default function ManagerNavBar({ sidebarOpen, setSidebarOpen, activeSecti
                       >
                         Mark all read
                       </button>
-                      <button
+                      <button aria-label="Close"
                         onClick={() => setNotificationOpen(false)}
                         className="p-1 hover:bg-app rounded"
                       >
@@ -178,7 +179,7 @@ export default function ManagerNavBar({ sidebarOpen, setSidebarOpen, activeSecti
                           key={notification.id}
                           className={`p-4 border-b border-line hover:bg-subtle cursor-pointer group ${!notification.isRead ? 'bg-brand/10' : ''
                             }`}
-                          onClick={() => markAsRead(notification.id)}
+                          role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => markAsRead(notification.id)}
                         >
                           <div className="flex items-start gap-3">
                             <div className="mt-1">{getNotificationIcon(notification.type)}</div>
@@ -194,11 +195,11 @@ export default function ManagerNavBar({ sidebarOpen, setSidebarOpen, activeSecti
                               <p className="text-[12px] text-fg-secondary mb-1">
                                 {notification.message}
                               </p>
-                              <span className="text-[10px] text-fg-secondary">
+                              <span className="text-[12px] text-fg-secondary">
                                 {notification.timeAgo}
                               </span>
                             </div>
-                            <button
+                            <button aria-label="Close"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 deleteNotification(notification.id);
@@ -225,7 +226,7 @@ export default function ManagerNavBar({ sidebarOpen, setSidebarOpen, activeSecti
                   day: 'numeric'
                 })}
               </p>
-              <p className="text-[10px] text-fg-secondary font-[600]">
+              <p className="text-[12px] text-fg-secondary font-[600]">
                 {currentTime.toLocaleTimeString('en-US', {
                   hour: '2-digit',
                   minute: '2-digit'

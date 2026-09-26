@@ -1384,7 +1384,7 @@ export default function StorekeeperManagerRequests() {
               {nodeName}
             </span>
             {node.productionCenter && (
-              <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-[500] bg-hover text-brand-fg">
+              <span className="ml-2 px-2 py-0.5 rounded-full text-[12px] font-[500] bg-hover text-brand-fg">
                 {node.productionCenter}
               </span>
             )}
@@ -1473,7 +1473,7 @@ export default function StorekeeperManagerRequests() {
                   ({material.childItemId})
                 </span>
                 {material.productionCenter && (
-                  <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-[500] bg-hover text-brand-fg">
+                  <span className="ml-2 px-2 py-0.5 rounded-full text-[12px] font-[500] bg-hover text-brand-fg">
                     {material.productionCenter}
                   </span>
                 )}
@@ -1484,7 +1484,7 @@ export default function StorekeeperManagerRequests() {
                 <div className="flex items-center gap-3 mt-0.5">
                   <button
                     onClick={() => setShowBatchInfo(!showBatchInfo)}
-                    className="text-[11px] text-brand-fg hover:underline font-[500]"
+                    className="text-[12px] text-brand-fg hover:underline font-[500]"
                   >
                     {showBatchInfo ? "Hide Details" : "Show Availability & Batches"}
                   </button>
@@ -1510,10 +1510,10 @@ export default function StorekeeperManagerRequests() {
             {/* Mini Store Availability */}
             {material.miniStoreAvailability && material.miniStoreAvailability.some(ms => ms.availableQty > 0) && (
               <div>
-                <p className="text-[11px] font-[700] text-fg-secondary uppercase mb-1">Local Store Availability:</p>
+                <p className="text-[12px] font-[700] text-fg-secondary uppercase mb-1">Local Store Availability:</p>
                 <div className="flex flex-wrap gap-2">
                   {material.miniStoreAvailability.filter(ms => ms.availableQty > 0).map((ms, idx) => (
-                    <span key={idx} className="text-[11px] bg-hover text-success border border-line px-2 py-0.5 rounded-full">
+                    <span key={idx} className="text-[12px] bg-hover text-success border border-line px-2 py-0.5 rounded-full">
                       {ms.miniStoreName}: {ms.availableQty}
                     </span>
                   ))}
@@ -1524,10 +1524,10 @@ export default function StorekeeperManagerRequests() {
             {/* Batch Info */}
             {material.batches && material.batches.length > 0 && (
               <div>
-                <p className="text-[11px] font-[700] text-fg-secondary uppercase mb-1">Batches:</p>
+                <p className="text-[12px] font-[700] text-fg-secondary uppercase mb-1">Batches:</p>
                 <div className="space-y-1">
                   {material.batches.map((batch, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-[11px] p-1.5 bg-subtle rounded border border-line">
+                    <div key={idx} className="flex items-center justify-between text-[12px] p-1.5 bg-subtle rounded border border-line">
                       <div className="flex items-center gap-3">
                         <span className="font-[600]">BN: {batch.batchNo || "N/A"}</span>
                         <span className="text-fg-secondary">|</span>
@@ -1543,7 +1543,7 @@ export default function StorekeeperManagerRequests() {
             )}
 
             {(!material.batches || material.batches.length === 0) && (!material.miniStoreAvailability || !material.miniStoreAvailability.some(ms => ms.availableQty > 0)) && (
-              <p className="text-[11px] text-fg-secondary italic">No detailed availability or batch info available</p>
+              <p className="text-[12px] text-fg-secondary italic">No detailed availability or batch info available</p>
             )}
           </div>
         )}
@@ -1788,7 +1788,7 @@ export default function StorekeeperManagerRequests() {
                   {Number(selectedRequest.totalEstimatedCost || 0).toFixed(2)}
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowDetailsModal(false)}
                 className="p-2 hover:bg-subtle rounded-lg transition-colors"
               >
@@ -1937,7 +1937,7 @@ export default function StorekeeperManagerRequests() {
                                   <h5 className="text-[16px] font-[600] text-fg">
                                     📋 {product.productName}
                                   </h5>
-                                  <span className="text-[11px] text-fg-secondary font-[500]">
+                                  <span className="text-[12px] text-fg-secondary font-[500]">
                                     Category: {product.category || "General"} | ID: {product.productId}
                                   </span>
                                 </div>
@@ -1991,7 +1991,7 @@ export default function StorekeeperManagerRequests() {
                                   <h5 className="text-[16px] font-[600] text-fg">
                                     🎯 {semiProduct.semiProductName}
                                   </h5>
-                                  <span className="text-[11px] text-fg-secondary font-[500]">
+                                  <span className="text-[12px] text-fg-secondary font-[500]">
                                     Category: {semiProduct.category || "General"} | ID: {semiProduct.semiProductId}
                                   </span>
                                 </div>

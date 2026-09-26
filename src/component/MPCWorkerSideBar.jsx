@@ -1,4 +1,5 @@
 import React from "react";
+import SidebarCollapseButton from "./SidebarCollapseButton";
 import {
   LayoutDashboard,
   FileText,
@@ -47,7 +48,7 @@ export default function MPCWorkerSidebar({
     },
     {
       id: "kots",
-      name: "Live KOT Queue",
+      name: "Kitchen Orders (KOT)",
       icon: Clock,
       badge: pendingKotCount,
       color: "text-plum",
@@ -60,9 +61,9 @@ export default function MPCWorkerSidebar({
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       } md:translate-x-0`}
     >
-      <div className="w-64 bg-surface shadow-lg h-screen flex flex-col">
+      <div className="app-sidebar w-64 bg-surface shadow-lg h-screen flex flex-col">
         {/* Logo & Back Button */}
-        <div className="p-4 border-b border-line flex items-center justify-between">
+        <div className="sb-pad p-4 border-b border-line flex items-center justify-between">
           <div className="flex items-center">
             <img src="/logo.png" alt="logo" className="logo-plate h-14 w-auto" />
           </div>
@@ -76,14 +77,14 @@ export default function MPCWorkerSidebar({
         </div>
 
         {/* MPC Worker Module Title */}
-        <div className="px-4 py-3 bg-gradient-to-r from-brand to-brand-hover text-on-brand">
+        <div className="sb-hide sb-hide px-4 py-3 bg-gradient-to-r from-brand to-brand-hover text-on-brand">
           <h2 className="text-[16px] font-[600]">MPC Worker Module</h2>
           <p className="text-[12px] text-on-brand/80">Mini Production Center</p>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 p-4 overflow-y-auto">
-          <div className="text-[11px] font-[600] text-fg-secondary uppercase tracking-wider mb-2 px-1">
+          <div className="text-[12px] font-[600] text-fg-secondary uppercase tracking-wider mb-2 px-1">
             Module Navigation
           </div>
           <ul className="space-y-1">
@@ -95,7 +96,8 @@ export default function MPCWorkerSidebar({
                   <button
                     type="button"
                     onClick={() => setActiveTab && setActiveTab(item.id)}
-                    className={`flex items-center gap-3 p-3 rounded-lg w-full transition-all text-[13px] text-left ${
+                    title={item.name}
+                    className={`sb-center flex items-center gap-3 p-3 rounded-lg w-full transition-all text-[13px] text-left ${
                       isActive
                         ? "bg-brand text-on-brand shadow-sm"
                         : "text-fg-secondary hover:bg-app hover:text-fg"
@@ -105,10 +107,10 @@ export default function MPCWorkerSidebar({
                       size={18}
                       className={isActive ? "text-on-brand" : item.color}
                     />
-                    <span className="font-[500] flex-1">{item.name}</span>
+                    <span className="sb-hide font-[500] flex-1">{item.name}</span>
                     {item.badge > 0 && (
                       <span
-                        className={`px-2 py-0.5 text-[11px] font-bold rounded-full ${
+                        className={`px-2 py-0.5 text-[12px] font-bold rounded-full ${
                           isActive
                             ? "bg-surface text-brand-fg"
                             : "bg-brand text-on-brand"
@@ -118,7 +120,7 @@ export default function MPCWorkerSidebar({
                       </span>
                     )}
                     {isActive && !item.badge && (
-                      <div className="w-2 h-2 bg-surface rounded-full"></div>
+                      <div className="sb-hide w-2 h-2 bg-surface rounded-full"></div>
                     )}
                   </button>
                 </li>
@@ -128,10 +130,11 @@ export default function MPCWorkerSidebar({
         </nav>
 
         {/* User Profile */}
-        <div className="p-4 border-t border-line">
-          <div className="flex items-center gap-3">
+        <SidebarCollapseButton />
+        <div className="sb-pad p-4 border-t border-line">
+          <div className="sb-center flex items-center gap-3">
             <RoleAvatar roleId={localStorage.getItem("userRole")} />
-            <div className="flex-1">
+            <div className="sb-hide flex-1">
               <p className="text-[14px] font-[500] text-fg">
                 {localStorage.getItem("firstName") || localStorage.getItem("lastName")
                   ? `${localStorage.getItem("firstName") || ""} ${localStorage.getItem("lastName") || ""}`.trim()
@@ -142,7 +145,7 @@ export default function MPCWorkerSidebar({
               </p>
             </div>
             <button
-              className="p-1 text-fg-secondary hover:text-error transition-colors"
+              className="sb-hide p-1 text-fg-secondary hover:text-error transition-colors"
               onClick={onLogout}
               title="Logout"
             >

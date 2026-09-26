@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
   Search,
   RefreshCw,
@@ -53,7 +54,7 @@ export default function ManagerCreditOrders() {
       setOrders(data || []);
     } catch (err) {
       console.error("Failed to fetch credit orders:", err);
-      setError(err.response?.data?.message || "Failed to load credit orders. Please try again.");
+      setError(friendlyError(err, { fallback: "Failed to load credit orders. Please try again." }));
     } finally {
       setLoading(false);
     }
@@ -69,7 +70,7 @@ export default function ManagerCreditOrders() {
       fetchCreditOrders();
     } catch (err) {
       console.error("Approval error:", err);
-      toast.error(err.response?.data?.message || "Failed to approve order.");
+      toast.error(friendlyError(err, { fallback: "Failed to approve order." }));
     } finally {
       setIsSubmitting(false);
     }
@@ -90,7 +91,7 @@ export default function ManagerCreditOrders() {
       fetchCreditOrders();
     } catch (err) {
       console.error("Cancellation error:", err);
-      toast.error(err.response?.data?.message || "Failed to cancel order.");
+      toast.error(friendlyError(err, { fallback: "Failed to cancel order." }));
     } finally {
       setIsSubmitting(false);
     }
@@ -163,7 +164,7 @@ export default function ManagerCreditOrders() {
                   </div>
                 </div>
                 <p className="text-[22px] font-[700] text-fg">{totalOrdersCount}</p>
-                <p className="text-[11px] text-fg-secondary mt-1">Active special/credit orders</p>
+                <p className="text-[12px] text-fg-secondary mt-1">Active special/credit orders</p>
               </div>
 
               <div className="bg-surface p-4 rounded-xl shadow-sm border border-line">
@@ -176,7 +177,7 @@ export default function ManagerCreditOrders() {
                 <p className="text-[22px] font-[700] text-success">
                   Rs. {totalAdvanceAmount.toFixed(2)}
                 </p>
-                <p className="text-[11px] text-fg-secondary mt-1">Deposits received upfront</p>
+                <p className="text-[12px] text-fg-secondary mt-1">Deposits received upfront</p>
               </div>
 
               <div className="bg-surface p-4 rounded-xl shadow-sm border border-line">
@@ -189,7 +190,7 @@ export default function ManagerCreditOrders() {
                 <p className="text-[22px] font-[700] text-warning">
                   Rs. {totalRemainingBalance.toFixed(2)}
                 </p>
-                <p className="text-[11px] text-fg-secondary mt-1">Remaining payment due</p>
+                <p className="text-[12px] text-fg-secondary mt-1">Remaining payment due</p>
               </div>
 
               <div className="bg-surface p-4 rounded-xl shadow-sm border border-line">
@@ -200,7 +201,7 @@ export default function ManagerCreditOrders() {
                   </div>
                 </div>
                 <p className="text-[22px] font-[700] text-plum">{pendingApprovalsCount}</p>
-                <p className="text-[11px] text-fg-secondary mt-1">Requires fulfillment / approval</p>
+                <p className="text-[12px] text-fg-secondary mt-1">Requires fulfillment / approval</p>
               </div>
             </div>
 
@@ -241,28 +242,28 @@ export default function ManagerCreditOrders() {
                 <table className="w-full min-w-[800px]">
                   <thead className="bg-subtle border-b border-line">
                     <tr>
-                      <th className="px-6 py-3 text-left text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Order ID & Date
                       </th>
-                      <th className="px-6 py-3 text-left text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Customer
                       </th>
-                      <th className="px-6 py-3 text-right text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Total Amount
                       </th>
-                      <th className="px-6 py-3 text-right text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Advance Paid
                       </th>
-                      <th className="px-6 py-3 text-right text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Balance Due
                       </th>
-                      <th className="px-6 py-3 text-left text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Delivery Schedule
                       </th>
-                      <th className="px-6 py-3 text-center text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-center text-[11px] font-[600] text-fg-secondary uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-[12px] font-[600] text-fg-secondary uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
@@ -338,7 +339,7 @@ export default function ManagerCreditOrders() {
                               <span>{order.deliveryDate || "N/A"}</span>
                             </div>
                             {order.deliveryTime && (
-                              <span className="text-[11px] text-fg-secondary ml-5 block">
+                              <span className="text-[12px] text-fg-secondary ml-5 block">
                                 {order.deliveryTime}
                               </span>
                             )}
@@ -346,7 +347,7 @@ export default function ManagerCreditOrders() {
 
                           <td className="px-6 py-4 text-center">
                             <span
-                              className={`px-2.5 py-1 rounded-full text-[11px] font-[600] inline-block ${
+                              className={`px-2.5 py-1 rounded-full text-[12px] font-[600] inline-block ${
                                 order.status === "COMPLETED"
                                   ? "bg-success/10 text-success"
                                   : order.status === "CANCELLED"
@@ -400,7 +401,7 @@ export default function ManagerCreditOrders() {
                   </span>
                 </p>
               </div>
-              <button
+              <button aria-label="Close"
                 onClick={() => setShowDetailModal(false)}
                 className="text-fg-secondary hover:text-fg p-1 rounded-lg"
               >

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { onEnterClick } from "../utils/a11y";
 import {
   RefreshCw,
   ChevronDown,
@@ -90,7 +91,7 @@ function DrillDownModal({ record, invoices, loading, error, onClose }) {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-[18px] font-[600] text-fg">{record.name}</h3>
-                <span className="text-[11px] font-[500] px-2.5 py-0.5 rounded-full text-brand-fg bg-hover">
+                <span className="text-[12px] font-[500] px-2.5 py-0.5 rounded-full text-brand-fg bg-hover">
                   {record.type}
                 </span>
               </div>
@@ -142,7 +143,7 @@ function DrillDownModal({ record, invoices, loading, error, onClose }) {
             >
               <FileSpreadsheet size={13} /> Excel
             </button>
-            <button onClick={onClose} className="p-2 hover:bg-app rounded-lg ml-1">
+            <button aria-label="Close" onClick={onClose} className="p-2 hover:bg-app rounded-lg ml-1">
               <X size={18} className="text-fg-secondary" />
             </button>
           </div>
@@ -156,21 +157,21 @@ function DrillDownModal({ record, invoices, loading, error, onClose }) {
               <div className="flex items-start gap-2">
                 <Phone size={14} className="text-brand-fg mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-[11px] text-fg-secondary">Phone</p>
+                  <p className="text-[12px] text-fg-secondary">Phone</p>
                   <p className="text-[13px] font-[500] text-fg">{record.phone}</p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <Mail size={14} className="text-brand-fg mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-[11px] text-fg-secondary">Email</p>
+                  <p className="text-[12px] text-fg-secondary">Email</p>
                   <p className="text-[13px] font-[500] text-fg break-all">{record.email}</p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <MapPin size={14} className="text-brand-fg mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-[11px] text-fg-secondary">Address</p>
+                  <p className="text-[12px] text-fg-secondary">Address</p>
                   <p className="text-[13px] font-[500] text-fg">{record.address}</p>
                 </div>
               </div>
@@ -185,7 +186,7 @@ function DrillDownModal({ record, invoices, loading, error, onClose }) {
               { label: "Unpaid Invoices",   value: record.unpaidInvoices,                          color: "text-warning",  bg: "bg-warning/10" },
             ].map(({ label, value, color, bg }) => (
               <div key={label} className={`${bg} rounded-xl p-4 border border-line text-center`}>
-                <p className="text-[11px] text-fg-secondary mb-1">{label}</p>
+                <p className="text-[12px] text-fg-secondary mb-1">{label}</p>
                 <p className={`text-[22px] font-[700] ${color}`}>{value}</p>
               </div>
             ))}
@@ -237,7 +238,7 @@ function DrillDownModal({ record, invoices, loading, error, onClose }) {
                           </td>
                           <td className="py-3 px-4 text-[12px] font-[700] text-error">Rs. {inv.outstanding.toLocaleString()}</td>
                           <td className="py-3 px-4">
-                            <span className={`inline-flex items-center gap-1 text-[11px] font-[500] px-2.5 py-1 rounded-full ${ss.bg} ${ss.text}`}>
+                            <span className={`inline-flex items-center gap-1 text-[12px] font-[500] px-2.5 py-1 rounded-full ${ss.bg} ${ss.text}`}>
                               {ss.icon}{inv.status}
                             </span>
                           </td>
@@ -582,7 +583,7 @@ export default function FinanceOutstandingSummary() {
 
               {/* Search */}
               <div className="lg:col-span-4 relative">
-                <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Search</label>
+                <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Search</label>
                 <Search className="absolute left-3 top-[calc(50%+8px)] -translate-y-1/2 text-fg-secondary" size={14} />
                 <input
                   type="text"
@@ -595,7 +596,7 @@ export default function FinanceOutstandingSummary() {
 
               {/* Overdue Status */}
               <div className="lg:col-span-2">
-                <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Overdue</label>
+                <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Overdue</label>
                 <FilterDropdown
                   open={overdueOpen} setOpen={setOverdueOpen}
                   value={overdueFilter} options={["All", "Overdue Only"]}
@@ -606,7 +607,7 @@ export default function FinanceOutstandingSummary() {
 
               {/* Due Date From */}
               <div className="lg:col-span-2">
-                <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Due From</label>
+                <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Due From</label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                   <input
@@ -620,7 +621,7 @@ export default function FinanceOutstandingSummary() {
 
               {/* Due Date To */}
               <div className="lg:col-span-2">
-                <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Due To</label>
+                <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Due To</label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                   <input
@@ -712,7 +713,7 @@ export default function FinanceOutstandingSummary() {
                         return (
                           <tr
                             key={r.id}
-                            onClick={() => setDrillRecord(r)}
+                            role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => setDrillRecord(r)}
                             className={`border-b border-line hover:bg-subtle transition-colors cursor-pointer ${isOverdue ? "bg-error/10" : ""}`}
                           >
                             {/* Name */}
@@ -720,7 +721,7 @@ export default function FinanceOutstandingSummary() {
                               <div className="flex items-center gap-3">
                                 <div>
                                   <p className="text-[13px] font-[600] text-fg">{r.name}</p>
-                                  <p className="text-[11px] text-fg-secondary flex items-center gap-1 mt-0.5">
+                                  <p className="text-[12px] text-fg-secondary flex items-center gap-1 mt-0.5">
                                     <Hash size={9} />{r.id}
                                   </p>
                                 </div>
@@ -741,7 +742,7 @@ export default function FinanceOutstandingSummary() {
                                   <p className="text-[14px] font-[700] text-error">
                                     Rs. {r.overdueAmount.toLocaleString()}
                                   </p>
-                                  <span className="text-[10px] font-[500] text-error flex items-center gap-0.5 mt-0.5">
+                                  <span className="text-[12px] font-[500] text-error flex items-center gap-0.5 mt-0.5">
                                     <AlertTriangle size={9} /> Overdue
                                   </span>
                                 </div>
@@ -773,7 +774,7 @@ export default function FinanceOutstandingSummary() {
                             <td className="py-4 px-4" onClick={(e) => e.stopPropagation()}>
                               <button
                                 onClick={() => setDrillRecord(r)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[11px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors"
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[12px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors"
                               >
                                 <Eye size={12} /> View
                               </button>
@@ -792,7 +793,7 @@ export default function FinanceOutstandingSummary() {
                       Page {page} of {totalPages} · {sorted.length} suppliers
                     </p>
                     <div className="flex items-center gap-2">
-                      <button
+                      <button aria-label="Previous"
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                         disabled={page === 1}
                         className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
@@ -808,7 +809,7 @@ export default function FinanceOutstandingSummary() {
                           {p}
                         </button>
                       ))}
-                      <button
+                      <button aria-label="Next"
                         onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                         disabled={page === totalPages}
                         className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors"

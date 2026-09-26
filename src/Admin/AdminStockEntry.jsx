@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
   Package,
   Plus,
@@ -170,7 +171,7 @@ export default function AdminStockEntry() {
       });
     } catch (err) {
       console.error("Stock entry error:", err);
-      toast.error(`Error: ${err.message}`);
+      toast.error(friendlyError(err, "Error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -366,7 +367,7 @@ export default function AdminStockEntry() {
                         <p className="text-[12px] text-fg-secondary mt-0.5">
                           {item.quantity} {item.unit} &bull; {item.source}
                         </p>
-                        <span className="text-[11px] text-fg-muted">{item.timestamp}</span>
+                        <span className="text-[12px] text-fg-muted">{item.timestamp}</span>
                       </div>
                       <CheckCircle size={18} className="text-success flex-shrink-0" />
                     </div>

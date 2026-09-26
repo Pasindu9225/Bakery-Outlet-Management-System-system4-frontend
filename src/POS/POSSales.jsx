@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { onEnterClick } from "../utils/a11y";
+import { friendlyError } from "../utils/friendlyError";
 import ButtonHint from "../component/ButtonHint.jsx";
 import { confirmDialog } from "../component/ConfirmDialog";
 import {
@@ -588,8 +590,28 @@ export default function POSSales() {
         ));
     };
     // Remove from cart
+    // Removing a line can be undone for a few seconds (mis-taps on a touch screen).
     const removeFromCart = (id) => {
-        setCart(cart.filter(item => item.id !== id));
+        const index = cart.findIndex(item => item.id === id);
+        if (index === -1) return;
+        const removed = cart[index];
+        setCart(prev => prev.filter(item => item.id !== id));
+        toast((t) => (
+            <span className="flex items-center gap-3">
+                <span>Removed {removed.name}</span>
+                <button
+                    onClick={() => {
+                        setCart(prev => prev.some(item => item.id === id)
+                            ? prev
+                            : [...prev.slice(0, index), removed, ...prev.slice(index)]);
+                        toast.dismiss(t.id);
+                    }}
+                    className="px-3 py-1.5 rounded-md bg-brand text-on-brand text-[13px] font-[600]"
+                >
+                    Undo
+                </button>
+            </span>
+        ), { duration: 5000 });
     };
 
     // Clear cart
@@ -625,7 +647,7 @@ export default function POSSales() {
             toast.success("KOT sent successfully");
         } catch (err) {
             console.error("Error sending KOT:", err);
-            toast.error(err.response?.data?.message || "Failed to send KOT. Please try again.");
+            toast.error(friendlyError(err, { fallback: "Failed to send KOT. Please try again." }));
         }
     };
 
@@ -651,7 +673,7 @@ export default function POSSales() {
             toast.success(`Promo applied: ${promo.discountValue}${promo.discountType === 'PERCENTAGE' ? '%' : ' Rs.'} discount${capMsg}`);
         } catch (error) {
             console.error("Error validating promo:", error);
-            toast.error(error.response?.data?.message || "Promotion Expired or Invalid");
+            toast.error(friendlyError(error, { fallback: "Promotion Expired or Invalid" }));
             removePromo();
         }
     };
@@ -678,6 +700,15 @@ export default function POSSales() {
 
     const selectedPaymentMethodObj = availablePaymentMethods.find(m => m.paymentMethodId === paymentMethodId) || {};
     const isFreeMeal = selectedPaymentMethodObj.category === 'FREE_MEAL';
+
+    // Uber / PickMe payments are app orders: the order channel is the same app, so it is set for the cashier.
+    const channelFromMethod = (name) => {
+        const n = (name || '').toLowerCase();
+        if (n.includes('uber')) return 'UBER';
+        if (n.includes('pickme') || n.includes('pick me') || n.includes('picme')) return 'PICKME';
+        return null;
+    };
+    const impliedChannel = channelFromMethod(selectedPaymentMethodObj.name);
 
     const handleCheckout = () => {
         if (cart.length === 0) return;
@@ -839,7 +870,7 @@ export default function POSSales() {
                 toast.error("Opening balance must be declared before processing sales.");
                 navigate('/posDashboard');
             } else {
-                toast.error(error.response?.data?.message || "Failed to save sale. Please try again.");
+                toast.error(friendlyError(error, { fallback: "Failed to save sale. Please try again." }));
             }
         }
     };
@@ -937,7 +968,7 @@ export default function POSSales() {
             setCustomer(response.data);
             setShowRegModal(false);
         } catch (error) {
-            setRegError(error.response?.data?.message || "Failed to register customer.");
+            setRegError(friendlyError(error, { fallback: "Failed to register customer." }));
         }
     };
 
@@ -977,7 +1008,7 @@ export default function POSSales() {
                 toast.error("Invalid OTP code.");
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "Invalid or expired OTP.");
+            toast.error(friendlyError(error, { fallback: "Invalid or expired OTP." }));
         }
     };
 
@@ -1079,7 +1110,7 @@ export default function POSSales() {
                                         }}
                                     />
                                     {searchQuery && (
-                                        <button
+                                        <button aria-label="Close"
                                             onClick={() => {
                                                 setSearchQuery('');
                                                 setSearchResults([]);
@@ -1131,7 +1162,7 @@ export default function POSSales() {
                                         {searchResults.map((product) => (
                                             <div
                                                 key={product.id}
-                                                onClick={() => openQtyModal(product)}
+                                                role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => openQtyModal(product)}
                                                 className={`p-3 rounded-lg cursor-pointer transition-colors border-l-4 border-brand-fg ${searchResults.indexOf(product) === highlightedSearchIndex
                                                     ? 'bg-brand/10 ring-1 ring-brand-fg'
                                                     : 'bg-subtle hover:bg-line'
@@ -1147,14 +1178,14 @@ export default function POSSales() {
                                                         <p className="text-[14px] font-[600] text-brand-fg">Rs. {product.price}</p>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="text-[10px] text-fg-secondary">Received QTY: {product.receivedQty}</p>
-                                                        <p className="text-[10px] text-fg-secondary">Current QTY: {product.currentQty}</p>
+                                                        <p className="text-[12px] text-fg-secondary">Received QTY: {product.receivedQty}</p>
+                                                        <p className="text-[12px] text-fg-secondary">Current QTY: {product.currentQty}</p>
                                                     </div>
                                                 </div>
                                                 {product.dayProductionItemId && product.stock > 0 && !product.isMpcDish && (
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); openWastageReport(product); }}
-                                                        className="mt-1 w-full text-[11px] text-error hover:underline"
+                                                        className="mt-1 w-full text-[12px] text-error hover:underline"
                                                     >
                                                         Report wastage
                                                     </button>
@@ -1175,13 +1206,13 @@ export default function POSSales() {
                                     {defaultViewProducts.map((product) => (
                                         <div
                                             key={product.id}
-                                            onClick={() => openQtyModal(product)}
+                                            role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => openQtyModal(product)}
                                             className="p-4 bg-subtle rounded-lg cursor-pointer hover:bg-line transition-all hover:shadow-sm border"
                                         >
                                             <div className="flex justify-between items-start mb-2">
                                                 <h4 className="text-[14px] font-[500] text-fg leading-tight">{product.name}</h4>
                                                 {product.fastMoving && (
-                                                    <span className="text-[10px] bg-warning-solid text-on-brand px-2 py-1 rounded-full">FAST</span>
+                                                    <span className="text-[12px] bg-warning-solid text-on-brand px-2 py-1 rounded-full">FAST</span>
                                                 )}
                                             </div>
                                             <p className="text-[12px] text-fg-secondary mb-1">{product.code}</p>
@@ -1191,14 +1222,14 @@ export default function POSSales() {
                                             <div className="flex border-t border-line mt-2 pt-2 justify-between items-center">
                                                 <p className="text-[16px] font-[600] text-brand-fg">Rs. {product.price}</p>
                                                 <div className="text-right">
-                                                    <p className="text-[10px] text-fg-secondary">Received QTY: {product.receivedQty}</p>
-                                                    <p className="text-[10px] text-fg-secondary">Current QTY: {product.currentQty}</p>
+                                                    <p className="text-[12px] text-fg-secondary">Received QTY: {product.receivedQty}</p>
+                                                    <p className="text-[12px] text-fg-secondary">Current QTY: {product.currentQty}</p>
                                                 </div>
                                             </div>
                                             {product.dayProductionItemId && product.stock > 0 && !product.isMpcDish && (
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); openWastageReport(product); }}
-                                                    className="mt-1 w-full text-[11px] text-error hover:underline"
+                                                    className="mt-1 w-full text-[12px] text-error hover:underline"
                                                 >
                                                     Report wastage
                                                 </button>
@@ -1217,7 +1248,7 @@ export default function POSSales() {
                                         <div className="p-6">
                                             <div className="flex items-center justify-between mb-4">
                                                 <h3 className="text-[18px] font-[600] text-fg">Waiter Billing</h3>
-                                                <button onClick={() => setShowWaiterPanel(false)} className="p-1 text-fg-secondary hover:bg-subtle rounded">
+                                                <button aria-label="Close" onClick={() => setShowWaiterPanel(false)} className="p-1 text-fg-secondary hover:bg-subtle rounded">
                                                     <X size={20} />
                                                 </button>
                                             </div>
@@ -1236,7 +1267,7 @@ export default function POSSales() {
                                                                 }`}
                                                         >
                                                             <p className="text-[13px] font-[600] text-fg truncate">{w.name}</p>
-                                                            <p className="text-[10px] text-fg-secondary truncate">@{w.username}</p>
+                                                            <p className="text-[12px] text-fg-secondary truncate">@{w.username}</p>
                                                         </button>
                                                     ))}
                                                 </div>
@@ -1341,7 +1372,7 @@ export default function POSSales() {
                                                                                         return (
                                                                                             <div
                                                                                                 key={item.id}
-                                                                                                onClick={() => toggleWaiterItemSelection(item.id)}
+                                                                                                role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => toggleWaiterItemSelection(item.id)}
                                                                                                 className={`flex justify-between p-2.5 rounded-lg items-center cursor-pointer transition-colors border ${isChecked ? 'bg-brand/5 border-brand-fg' : 'bg-subtle border-transparent hover:border-line'
                                                                                                     }`}
                                                                                             >
@@ -1354,7 +1385,7 @@ export default function POSSales() {
                                                                                                     />
                                                                                                     <div>
                                                                                                         <p className="text-[13px] font-[500] text-fg">{item.productName}</p>
-                                                                                                        <p className="text-[11px] text-fg-secondary">{item.qty || item.quantity} x Rs. {item.unitPrice}</p>
+                                                                                                        <p className="text-[12px] text-fg-secondary">{item.qty || item.quantity} x Rs. {item.unitPrice}</p>
                                                                                                     </div>
                                                                                                 </div>
                                                                                                 <p className="text-[14px] font-[600] text-brand-fg">Rs. {item.totalPrice}</p>
@@ -1590,8 +1621,10 @@ export default function POSSales() {
                                                         <p className="text-[12px] text-fg-secondary">{item.code}</p>
                                                         <p className="text-[14px] font-[600] text-brand-fg">Rs. {item.price} each</p>
                                                     </div>
-                                                    <button
+                                                    <button aria-label="Delete"
                                                         onClick={() => removeFromCart(item.id)}
+                                                        aria-label={`Remove ${item.name}`}
+                                                        title="Remove from cart"
                                                         className="p-1 text-error hover:bg-error/10 rounded"
                                                     >
                                                         <Trash2 size={14} />
@@ -1626,7 +1659,7 @@ export default function POSSales() {
                                                         placeholder="Special instructions (e.g. No sugar, pack separately)"
                                                         value={item.specialInstructions || ""}
                                                         onChange={(e) => updateSpecialInstructions(item.id, e.target.value)}
-                                                        className="w-full px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-fg focus:outline-none focus:ring-1 focus:ring-brand-fg/20 focus:border-brand-fg"
+                                                        className="w-full px-2 py-1.5 bg-surface border border-line rounded text-[12px] text-fg focus:outline-none focus:ring-1 focus:ring-brand-fg/20 focus:border-brand-fg"
                                                     />
                                                 </div>
 
@@ -1638,7 +1671,7 @@ export default function POSSales() {
                                                             value={selectedPcs[item.id] || productionCenters[0]?.id || ""}
                                                             onChange={(e) => setSelectedPcs(prev => ({ ...prev, [item.id]: e.target.value }))}
                                                             disabled={kotSentMap[item.id]}
-                                                            className="flex-1 text-[11px] border border-warning/30 rounded px-1 py-0.5 bg-surface focus:outline-none"
+                                                            className="flex-1 text-[12px] border border-warning/30 rounded px-1 py-0.5 bg-surface focus:outline-none"
                                                         >
                                                             {productionCenters.map(pc => (
                                                                 <option key={pc.id} value={pc.id}>{pc.centerName}</option>
@@ -1647,7 +1680,7 @@ export default function POSSales() {
                                                         <button
                                                             onClick={() => sendKotForItem(item)}
                                                             disabled={kotSentMap[item.id]}
-                                                            className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${kotSentMap[item.id]
+                                                            className={`flex items-center gap-1 px-2 py-0.5 rounded text-[12px] font-medium transition-colors ${kotSentMap[item.id]
                                                                 ? "bg-success/10 text-success cursor-not-allowed"
                                                                 : "bg-warning-solid text-on-brand hover:bg-warning-solid"
                                                                 }`}
@@ -1666,7 +1699,7 @@ export default function POSSales() {
                                                         ) : (
                                                             <TagIcon size={12} className="text-success shrink-0" />
                                                         )}
-                                                        <span className="text-[10px] text-success font-[500] flex-1">
+                                                        <span className="text-[12px] text-success font-[500] flex-1">
                                                             {appliedDiscountsMeta[item.id]?.name || 'Discount'} applied
                                                         </span>
                                                         <button
@@ -1759,7 +1792,7 @@ export default function POSSales() {
                         <div className="p-6">
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-[18px] font-[600] text-fg">Payment</h3>
-                                <button
+                                <button aria-label="Close"
                                     onClick={() => {
                                         setShowPayment(false);
                                         resetPaymentForm();
@@ -1799,7 +1832,7 @@ export default function POSSales() {
                                                             ))}
                                                         </div>
                                                         {promoScope === 'SELECTED' && selectedPromoItems.length === 0 && (
-                                                            <p className="text-[11px] text-warning mt-2 italic">* Please select items above to apply discount</p>
+                                                            <p className="text-[12px] text-warning mt-2 italic">* Please select items above to apply discount</p>
                                                         )}
                                                     </div>
                                                 )}
@@ -1825,11 +1858,12 @@ export default function POSSales() {
                                                                         onClick={() => {
                                                                             setPaymentMethod(config.key);
                                                                             setPaymentMethodId(method.paymentMethodId);
+                                                                            setDeliveryOption(channelFromMethod(method.name));
                                                                             setFreeMealReason('');
                                                                             setStaffId('');
                                                                             setStaffReason('');
                                                                         }}
-                                                                        className={`p-3 border rounded-lg text-left transition-colors flex items-center gap-3 ${paymentMethod === config.key
+                                                                        className={`p-3 border rounded-lg text-left transition-colors flex items-center gap-3 ${paymentMethodId === method.paymentMethodId
                                                                             ? 'border-brand-fg bg-brand/5'
                                                                             : 'border-line hover:border-brand-fg/30'
                                                                             }`}
@@ -1955,6 +1989,11 @@ export default function POSSales() {
                                                 {/* Order Channel Selection Checkboxes */}
                                                 <div className="mb-6">
                                                     <label className="block text-[14px] font-[500] text-fg mb-2">Order Channel (Optional)</label>
+                                                    {impliedChannel ? (
+                                                    <p className="p-3 border border-line rounded-lg bg-subtle text-[14px] text-fg">
+                                                        {impliedChannel === 'UBER' ? 'Uber' : 'PickMe'} order <span className="text-fg-secondary">(set by the payment method)</span>
+                                                    </p>
+                                                    ) : (
                                                     <div className="flex gap-4 p-3 border border-line rounded-lg bg-subtle">
                                                         {[
                                                             { id: 'UBER', label: 'Uber' },
@@ -1974,6 +2013,7 @@ export default function POSSales() {
                                                             </label>
                                                         ))}
                                                     </div>
+                                                    )}
                                                 </div>
 
 
@@ -2054,14 +2094,14 @@ export default function POSSales() {
                                                         {lookupLoading ? <Loader variant="inline" /> : "Verify"}
                                                     </button>
                                                 </div>
-                                                <p className="text-[11px] text-fg-secondary">Enter registered mobile number to award/redeem points.</p>
+                                                <p className="text-[12px] text-fg-secondary">Enter registered mobile number to award/redeem points.</p>
                                             </div>
                                         ) : (
                                             <div className="space-y-3 text-[13px]">
                                                 <div className="flex justify-between items-center bg-surface p-2.5 rounded-lg border border-line">
                                                     <div>
                                                         <p className="font-[600] text-fg">{customer.name}</p>
-                                                        <p className="text-[11px] text-fg-secondary">
+                                                        <p className="text-[12px] text-fg-secondary">
                                                             {customer.contactNumber} {customer.idCardNumber ? `• NIC: ${customer.idCardNumber}` : ""}
                                                             {customer.idCardNumber && (() => {
                                                                 const nicInfo = extractNicDetails(customer.idCardNumber);
@@ -2070,7 +2110,7 @@ export default function POSSales() {
                                                         </p>
                                                     </div>
                                                     <div className="text-right">
-                                                        <p className="text-[11px] text-fg-secondary">Points</p>
+                                                        <p className="text-[12px] text-fg-secondary">Points</p>
                                                         <p className="font-[700] text-warning flex items-center gap-0.5 justify-end">
                                                             <Coins size={12} /> {customer.loyaltyPoints?.toFixed(3) || '0.000'}
                                                         </p>
@@ -2125,7 +2165,7 @@ export default function POSSales() {
                                                                                 Verify
                                                                             </button>
                                                                         </div>
-                                                                        <p className="text-[11px] text-success">✓ OTP sent to mobile. Enter code to confirm discount.</p>
+                                                                        <p className="text-[12px] text-success">✓ OTP sent to mobile. Enter code to confirm discount.</p>
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -2138,7 +2178,7 @@ export default function POSSales() {
                                                         )}
                                                     </div>
                                                 ) : (
-                                                    <div className="text-[11px] text-fg-secondary italic bg-surface p-2 rounded border border-line">
+                                                    <div className="text-[12px] text-fg-secondary italic bg-surface p-2 rounded border border-line">
                                                         * Needs at least 1000 points to redeem. Points to earn from this order: +{(total / 1000.0).toFixed(3)}
                                                     </div>
                                                 )}
@@ -2220,7 +2260,7 @@ export default function POSSales() {
                                 }}
                                 className="w-full px-3 py-3 border border-line rounded-lg text-[18px] font-[600] text-center focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                             />
-                            <p className="text-[11px] text-fg-secondary mt-2 text-center">Press Enter to add · Esc to cancel</p>
+                            <p className="text-[12px] text-fg-secondary mt-2 text-center">Press Enter to add · Esc to cancel</p>
 
                             <div className="flex gap-3 mt-4">
                                 <button
@@ -2284,7 +2324,7 @@ export default function POSSales() {
                                     placeholder="Enter discount amount"
                                     className="w-full px-3 py-2 border border-line rounded-lg focus:border-brand-fg focus:outline-none"
                                 />
-                                <p className="text-[11px] text-fg-secondary mt-1">Maximum discount: Rs. {selectedSubTotal.toLocaleString()}</p>
+                                <p className="text-[12px] text-fg-secondary mt-1">Maximum discount: Rs. {selectedSubTotal.toLocaleString()}</p>
                             </div>
 
                             <div className="mb-6">
@@ -2483,7 +2523,7 @@ export default function POSSales() {
                                 <User size={18} className="text-brand-fg" />
                                 Register Customer
                             </h3>
-                            <button
+                            <button aria-label="Close"
                                 onClick={() => setShowRegModal(false)}
                                 className="text-fg-secondary hover:bg-hover p-1 rounded transition-all"
                             >

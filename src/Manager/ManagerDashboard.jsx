@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
     Calendar,
     TrendingUp,
@@ -126,7 +127,7 @@ export default function ManagerDashboard({ onBackToDashboard }) {
 
             } catch (err) {
                 console.error("Error fetching dashboard data:", err);
-                setError(err.message);
+                setError(friendlyError(err));
             } finally {
                 setLoading(false);
             }
@@ -209,7 +210,7 @@ export default function ManagerDashboard({ onBackToDashboard }) {
                                                     <span className="text-[14px] font-[600] text-fg group-hover:text-brand-fg transition-colors block">
                                                         {plan.planName}
                                                     </span>
-                                                    <span className="text-[11px] text-fg-secondary font-[400] block">
+                                                    <span className="text-[12px] text-fg-secondary font-[400] block">
                                                         ID: {plan.id}
                                                     </span>
                                                     <span className={`text-[12px] px-2 py-0.5 rounded-full ${

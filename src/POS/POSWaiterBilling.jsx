@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import toast from "react-hot-toast";
 import {
     Search,
@@ -91,7 +92,7 @@ export default function POSWaiterBilling() {
             setNewTableData({ name: '', status: 'available', seats: '' });
         } catch (error) {
             console.error("Error adding table:", error);
-            toast.error(error.response?.data?.message || "Failed to add table. Please try again.");
+            toast.error(friendlyError(error, { fallback: "Failed to add table. Please try again." }));
         }
     };
 
@@ -422,7 +423,7 @@ export default function POSWaiterBilling() {
             toast.success(`Promo applied: ${promo.discountValue}${promo.discountType === 'PERCENTAGE' ? '%' : ' Rs.'} discount`);
         } catch (error) {
             console.error("Error validating promo:", error);
-            toast.error(error.response?.data?.message || "Promotion Expired or Invalid");
+            toast.error(friendlyError(error, { fallback: "Promotion Expired or Invalid" }));
             removePromo();
         }
     };
@@ -624,7 +625,7 @@ export default function POSWaiterBilling() {
             fetchTodayItems();
         } catch (error) {
             console.error("Error cancelling KOT:", error);
-            toast.error(error.response?.data?.message || "Invalid verification code or failed to cancel KOT");
+            toast.error(friendlyError(error, { fallback: "Invalid verification code or failed to cancel KOT" }));
         }
     };
 
@@ -726,13 +727,13 @@ export default function POSWaiterBilling() {
                                                 >
                                                     <div className="text-center">
                                                         <p className="text-[14px] font-[500] text-fg">{table.name}</p>
-                                                        <p className="text-[10px] text-fg-secondary">@{table.username}</p>
-                                                        <span className={`inline-flex px-2 py-1 text-[10px] font-[500] rounded-full mt-1 ${getTableStatusColor(table.status)}`}>
+                                                        <p className="text-[12px] text-fg-secondary">@{table.username}</p>
+                                                        <span className={`inline-flex px-2 py-1 text-[12px] font-[500] rounded-full mt-1 ${getTableStatusColor(table.status)}`}>
                                                             {table.status}
                                                         </span>
                                                         {waiterOrders[table.id] && (
                                                             <div className="mt-1">
-                                                                <span className="text-[10px] bg-brand text-on-brand px-1 rounded">
+                                                                <span className="text-[12px] bg-brand text-on-brand px-1 rounded">
                                                                     {waiterOrders[table.id].length} items
                                                                 </span>
                                                             </div>
@@ -839,8 +840,8 @@ export default function POSWaiterBilling() {
                                                                 <div className="flex-1">
                                                                     <p className="text-[14px] font-[500] text-fg">{product.name}</p>
                                                                     <p className="text-[12px] text-fg-secondary">{product.code} | {product.category}</p>
-                                                                    <p className="text-[11px] text-fg-secondary mt-1">{product.description}</p>
-                                                                    <p className="text-[11px] font-[600] text-success mt-1">Available Qty: {product.currentQty}</p>
+                                                                    <p className="text-[12px] text-fg-secondary mt-1">{product.description}</p>
+                                                                    <p className="text-[12px] font-[600] text-success mt-1">Available Qty: {product.currentQty}</p>
                                                                 </div>
                                                                 <p className="text-[14px] font-[600] text-brand-fg">Rs. {product.price}</p>
                                                             </div>
@@ -876,7 +877,7 @@ export default function POSWaiterBilling() {
                                                 {currentOrder.length > 0 && (
                                                     <button
                                                         onClick={generateKOT}
-                                                        className="px-4 py-2 bg-plum/20 text-on-brand rounded-lg hover:bg-plum/20 transition-colors text-[14px] font-[500] flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
+                                                        className="px-4 py-2 bg-plum-solid text-on-brand rounded-lg hover:bg-plum-solid transition-colors text-[14px] font-[500] flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start"
                                                     >
                                                         <ChefHat size={16} />
                                                         Generate KOT
@@ -910,7 +911,7 @@ export default function POSWaiterBilling() {
                                                                         </td>
                                                                         <td className="px-4 py-3">
                                                                             <div className="flex items-center justify-center gap-1">
-                                                                                <button
+                                                                                <button aria-label="Decrease quantity"
                                                                                     onClick={() => updateOrderQuantity(item.id, item.qty - 1)}
                                                                                     className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                                 >
@@ -919,7 +920,7 @@ export default function POSWaiterBilling() {
                                                                                 <span className="w-8 text-center text-[14px] font-[500] text-fg">
                                                                                     {item.qty}
                                                                                 </span>
-                                                                                <button
+                                                                                <button aria-label="Increase quantity"
                                                                                     onClick={() => updateOrderQuantity(item.id, item.qty + 1)}
                                                                                     className="w-6 h-6 flex items-center justify-center border border-line rounded text-fg-secondary hover:bg-subtle"
                                                                                 >
@@ -957,7 +958,7 @@ export default function POSWaiterBilling() {
                                                                                     <>
                                                                                         {!item.kotId ? (
                                                                                             <button
-                                                                                                className="px-3 py-1 bg-plum/20 text-on-brand rounded-lg hover:bg-plum/20 transition-colors text-[12px] font-[500] flex items-center gap-1"
+                                                                                                className="px-3 py-1 bg-plum-solid text-on-brand rounded-lg hover:bg-plum-solid transition-colors text-[12px] font-[500] flex items-center gap-1"
                                                                                                 onClick={() => handleGenerateKOTForItem(item)}
                                                                                             >
                                                                                                 <ChefHat size={12} />
@@ -973,7 +974,7 @@ export default function POSWaiterBilling() {
                                                                                         )}
                                                                                     </>
                                                                                 )}
-                                                                                <button
+                                                                                <button aria-label="Delete"
                                                                                     onClick={() => removeOrderItem(item.id)}
                                                                                     disabled={!!item.kotId}
                                                                                     className="p-1 text-error hover:bg-error/10 rounded transition-colors disabled:opacity-30"
@@ -1134,7 +1135,7 @@ export default function POSWaiterBilling() {
                                             <span className="flex-1">{item.name}</span>
                                             <span className="w-8 text-center">x{item.qty}</span>
                                             {item.instructions && (
-                                                <span className="text-fg-secondary text-[10px]">({item.instructions})</span>
+                                                <span className="text-fg-secondary text-[12px]">({item.instructions})</span>
                                             )}
                                         </div>
                                     ))}
@@ -1154,7 +1155,7 @@ export default function POSWaiterBilling() {
                                         setShowKOTModal(false);
                                         toast.success('KOT sent to kitchen!');
                                     }}
-                                    className="flex-1 px-4 py-3 bg-plum/20 text-on-brand rounded-lg hover:bg-plum/20 transition-colors flex items-center justify-center gap-2 w-full"
+                                    className="flex-1 px-4 py-3 bg-plum-solid text-on-brand rounded-lg hover:bg-plum-solid transition-colors flex items-center justify-center gap-2 w-full"
                                 >
                                     <Send size={16} />
                                     Send to Kitchen
@@ -1278,7 +1279,7 @@ export default function POSWaiterBilling() {
                                                 <button
                                                     key={scope.id}
                                                     onClick={() => setPromoScope(scope.id)}
-                                                    className={`flex-1 py-1 px-2 rounded-md text-[11px] font-[500] transition-all ${
+                                                    className={`flex-1 py-1 px-2 rounded-md text-[12px] font-[500] transition-all ${
                                                         promoScope === scope.id 
                                                             ? 'bg-surface text-brand-fg shadow-sm' 
                                                             : 'text-fg-secondary hover:text-fg'
@@ -1465,7 +1466,7 @@ export default function POSWaiterBilling() {
                         <div className="p-6">
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-[18px] font-[600] text-fg">Add New Table</h3>
-                                <button
+                                <button aria-label="Close"
                                     onClick={() => setShowNewTableModal(false)}
                                     className="p-1 text-fg-secondary hover:bg-subtle rounded"
                                 >

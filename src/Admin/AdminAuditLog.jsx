@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
   Activity,
   ChevronLeft,
@@ -98,7 +99,7 @@ const daysAgo = (n) => {
 
 function ActionBadge({ action }) {
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[11px] font-[600] whitespace-nowrap ${ACTION_STYLES[action] || ""}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[12px] font-[600] whitespace-nowrap ${ACTION_STYLES[action] || ""}`}>
       {ACTION_LABELS[action] || action}
     </span>
   );
@@ -110,7 +111,7 @@ function Who({ row }) {
   return (
     <div className="leading-tight">
       <div className="font-[600] text-fg-strong">{row.userFullName || row.username}</div>
-      <div className="text-[11px] text-fg-secondary">
+      <div className="text-[12px] text-fg-secondary">
         {row.userFullName ? `${row.username} · ` : ""}
         {row.roleId ? getRoleName(row.roleId) : ""}
       </div>
@@ -123,7 +124,7 @@ function RecordRef({ row }) {
   return (
     <div className="leading-tight">
       <div className="text-fg">{humanize(row.entityType)}{row.entityId ? ` #${row.entityId.length > 12 ? row.entityId.slice(0, 8) + "…" : row.entityId}` : ""}</div>
-      {row.entityLabel && <div className="text-[11px] text-fg-secondary">{row.entityLabel}</div>}
+      {row.entityLabel && <div className="text-[12px] text-fg-secondary">{row.entityLabel}</div>}
     </div>
   );
 }
@@ -164,12 +165,12 @@ function AuditTable({ rows, onOpen, emptyText }) {
               <td className="px-4 py-3"><Who row={r} /></td>
               <td className="px-4 py-3">
                 <ActionBadge action={r.action} />
-                <div className="text-[11px] text-fg-secondary mt-1">{moduleLabel(r.module)}</div>
+                <div className="text-[12px] text-fg-secondary mt-1">{moduleLabel(r.module)}</div>
               </td>
               <td className="px-4 py-3"><RecordRef row={r} /></td>
               <td className="px-4 py-3 text-fg max-w-[420px]">
                 <div className="line-clamp-2">{r.summary}</div>
-                {r.operation && r.module !== "ACCOUNTS" && <div className="text-[11px] text-fg-muted mt-0.5">Screen action: {r.operation}</div>}
+                {r.operation && r.module !== "ACCOUNTS" && <div className="text-[12px] text-fg-muted mt-0.5">Screen action: {r.operation}</div>}
               </td>
               <td className="px-4 py-3 text-right">
                 <button onClick={() => onOpen(r)} className="inline-flex items-center gap-1 text-brand-fg hover:underline text-[13px] font-[600]">
@@ -190,9 +191,9 @@ function Pager({ page, totalPages, total, onPage }) {
     <div className="flex items-center justify-between mt-3 text-[13px] text-fg-secondary">
       <span>{total.toLocaleString()} entr{total === 1 ? "y" : "ies"}</span>
       <div className="flex items-center gap-2">
-        <button disabled={page <= 0} onClick={() => onPage(page - 1)} className="p-1.5 rounded border border-line-strong bg-surface disabled:opacity-40"><ChevronLeft size={16} /></button>
+        <button aria-label="Previous" disabled={page <= 0} onClick={() => onPage(page - 1)} className="p-1.5 rounded border border-line-strong bg-surface disabled:opacity-40"><ChevronLeft size={16} /></button>
         <span>Page {page + 1} of {Math.max(totalPages, 1)}</span>
-        <button disabled={page + 1 >= totalPages} onClick={() => onPage(page + 1)} className="p-1.5 rounded border border-line-strong bg-surface disabled:opacity-40"><ChevronRight size={16} /></button>
+        <button aria-label="Next" disabled={page + 1 >= totalPages} onClick={() => onPage(page + 1)} className="p-1.5 rounded border border-line-strong bg-surface disabled:opacity-40"><ChevronRight size={16} /></button>
       </div>
     </div>
   );
@@ -220,7 +221,7 @@ function DetailModal({ row, onClose, onHistory }) {
             <div className="flex items-center gap-2 mb-1"><ActionBadge action={row.action} /><span className="text-[12px] text-fg-secondary">Entry #{row.id}</span></div>
             <h2 className="text-[16px] font-[700] text-fg-strong">{row.summary}</h2>
           </div>
-          <button onClick={onClose} className="p-1 text-fg-secondary hover:text-fg-strong"><X size={20} /></button>
+          <button aria-label="Close" onClick={onClose} className="p-1 text-fg-secondary hover:text-fg-strong"><X size={20} /></button>
         </div>
         <div className="p-5 space-y-5">
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-[13px]">
@@ -317,7 +318,7 @@ export default function AdminAuditLog() {
       setSummary(s.data);
       setOptions(f.data);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Could not load the audit log");
+      setError(friendlyError(err, { fallback: "Could not load the audit log" }));
     }
   }, []);
 
@@ -332,7 +333,7 @@ export default function AdminAuditLog() {
       const res = await axiosInstance.get("/api/v1/audit/logs", { params: { ...tabParams(), page, size: PAGE_SIZE } });
       setResult(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Could not load the audit log");
+      setError(friendlyError(err, { fallback: "Could not load the audit log" }));
       setResult({ content: [], totalElements: 0, totalPages: 0 });
     } finally {
       setLoading(false);
@@ -352,7 +353,7 @@ export default function AdminAuditLog() {
       const res = await axiosInstance.get("/api/v1/audit/history", { params: { entityType: type, entityId: String(id).trim() } });
       setHistoryRows(res.data || []);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Could not load the record history");
+      setError(friendlyError(err, { fallback: "Could not load the record history" }));
       setHistoryRows([]);
     } finally {
       setHistoryLoading(false);
@@ -391,7 +392,7 @@ export default function AdminAuditLog() {
       URL.revokeObjectURL(url);
       logExport("AUDIT", `Exported ${all.length} audit log entries (${filters.from || "start"} to ${filters.to || "today"}) as CSV`);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Export failed");
+      setError(friendlyError(err, { fallback: "Export failed" }));
     } finally {
       setExporting(false);
     }

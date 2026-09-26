@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
   RefreshCw,
   ChevronDown,
@@ -73,7 +74,7 @@ function SupplierDropdown({ suppliers, value, onChange }) {
         className="w-full flex items-center gap-2 px-3 py-2.5 border border-line rounded-lg text-[13px] text-fg bg-surface hover:bg-subtle transition-colors min-w-[220px]"
       >
         {selected ? (
-          <div className="w-6 h-6 bg-brand rounded-md flex items-center justify-center text-on-brand text-[10px] font-[700] flex-shrink-0">
+          <div className="w-6 h-6 bg-brand rounded-md flex items-center justify-center text-on-brand text-[12px] font-[700] flex-shrink-0">
             {selected.code}
           </div>
         ) : (
@@ -111,12 +112,12 @@ function SupplierDropdown({ suppliers, value, onChange }) {
                   onClick={() => { onChange(s.id); setOpen(false); setSearch(""); }}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-subtle transition-colors ${value === s.id ? "bg-hover" : ""}`}
                 >
-                  <div className="w-7 h-7 bg-brand rounded-md flex items-center justify-center text-on-brand text-[10px] font-[700] flex-shrink-0">
+                  <div className="w-7 h-7 bg-brand rounded-md flex items-center justify-center text-on-brand text-[12px] font-[700] flex-shrink-0">
                     {s.code}
                   </div>
                   <div>
                     <p className={`text-[13px] font-[500] ${value === s.id ? "text-brand-fg" : "text-fg"}`}>{s.name}</p>
-                    <p className="text-[10px] text-fg-secondary">{s.id}</p>
+                    <p className="text-[12px] text-fg-secondary">{s.id}</p>
                   </div>
                 </button>
               ))}
@@ -172,7 +173,7 @@ function DocViewModal({ row, onClose }) {
               <Hash size={11} />{row.ref}
             </p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-app rounded-lg">
+          <button aria-label="Close" onClick={onClose} className="p-2 hover:bg-app rounded-lg">
             <X size={16} className="text-fg-secondary" />
           </button>
         </div>
@@ -189,7 +190,7 @@ function DocViewModal({ row, onClose }) {
               { label: "Running Balance",value: `Rs. ${row.balance.toLocaleString()}` },
             ].map(({ label, value }) => (
               <div key={label} className={label === "Description" ? "col-span-2" : ""}>
-                <p className="text-[11px] text-fg-secondary mb-0.5">{label}</p>
+                <p className="text-[12px] text-fg-secondary mb-0.5">{label}</p>
                 <p className="text-[13px] font-[500] text-fg">{value}</p>
               </div>
             ))}
@@ -505,7 +506,7 @@ export default function FinanceSupplierLedger() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
 
               <div className="lg:col-span-3">
-                <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Supplier</label>
+                <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Supplier</label>
                 <SupplierDropdown
                   suppliers={suppliers}
                   value={selectedSupplier}
@@ -514,7 +515,7 @@ export default function FinanceSupplierLedger() {
               </div>
 
               <div className="lg:col-span-2">
-                <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">From</label>
+                <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">From</label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                   <input
@@ -527,7 +528,7 @@ export default function FinanceSupplierLedger() {
               </div>
 
               <div className="lg:col-span-2">
-                <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">To</label>
+                <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">To</label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                   <input
@@ -540,7 +541,7 @@ export default function FinanceSupplierLedger() {
               </div>
 
               <div className="lg:col-span-2">
-                <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Type</label>
+                <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Type</label>
                 <FilterDropdown
                   open={typeOpen} setOpen={setTypeOpen}
                   value={txType} options={TX_TYPES}
@@ -549,7 +550,7 @@ export default function FinanceSupplierLedger() {
               </div>
 
               <div className="lg:col-span-2">
-                <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Status</label>
+                <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Status</label>
                 <FilterDropdown
                   open={statusOpen} setOpen={setStatusOpen}
                   value={txStatus} options={TX_STATUS}
@@ -709,7 +710,7 @@ export default function FinanceSupplierLedger() {
                             </td>
 
                             <td className="py-3.5 px-4">
-                              <span className={`text-[11px] font-[600] px-2.5 py-1 rounded-full ${typeStyle.bg} ${typeStyle.text}`}>
+                              <span className={`text-[12px] font-[600] px-2.5 py-1 rounded-full ${typeStyle.bg} ${typeStyle.text}`}>
                                 {row.type}
                               </span>
                             </td>
@@ -747,7 +748,7 @@ export default function FinanceSupplierLedger() {
                             </td>
 
                             <td className="py-3.5 px-4">
-                              <span className={`inline-flex items-center gap-1 text-[11px] font-[500] px-2.5 py-1 rounded-full ${statusStyle.bg} ${statusStyle.text}`}>
+                              <span className={`inline-flex items-center gap-1 text-[12px] font-[500] px-2.5 py-1 rounded-full ${statusStyle.bg} ${statusStyle.text}`}>
                                 {statusStyle.icon}{row.status}
                               </span>
                             </td>
@@ -755,7 +756,7 @@ export default function FinanceSupplierLedger() {
                             <td className="py-3.5 px-4">
                               <button
                                 onClick={() => setDocModal(row)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[11px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors"
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[12px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors"
                               >
                                 <Eye size={12} /> View
                               </button>
@@ -773,7 +774,7 @@ export default function FinanceSupplierLedger() {
                       Page {page} of {totalPages} - {sorted.length} records
                     </p>
                     <div className="flex items-center gap-2">
-                      <button
+                      <button aria-label="Previous"
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                         disabled={page === 1}
                         className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
@@ -789,7 +790,7 @@ export default function FinanceSupplierLedger() {
                           {p}
                         </button>
                       ))}
-                      <button
+                      <button aria-label="Next"
                         onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                         disabled={page === totalPages}
                         className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
@@ -884,7 +885,7 @@ function ManualAdjustmentModal({ suppliers, preSelectedId, onClose, onSuccess })
       }
       onSuccess();
     } catch (err) {
-      setError(err.message);
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
@@ -895,7 +896,7 @@ function ManualAdjustmentModal({ suppliers, preSelectedId, onClose, onSuccess })
       <div className="bg-elevated rounded-xl shadow-2xl w-full max-w-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-line flex items-center justify-between bg-subtle">
           <h3 className="text-[16px] font-[600] text-fg">New Manual Adjustment</h3>
-          <button onClick={onClose} className="p-2 hover:bg-line rounded-full transition-colors">
+          <button aria-label="Close" onClick={onClose} className="p-2 hover:bg-line rounded-full transition-colors">
             <X size={18} className="text-fg-secondary" />
           </button>
         </div>
@@ -909,7 +910,7 @@ function ManualAdjustmentModal({ suppliers, preSelectedId, onClose, onSuccess })
 
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <label className="block text-[11px] font-[600] text-fg-secondary mb-1.5 uppercase">Supplier</label>
+              <label className="block text-[12px] font-[600] text-fg-secondary mb-1.5 uppercase">Supplier</label>
               <select
                 value={formData.supplierId}
                 onChange={(e) => setFormData({ ...formData, supplierId: e.target.value })}
@@ -923,7 +924,7 @@ function ManualAdjustmentModal({ suppliers, preSelectedId, onClose, onSuccess })
             </div>
 
             <div>
-              <label className="block text-[11px] font-[600] text-fg-secondary mb-1.5 uppercase">Date</label>
+              <label className="block text-[12px] font-[600] text-fg-secondary mb-1.5 uppercase">Date</label>
               <input
                 type="date"
                 value={formData.adjustmentDate}
@@ -933,7 +934,7 @@ function ManualAdjustmentModal({ suppliers, preSelectedId, onClose, onSuccess })
             </div>
 
             <div>
-              <label className="block text-[11px] font-[600] text-fg-secondary mb-1.5 uppercase">Amount (Rs.)</label>
+              <label className="block text-[12px] font-[600] text-fg-secondary mb-1.5 uppercase">Amount (Rs.)</label>
               <input
                 type="number"
                 step="0.01"
@@ -946,7 +947,7 @@ function ManualAdjustmentModal({ suppliers, preSelectedId, onClose, onSuccess })
           </div>
 
           <div>
-            <label className="block text-[11px] font-[600] text-fg-secondary mb-1.5 uppercase">Description</label>
+            <label className="block text-[12px] font-[600] text-fg-secondary mb-1.5 uppercase">Description</label>
             <input
               type="text"
               placeholder="Short summary of the adjustment"
@@ -957,7 +958,7 @@ function ManualAdjustmentModal({ suppliers, preSelectedId, onClose, onSuccess })
           </div>
 
           <div>
-            <label className="block text-[11px] font-[600] text-fg-secondary mb-1.5 uppercase">Remarks (Internal)</label>
+            <label className="block text-[12px] font-[600] text-fg-secondary mb-1.5 uppercase">Remarks (Internal)</label>
             <textarea
               rows="3"
               placeholder="Detailed reason for this manual adjustment..."

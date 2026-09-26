@@ -2,6 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import { ThemeProvider } from "./context/ThemeContext";
+import { applySidebarPref } from "./utils/sidebarPref";
+
+applySidebarPref(); // collapsed/expanded side menu, remembered per device
 import "./index.css";
 import axios from 'axios';
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { friendlyError } from "../utils/friendlyError";
 import {
     RefreshCw,
     ChevronDown,
@@ -72,7 +73,7 @@ function SupplierDropdown({ suppliers, value, onChange }) {
                 className="w-full flex items-center gap-2 px-3 py-2.5 border border-line rounded-lg text-[13px] text-fg bg-surface hover:bg-subtle transition-colors"
             >
                 {selected ? (
-                    <div className="w-6 h-6 bg-brand rounded-md flex items-center justify-center text-on-brand text-[10px] font-[700] flex-shrink-0">
+                    <div className="w-6 h-6 bg-brand rounded-md flex items-center justify-center text-on-brand text-[12px] font-[700] flex-shrink-0">
                         {selected.code}
                     </div>
                 ) : (
@@ -108,12 +109,12 @@ function SupplierDropdown({ suppliers, value, onChange }) {
                                     onClick={() => { onChange(s.id); setOpen(false); setSearch(""); }}
                                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-subtle transition-colors ${value === s.id ? "bg-hover" : ""}`}
                                 >
-                                    <div className="w-7 h-7 bg-brand rounded-md flex items-center justify-center text-on-brand text-[10px] font-[700] flex-shrink-0">
+                                    <div className="w-7 h-7 bg-brand rounded-md flex items-center justify-center text-on-brand text-[12px] font-[700] flex-shrink-0">
                                         {s.code}
                                     </div>
                                     <div>
                                         <p className={`text-[13px] font-[500] ${value === s.id ? "text-brand-fg" : "text-fg"}`}>{s.name}</p>
-                                        <p className="text-[10px] text-fg-secondary">{s.id}</p>
+                                        <p className="text-[12px] text-fg-secondary">{s.id}</p>
                                     </div>
                                 </button>
                             ))}
@@ -216,7 +217,7 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
                         <h3 className="text-[16px] font-[600] text-fg">Settle Payment</h3>
                         <p className="text-[12px] text-fg-secondary mt-0.5">{supplier?.name} · {supplier?.id}</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-app rounded-lg">
+                    <button aria-label="Close" onClick={onClose} className="p-2 hover:bg-app rounded-lg">
                         <X size={16} className="text-fg-secondary" />
                     </button>
                 </div>
@@ -235,7 +236,7 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
                         <p className="text-[12px] font-[600] text-fg mb-2 uppercase tracking-wide">
                             Select Invoices to Settle
                         </p>
-                        {errors.invoices && <p className="text-[11px] text-error mb-2">{errors.invoices}</p>}
+                        {errors.invoices && <p className="text-[12px] text-error mb-2">{errors.invoices}</p>}
                         {pendingInvoices.length === 0 ? (
                             <div className="text-center py-8 bg-subtle rounded-lg border border-line">
                                 <BadgeCheck size={32} className="mx-auto text-success mb-2" />
@@ -247,12 +248,12 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
                                 <table className="w-full">
                                     <thead>
                                         <tr className="bg-subtle border-b border-line">
-                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-fg-secondary text-left w-8"></th>
-                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-fg-secondary text-left">Reference</th>
-                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-fg-secondary text-left">Due Date</th>
-                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-fg-secondary text-right">Outstanding</th>
-                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-fg-secondary text-right">Pay Amount</th>
-                                            <th className="py-2.5 px-3 text-[11px] font-[500] text-fg-secondary text-center">Status</th>
+                                            <th className="py-2.5 px-3 text-[12px] font-[500] text-fg-secondary text-left w-8"></th>
+                                            <th className="py-2.5 px-3 text-[12px] font-[500] text-fg-secondary text-left">Reference</th>
+                                            <th className="py-2.5 px-3 text-[12px] font-[500] text-fg-secondary text-left">Due Date</th>
+                                            <th className="py-2.5 px-3 text-[12px] font-[500] text-fg-secondary text-right">Outstanding</th>
+                                            <th className="py-2.5 px-3 text-[12px] font-[500] text-fg-secondary text-right">Pay Amount</th>
+                                            <th className="py-2.5 px-3 text-[12px] font-[500] text-fg-secondary text-center">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -276,7 +277,7 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
                                                         <p className="text-[12px] font-[600] text-brand-fg flex items-center gap-1">
                                                             <Hash size={9} />{inv.ref}
                                                         </p>
-                                                        <p className="text-[10px] text-fg-secondary truncate max-w-[140px]" title={inv.description}>{inv.description}</p>
+                                                        <p className="text-[12px] text-fg-secondary truncate max-w-[140px]" title={inv.description}>{inv.description}</p>
                                                     </td>
                                                     <td className="py-3 px-3">
                                                         <p className={`text-[12px] font-[500] ${inv.status === "Overdue" ? "text-error" : "text-fg"}`}>{inv.dueDate}</p>
@@ -299,7 +300,7 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
                                                         )}
                                                     </td>
                                                     <td className="py-3 px-3 text-center">
-                                                        <span className={`inline-flex items-center gap-1 text-[10px] font-[500] px-2 py-0.5 rounded-full ${ss.bg} ${ss.text}`}>
+                                                        <span className={`inline-flex items-center gap-1 text-[12px] font-[500] px-2 py-0.5 rounded-full ${ss.bg} ${ss.text}`}>
                                                             {ss.icon}{inv.status}
                                                         </span>
                                                     </td>
@@ -310,26 +311,26 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
                                 </table>
                             </div>
                         )}
-                        {errors.amount && <p className="text-[11px] text-error mt-1">{errors.amount}</p>}
+                        {errors.amount && <p className="text-[12px] text-error mt-1">{errors.amount}</p>}
                     </div>
 
                     {/* Payment Details */}
                     <div className="grid grid-cols-2 gap-4">
                         {/* Payment Method */}
                         <div>
-                            <label className="block text-[11px] font-[600] text-fg-secondary mb-1.5 uppercase tracking-wide">Payment Method</label>
+                            <label className="block text-[12px] font-[600] text-fg-secondary mb-1.5 uppercase tracking-wide">Payment Method</label>
                             <SelectDropdown
                                 open={methodOpen} setOpen={setMethodOpen}
                                 value={paymentMethod} options={PAYMENT_METHODS}
                                 onChange={setPaymentMethod}
                                 placeholder="Select method"
                             />
-                            {errors.method && <p className="text-[11px] text-error mt-1">{errors.method}</p>}
+                            {errors.method && <p className="text-[12px] text-error mt-1">{errors.method}</p>}
                         </div>
 
                         {/* Payment Date */}
                         <div>
-                            <label className="block text-[11px] font-[600] text-fg-secondary mb-1.5 uppercase tracking-wide">Payment Date</label>
+                            <label className="block text-[12px] font-[600] text-fg-secondary mb-1.5 uppercase tracking-wide">Payment Date</label>
                             <div className="relative">
                                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                                 <input
@@ -339,12 +340,12 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
                                     className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg"
                                 />
                             </div>
-                            {errors.date && <p className="text-[11px] text-error mt-1">{errors.date}</p>}
+                            {errors.date && <p className="text-[12px] text-error mt-1">{errors.date}</p>}
                         </div>
 
                         {/* Remarks */}
                         <div className="col-span-2">
-                            <label className="block text-[11px] font-[600] text-fg-secondary mb-1.5 uppercase tracking-wide">Remarks</label>
+                            <label className="block text-[12px] font-[600] text-fg-secondary mb-1.5 uppercase tracking-wide">Remarks</label>
                             <textarea
                                 rows={2}
                                 value={remarks}
@@ -403,7 +404,7 @@ function PaymentDetailModal({ payment, onClose }) {
                             <Hash size={11} />{payment.id}
                         </p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-app rounded-lg">
+                    <button aria-label="Close" onClick={onClose} className="p-2 hover:bg-app rounded-lg">
                         <X size={16} className="text-fg-secondary" />
                     </button>
                 </div>
@@ -424,7 +425,7 @@ function PaymentDetailModal({ payment, onClose }) {
                     ))}
                     <div className="flex items-center justify-between py-2">
                         <p className="text-[12px] text-fg-secondary">Status</p>
-                        <span className={`inline-flex items-center gap-1 text-[11px] font-[500] px-2.5 py-1 rounded-full ${ss.bg} ${ss.text}`}>
+                        <span className={`inline-flex items-center gap-1 text-[12px] font-[500] px-2.5 py-1 rounded-full ${ss.bg} ${ss.text}`}>
                             {ss.icon}{payment.status}
                         </span>
                     </div>
@@ -473,7 +474,7 @@ function SuccessToast({ message, onClose }) {
                 <p className="text-[13px] font-[600] text-fg">Payment Recorded</p>
                 <p className="text-[12px] text-fg-secondary mt-0.5">{message}</p>
             </div>
-            <button onClick={onClose} className="text-fg-secondary hover:text-fg">
+            <button aria-label="Close" onClick={onClose} className="text-fg-secondary hover:text-fg">
                 <X size={14} />
             </button>
         </div>
@@ -783,7 +784,7 @@ export default function FinanceSettlePayments() {
             setTimeout(() => setToast(null), 4000);
         } catch (e) {
             console.error("Failed to record payment:", e);
-            setSubmitError(e.message || "Failed to record payment.");
+            setSubmitError(friendlyError(e, { fallback: "Failed to record payment." }));
         } finally {
             setSubmitting(false);
         }
@@ -902,7 +903,7 @@ export default function FinanceSettlePayments() {
 
                                     {/* Supplier Dropdown */}
                                     <div className="w-full lg:flex-1 lg:max-w-sm">
-                                        <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">
+                                        <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">
                                             Supplier
                                         </label>
 
@@ -925,7 +926,7 @@ export default function FinanceSettlePayments() {
                                                     return (
                                                         <div className="w-full sm:w-auto min-w-[180px] px-4 py-3 bg-subtle border border-line rounded-xl flex items-center justify-between">
                                                             <div>
-                                                                <p className="text-[11px] text-fg-secondary">Outstanding</p>
+                                                                <p className="text-[12px] text-fg-secondary">Outstanding</p>
                                                                 <p className="text-[13px] font-[600] text-fg-secondary">Loading...</p>
                                                             </div>
                                                             <Loader variant="inline" />
@@ -935,7 +936,7 @@ export default function FinanceSettlePayments() {
 
                                                 return total > 0 ? (
                                                     <div className="w-full sm:w-auto min-w-[180px] px-4 py-3 bg-error/10 border border-error/30 rounded-xl">
-                                                        <p className="text-[11px] text-fg-secondary">
+                                                        <p className="text-[12px] text-fg-secondary">
                                                             Outstanding
                                                         </p>
                                                         <p className="text-[15px] font-[700] text-error">
@@ -944,7 +945,7 @@ export default function FinanceSettlePayments() {
                                                     </div>
                                                 ) : (
                                                     <div className="w-full sm:w-auto min-w-[180px] px-4 py-3 bg-success/10 border border-success/30 rounded-xl">
-                                                        <p className="text-[11px] text-fg-secondary">
+                                                        <p className="text-[12px] text-fg-secondary">
                                                             Status
                                                         </p>
                                                         <p className="text-[13px] font-[600] text-success flex items-center gap-1">
@@ -977,7 +978,7 @@ export default function FinanceSettlePayments() {
                                 invoiceList.filter((i) => i.outstanding > 0).length > 0 && (
                                     <div className="w-full xl:w-[320px] bg-subtle rounded-2xl border border-line p-4 flex-shrink-0">
 
-                                        <p className="text-[11px] font-[600] text-fg-secondary uppercase tracking-wide mb-3">
+                                        <p className="text-[12px] font-[600] text-fg-secondary uppercase tracking-wide mb-3">
                                             Open Invoices
                                         </p>
 
@@ -994,7 +995,7 @@ export default function FinanceSettlePayments() {
                                                         >
                                                             <div className="flex items-center gap-2 min-w-0">
                                                                 <span
-                                                                    className={`inline-flex items-center gap-1 text-[10px] font-[500] px-2 py-1 rounded-full whitespace-nowrap ${ss.bg} ${ss.text}`}
+                                                                    className={`inline-flex items-center gap-1 text-[12px] font-[500] px-2 py-1 rounded-full whitespace-nowrap ${ss.bg} ${ss.text}`}
                                                                 >
                                                                     {ss.icon}
                                                                 </span>
@@ -1032,7 +1033,7 @@ export default function FinanceSettlePayments() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-end">
                                 {/* Search */}
                                 <div className="lg:col-span-4 relative">
-                                    <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Search</label>
+                                    <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Search</label>
                                     <Search className="absolute left-3 top-[calc(50%+8px)] -translate-y-1/2 text-fg-secondary" size={14} />
                                     <input
                                         type="text"
@@ -1045,7 +1046,7 @@ export default function FinanceSettlePayments() {
 
                                 {/* Status */}
                                 <div className="lg:col-span-2">
-                                    <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Status</label>
+                                    <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">Status</label>
                                     <div className="relative">
                                         <button
                                             onClick={() => setStatusOpen(!statusOpen)}
@@ -1076,7 +1077,7 @@ export default function FinanceSettlePayments() {
 
                                 {/* From Date */}
                                 <div className="lg:col-span-2">
-                                    <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">From</label>
+                                    <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">From</label>
                                     <div className="relative">
                                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                                         <input
@@ -1090,7 +1091,7 @@ export default function FinanceSettlePayments() {
 
                                 {/* To Date */}
                                 <div className="lg:col-span-2">
-                                    <label className="block text-[11px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">To</label>
+                                    <label className="block text-[12px] font-[500] text-fg-secondary mb-1.5 uppercase tracking-wide">To</label>
                                     <div className="relative">
                                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                                         <input
@@ -1175,7 +1176,7 @@ export default function FinanceSettlePayments() {
                                                     {/* Supplier */}
                                                     <td className="py-3.5 px-4">
                                                         <div className="flex items-center gap-2">
-                                                            <div className="w-6 h-6 bg-brand rounded-md flex items-center justify-center text-on-brand text-[9px] font-[700] flex-shrink-0">
+                                                            <div className="w-6 h-6 bg-brand rounded-md flex items-center justify-center text-on-brand text-[12px] font-[700] flex-shrink-0">
                                                                 {supplierCode}
                                                             </div>
                                                             <p className="text-[13px] font-[500] text-fg whitespace-nowrap">{row.supplier}</p>
@@ -1204,7 +1205,7 @@ export default function FinanceSettlePayments() {
 
                                                     {/* Status */}
                                                     <td className="py-3.5 px-4">
-                                                        <span className={`inline-flex items-center gap-1 text-[11px] font-[500] px-2.5 py-1 rounded-full ${ss.bg} ${ss.text}`}>
+                                                        <span className={`inline-flex items-center gap-1 text-[12px] font-[500] px-2.5 py-1 rounded-full ${ss.bg} ${ss.text}`}>
                                                             {ss.icon}{row.status}
                                                         </span>
                                                     </td>
@@ -1213,7 +1214,7 @@ export default function FinanceSettlePayments() {
                                                     <td className="py-3.5 px-4">
                                                         <button
                                                             onClick={() => setDetailModal(row)}
-                                                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[11px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors"
+                                                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[12px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors"
                                                         >
                                                             <Eye size={12} /> View
                                                         </button>
@@ -1233,7 +1234,7 @@ export default function FinanceSettlePayments() {
                                     Page {page} of {totalPages} · {sorted.length} records
                                 </p>
                                 <div className="flex items-center gap-2">
-                                    <button
+                                    <button aria-label="Previous"
                                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                                         disabled={page === 1}
                                         className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
@@ -1249,7 +1250,7 @@ export default function FinanceSettlePayments() {
                                             {p}
                                         </button>
                                     ))}
-                                    <button
+                                    <button aria-label="Next"
                                         onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                                         disabled={page === totalPages}
                                         className="p-2 border border-line rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
