@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import SidebarCollapseButton from "./SidebarCollapseButton";
 import {
+  UserCheck,
   ScrollText,
   TrendingUp,
   FileText,
   Package,
-  BookOpen,
   Boxes,
   UserPlus,
-  BarChart3,
   FileBarChart,
   Truck,
   ArrowLeft,
@@ -94,6 +93,7 @@ export default function AdminSidebar({ sidebarOpen }) {
       path: "/adminMpcRequests",
       color: "text-brand-fg",
     },
+     { name: 'Admin Approval', icon: UserCheck, path: '/adminApprovalRequests', color: 'text-fg-secondary' },
   ];
 
   return (

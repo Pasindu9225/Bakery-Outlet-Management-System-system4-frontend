@@ -36,7 +36,7 @@ const ManagerOutletDistribution = lazy(() => import("./Manager/ManagerOutletDist
 const ManagerActualProduction = lazy(() => import("./Manager/ManagerActualProduction"));
 const ManagerOutletStock = lazy(() => import("./Manager/ManagerOutletStock"));
 const ManagerStockAdjustments = lazy(() => import("./Manager/ManagerStockAdjustments"));
-const ManagerApprovalRequests = lazy(() => import("./Manager/ManagerApprovalRequests"));
+const AdminApprovalRequests = lazy(() => import("./Admin/AdminApprovalRequests"));
 const ManagerDiscountRules = lazy(() => import("./Manager/ManagerDiscountRules"));
 const ManagerPromoCodes = lazy(() => import("./Manager/ManagerPromoCodes"));
 const ManagerInformationBase = lazy(() => import("./Manager/ManagerInformationBase"));
@@ -413,10 +413,10 @@ function App() {
           }
         />
         <Route
-          path="/managerApprovalRequests"
+          path="/adminApprovalRequests"
           element={
-            <ProtectedRoute allowedRoles={["10"]}>
-              <ManagerApprovalRequests />
+            <ProtectedRoute allowedRoles={["1"]}>
+              <AdminApprovalRequests />
             </ProtectedRoute>
           }
         />
@@ -767,19 +767,19 @@ function App() {
 
         {/* Finance Module (role 15 = Finance Officer; 11 collides with WAITER sentinel in AdminUserService) */}
         <Route path="/financeIouApprovals" element={
-          <ProtectedRoute allowedRoles={["1", "15", "FINANCE"]}><ManagerIouApprovals /></ProtectedRoute>
+          <ProtectedRoute allowedRoles={["15", "FINANCE"]} exclusive><ManagerIouApprovals /></ProtectedRoute>
         } />
         <Route path="/financeSupplierLedger" element={
-          <ProtectedRoute allowedRoles={["1", "15", "FINANCE"]}><FinanceSupplierLedger /></ProtectedRoute>
+          <ProtectedRoute allowedRoles={["15", "FINANCE"]} exclusive><FinanceSupplierLedger /></ProtectedRoute>
         } />
         <Route path="/financeOutstandingSummary" element={
-          <ProtectedRoute allowedRoles={["1", "15"]}><FinanceOutstandingSummary /></ProtectedRoute>
+          <ProtectedRoute allowedRoles={["15", "FINANCE"]} exclusive><FinanceOutstandingSummary /></ProtectedRoute>
         } />
         <Route path="/financeSettlePayments" element={
-          <ProtectedRoute allowedRoles={["1", "15"]}><FinanceSettlePayments /></ProtectedRoute>
+          <ProtectedRoute allowedRoles={["15", "FINANCE"]} exclusive><FinanceSettlePayments /></ProtectedRoute>
         } />
         <Route path="/financeReports" element={
-          <ProtectedRoute allowedRoles={["1", "15"]}><FinanceReports /></ProtectedRoute>
+          <ProtectedRoute allowedRoles={["15", "FINANCE"]} exclusive><FinanceReports /></ProtectedRoute>
         } />
 
         {/* Profile — accessible to all authenticated users */}

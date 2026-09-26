@@ -10,7 +10,6 @@ import {
   Users,
   LogOut,
   BarChart3,
-  UserCheck,
   Tag,
   CreditCard
 } from "lucide-react";
@@ -37,12 +36,6 @@ export default function ManagerSidebar({ sidebarOpen }) {
       icon: CreditCard,
       path: "/managerCreditOrders",
       color: "text-plum",
-    },
-    {
-      name: "Manager Approval",
-      icon: UserCheck,
-      path: "/managerApprovalRequests",
-      color: "text-info",
     },
     {
       name: "Discount Management",
@@ -105,13 +98,6 @@ export default function ManagerSidebar({ sidebarOpen }) {
             Quick Actions
           </p>
           <div className="grid grid-cols-2 gap-2">
-            <NavLink
-              to={"/managerApprovalRequests"}
-              className="flex items-center gap-2 p-2 text-[12px] bg-surface rounded border hover:bg-brand/10 hover:border-brand/20 transition-colors"
-            >
-              <UserCheck size={14} className="text-brand-fg" />
-              <span>Approvals</span>
-            </NavLink>
             <NavLink
               to={"/managerDiscountRules"}
               className="flex items-center gap-2 p-2 text-[12px] bg-surface rounded border hover:bg-success/10 hover:border-success/30 transition-colors"

@@ -26,8 +26,8 @@ import {
   Warehouse,
 } from "lucide-react";
 
-import ManagerNavBar from "../component/ManagerNavBar.jsx";
-import ManagerSidebar from "../component/ManagerSidebar.jsx";
+import AdminNavBar from "../component/AdminNavBar.jsx";
+import AdminSidebar from "../component/AdminSidebar.jsx";
 import Loader from "../component/Loader.jsx";
 import posService from "../services/posService";
 import { getApiBaseUrl } from "../utils/config";
@@ -35,9 +35,9 @@ import { formatQuantity } from "../utils/quantityFormatter";
 import { pollWhileVisible } from "../utils/poll";
 
 
-export default function ManagerApprovalRequests() {
+export default function AdminApprovalRequests() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("Approval Requests");
+  const [activeSection, setActiveSection] = useState("Admin Approval");
   const [activeTab, setActiveTab] = useState("purchaseOrders"); // 'purchaseOrders', 'returnMaterials', 'stockAdjustments', 'outletReturns'
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -604,10 +604,10 @@ export default function ManagerApprovalRequests() {
 
   return (
     <div className="flex bg-app h-screen overflow-hidden">
-      <ManagerSidebar sidebarOpen={sidebarOpen} />
+      <AdminSidebar sidebarOpen={sidebarOpen} />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <ManagerNavBar
+        <AdminNavBar
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           activeSection={activeSection}
@@ -618,7 +618,7 @@ export default function ManagerApprovalRequests() {
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-[20px] font-[600] text-fg mb-1">
-              Approval Requests
+              Admin Approval
             </h1>
             <p className="text-[14px] text-fg-secondary">
               Review and approve storekeeper requests for purchase orders,

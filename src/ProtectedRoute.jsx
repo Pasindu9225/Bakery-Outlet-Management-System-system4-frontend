@@ -1,7 +1,8 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 
-export default function ProtectedRoute({ children, allowedRoles }) {
+// exclusive: only allowedRoles may open the route; Admin does not get its usual automatic access.
+export default function ProtectedRoute({ children, allowedRoles, exclusive = false }) {
   const token = localStorage.getItem("authToken");
   const role = localStorage.getItem("userRole");
 
@@ -13,7 +14,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
   // Admin (Role ID 1) always has access
   const isAdmin = role === "1" || (role && role.toUpperCase() === "ADMIN");
   
-  if (isAdmin) {
+  if (isAdmin && !exclusive) {
     return children;
   }
 
