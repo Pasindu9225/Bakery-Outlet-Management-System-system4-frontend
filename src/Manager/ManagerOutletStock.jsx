@@ -7,6 +7,7 @@ import ManagerNavBar from "../component/ManagerNavBar.jsx";
 import ManagerSidebar from "../component/ManagerSidebar.jsx";
 import Loader from "../component/Loader.jsx";
 import ManagerTransferModal from "./ManagerTransferModal.jsx";
+import { pollWhileVisible } from "../utils/poll";
 
 export default function ManagerOutletStock() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -28,14 +29,12 @@ export default function ManagerOutletStock() {
     let intervalId;
     if (selectedOutlet) {
       fetchOutletStock(selectedOutlet);
-      intervalId = setInterval(() => {
-        fetchOutletStockSilent(selectedOutlet);
-      }, 5000);
+      intervalId = pollWhileVisible(() => fetchOutletStockSilent(selectedOutlet), 5000);
     } else {
       setStockItems([]);
     }
     return () => {
-      if (intervalId) clearInterval(intervalId);
+      if (intervalId) intervalId();
     };
   }, [selectedOutlet]);
 

@@ -36,6 +36,7 @@ import StorekeeperNavBar from "../component/StorekeeperNavBar.jsx";
 import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
 import posService from "../services/posService";
 import Loader from "../component/Loader.jsx";
+import { pollWhileVisible } from "../utils/poll";
 
 export default function StorekeeperReturnMaterials() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -264,9 +265,9 @@ export default function StorekeeperReturnMaterials() {
     
     let interval;
     if (activeTab === 'outletReturns') {
-      interval = setInterval(fetchOutletReturns, 30000); // 30s polling
+      interval = pollWhileVisible(fetchOutletReturns, 30000); // 30s polling
     }
-    return () => clearInterval(interval);
+    return () => interval && interval();
   }, [activeTab]);
   // Submit state
   const [submitLoading, setSubmitLoading] = useState(false);

@@ -17,6 +17,7 @@ import {
 
 import notificationService from "../services/notificationService";
 import ThemeToggle from "./ThemeToggle";
+import { pollWhileVisible } from "../utils/poll";
 
 export default function ManagerNavBar({ sidebarOpen, setSidebarOpen, activeSection, currentUser = "User" }) {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -39,14 +40,14 @@ export default function ManagerNavBar({ sidebarOpen, setSidebarOpen, activeSecti
   // Initial fetch and polling
   useEffect(() => {
     fetchNotifications();
-    const notificationTimer = setInterval(fetchNotifications, 30000); // Poll every 30s
+    const notificationTimer = pollWhileVisible(fetchNotifications, 30000); // Poll every 30s
     
     const timeTimer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
     return () => {
-      clearInterval(notificationTimer);
+      notificationTimer();
       clearInterval(timeTimer);
     };
   }, []);

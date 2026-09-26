@@ -9,6 +9,7 @@ import AdminSidebar from "../component/AdminSidebar.jsx";
 import rawMaterialService from "../services/rawMaterialService";
 import axiosInstance from "../services/api";
 import { exportToExcel } from "../utils/exportToExcel";
+import Loader from "../component/Loader";
 
 // Suggests the next code in the same series as whatever's typed so far, e.g. typing "MD" against
 // existing codes MDK03/MFK09/SFB001/TR007 matches MDK03 (the only one starting with "MD") and
@@ -66,6 +67,7 @@ export default function AdminRawMaterials() {
     const [vatFilter, setVatFilter] = useState('All');
 
     const [materials, setMaterials] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [suppliers, setSuppliers] = useState([]);
 
     useEffect(() => {
@@ -97,7 +99,7 @@ export default function AdminRawMaterials() {
                 setMaterials(formattedMaterials);
             } catch (error) {
                 console.error('Error fetching materials:', error);
-            }
+            } finally { setLoading(false); }
         };
 
         fetchMaterials();
@@ -959,7 +961,9 @@ export default function AdminRawMaterials() {
                         </div>
 
                         {/* Materials Table */}
-                        {filteredMaterials.length > 0 ? (
+                        {loading ? (
+                            <Loader variant="section" text="Loading raw materials..." />
+                        ) : filteredMaterials.length > 0 ? (
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead>

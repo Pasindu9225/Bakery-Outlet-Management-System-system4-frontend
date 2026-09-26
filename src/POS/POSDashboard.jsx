@@ -20,6 +20,7 @@ import Skeleton, { DashboardSkeleton } from "../component/Skeleton";
 import POSNavBar from "../component/POSNavBar.jsx";
 import POSSidebar from "../component/POSSidebar.jsx";
 import CashFloatPopup from "./CashFloatPopup.jsx";
+import { pollWhileVisible } from "../utils/poll";
 
 export default function POSDashboard({ onBackToDashboard }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -99,8 +100,8 @@ export default function POSDashboard({ onBackToDashboard }) {
 
     fetchDashboardStats();
     // Refresh every 5 minutes
-    const interval = setInterval(fetchDashboardStats, 300000);
-    return () => clearInterval(interval);
+    const interval = pollWhileVisible(fetchDashboardStats, 300000);
+    return () => interval();
   }, []);
 
   const quickActions = [

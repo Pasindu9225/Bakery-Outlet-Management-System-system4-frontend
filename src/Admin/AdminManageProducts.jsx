@@ -8,6 +8,7 @@ import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
 import rawMaterialService from "../services/rawMaterialService";
 import { exportToExcel } from "../utils/exportToExcel";
+import Loader from "../component/Loader";
 
 // Suggests the next code in the same series as whatever's typed so far, e.g. typing "MD" against
 // existing codes MDK03/MFK09/SFB001/TR007 matches MDK03 (the only one starting with "MD") and
@@ -69,6 +70,7 @@ export default function AdminManageProducts() {
     const [productionCenters, setProductionCenters] = useState([]);
 
     const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -107,7 +109,7 @@ export default function AdminManageProducts() {
                 }
             } catch (error) {
                 console.error('Error fetching products:', error);
-            }
+            } finally { setLoading(false); }
         };
 
         fetchProducts();
@@ -983,7 +985,9 @@ export default function AdminManageProducts() {
 
 
                         {/* Products Table */}
-                        {filteredProducts.length > 0 ? (
+                        {loading ? (
+                            <Loader variant="section" text="Loading products..." />
+                        ) : filteredProducts.length > 0 ? (
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead>

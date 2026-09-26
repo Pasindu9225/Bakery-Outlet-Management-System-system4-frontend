@@ -32,6 +32,7 @@ import Loader from "../component/Loader.jsx";
 import posService from "../services/posService";
 import { getApiBaseUrl } from "../utils/config";
 import { formatQuantity } from "../utils/quantityFormatter";
+import { pollWhileVisible } from "../utils/poll";
 
 
 export default function ManagerApprovalRequests() {
@@ -352,9 +353,9 @@ export default function ManagerApprovalRequests() {
     // Polling for Outlet Returns
     let interval;
     if (activeTab === 'outletReturns') {
-      interval = setInterval(fetchOutletReturns, 30000); // 30s polling
+      interval = pollWhileVisible(fetchOutletReturns, 30000); // 30s polling
     }
-    return () => clearInterval(interval);
+    return () => interval && interval();
   }, [activeTab]);
 
   // Get current data based on active tab

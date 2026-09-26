@@ -6,6 +6,7 @@ import { Package, Search, Plus, Edit, Trash2, X, Check, AlertTriangle, ChevronDo
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
+import Loader from "../component/Loader";
 
 export default function AdminCreateBOM() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -69,7 +70,7 @@ export default function AdminCreateBOM() {
             }
         } catch (error) {
             console.error('Error fetching BOMs:', error);
-        }
+        } finally { setLoading(false); }
     };
 
     const fetchProducts = async () => {
@@ -174,6 +175,7 @@ export default function AdminCreateBOM() {
     const productDropdownRef = useRef(null);
     const [childItems, setChildItems] = useState([]);
     const [boms, setBOMs] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const [formData, setFormData] = useState({
         parentProduct: null,
@@ -752,7 +754,9 @@ export default function AdminCreateBOM() {
                         </div>
 
                         {/* BOM Table with Hierarchical View */}
-                        {filteredBOMs.length > 0 ? (
+                        {loading ? (
+                            <Loader variant="section" text="Loading BOMs..." />
+                        ) : filteredBOMs.length > 0 ? (
                             <div className="space-y-4">
                                 {filteredBOMs.map((bom) => (
                                     <div key={bom.id} className="border border-line rounded-lg overflow-hidden">

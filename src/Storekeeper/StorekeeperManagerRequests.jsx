@@ -24,6 +24,7 @@ import { printReactReport } from "../component/report/PrintHelper";
 
 import StorekeeperNavBar from "../component/StorekeeperNavBar.jsx";
 import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
+import Loader from "../component/Loader";
 
 export default function StorekeeperManagerRequests() {
   const [activeTab, setActiveTab] = useState("");
@@ -40,6 +41,7 @@ export default function StorekeeperManagerRequests() {
 
   // Manager requests from backend
   const [managerRequests, setManagerRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch approved production plans on mount
   useEffect(() => {
@@ -104,7 +106,7 @@ export default function StorekeeperManagerRequests() {
       } catch (error) {
         console.error("Error fetching approved plans:", error);
         setManagerRequests([]);
-      }
+      } finally { setLoading(false); }
     };
 
     fetchApprovedPlans();
@@ -1639,7 +1641,9 @@ export default function StorekeeperManagerRequests() {
               </div>
             </div>
 
-            {filteredRequests.length === 0 ? (
+            {loading ? (
+                <Loader variant="section" text="Loading requests..." />
+            ) : filteredRequests.length === 0 ? (
               <div className="text-center py-12">
                 <FileText size={48} className="mx-auto text-fg-secondary mb-4" />
                 <p className="text-[16px] font-[500] text-fg mb-2">

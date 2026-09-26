@@ -26,6 +26,7 @@ import { NavLink } from "react-router-dom";
 import StorekeeperNavBar from "../component/StorekeeperNavBar.jsx";
 import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
 import Loader from "../component/Loader.jsx";
+import { pollWhileVisible } from "../utils/poll";
 
 
 export default function StorekeeperDashboard({ onBackToDashboard }) {
@@ -77,8 +78,8 @@ export default function StorekeeperDashboard({ onBackToDashboard }) {
 
         fetchDashboardStats();
         // Refresh every 5 minutes
-        const interval = setInterval(fetchDashboardStats, 300000);
-        return () => clearInterval(interval);
+        const interval = pollWhileVisible(fetchDashboardStats, 300000);
+        return () => interval();
     }, []);
 
     const quickActions = [
