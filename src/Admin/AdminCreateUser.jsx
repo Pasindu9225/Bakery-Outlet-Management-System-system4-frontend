@@ -94,6 +94,7 @@ export default function AdminCreateUser() {
       12: "Bakery Worker",
       13: "Kitchen Worker",
       14: "MPC Worker",
+      15: "Finance",
       20: "MIS Admin",
     };
     return roleMap[roleIdNum] || `Role ${roleId}`;
