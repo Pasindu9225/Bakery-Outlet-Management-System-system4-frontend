@@ -1,92 +1,95 @@
-import React, { useEffect } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import SignIn from "./SignIn";
-import MainDashboard from "./MainDashboard";
+import Loader from "./component/Loader";
 
-import POSDashboard from "./POS/POSDashboard";
-import POSGoodsEntry from "./POS/POSGoodsEntry";
-import POSSales from "./POS/POSSales";
-import POSReturns from "./POS/POSReturns";
-import POSDayEnd from "./POS/POSDayEnd";
-import POSReturnToStore from "./POS/POSReturnToStore";
-import POSSpecialOrders from "./POS/POSSpecialOrders";
-import POSTableBilling from "./POS/POSTableBilling";
 
-import ManagerDashboard from "./Manager/ManagerDashboard";
-import ManagerProductionPlanning from "./Manager/ManagerProductionPlanning";
-import ManagerCreditOrders from "./Manager/ManagerCreditOrders";
-import ManagerBakeryRequests from "./Manager/ManagerBakeryRequests";
-import ManagerKitchenRequests from "./Manager/ManagerKitchenRequests";
-import ManagerOutletDistribution from "./Manager/ManagerOutletDistribution";
-import ManagerActualProduction from "./Manager/ManagerActualProduction";
-import ManagerOutletStock from "./Manager/ManagerOutletStock";
-import ManagerStockAdjustments from "./Manager/ManagerStockAdjustments";
-import ManagerApprovalRequests from "./Manager/ManagerApprovalRequests";
-import ManagerDiscountRules from "./Manager/ManagerDiscountRules";
-import ManagerPromoCodes from "./Manager/ManagerPromoCodes";
-import ManagerInformationBase from "./Manager/ManagerInformationBase";
-import ManagerIouApprovals from "./Manager/ManagerIouApprovals";
-import CustomerManagement from "./component/CustomerManagement";
 
-import StorekeeperDashboard from "./Storekeeper/StorekeeperDashboard";
-import StorekeeperManagerRequests from "./Storekeeper/StorekeeperManagerRequests";
-import StorekeeperViewStore from "./Storekeeper/StorekeeperViewStore";
-import StorekeeperCreatePO from "./Storekeeper/StorekeeperCreatePO";
-import StorekeeperIngredientRequests from "./Storekeeper/StorekeeperIngredientRequests";
-import StorekeeperGRN from "./Storekeeper/StorekeeperGRN";
-import StorekeeperReturnMaterials from "./Storekeeper/StorekeeperReturnMaterials";
-import StorekeeperStockAdjustments from "./Storekeeper/StorekeeperStockAdjustments";
-import StorekeeperIouRequests from "./Storekeeper/StorekeeperIouRequests";
 
-import AdminDashboard from "./Admin/AdminDashboard";
-import AdminCreateUser from "./Admin/AdminCreateUser";
-import AdminViewTrends from "./Admin/AdminViewTrends";
-import AdminGenerateReports from "./Admin/AdminGenerateReports";
-import AdminManageSuppliers from "./Admin/AdminManageSuppliers";
-import AdminRawMaterials from "./Admin/AdminRawMaterials";
-import AdminManageProducts from "./Admin/AdminManageProducts";
-import AdminManageRecipes from "./Admin/AdminManageRecipes";
-import AdminCreateBOM from "./Admin/AdminCreateBOM";
-import AdminProductionCenter from "./Admin/AdminProductionCenter";
-import AdminOutletManagement from "./Admin/AdminOutletManagement";
-import AdminPromoCodes from "./Admin/AdminPromoCodes";
-import AdminDiscountRules from "./Admin/AdminDiscountRules";
-import AdminVerificationCodes from "./Admin/AdminVerificationCodes";
-import AdminWastage from "./Admin/AdminWastage";
-import AdminAuditLog from "./Admin/AdminAuditLog";
-import AdminStockEntry from "./Admin/AdminStockEntry";
-import AdminMpcRequests from "./Admin/AdminMpcRequests";
 
-import BakeryProductionRequests from "./BakeryWorker/BakeryProductionRequests";
-import BakeryGetIngredients from "./BakeryWorker/BakeryGetIngredients";
-import BakeryPartialProduction from "./BakeryWorker/BakeryPartialProduction";
-import BakeryProductionHistory from "./BakeryWorker/BakeryProductionHistory";
-import BakeryStoreInventory from "./BakeryWorker/BakeryStoreInventory";
 
-import KitchenProductionRequests from "./KitchenWorker/KitchenProductionRequests";
-import KitchenGetIngredients from "./KitchenWorker/KitchenGetIngredients";
-import KitchenTransferNote from "./KitchenWorker/KitchenTransferNote";
-import KitchenReturnToStore from "./KitchenWorker/KitchenReturnToStore";
-import KitchenStoreInventory from "./KitchenWorker/KitchenStoreInventory";
 
-import BakeryWorkerDashboard from "./BakeryWorker/BakeryWorkerDashboard";
-import KitchenWorkerDashboard from "./KitchenWorker/KitchenWorkerDashboard";
-import MPCWorkerDashboard from "./MPCWorker/MPCWorkerDashboard";
 
-import MISWastageDashboard from "./MISAdmin/MISWastageDashboard";
-import MISSupplierOverview from "./MISAdmin/MISSupplierOverview";
-import MISPurchasingTrends from "./MISAdmin/MISPurchasingTrends";
 
-import FinanceSupplierLedger from "./Finance/FinanceSupplierLedger";
-import FinanceOutstandingSummary from "./Finance/FinanceOutstandingSummary";
-import FinanceSettlePayments from "./Finance/FinanceSettlePayments";
-import FinanceReports from "./Finance/FinanceReports";
 
 import ProtectedRoute from "./ProtectedRoute";
-import ProfilePage from "./ProfilePage";
 
 import { Toaster } from "react-hot-toast";
 import { toastOptions } from "./utils/toastTheme";
+
+// Pages load on first visit, so each role downloads only its own screens.
+const MainDashboard = lazy(() => import("./MainDashboard"));
+const POSDashboard = lazy(() => import("./POS/POSDashboard"));
+const POSGoodsEntry = lazy(() => import("./POS/POSGoodsEntry"));
+const POSSales = lazy(() => import("./POS/POSSales"));
+const POSReturns = lazy(() => import("./POS/POSReturns"));
+const POSDayEnd = lazy(() => import("./POS/POSDayEnd"));
+const POSReturnToStore = lazy(() => import("./POS/POSReturnToStore"));
+const POSSpecialOrders = lazy(() => import("./POS/POSSpecialOrders"));
+const POSTableBilling = lazy(() => import("./POS/POSTableBilling"));
+const ManagerDashboard = lazy(() => import("./Manager/ManagerDashboard"));
+const ManagerProductionPlanning = lazy(() => import("./Manager/ManagerProductionPlanning"));
+const ManagerCreditOrders = lazy(() => import("./Manager/ManagerCreditOrders"));
+const ManagerBakeryRequests = lazy(() => import("./Manager/ManagerBakeryRequests"));
+const ManagerKitchenRequests = lazy(() => import("./Manager/ManagerKitchenRequests"));
+const ManagerOutletDistribution = lazy(() => import("./Manager/ManagerOutletDistribution"));
+const ManagerActualProduction = lazy(() => import("./Manager/ManagerActualProduction"));
+const ManagerOutletStock = lazy(() => import("./Manager/ManagerOutletStock"));
+const ManagerStockAdjustments = lazy(() => import("./Manager/ManagerStockAdjustments"));
+const ManagerApprovalRequests = lazy(() => import("./Manager/ManagerApprovalRequests"));
+const ManagerDiscountRules = lazy(() => import("./Manager/ManagerDiscountRules"));
+const ManagerPromoCodes = lazy(() => import("./Manager/ManagerPromoCodes"));
+const ManagerInformationBase = lazy(() => import("./Manager/ManagerInformationBase"));
+const ManagerIouApprovals = lazy(() => import("./Manager/ManagerIouApprovals"));
+const CustomerManagement = lazy(() => import("./component/CustomerManagement"));
+const StorekeeperDashboard = lazy(() => import("./Storekeeper/StorekeeperDashboard"));
+const StorekeeperManagerRequests = lazy(() => import("./Storekeeper/StorekeeperManagerRequests"));
+const StorekeeperViewStore = lazy(() => import("./Storekeeper/StorekeeperViewStore"));
+const StorekeeperCreatePO = lazy(() => import("./Storekeeper/StorekeeperCreatePO"));
+const StorekeeperIngredientRequests = lazy(() => import("./Storekeeper/StorekeeperIngredientRequests"));
+const StorekeeperGRN = lazy(() => import("./Storekeeper/StorekeeperGRN"));
+const StorekeeperReturnMaterials = lazy(() => import("./Storekeeper/StorekeeperReturnMaterials"));
+const StorekeeperStockAdjustments = lazy(() => import("./Storekeeper/StorekeeperStockAdjustments"));
+const StorekeeperIouRequests = lazy(() => import("./Storekeeper/StorekeeperIouRequests"));
+const AdminDashboard = lazy(() => import("./Admin/AdminDashboard"));
+const AdminCreateUser = lazy(() => import("./Admin/AdminCreateUser"));
+const AdminViewTrends = lazy(() => import("./Admin/AdminViewTrends"));
+const AdminGenerateReports = lazy(() => import("./Admin/AdminGenerateReports"));
+const AdminManageSuppliers = lazy(() => import("./Admin/AdminManageSuppliers"));
+const AdminRawMaterials = lazy(() => import("./Admin/AdminRawMaterials"));
+const AdminManageProducts = lazy(() => import("./Admin/AdminManageProducts"));
+const AdminManageRecipes = lazy(() => import("./Admin/AdminManageRecipes"));
+const AdminCreateBOM = lazy(() => import("./Admin/AdminCreateBOM"));
+const AdminProductionCenter = lazy(() => import("./Admin/AdminProductionCenter"));
+const AdminOutletManagement = lazy(() => import("./Admin/AdminOutletManagement"));
+const AdminPromoCodes = lazy(() => import("./Admin/AdminPromoCodes"));
+const AdminDiscountRules = lazy(() => import("./Admin/AdminDiscountRules"));
+const AdminVerificationCodes = lazy(() => import("./Admin/AdminVerificationCodes"));
+const AdminWastage = lazy(() => import("./Admin/AdminWastage"));
+const AdminAuditLog = lazy(() => import("./Admin/AdminAuditLog"));
+const AdminStockEntry = lazy(() => import("./Admin/AdminStockEntry"));
+const AdminMpcRequests = lazy(() => import("./Admin/AdminMpcRequests"));
+const BakeryProductionRequests = lazy(() => import("./BakeryWorker/BakeryProductionRequests"));
+const BakeryGetIngredients = lazy(() => import("./BakeryWorker/BakeryGetIngredients"));
+const BakeryPartialProduction = lazy(() => import("./BakeryWorker/BakeryPartialProduction"));
+const BakeryProductionHistory = lazy(() => import("./BakeryWorker/BakeryProductionHistory"));
+const BakeryStoreInventory = lazy(() => import("./BakeryWorker/BakeryStoreInventory"));
+const KitchenProductionRequests = lazy(() => import("./KitchenWorker/KitchenProductionRequests"));
+const KitchenGetIngredients = lazy(() => import("./KitchenWorker/KitchenGetIngredients"));
+const KitchenTransferNote = lazy(() => import("./KitchenWorker/KitchenTransferNote"));
+const KitchenReturnToStore = lazy(() => import("./KitchenWorker/KitchenReturnToStore"));
+const KitchenStoreInventory = lazy(() => import("./KitchenWorker/KitchenStoreInventory"));
+const BakeryWorkerDashboard = lazy(() => import("./BakeryWorker/BakeryWorkerDashboard"));
+const KitchenWorkerDashboard = lazy(() => import("./KitchenWorker/KitchenWorkerDashboard"));
+const MPCWorkerDashboard = lazy(() => import("./MPCWorker/MPCWorkerDashboard"));
+const MISWastageDashboard = lazy(() => import("./MISAdmin/MISWastageDashboard"));
+const MISSupplierOverview = lazy(() => import("./MISAdmin/MISSupplierOverview"));
+const MISPurchasingTrends = lazy(() => import("./MISAdmin/MISPurchasingTrends"));
+const FinanceSupplierLedger = lazy(() => import("./Finance/FinanceSupplierLedger"));
+const FinanceOutstandingSummary = lazy(() => import("./Finance/FinanceOutstandingSummary"));
+const FinanceSettlePayments = lazy(() => import("./Finance/FinanceSettlePayments"));
+const FinanceReports = lazy(() => import("./Finance/FinanceReports"));
+const ProfilePage = lazy(() => import("./ProfilePage"));
 
 function App() {
   useEffect(() => {
@@ -209,6 +212,7 @@ function App() {
     <>
       <Toaster toastOptions={toastOptions} containerStyle={{ zIndex: 2147483647 }} position="top-right" reverseOrder={false} />
       <BrowserRouter>
+        <Suspense fallback={<Loader variant="fullScreen" text="Loading..." />}>
         <Routes>
           {/* Module-Specific Login Portals */}
           <Route path="/" element={<Navigate to="/POS" replace />} />
@@ -789,6 +793,7 @@ function App() {
         />
 
       </Routes>
+      </Suspense>
     </BrowserRouter>
     </>
   );
