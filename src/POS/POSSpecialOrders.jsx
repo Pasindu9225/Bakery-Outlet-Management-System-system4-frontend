@@ -327,7 +327,11 @@ export default function POSSpecialOrders() {
             cashierName: orderInfo.cashierName
         };
 
-        const delivery = data.deliveryDate ? new Date(data.deliveryDate) : null;
+        // a new order has a date-time; a saved order has a date (and maybe a separate time)
+        const deliveryText = !data.deliveryDate ? null
+            : /^\d{4}-\d{2}-\d{2}$/.test(String(data.deliveryDate))
+                ? `${new Date(`${data.deliveryDate}T00:00`).toLocaleDateString()}${data.deliveryTime ? ` ${String(data.deliveryTime).slice(0, 5)}` : ""}`
+                : `${new Date(data.deliveryDate).toLocaleDateString()} ${new Date(data.deliveryDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
         printInWindow(
             <BillSlip
                 outlet={outlet}
@@ -337,14 +341,14 @@ export default function POSSpecialOrders() {
                     ["Order ID", data.id],
                     ["Cashier", data.cashierName || orderInfo.cashierName],
                     ["Customer", data.customerName],
-                    ["Contact", data.contactNumber],
-                    ["Delivery", delivery ? `${delivery.toLocaleDateString()} ${delivery.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : null],
+                    ["Contact", data.contactNumber || data.customerContact],
+                    ["Delivery", deliveryText],
                 ]}
                 sections={[{ items: data.items.map((item) => ({ name: item.name || item.productName, qty: item.quantity, amount: item.quantity * (item.unitPrice || 0) })) }]}
                 totals={[
                     { label: "Total:", value: data.totalAmount || 0, bold: true },
-                    { label: "Advance paid:", value: data.advanceAmount || 0 },
-                    { label: isAdvance ? "Balance due:" : "Balance paid:", value: data.balanceAmount || 0, bold: true, rule: true },
+                    { label: isAdvance ? "Advance paid:" : "Paid:", value: data.advanceAmount || 0 },
+                    { label: isAdvance ? "Balance due:" : "Balance:", value: data.balanceAmount || 0, bold: true, rule: true },
                 ]}
                 footer={isAdvance ? ["Please bring this receipt for pickup.", "Thank you for your order!"] : ["Order completed.", "Thank you for your order!"]}
             />,
@@ -434,14 +438,18 @@ export default function POSSpecialOrders() {
                 cashierId: orderInfo.cashierId
             };
 
-            await posService.addOrderPayment(selectedOrder.id, payload);
+            const updated = await posService.addOrderPayment(selectedOrder.id, payload);
             toast.success(`Payment of Rs. ${finalPaymentAmount} recorded successfully!`);
-            
-            // Refresh the specific order details or the list
             fetchPendingOrders();
-            setShowOrderDetails(false);
-            setSelectedOrder(null);
             setFinalPaymentAmount('');
+            if (updated && Number(updated.balanceAmount) === 0) {
+                // fully paid: keep the order open so it can be closed and the final bill printed
+                setSelectedOrder({ ...selectedOrder, ...updated });
+                toast.success("Fully paid. Press Close Order to finish and print the final bill.");
+            } else {
+                setShowOrderDetails(false);
+                setSelectedOrder(null);
+            }
         } catch (error) {
             console.error("Error recording final payment:", error);
             toast.error(friendlyError(error, { fallback: "Failed to record payment." }));
@@ -458,7 +466,9 @@ export default function POSSpecialOrders() {
 
         setIsLoading(true);
         try {
-            await posService.approveAndCloseOrder(selectedOrder.id, managerOtp);
+            // the code identifies the manager; the order is closed in that manager's name
+            const manager = await posService.verifyManagerCode(managerOtp);
+            await posService.approveAndCloseOrder(selectedOrder.id, manager.id);
             toast.success('Order approved and closed successfully!');
             
             // Print Final Bill
@@ -1106,11 +1116,11 @@ export default function POSSpecialOrders() {
                                                             <span className={`px-2 py-1 rounded-full text-[12px] font-[500] ${
                                                                 order.status === 'ADVANCE_PAID'
                                                                     ? 'bg-brand/10 text-brand-fg'
-                                                                    : order.status === 'PENDING_APPROVAL'
+                                                                    : order.status === 'AWAITING_APPROVAL'
                                                                         ? 'bg-warning/10 text-warning'
                                                                         : 'bg-success/10 text-success'
                                                                 }`}>
-                                                                {(order.status || 'PENDING').replace('_', ' ')}
+                                                                {(order.status || 'PENDING').replaceAll('_', ' ')}
                                                             </span>
                                                         </td>
                                                         <td className="px-6 py-4">
@@ -1144,7 +1154,7 @@ export default function POSSpecialOrders() {
 
             {/* Manager Approval Modal */}
             {showManagerApproval && (
-                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[10000] flex items-center justify-center p-4">
                     <div className="bg-elevated rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             {currentStep === 1 && (
@@ -1170,7 +1180,6 @@ export default function POSSpecialOrders() {
                                                 value={managerOtp}
                                                 onChange={(e) => setManagerOtp(e.target.value)}
                                                 className="w-full px-3 py-3 border border-line rounded-lg text-[16px] text-center font-mono focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
-                                                maxLength="6"
                                             />
                                         </div>
 
