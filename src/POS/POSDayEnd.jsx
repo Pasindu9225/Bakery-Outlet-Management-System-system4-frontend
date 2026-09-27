@@ -6,7 +6,6 @@ import {
     CreditCard,
     Calculator,
     AlertTriangle,
-    AlertCircle,
     CheckCircle,
     Package,
     TrendingUp,
@@ -105,12 +104,15 @@ export default function POSDayEnd() {
 
     const [productData, setProductData] = useState([]);
     const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+    const [productsError, setProductsError] = useState(null);
+    const [stockReload, setStockReload] = useState(0);
 
     // Fetch Products for Stock Closing when entering Step 3
     useEffect(() => {
         if (currentStep === 3) {
             const fetchProducts = async () => {
                 setIsLoadingProducts(true);
+                setProductsError(null);
                 try {
                     const token = localStorage.getItem("authToken");
                     const baseUrl = process.env.REACT_APP_BASE_URL || '';
@@ -135,6 +137,7 @@ export default function POSDayEnd() {
                     setProductData(mappedProducts);
                 } catch (error) {
                     console.error("Failed to fetch closing inventory", error);
+                    setProductsError(friendlyError(error, { fallback: "Could not load today's stock." }));
                 } finally {
                     setIsLoadingProducts(false);
                 }
@@ -142,7 +145,7 @@ export default function POSDayEnd() {
 
             fetchProducts();
         }
-    }, [currentStep]);
+    }, [currentStep, stockReload]);
 
     const pendingTransactions = [];
 
@@ -188,6 +191,8 @@ export default function POSDayEnd() {
                 const countedCash = parseFloat(dayEndData.cashCounted) || 0;
                 return dayEndData.cashCounted && dayEndData.cardCounted && dayEndData.uberPickmeCounted && countedCash >= openingFloat;
             case 3:
+                // the stock count cannot be skipped while the list is loading or after it failed to load
+                if (isLoadingProducts || productsError) return false;
                 return productData.length > 0
                     ? productData.every(item => item.physicalQty !== '' && !stockRowError(item))
                     : true;
@@ -213,6 +218,8 @@ export default function POSDayEnd() {
                 return `Counted cash must be at least the opening float (Rs. ${Number(openingFloat).toLocaleString()}).`;
             }
             case 3:
+                if (isLoadingProducts) return 'Wait for the stock list to load.';
+                if (productsError) return 'The stock list did not load. Press Retry.';
                 return 'Enter the physical count for every product and fix any row marked in red.';
             case 5:
                 if (!dayEndData.finalConfirmation) return 'Tick the final confirmation box.';
@@ -555,7 +562,10 @@ export default function POSDayEnd() {
     };
 
     const renderStep2 = () => {
-        const expectedCashTotal = (dayEndSummary?.expectedCash || 0) + (dayEndSummary?.openingFloat || 0);
+        // expectedCash from the backend already has the opening float folded in
+        // (see DayEndServiceImpl.getDayEndSummary) — adding openingFloat again here
+        // double-counted it, inflating the "System total" figure shown while counting.
+        const expectedCashTotal = dayEndSummary?.expectedCash || 0;
         const expectedCardTotal = dayEndSummary?.expectedCard || 0;
         const expectedUberPickmeTotal = (dayEndSummary?.expectedUber || 0) + (dayEndSummary?.expectedPickme || 0);
 
@@ -753,6 +763,15 @@ export default function POSDayEnd() {
                 <h3 className="text-[18px] font-[600] text-fg mb-6">End-of-Day Stock Management</h3>
                 {isLoadingProducts ? (
                     <Loader variant="section" text="Loading current inventory..." />
+                ) : productsError ? (
+                    <div className="py-8 text-center">
+                        <AlertTriangle size={28} className="mx-auto text-error mb-2" />
+                        <p className="text-[14px] text-fg mb-3">{productsError}</p>
+                        <button onClick={() => setStockReload((n) => n + 1)}
+                            className="px-4 py-2 rounded-lg bg-brand text-on-brand text-[13px] font-[600] hover:bg-brand-hover">
+                            Retry
+                        </button>
+                    </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full">
@@ -1051,16 +1070,17 @@ export default function POSDayEnd() {
                         </label>
                     </div>
 
-                    {/* PIN/Password Prompt */}
+                    {/* Verification code prompt. Admins can assign any code (e.g. "manager123"), not
+                        just a 4-digit PIN — capping input here would block anyone with a longer one
+                        from ever closing the day. */}
                     <div className="mb-6 max-w-xs mx-auto">
-                        <label className="block text-[14px] font-[500] text-fg mb-2">Enter Cashier PIN</label>
+                        <label className="block text-[14px] font-[500] text-fg mb-2">Enter Your Verification Code</label>
                         <input
                             type="password"
                             value={cashierPin}
                             onChange={(e) => setCashierPin(e.target.value)}
                             className="w-full px-3 py-3 border border-line rounded-md focus:ring-2 focus:ring-brand-fg focus:border-transparent text-center text-[16px] font-[600]"
-                            placeholder="****"
-                            maxLength="4"
+                            placeholder="Enter your code"
                         />
                     </div>
 
