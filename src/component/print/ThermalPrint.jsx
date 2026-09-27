@@ -22,8 +22,12 @@ const S = {
   heading: { fontWeight: 700, fontSize: 10, margin: "4px 0 2px" },
   footer: { textAlign: "center", fontSize: 10, fontStyle: "italic", marginTop: 4 },
   kotItem: { border: "1px dashed #000", borderRadius: 4, padding: "6px 8px", margin: "6px 0", fontWeight: 700, fontSize: 13 },
+  credit: { textAlign: "center", fontSize: 9, marginTop: 6 },
   pageBreak: { pageBreakBefore: "always", breakBefore: "page", borderTop: "1px dashed #000", marginTop: 12, paddingTop: 12 },
 };
+
+/** Printed at the bottom of every bill. */
+export const DEVELOPER_CREDIT = "Developed by - plover.lk | 077 990 98 96";
 
 export const money = (n) =>
   `Rs. ${Number(n || 0).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -103,6 +107,7 @@ export function BillSlip({ outlet, title, info = [], sections = [], amountLabel 
       ))}
       <Rule />
       {footer.map((line) => <div key={line} style={S.footer}>{line}</div>)}
+      <div style={S.credit}>{DEVELOPER_CREDIT}</div>
     </div>
   );
 }
