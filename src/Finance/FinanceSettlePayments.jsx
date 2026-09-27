@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 
 import { generatePDF, generateExcel } from "../utils/exportUtils";
+import { companyInfo } from "../utils/companyInfo";
 
 
 import FinanceNavBar from "../component/FinanceNavBar.jsx";
@@ -1309,7 +1310,7 @@ export default function FinanceSettlePayments() {
                     {/* Header / Branding */}
                     <div className="flex justify-between items-start border-b-2 border-line-strong pb-4 mb-6">
                         <div>
-                            <h1 className="text-2xl font-bold uppercase tracking-wide text-fg-strong">Bakery Outlet Management System</h1>
+                            <h1 className="text-2xl font-bold uppercase tracking-wide text-fg-strong">{companyInfo.name}</h1>
                             <p className="text-sm text-fg-secondary mt-1">Payment Settlement Receipt / Voucher</p>
                         </div>
                         <div className="text-right">

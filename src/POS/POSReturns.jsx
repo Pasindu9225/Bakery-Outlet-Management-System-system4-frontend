@@ -36,8 +36,11 @@ import POSSidebar from "../component/POSSidebar.jsx";
 import posService from "../services/posService";
 import axios from "../services/api";
 import toast from "react-hot-toast";
+import useOutletInfo from "../utils/useOutletInfo";
+import ReceiptHeader from "../component/ReceiptHeader";
 
 export default function POSReturns() {
+    const outlet = useOutletInfo(); // outlet name/address printed on bills
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeSection] = useState('Returns');
     const [currentStep, setCurrentStep] = useState(1);
@@ -1386,9 +1389,8 @@ export default function POSReturns() {
                             }
                         }
                     `}} />
-                    <div className="w-[80mm] mx-auto text-fg-strong">
-                        <div className="text-center font-bold text-sm mb-1">BAKERY MANAGEMENT SYSTEM</div>
-                        <div className="text-center text-[10px] mb-2">ANURADHAPURA OUTLET</div>
+                    <div className="w-full max-w-[80mm] mx-auto text-fg-strong">
+                        <ReceiptHeader outlet={outlet} />
                         <div className="border-t border-dashed my-1"></div>
                         <div className="text-center font-bold text-xs mb-2">
                             RETURN / REFUND RECEIPT

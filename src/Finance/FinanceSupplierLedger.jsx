@@ -641,7 +641,7 @@ export default function FinanceSupplierLedger() {
                     onChange={(e) => { setTableSearch(e.target.value); setPage(1); }}
                   />
                 </div>
-                <button className="inline-flex items-center gap-1.5 px-3 py-2 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle">
+                <button onClick={handleExportPDF} className="inline-flex items-center gap-1.5 px-3 py-2 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle">
                   <Printer size={13} /> Print
                 </button>
               </div>

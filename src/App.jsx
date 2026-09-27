@@ -27,6 +27,7 @@ const POSDayEnd = lazy(() => import("./POS/POSDayEnd"));
 const POSReturnToStore = lazy(() => import("./POS/POSReturnToStore"));
 const POSSpecialOrders = lazy(() => import("./POS/POSSpecialOrders"));
 const POSTableBilling = lazy(() => import("./POS/POSTableBilling"));
+const POSWaiterBilling = lazy(() => import("./POS/POSWaiterBilling"));
 const ManagerDashboard = lazy(() => import("./Manager/ManagerDashboard"));
 const ManagerProductionPlanning = lazy(() => import("./Manager/ManagerProductionPlanning"));
 const ManagerCreditOrders = lazy(() => import("./Manager/ManagerCreditOrders"));
@@ -327,6 +328,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["8"]}>
               <POSTableBilling />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/posWaiterBilling"
+          element={
+            <ProtectedRoute allowedRoles={["8"]}>
+              <POSWaiterBilling />
             </ProtectedRoute>
           }
         />

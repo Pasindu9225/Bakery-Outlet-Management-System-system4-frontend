@@ -43,8 +43,11 @@ import posService from "../services/posService";
 import managerService from "../services/managerService";
 import { Tag as TagIcon, Clock as ClockIcon } from "lucide-react";
 import toast from "react-hot-toast";
+import useOutletInfo from "../utils/useOutletInfo";
+import ReceiptHeader from "../component/ReceiptHeader";
 
 export default function POSSales() {
+    const outlet = useOutletInfo(); // outlet name/address printed on bills
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('New Sale');
@@ -637,7 +640,7 @@ export default function POSSales() {
             return;
         }
         try {
-            await posService.sendStandaloneKot({
+            const kot = await posService.sendStandaloneKot({
                 dayProductionItemId: item.dayProductionItemId,
                 qty: item.quantity,
                 productionCenterId: Number(pcId),
@@ -645,6 +648,22 @@ export default function POSSales() {
             });
             setKotSentMap(prev => ({ ...prev, [item.id]: true }));
             toast.success("KOT sent successfully");
+
+            // print this item's KOT slip only (no bill)
+            setPrintData({
+                printBill: false,
+                cashierName: getLoggedInCashierName(),
+                kotItems: [{
+                    productName: item.name,
+                    qty: item.quantity,
+                    specialInstructions: item.specialInstructions || "",
+                    kotNumber: kot?.orderNumber,
+                }],
+            });
+            setTimeout(() => {
+                window.print();
+                setPrintData(null);
+            }, 150);
         } catch (err) {
             console.error("Error sending KOT:", err);
             toast.error(friendlyError(err, { fallback: "Failed to send KOT. Please try again." }));
@@ -1490,10 +1509,11 @@ export default function POSSales() {
                                                                                     outletId: parseInt(localStorage.getItem("outletId") || "1"),
                                                                                     invoicePrinted: true
                                                                                 };
-                                                                                await axios.post(`/api/pos/v1/waiter-billing/finish-billing`, payload);
+                                                                                const finished = await axios.post(`/api/pos/v1/waiter-billing/finish-billing`, payload);
 
                                                                                 const printPayload = {
                                                                                     type: 'ACTUAL',
+                                                                                    transactionId: finished.data?.data?.billNumber,
                                                                                     waiterName: selectedWaiter.name,
                                                                                     cashierName: getLoggedInCashierName(),
                                                                                     items: selectedItems.map(item => ({
@@ -2416,8 +2436,7 @@ export default function POSSales() {
                         <>
                             {[...Array(printData.isUberOrPickMe ? 2 : 1)].map((_, copyIdx) => (
                                 <div key={copyIdx} className={copyIdx > 0 ? "page-break pt-4 mt-4 border-t border-dashed" : ""}>
-                                    <div className="text-center font-bold text-sm mb-1">BAKERY MANAGEMENT SYSTEM</div>
-                                    <div className="text-center text-[10px] mb-2">ANURADHAPURA OUTLET</div>
+                                    <ReceiptHeader outlet={outlet} />
                                     <div className="border-t border-dashed my-1"></div>
                                     <div className="text-center font-bold text-xs mb-2">
                                         {printData.type === 'PROFORMA'
@@ -2488,7 +2507,7 @@ export default function POSSales() {
                         <div key={idx} className={`${(printData.printBill !== false || idx > 0) ? 'page-break pt-4' : 'pt-2'}`}>
                             <div className="text-center font-bold text-sm mb-0.5">KITCHEN ORDER TICKET (KOT)</div>
                             <div className="text-center text-[10px] font-bold mb-1">SLIP #{idx + 1} OF {printData.kotItems.length}</div>
-                            <div className="text-center text-[10px] mb-2">ANURADHAPURA OUTLET</div>
+                            <div className="text-center text-[10px] mb-2">{outlet.name}</div>
                             <div className="border-t border-dashed my-1"></div>
                             <div className="text-[10px] space-y-0.5 mb-2">
                                 <div>Date: {new Date().toLocaleDateString()} Time: {new Date().toLocaleTimeString()}</div>

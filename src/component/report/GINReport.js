@@ -1,4 +1,5 @@
 import React from "react";
+import { companyInfo, companyDetailLines } from "../../utils/companyInfo";
 
 const getItemEmoji = (item = {}) => {
   if (item.type === "header") return "📋 ";
@@ -60,7 +61,10 @@ const GINReport = ({
             marginRight: "15px",
           }}
         />
-        <h3 style={{ margin: 0 }}>{companyName}</h3>
+        <div>
+          <h3 style={{ margin: 0 }}>{companyName}</h3>
+          {companyDetailLines().map((line) => <div key={line} style={{ fontSize: "12px" }}>{line}</div>)}
+        </div>
       </div>
 
       {/* Details */}

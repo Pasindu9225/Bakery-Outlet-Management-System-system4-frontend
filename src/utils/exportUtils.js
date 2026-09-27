@@ -1,6 +1,8 @@
+import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { logExport } from "../services/auditLog";
+import { companyInfo, companyDetailLines } from "./companyInfo";
 
 /**
  * Universal PDF Generator for Bakery Management System
@@ -41,7 +43,14 @@ export const generatePDF = ({
 
         doc.setTextColor(...textColor);
         doc.setFontSize(14);
-        doc.text("Bakery Management System", margin + 14, 17);
+        doc.text(companyInfo.name, margin + 14, 17);
+        const details = companyDetailLines().join("  |  ");
+        if (details) {
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(...secondaryColor);
+            doc.text(details, margin + 14, 22);
+        }
         
         doc.setDrawColor(228, 230, 234); // #E4E6EA
         doc.line(margin, 25, pageWidth - margin, 25);
@@ -63,7 +72,7 @@ export const generatePDF = ({
             doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, pageHeight - 10, { align: "center" });
             
             // Right: System Name
-            doc.text("© Bakery Outlet System", pageWidth - margin, pageHeight - 10, { align: "right" });
+            doc.text(`© ${companyInfo.name}`, pageWidth - margin, pageHeight - 10, { align: "right" });
         }
     };
 
@@ -143,26 +152,12 @@ export const generatePDF = ({
 };
 
 /**
- * Universal Excel (CSV) Generator
+ * Universal Excel Generator: a real .xlsx (headers, then one row per record)
  */
 export const generateExcel = ({ headers, data, fileName }) => {
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += headers.join(",") + "\n";
-    
-    data.forEach((row) => {
-        const rowContent = row.map(val => {
-            const s = String(val);
-            return s.includes(',') ? `"${s}"` : s;
-        }).join(",");
-        csvContent += rowContent + "\n";
-    });
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${fileName || "Report"}_${new Date().toISOString().split("T")[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    logExport(null, `Exported ${fileName || "report"} as CSV, ${data?.length ?? 0} rows`);
+    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+    XLSX.writeFile(workbook, `${fileName || "Report"}_${new Date().toISOString().split("T")[0]}.xlsx`);
+    logExport(null, `Exported ${fileName || "report"} as Excel, ${data?.length ?? 0} rows`);
 };

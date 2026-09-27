@@ -3,10 +3,15 @@ import { FileText, Calendar, Download, Filter, FileSpreadsheet, TrendingUp, Pack
 import axiosInstance from "../services/api";
 import jsPDF from 'jspdf';
 import { logExport } from "../services/auditLog";
+import { exportReportToExcel } from "../utils/exportToExcel";
+import { companyInfo } from "../utils/companyInfo";
 import autoTable from 'jspdf-autotable';
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
+
+// "unitPrice" -> "Unit Price": the same column headings as on screen
+const columnLabel = (key) => key.replace(/([A-Z])/g, ' $1').trim().replace(/^./, (c) => c.toUpperCase());
 
 export default function AdminGenerateReports() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -23,6 +28,7 @@ export default function AdminGenerateReports() {
     const [reportGenerated, setReportGenerated] = useState(false);
 
     const [fetchedReportData, setFetchedReportData] = useState([]);
+    const latestRequest = useRef(0);   // only the newest report request may fill the table
     const [outlets, setOutlets] = useState(['All Outlets']);
     const [categories, setCategories] = useState(['All Categories']);
     const [employees, setEmployees] = useState(['All Employees']);
@@ -74,6 +80,7 @@ export default function AdminGenerateReports() {
 
     const handleApplyFilters = async () => {
         setReportGenerated(true);
+        const request = ++latestRequest.current;
         console.log('Generating report:', { reportType, dateFrom, dateTo, outlet, category, employee });
         try {
             const response = await axiosInstance.get(`/api/admin/dashboard/reports`, {
@@ -86,10 +93,10 @@ export default function AdminGenerateReports() {
                     employee: employee !== 'All Employees' ? employee : undefined
                 }
             });
-            setFetchedReportData(response.data);
+            if (request === latestRequest.current) setFetchedReportData(response.data);
         } catch (error) {
             console.error("Error generating report:", error);
-            setFetchedReportData([]);
+            if (request === latestRequest.current) setFetchedReportData([]);
         }
     };
 
@@ -171,7 +178,7 @@ export default function AdminGenerateReports() {
         
         // Get headers from first data item
         const headers = Object.keys(data[0]);
-        csvContent += headers.join(',') + '\n';
+        csvContent += headers.map(columnLabel).join(',') + '\n';
         
         // Add data rows
         data.forEach((item) => {
@@ -198,58 +205,14 @@ export default function AdminGenerateReports() {
         if (data.length === 0) return;
 
         const headers = Object.keys(data[0]);
-        
-        let excelContent = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
-            <head>
-                <xml>
-                    <x:ExcelWorkbook>
-                        <x:ExcelWorksheets>
-                            <x:ExcelWorksheet>
-                                <x:Name>${reportType} Report</x:Name>
-                                <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
-                            </x:ExcelWorksheet>
-                        </x:ExcelWorksheets>
-                    </x:ExcelWorkbook>
-                </xml>
-                <style>
-                    table { border-collapse: collapse; width: 100%; }
-                    th { background-color: #0F50AA; color: white; padding: 10px; border: 1px solid #ddd; font-weight: bold; }
-                    td { padding: 8px; border: 1px solid #ddd; text-align: left; }
-                    .header-cell { background-color: #f0f1f3; font-weight: bold; }
-                </style>
-            </head>
-            <body>
-                <h2>${reportType} Report</h2>
-                <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
-                ${dateFrom && dateTo ? `<p><strong>Period:</strong> ${dateFrom} to ${dateTo}</p>` : ''}
-                <table>
-                    <thead>
-                        <tr>
-                            ${headers.map(h => `<th>${h}</th>`).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.map(item => `
-                            <tr>
-                                ${headers.map(h => `<td>${item[h]}</td>`).join('')}
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </body>
-            </html>
-        `;
-        
-        const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `${reportType}_Report_${new Date().toISOString().split('T')[0]}.xls`;
-        logExport("ADMIN", `Exported ${reportType} report as Excel`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
+        exportReportToExcel({
+            title: `${reportType} Report`,
+            notes: [`Generated: ${new Date().toLocaleString()}`, dateFrom && dateTo ? `Period: ${dateFrom} to ${dateTo}` : ""],
+            headers: headers.map(columnLabel),
+            rows: data.map((item) => headers.map((h) => item[h])),
+            filename: `${reportType}_Report_${new Date().toISOString().split('T')[0]}`,
+            sheetName: `${reportType} Report`,
+        });
     };
 
     // Export to PDF
@@ -326,7 +289,7 @@ export default function AdminGenerateReports() {
 
         autoTable(doc, {
             startY: y,
-            head: [headers],
+            head: [headers.map(columnLabel)],
             body: tableRows,
             theme: "grid",
             styles: {
@@ -354,7 +317,7 @@ export default function AdminGenerateReports() {
             doc.setFontSize(8);
             doc.setTextColor(80);
             doc.text(
-                `Page ${i} of ${pageCount} | © ${new Date().getFullYear()} Bakery Outlet System`,
+                `Page ${i} of ${pageCount} | © ${new Date().getFullYear()} ${companyInfo.name}`,
                 pageWidth / 2,
                 pageHeight - 10,
                 { align: "center" }
@@ -641,6 +604,14 @@ export default function AdminGenerateReports() {
                                     >
                                         <FileText size={16} />
                                         <span className="hidden sm:inline">CSV</span>
+                                    </button>
+                                    <button
+                                        onClick={handleExportExcel}
+                                        className="flex items-center gap-2 px-4 py-2 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors"
+                                        title="Export as Excel"
+                                    >
+                                        <FileSpreadsheet size={16} />
+                                        <span className="hidden sm:inline">Excel</span>
                                     </button>
                                     <button
                                         onClick={handleExportPDF}

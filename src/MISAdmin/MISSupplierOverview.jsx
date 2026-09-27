@@ -55,7 +55,7 @@ const formatDate = (d) => {
 // Detail modal — fetches its own data on mount.
 // ──────────────────────────────────────────────────────────────────────
 
-function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
+function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose, exportOnLoad = false }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [detail, setDetail] = useState(null);
@@ -173,6 +173,14 @@ function SupplierDetailModal({ supplierId, baseUrl, authHeaders, onClose }) {
       fileName: `Supplier_${detail.id}_Transactions`
     });
   };
+
+  // Opened from a row's Export button: download the transactions once loaded, then close
+  useEffect(() => {
+    if (exportOnLoad && detail) {
+      handleExportExcel();
+      onClose();
+    }
+  }, [exportOnLoad, detail]);
 
   const deliveryStatus = (s) => {
     if (s === "Delivered") return "text-success bg-hover";
@@ -423,6 +431,7 @@ export default function MISSupplierOverview() {
   // Detail modal — store the id rather than the full row so the modal
   // always re-fetches fresh data.
   const [selectedSupplierId, setSelectedSupplierId] = useState(null);
+  const [exportSupplierId, setExportSupplierId] = useState(null);
 
   const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -888,6 +897,7 @@ export default function MISSupplierOverview() {
                                 Details
                               </button>
                               <button
+                                onClick={() => setExportSupplierId(s.supplierId)}
                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-app text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-line transition-colors">
                                 <FileSpreadsheet size={13} />
                                 Export
@@ -937,6 +947,15 @@ export default function MISSupplierOverview() {
           baseUrl={baseUrl}
           authHeaders={authHeaders}
           onClose={() => setSelectedSupplierId(null)}
+        />
+      )}
+      {exportSupplierId != null && (
+        <SupplierDetailModal
+          supplierId={exportSupplierId}
+          baseUrl={baseUrl}
+          authHeaders={authHeaders}
+          onClose={() => setExportSupplierId(null)}
+          exportOnLoad
         />
       )}
 

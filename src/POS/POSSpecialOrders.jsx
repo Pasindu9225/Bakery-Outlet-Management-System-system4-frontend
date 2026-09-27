@@ -42,15 +42,20 @@ import POSSidebar from "../component/POSSidebar.jsx";
 import axios from "axios";
 import posService from "../services/posService";
 import toast from "react-hot-toast";
+import useOutletInfo from "../utils/useOutletInfo";
+import { companyInfo, receiptHeaderHtml } from "../utils/companyInfo";
 
 export default function POSSpecialOrders() {
+    const outlet = useOutletInfo(); // outlet name/address printed on bills
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeSection] = useState('Credit Orders');
     const [currentView, setCurrentView] = useState('create'); // 'create' or 'fulfillment'
 
     // Header Information
     const [orderInfo] = useState({
-        cashierName: localStorage.getItem("userName") || "John Doe",
+        // the signed-in cashier, as printed on receipts
+        cashierName: [localStorage.getItem("firstName"), localStorage.getItem("lastName")].filter(Boolean).join(" ")
+            || localStorage.getItem("userName") || "",
         cashierId: localStorage.getItem("userId") || "CSH-001",
         date: new Date().toLocaleDateString(),
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -230,7 +235,7 @@ export default function POSSpecialOrders() {
         try {
             const manager = await posService.verifyManagerCode(managerVerificationCode);
             setIsManagerVerified(true);
-            setVerifiedManagerName(`${manager.first_name} ${manager.last_name}`);
+            setVerifiedManagerName([manager.firstName, manager.lastName].filter(Boolean).join(" "));
             setVerificationError('');
         } catch (error) {
             console.error("Manager verification error:", error);
@@ -324,7 +329,7 @@ export default function POSSpecialOrders() {
         const printContent = `
             <div style="font-family: Arial, sans-serif; max-width: 300px; margin: 0 auto; padding: 20px;">
                 <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
-                    <h2 style="margin: 0; font-size: 18px;">Downtown Bakery</h2>
+                    ${receiptHeaderHtml(outlet)}
                     <p style="margin: 5px 0; font-size: 12px;">Special Order - ${isAdvance ? 'Advance Receipt' : 'Final Bill'}</p>
                 </div>
                 
@@ -1265,7 +1270,7 @@ export default function POSSpecialOrders() {
 
                                     <div className="space-y-4 mb-6 p-4 bg-subtle rounded-lg border border-line">
                                         <div className="text-center border-b border-line pb-3">
-                                            <h4 className="text-[16px] font-[600] text-fg">Downtown Bakery</h4>
+                                            <h4 className="text-[16px] font-[600] text-fg">{companyInfo.name}</h4>
                                             <p className="text-[12px] text-fg-secondary">Special Order - Advance Receipt</p>
                                             <p className="text-[14px] font-[600] text-brand-fg mt-2">Order ID: {generatedOrderId}</p>
                                         </div>
@@ -1374,7 +1379,7 @@ export default function POSSpecialOrders() {
 
                             <div className="flex flex-col sm:flex-row gap-3">
                                 <button
-                                    onClick={printReceipt}
+                                    onClick={() => printReceipt()}
                                     className="flex-1 px-4 py-3 border border-brand-fg text-brand-fg rounded-lg hover:bg-brand/10 transition-colors flex items-center justify-center gap-2"
                                 >
                                     <Printer size={16} />

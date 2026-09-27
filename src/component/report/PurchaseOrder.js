@@ -1,4 +1,5 @@
 import React from "react";
+import { companyInfo, companyDetailLines } from "../../utils/companyInfo";
 
 const PurchaseOrder = ({
     companyName = "",
@@ -40,7 +41,10 @@ const PurchaseOrder = ({
                             height: "50px",
                             marginRight: "15px",
                         }} />
-                    <h3 style={{ margin: 0 }}>{companyName}</h3>
+                    <div>
+                      <h3 style={{ margin: 0 }}>{companyName}</h3>
+                      {companyDetailLines({ ...companyInfo, address: "", phone: "" }).map((line) => <div key={line} style={{ fontSize: "12px" }}>{line}</div>)}
+                    </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", }}>
                     <strong>Date:</strong> {date}

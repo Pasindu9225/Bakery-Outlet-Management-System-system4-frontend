@@ -21,6 +21,7 @@ import {
 // Report printing
 import GINReport from "../component/report/GINReport";
 import { printReactReport } from "../component/report/PrintHelper";
+import { companyInfo } from "../utils/companyInfo";
 
 import StorekeeperNavBar from "../component/StorekeeperNavBar.jsx";
 import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
@@ -765,7 +766,7 @@ export default function StorekeeperManagerRequests() {
         date={currentDate}
         receiving={receivingDept}
         title="Goods Issue Note"
-        companyName="Bakery Outlet"
+        companyName={companyInfo.name}
         data={reportData}
         treeData={treeData}
       />

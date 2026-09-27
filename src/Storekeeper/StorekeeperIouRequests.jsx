@@ -18,6 +18,7 @@ import {
 import StorekeeperNavBar from "../component/StorekeeperNavBar.jsx";
 import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
 import { formatQuantity } from "../utils/quantityFormatter";
+import { companyInfo, companyDetailLines, escapeHtml } from "../utils/companyInfo";
 
 export default function StorekeeperIouRequests() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -261,8 +262,8 @@ export default function StorekeeperIouRequests() {
         <!-- Header -->
         <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0F50AA; padding-bottom: 20px; margin-bottom: 25px;">
           <div>
-            <h1 style="margin: 0; font-size: 24px; color: #0F50AA; font-weight: 700; letter-spacing: -0.5px;">DOWNTOWN BAKERY</h1>
-            <p style="margin: 5px 0 0 0; font-size: 14px; color: #667085;">Inventory & Store Management System</p>
+            <h1 style="margin: 0; font-size: 24px; color: #0F50AA; font-weight: 700; letter-spacing: -0.5px;">${escapeHtml(companyInfo.name.toUpperCase())}</h1>
+            <p style="margin: 5px 0 0 0; font-size: 14px; color: #667085;">${escapeHtml(companyDetailLines().join(" | ") || "Inventory & Store Management System")}</p>
           </div>
           <div style="text-align: right;">
             <h2 style="margin: 0; font-size: 18px; color: #383E49; font-weight: 600; letter-spacing: 0.5px;">IOU CASH ADVANCE</h2>

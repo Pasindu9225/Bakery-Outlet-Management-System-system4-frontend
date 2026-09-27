@@ -101,7 +101,7 @@ function DrillDownModal({ record, invoices, loading, error, onClose }) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button 
+            <button disabled={loading} 
               onClick={() => {
                 generatePDF({
                   title: `Outstanding Invoices: ${record.name}`,
@@ -119,11 +119,11 @@ function DrillDownModal({ record, invoices, loading, error, onClose }) {
                   fileName: `Outstanding_${record.name}`
                 });
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle"
+              className="inline-flex items-center gap-1.5 px-3 py-2 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <FileText size={13} /> PDF
             </button>
-            <button 
+            <button disabled={loading} 
               onClick={() => {
                 generateExcel({
                   headers: ["Reference", "Date", "Due Date", "Amount", "Paid", "Outstanding", "Status"],
@@ -661,7 +661,7 @@ export default function FinanceOutstandingSummary() {
                   Showing {paginated.length} of {sorted.length} suppliers · Click any row for details
                 </p>
               </div>
-              <button className="inline-flex items-center gap-1.5 px-3 py-2 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle">
+              <button onClick={handleExportSummaryPDF} className="inline-flex items-center gap-1.5 px-3 py-2 border border-line text-fg-secondary text-[12px] font-[500] rounded-lg hover:bg-subtle">
                 <Printer size={13} /> Print
               </button>
             </div>

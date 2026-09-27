@@ -36,16 +36,21 @@ import POSNavBar from "../component/POSNavBar.jsx";
 import POSSidebar from "../component/POSSidebar.jsx";
 import axios from "../services/api";
 import posService from "../services/posService";
+import useOutletInfo from "../utils/useOutletInfo";
+import ReceiptHeader from "../component/ReceiptHeader";
 
 
 export default function POSWaiterBilling() {
+    const outlet = useOutletInfo(); // outlet name/address printed on bills
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeSection] = useState('Waiter Management');
 
     // Header Information
     const [cashierInfo] = useState({
-        name: localStorage.getItem("userPhone") || "Sarah Johnson",
-        id: localStorage.getItem("userId") || "CSH-005",
+        // the signed-in cashier, as printed on bills
+        name: [localStorage.getItem("firstName"), localStorage.getItem("lastName")].filter(Boolean).join(" ")
+            || localStorage.getItem("userName") || "",
+        id: localStorage.getItem("userId") || "",
         date: new Date().toLocaleDateString(),
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
@@ -460,7 +465,9 @@ export default function POSWaiterBilling() {
             toast.error('Please select a valid payment method');
             return;
         }
-        const isFreeMeal = selectedMethod.category === 'FREE_MEAL';
+        // the methods list has only id and name: "Bank Transfer" -> BANK_TRANSFER, "Free Meal" -> FREE_MEAL
+        const paymentCategory = selectedMethod.category || selectedMethod.name.trim().toUpperCase().replace(/\s+/g, '_');
+        const isFreeMeal = paymentCategory === 'FREE_MEAL';
 
         if (!isFreeMeal && receivedAmount < totalPayable) {
             toast.error('Insufficient payment amount');
@@ -474,31 +481,21 @@ export default function POSWaiterBilling() {
             return;
         }
         try {
-            const cashierId = localStorage.getItem("userId") || "";
-
+            // the waiter's open items, paid in one bill (same request as the POS Sale waiter panel)
             const requestBody = {
                 waiterId: String(selectedWaiter),
-                cashierId: cashierId,
-                amountReceived: receivedAmount,
-                totalAmount: totalPayable,
-                paymentMethodId: selectedMethod.paymentMethodId,
-                globalPromotionId: promoScope === 'TOTAL' ? appliedPromo?.id : null,
-                items: currentOrder.map(item => ({
-                    dayProductionItemId: item.dayProductionItemId,
-                    qty: item.qty,
-                    unitPrice: item.unitPrice,
-                    freeMealReason: isFreeMeal ? effectiveReason : null,
-                    bankTransferCode: null,
-                    discountId: null,
-                    manualDiscount: 0,
-                    promotionId: (promoScope === 'EVERY' || (promoScope === 'SELECTED' && selectedPromoItems.includes(item.id))) ? appliedPromo?.id : null,
-                    paymentMethodId: selectedMethod.paymentMethodId
-                }))
+                itemIdsToPay: currentOrder.map(item => item.id),
+                finalTotal: totalPayable,
+                paymentType: paymentCategory,
+                discountAmount: totalDiscount,
+                discountReason: isFreeMeal ? effectiveReason : (appliedPromo ? `Promo ${appliedPromo.code || ''}`.trim() : null),
+                outletId: Number(localStorage.getItem("outletId")) || null,
+                invoicePrinted: true
             };
 
             const response = await axios.post(`/api/pos/v1/waiter-billing/finish-billing`, requestBody);
             const saleData = response.data?.data || response.data;
-            setGeneratedBillId(saleData.billId || `BILL-${Date.now()}`);
+            setGeneratedBillId(saleData.billNumber || saleData.billId || `BILL-${Date.now()}`);
             setSuccessPaymentDetails({
                 amountReceived: saleData.receivedAmount || receivedAmount,
                 changeAmount: saleData.changeAmount || Math.max(0, receivedAmount - totalPayable),
@@ -516,7 +513,7 @@ export default function POSWaiterBilling() {
 
             const printPayload = {
                 type: 'TAX',
-                transactionId: saleData.billId || `BILL-${Date.now()}`,
+                transactionId: saleData.billNumber || saleData.billId || `BILL-${Date.now()}`,
                 waiterName: waiters.find(w => w.id === selectedWaiter)?.name || null,
                 cashierName: cashierInfo.name,
                 paymentMethod: paymentMethod,
@@ -1631,8 +1628,7 @@ export default function POSWaiterBilling() {
                         <>
                             {[...Array(printData.isUberOrPickMe ? 2 : 1)].map((_, copyIdx) => (
                                 <div key={copyIdx} className={copyIdx > 0 ? "page-break pt-4 mt-4 border-t border-dashed" : ""}>
-                                    <div className="text-center font-bold text-sm mb-1">BAKERY MANAGEMENT SYSTEM</div>
-                                    <div className="text-center text-[10px] mb-2">ANURADHAPURA OUTLET</div>
+                                    <ReceiptHeader outlet={outlet} />
                                     <div className="border-t border-dashed my-1"></div>
                                     <div className="text-center font-bold text-xs mb-2">
                                         {printData.type === 'PROFORMA'
@@ -1644,7 +1640,7 @@ export default function POSWaiterBilling() {
                                     </div>
                                     <div className="text-[10px] space-y-0.5 mb-2">
                                         <div>Date: {new Date().toLocaleDateString()} Time: {new Date().toLocaleTimeString()}</div>
-                                        {printData.transactionId && <div>Txn ID: {printData.transactionId}</div>}
+                                        {printData.transactionId && <div>Bill ID: {printData.transactionId}</div>}
                                         {printData.waiterName && <div>Waiter: {printData.waiterName}</div>}
                                         {printData.cashierName && <div>Cashier: {printData.cashierName}</div>}
                                         {printData.paymentMethod && <div>Payment: {printData.paymentMethod}</div>}
@@ -1681,6 +1677,12 @@ export default function POSWaiterBilling() {
                                                 <span>Rs. {printData.discount.toFixed(2)}</span>
                                             </div>
                                         )}
+                                        {printData.finalTotal - (printData.subTotal - (printData.discount || 0)) > 0.005 && (
+                                            <div className="flex justify-between">
+                                                <span>Tax (10%):</span>
+                                                <span>Rs. {(printData.finalTotal - (printData.subTotal - (printData.discount || 0))).toFixed(2)}</span>
+                                            </div>
+                                        )}
                                         <div className="flex justify-between font-bold border-t border-dashed pt-1">
                                             <span>Total:</span>
                                             <span>Rs. {printData.finalTotal.toFixed(2)}</span>
@@ -1700,7 +1702,7 @@ export default function POSWaiterBilling() {
                         <div key={idx} className="page-break pt-4 border-t border-dashed">
                             <div className="text-center font-bold text-sm mb-0.5">KITCHEN ORDER TICKET (KOT)</div>
                             <div className="text-center text-[10px] font-bold mb-1">SLIP #{idx + 1} OF {printData.kotItems.length}</div>
-                            <div className="text-center text-[10px] mb-2">ANURADHAPURA OUTLET</div>
+                            <div className="text-center text-[10px] mb-2">{outlet.name}</div>
                             <div className="border-t border-dashed my-1"></div>
                             <div className="text-[10px] space-y-0.5 mb-2">
                                 <div>Date: {new Date().toLocaleDateString()} Time: {new Date().toLocaleTimeString()}</div>

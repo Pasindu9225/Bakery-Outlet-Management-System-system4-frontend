@@ -37,6 +37,7 @@ import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
 import posService from "../services/posService";
 import Loader from "../component/Loader.jsx";
 import { pollWhileVisible } from "../utils/poll";
+import { companyInfo } from "../utils/companyInfo";
 
 export default function StorekeeperReturnMaterials() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -875,7 +876,7 @@ export default function StorekeeperReturnMaterials() {
 
     const report = (
       <GoodsReturnNote
-        companyName="Bakery Outlet Management System"
+        companyName={companyInfo.name}
         returnNoteNo={selectedReturnNote.returnNoteId}
         returningDept="Store Department"
         grnNo={`GRN-${selectedReturnNote.id}`}
@@ -2312,6 +2313,7 @@ function AddItemModalContent({
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleItemSelect(item)}
+                          onClick={(e) => e.stopPropagation()}   // the row click already toggles it
                           className="w-4 h-4 text-brand-fg bg-hover border-line-strong rounded focus:ring-brand-fg focus:ring-2"
                         />
                         <div>

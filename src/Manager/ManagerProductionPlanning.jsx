@@ -21,6 +21,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import ManagerNavBar from "../component/ManagerNavBar.jsx";
 import ManagerSidebar from "../component/ManagerSidebar.jsx";
+import { companyInfo, escapeHtml } from "../utils/companyInfo";
 
 export default function ManagerProductionPlanning() {
   const location = useLocation();
@@ -2324,6 +2325,7 @@ export default function ManagerProductionPlanning() {
                     html += `
                       <div class="bill">
                         <div class="header">
+                          <div style="font-weight: 700; font-size: 15px;">${escapeHtml(companyInfo.name)}</div>
                           <div class="title">MATERIAL REQUIREMENT BILL</div>
                           <div class="plan-name">${submittedPlanData.planName}</div>
                           <div style="font-weight: 600; font-size: 16px; margin-top: 10px; color: #0F50AA;">CENTER: ${centerName}</div>

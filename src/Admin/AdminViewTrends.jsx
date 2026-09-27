@@ -6,6 +6,8 @@ import { useTheme } from '../context/ThemeContext';
 import { themeColor } from '../utils/themeColors';
 import jsPDF from 'jspdf';
 import { logExport } from "../services/auditLog";
+import { exportReportToExcel } from "../utils/exportToExcel";
+import { companyInfo } from "../utils/companyInfo";
 import autoTable from 'jspdf-autotable';
 import {
     Chart as ChartJS,
@@ -230,60 +232,14 @@ export default function AdminViewTrends() {
     // Export to Excel (HTML table format)
     const handleExportExcel = () => {
         const data = generateChartData();
-
-        let excelContent = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
-            <head>
-                <xml>
-                    <x:ExcelWorkbook>
-                        <x:ExcelWorksheets>
-                            <x:ExcelWorksheet>
-                                <x:Name>${metric} Trend Report</x:Name>
-                                <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
-                            </x:ExcelWorksheet>
-                        </x:ExcelWorksheets>
-                    </x:ExcelWorkbook>
-                </xml>
-                <style>
-                    table { border-collapse: collapse; width: 100%; }
-                    th { background-color: #0F50AA; color: white; padding: 10px; border: 1px solid #ddd; font-weight: bold; }
-                    td { padding: 8px; border: 1px solid #ddd; text-align: right; }
-                    .header-cell { background-color: #f0f1f3; font-weight: bold; text-align: left; }
-                </style>
-            </head>
-            <body>
-                <h2>${metric} Trend Analysis</h2>
-                <p><strong>Date Range:</strong> ${dateRange}</p>
-                <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Period</th>
-                            ${data.datasets.map(ds => `<th>${ds.label}</th>`).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.labels.map((label, index) => `
-                            <tr>
-                                <td class="header-cell">${label}</td>
-                                ${data.datasets.map(ds => `<td>${metric === 'Sales' ? 'Rs. ' : ''}${ds.data[index].toLocaleString()}</td>`).join('')}
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </body>
-            </html>
-        `;
-
-        const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `${metric}_trend_${dateRange.replace(/\s+/g, '_')}.xls`;
-        logExport("ADMIN", `Exported ${metric} trend (${dateRange}) as Excel`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
+        exportReportToExcel({
+            title: `${metric} Trend Analysis`,
+            notes: [`Date Range: ${dateRange}`, `Generated: ${new Date().toLocaleString()}`, metric === 'Sales' ? 'Amounts in Rs.' : ''],
+            headers: ['Period', ...data.datasets.map((ds) => ds.label)],
+            rows: data.labels.map((label, index) => [label, ...data.datasets.map((ds) => ds.data[index])]),
+            filename: `${metric}_trend_${dateRange.replace(/\s+/g, '_')}`,
+            sheetName: `${metric} Trend Report`,
+        });
     };
 
     // Export to PDF
@@ -382,7 +338,7 @@ export default function AdminViewTrends() {
             doc.setFontSize(8);
             doc.setTextColor(80);
             doc.text(
-                `Page ${i} of ${pageCount} | © ${new Date().getFullYear()} Bakery Outlet System`,
+                `Page ${i} of ${pageCount} | © ${new Date().getFullYear()} ${companyInfo.name}`,
                 pageWidth / 2,
                 pageHeight - 10,
                 { align: "center" }
@@ -649,6 +605,14 @@ export default function AdminViewTrends() {
                                 >
                                     <FileText size={16} />
                                     <span className="hidden sm:inline">CSV</span>
+                                </button>
+                                <button
+                                    onClick={handleExportExcel}
+                                    className="flex items-center gap-2 px-4 py-2 border border-line text-fg rounded-md text-[14px] font-[500] hover:bg-subtle transition-colors"
+                                    title="Export as Excel"
+                                >
+                                    <FileSpreadsheet size={16} />
+                                    <span className="hidden sm:inline">Excel</span>
                                 </button>
                                 
                                 <button

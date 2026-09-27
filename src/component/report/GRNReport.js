@@ -1,4 +1,5 @@
 import React from "react";
+import { companyInfo, companyDetailLines } from "../../utils/companyInfo";
 
 const GRNReport = ({
   companyName = "",
@@ -34,7 +35,10 @@ const GRNReport = ({
             height: "50px",
             marginRight: "15px",
           }} />
-        <h3 style={{ margin: 0 }}>{companyName}</h3>
+        <div>
+          <h3 style={{ margin: 0 }}>{companyName}</h3>
+          {companyDetailLines().map((line) => <div key={line} style={{ fontSize: "12px" }}>{line}</div>)}
+        </div>
       </div>
 
       {/* Details */}

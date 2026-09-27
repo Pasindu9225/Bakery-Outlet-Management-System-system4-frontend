@@ -31,6 +31,7 @@ import StorekeeperNavBar from "../component/StorekeeperNavBar.jsx";
 import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
 import Loader from "../component/Loader.jsx";
 import toast from "react-hot-toast";
+import { companyInfo } from "../utils/companyInfo";
 
 export default function StorekeeperGRN() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -547,37 +548,65 @@ export default function StorekeeperGRN() {
         (po.materialNames && po.materialNames.toLowerCase().includes(searchPO.toLowerCase()))
     );
 
-  const handlePrint = () => {
-    if (!selectedGRNForView) {
+  // A GRN with its items (from its PO), as the details view and the print need it
+  const loadGRNWithItems = async (grn) => {
+    const detailsUrl = `${process.env.REACT_APP_BASE_URL}/STK/v1/purchase-orders/${grn.poId || grn.id}/raw-materials`;
+    try {
+      const response = await fetch(detailsUrl);
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+      const data = await response.json();
+      const items = (data.rawMaterials || []).map((rm) => {
+        const quantity = rm.receivedQty !== undefined && rm.receivedQty !== null ? rm.receivedQty : (rm.requiredQty || 0);
+        return {
+          rawMaterialId: rm.rawMaterialId,
+          materialName: rm.rawMaterialName,
+          batchNo: rm.batchNo || "-",
+          orderedQty: rm.requiredQty || 0,
+          receivedQty: quantity,
+          quantity,
+          unit: rm.unitOfMeasure,
+          unitCost: rm.actualCost || rm.estimatedCost || 0,
+          total: (rm.actualCost || rm.estimatedCost || 0) * quantity,
+          expiryDate: rm.grnExpireDate || rm.expireDate || "-",
+        };
+      });
+      return { ...grn, items };
+    } catch (e) {
+      return { ...grn, items: [] };
+    }
+  };
+
+  const handlePrint = (grn = selectedGRNForView) => {
+    if (!grn) {
       toast.error("No GRN selected for printing.");
       return;
     }
 
     // Map actual GRN items to the format expected by GRNReport component
-    const grnItems = (selectedGRNForView.items || []).map((item) => ({
+    const grnItems = (grn.items || []).map((item) => ({
       code: `RM${item.rawMaterialId || item.id}` || "N/A",
       description: item.materialName || item.name || "Unknown Material",
       brand: item.brand || "-",
       unit: item.unit || item.unitOfMeasure || "pcs",
-      qtyOrdered: item.orderedQty || item.quantity || 0,
-      qtyReceived: item.receivedQty || item.quantity || 0,
-      remarks: selectedGRNForView.status || "Unknown",
+      qtyOrdered: item.orderedQty ?? item.quantity ?? 0,
+      qtyReceived: item.receivedQty ?? item.quantity ?? 0,
+      remarks: grn.status || "Unknown",
     }));
 
     const report = (
       <GRNReport
-        companyName="Bakery Outlet Management System"
-        grnNo={selectedGRNForView.grnNumber}
-        date={new Date(selectedGRNForView.grnDate).toLocaleDateString()}
-        supplier={selectedGRNForView.supplier}
-        poRefNo={selectedGRNForView.poNumber}
+        companyName={companyInfo.name}
+        grnNo={grn.grnNumber}
+        date={new Date(grn.grnDate).toLocaleDateString()}
+        supplier={grn.supplier}
+        poRefNo={grn.poNumber}
         data={grnItems}
       />
     );
 
     printReactReport(
       report,
-      `Goods Received Note - ${selectedGRNForView.grnNumber}`
+      `Goods Received Note - ${grn.grnNumber}`
     );
   };
 
@@ -1365,48 +1394,8 @@ export default function StorekeeperGRN() {
                             <div className="flex items-center justify-center gap-2">
                               <button
                                 onClick={async () => {
-                                  try {
-                                    // Fetch PO raw materials for this GRN's PO
-                                    const detailsUrl = `${
-                                      process.env.REACT_APP_BASE_URL
-                                    }/STK/v1/purchase-orders/${
-                                      grn.poId || grn.id
-                                    }/raw-materials`;
-                                    console.log("[REQUEST] GET", detailsUrl);
-                                    const response = await fetch(detailsUrl);
-                                    if (!response.ok) {
-                                      throw new Error(
-                                        `Server error: ${response.status}`
-                                      );
-                                    }
-                                    const data = await response.json();
-                                    console.log(
-                                      "[RESPONSE] GET",
-                                      detailsUrl,
-                                      data
-                                    );
-                                    const items = (data.rawMaterials || []).map(
-                                      (rm) => ({
-                                        materialName: rm.rawMaterialName,
-                                        batchNo: rm.batchNo || "-",
-                                        quantity: rm.receivedQty !== undefined && rm.receivedQty !== null ? rm.receivedQty : (rm.requiredQty || 0),
-                                        unit: rm.unitOfMeasure,
-                                        unitCost: rm.actualCost || rm.estimatedCost || 0,
-                                        total:
-                                          (rm.actualCost || rm.estimatedCost || 0) *
-                                          (rm.receivedQty !== undefined && rm.receivedQty !== null ? rm.receivedQty : (rm.requiredQty || 0)),
-                                        expiryDate: rm.grnExpireDate || rm.expireDate || "-",
-                                      })
-                                    );
-                                    setSelectedGRNForView({ ...grn, items });
-                                    setShowGRNDetails(true);
-                                  } catch (e) {
-                                    setSelectedGRNForView({
-                                      ...grn,
-                                      items: [],
-                                    });
-                                    setShowGRNDetails(true);
-                                  }
+                                  setSelectedGRNForView(await loadGRNWithItems(grn));
+                                  setShowGRNDetails(true);
                                 }}
                                 className="p-2 text-brand-fg hover:bg-hover rounded-lg transition-colors"
                                 title="View Details"
@@ -1421,7 +1410,7 @@ export default function StorekeeperGRN() {
                                                                 <Download size={16} />
                                                             </button> */}
                               <button
-                                onClick={handlePrint}
+                                onClick={async () => handlePrint(await loadGRNWithItems(grn))}
                                 // onClick={() => alert(`Printing GRN ${grn.grnNumber}...`)}
                                 className="p-2 text-warning hover:bg-hover rounded-lg transition-colors"
                                 title="Print"
@@ -1668,7 +1657,7 @@ export default function StorekeeperGRN() {
                                 </button> */}
 
                 <button
-                  onClick={handlePrint}
+                  onClick={() => handlePrint()}
                   // onClick={() =>
                   //     alert(`Printing GRN ${selectedGRNForView.grnNumber}...`)
                   // }

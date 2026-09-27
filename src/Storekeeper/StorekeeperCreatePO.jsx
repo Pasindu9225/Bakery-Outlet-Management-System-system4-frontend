@@ -29,6 +29,7 @@ import StorekeeperNavBar from "../component/StorekeeperNavBar.jsx";
 import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
 import Loader from "../component/Loader.jsx";
 import toast from "react-hot-toast";
+import { companyInfo } from "../utils/companyInfo";
 
 export default function StorekeeperCreatePO() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -483,17 +484,18 @@ export default function StorekeeperCreatePO() {
       totalPrice: `Rs.${(item.totalPrice || 0).toFixed(2)}`,
     }));
 
+    const poSupplier = suppliers.find((s) => s.name === (selectedPO.supplier?.name || selectedPO.supplier));
     const report = (
       <PurchaseOrder
-        companyName="Bakery Outlet Management System"
-        address="Warehouse Address, City"
-        telephone="+94 XX XXX XXXX"
+        companyName={companyInfo.name}
+        address={companyInfo.address}
+        telephone={companyInfo.phone}
         poNo={selectedPO.poNumber}
         date={new Date(selectedPO.date).toLocaleDateString()}
         supplierName={selectedPO.supplier.name || selectedPO.supplier}
-        supplierAddress="Supplier Address"
-        supplierContact="Supplier Contact"
-        deliveryAddress="Bakery Outlet Warehouse"
+        supplierAddress={poSupplier?.address || ""}
+        supplierContact={poSupplier?.contactNumber || ""}
+        deliveryAddress={companyInfo.address}
         expectedDate={new Date(
           selectedPO.expectedDelivery
         ).toLocaleDateString()}
