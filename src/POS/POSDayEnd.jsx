@@ -67,7 +67,7 @@ export default function POSDayEnd() {
     useEffect(() => {
         const fetchSummary = async () => {
             try {
-                const today = new Date().toISOString().split('T')[0];
+                const today = new Date().toLocaleDateString('en-CA'); // local YYYY-MM-DD (toISOString is UTC: the day before until 05:30)
                 const userId = localStorage.getItem("userId");
                 const token = localStorage.getItem("authToken");
                 const baseUrl = process.env.REACT_APP_BASE_URL || '';
@@ -244,7 +244,7 @@ export default function POSDayEnd() {
 
     const handleFinalizeDayEnd = async () => {
         try {
-            const today = new Date().toISOString().split('T')[0];
+            const today = new Date().toLocaleDateString('en-CA');
             const userId = localStorage.getItem("userId");
             const token = localStorage.getItem("authToken");
             const baseUrl = process.env.REACT_APP_BASE_URL || '';
