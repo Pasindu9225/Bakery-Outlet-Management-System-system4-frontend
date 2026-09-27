@@ -190,6 +190,15 @@ function normaliseRow(raw, idx) {
         reason: raw.reason || "—",
         change: raw.change != null ? toNumber(raw.change) : null,
         employee: raw.employee || raw.supplier || "—",
+        // profitability / standard vs actual (null = not applicable, shown as "—")
+        profit: raw.profit != null ? toNumber(raw.profit) : null,
+        marginPct: raw.marginPct != null ? toNumber(raw.marginPct) : null,
+        targetMarginPct: raw.targetMarginPct != null ? toNumber(raw.targetMarginPct) : null,
+        standard: raw.standard != null ? toNumber(raw.standard) : null,
+        actual: raw.actual != null ? toNumber(raw.actual) : null,
+        variance: raw.variance != null ? toNumber(raw.variance) : null,
+        variancePct: raw.variancePct != null ? toNumber(raw.variancePct) : null,
+        wasted: raw.wasted != null ? toNumber(raw.wasted) : null,
     };
 }
 
@@ -251,7 +260,8 @@ function FilterDropdown({ open, setOpen, value, options, onChange, icon, label, 
     );
 }
 
-function ReportDetailModal({ row, reportType, onClose }) {
+function ReportDetailModal({ row, reportType, columns, onClose }) {
+    const detailFields = (columns || DETAIL_COLUMNS.production).map(([key, label, fmt]) => [label.replace(" (Rs.)", ""), detailValue(row, key, fmt) ?? "—"]);
     const isPayment = reportType && ["Daily Payment Summary", "Monthly Payment Summary", "Yearly Payment Summary", "Outstanding Balances"].includes(reportType);
     const isSales = reportType && ["Sales by Product", "Sales by Time Interval", "Discounts & Returns"].includes(reportType);
 
@@ -296,15 +306,7 @@ function ReportDetailModal({ row, reportType, onClose }) {
                             <p className="text-[13px] font-[500] text-fg">{value}</p>
                         </div>
                     ))}
-                    {!isPayment && !isSales && [
-                        { label: "Date", value: row.date },
-                        { label: "Product", value: row.product },
-                        { label: "Outlet", value: row.outlet },
-                        { label: "Quantity", value: `${row.qty ?? "—"} ${row.unit || ""}` },
-                        { label: "Cost/Unit", value: `Rs. ${row.costPerUnit?.toLocaleString()}` },
-                        { label: "Total Cost", value: `Rs. ${row.totalCost?.toLocaleString()}` },
-                        { label: "Reason", value: row.reason },
-                    ].map(({ label, value }) => (
+                    {!isPayment && !isSales && detailFields.map(([label, value]) => ({ label, value })).map(({ label, value }) => (
                         <div key={label} className="flex items-center justify-between py-2 border-b border-line last:border-0">
                             <p className="text-[12px] text-fg-secondary">{label}</p>
                             <p className="text-[13px] font-[500] text-fg">{value}</p>
@@ -328,14 +330,7 @@ function ReportDetailModal({ row, reportType, onClose }) {
                                 ["Outlet", row.outlet],
                                 ["Gross Sales", `Rs. ${row.sales?.toLocaleString()}`],
                                 ["Net Sales", `Rs. ${row.net?.toLocaleString()}`]
-                            ] : [
-                                ["Date", row.date],
-                                ["Product", row.product],
-                                ["Outlet", row.outlet],
-                                ["Quantity", `${row.qty ?? "—"} ${row.unit || ""}`],
-                                ["Cost/Unit", `Rs. ${row.costPerUnit?.toLocaleString()}`],
-                                ["Total Cost", `Rs. ${row.totalCost?.toLocaleString()}`]
-                            ];
+                            ] : detailFields;
 
                             generatePDF({
                                 title: "Record Details",
@@ -531,7 +526,67 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
     );
 }
 
-function WastageTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAGE_SIZE }) {
+// Columns of the shared detail table, per report category: each report shows its own fields
+// (a purchase report needs the supplier and price change, a staff-meal report the staff member).
+const DETAIL_COLUMNS = {
+    production: [["date", "Date"], ["product", "Product"], ["category", "Category"], ["outlet", "Outlet"], ["qty", "Qty"],
+        ["costPerUnit", "Cost/Unit (Rs.)"], ["totalCost", "Total Cost (Rs.)"], ["reason", "Reason"]],
+    purchase: [["date", "Date"], ["supplier", "Supplier"], ["product", "Material"], ["qty", "Qty"],
+        ["costPerUnit", "Price/Unit (Rs.)"], ["totalCost", "Total (Rs.)"], ["change", "Change vs last price"]],
+    staff: [["date", "Date"], ["employee", "Staff"], ["product", "Item"], ["totalCost", "Value (Rs.)"], ["reason", "Reason"]],
+    stock: [["date", "Date"], ["product", "Item"], ["supplier", "From"], ["ref", "Ref"], ["qty", "Qty"],
+        ["costPerUnit", "Cost/Unit (Rs.)"], ["totalCost", "Total (Rs.)"], ["reason", "Movement"]],
+};
+const EMPTY_TEXT = {
+    production: "No wastage records found",
+    purchase: "No goods received from suppliers in this period",
+    staff: "No staff meals in this period",
+    stock: "No stock movements in this period",
+};
+const PROFIT_COLS = [["qty", "Sold"], ["net", "Net sales (Rs.)", "rs"], ["totalCost", "Recipe cost (Rs.)", "rs"],
+    ["profit", "Profit (Rs.)", "rs"], ["marginPct", "Margin", "pct"]];
+Object.assign(DETAIL_COLUMNS, {
+    "profitability:byProduct": [["product", "Product"], ["category", "Category"], ...PROFIT_COLS, ["reason", "Note"]],
+    "profitability:byCategory": [["category", "Category"], ...PROFIT_COLS],
+    "profitability:byOutlet": [["outlet", "Outlet"], ...PROFIT_COLS],
+    "profitability:lowMargin": [["product", "Product"], ["category", "Category"], ...PROFIT_COLS,
+        ["targetMarginPct", "Target", "pct"], ["reason", "Note"]],
+    "variance:priceVariance": [["date", "Date"], ["supplier", "Supplier"], ["product", "Material"], ["qty", "Qty"],
+        ["standard", "PO price (Rs.)", "rs"], ["actual", "Paid (Rs.)", "rs"], ["variance", "Difference (Rs.)", "rs"],
+        ["variancePct", "Diff", "pct"], ["reason", "Result"]],
+    "variance:quantityVariance": [["date", "Date"], ["ref", "Plan"], ["product", "Material"], ["standard", "Recipe needs", "unit"],
+        ["actual", "Issued", "unit"], ["variance", "Difference", "unit"], ["variancePct", "Diff", "pct"],
+        ["totalCost", "Cost effect (Rs.)", "rs"], ["reason", "Result"]],
+    "variance:productionComparison": [["date", "Date"], ["ref", "Plan"], ["product", "Product"], ["standard", "Planned", "num"],
+        ["actual", "Produced", "num"], ["variance", "Difference", "num"], ["variancePct", "Diff", "pct"],
+        ["wasted", "Wasted", "num"], ["reason", "Result"]],
+});
+Object.assign(EMPTY_TEXT, {
+    profitability: "No paid sales in this period",
+    "profitability:lowMargin": "No product is below its target margin in this period",
+    variance: "Nothing to compare in this period",
+});
+const detailColumns = (categoryId, type) =>
+    DETAIL_COLUMNS[`${categoryId}:${type}`] || DETAIL_COLUMNS[categoryId] || DETAIL_COLUMNS.production;
+const signed = (n, text) => `${n > 0 ? "+" : ""}${text}`;
+/** A cell as text; Excel gets plain numbers (asNumber). Formats: rs, pct, unit (qty + unit), num, or plain. */
+const detailValue = (row, key, fmt, asNumber = false) => {
+    const v = row[key];
+    if (key === "qty") return `${row.qty ?? ""} ${row.unit}`.trim();
+    if (key === "change") return v == null ? "" : `${signed(v, v)}%`;
+    if (!fmt) return v;
+    if (v == null) return asNumber ? "" : "—";
+    if (asNumber) return v;
+    const isDiff = key === "variance" || key === "variancePct";
+    const text = fmt === "rs" ? `Rs. ${v.toLocaleString()}`
+        : fmt === "pct" ? `${v}%`
+            : fmt === "unit" ? `${v.toLocaleString()} ${row.unit}`.trim()
+                : v.toLocaleString();
+    return isDiff ? signed(v, text) : text;
+};
+
+function WastageTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAGE_SIZE, categoryId = "production", reportType }) {
+    const columns = detailColumns(categoryId, reportType);
     const SortIcon = ({ col }) => {
         if (sortCol !== col) return <ArrowUpDown size={12} className="text-fg-muted" />;
         return sortDir === "asc" ? <ArrowUp size={12} className="text-brand-fg" /> : <ArrowDown size={12} className="text-brand-fg" />;
@@ -554,14 +609,7 @@ function WastageTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
                     <thead>
                         <tr className="border-b border-line bg-subtle">
                             {[
-                                { key: "date", label: "Date" },
-                                { key: "product", label: "Product" },
-                                { key: "category", label: "Category" },
-                                { key: "outlet", label: "Outlet" },
-                                { key: "qty", label: "Qty" },
-                                { key: "costPerUnit", label: "Cost/Unit (Rs.)" },
-                                { key: "totalCost", label: "Total Cost (Rs.)" },
-                                { key: "reason", label: "Reason" },
+                                ...columns.map(([key, label]) => ({ key, label })),
                                 { key: "actions", label: "Action", noSort: true },
                             ].map((col) => (
                                 <th
@@ -576,24 +624,33 @@ function WastageTable({ data, onView, sortCol, sortDir, onSort, page, setPage, P
                     </thead>
                     <tbody>
                         {paginated.length === 0 ? (
-                            <tr><td colSpan={9} className="py-16 text-center">
+                            <tr><td colSpan={columns.length + 1} className="py-16 text-center">
                                 <Package size={36} className="mx-auto text-fg-muted mb-3" />
-                                <p className="text-[14px] font-[500] text-fg">No wastage records found</p>
+                                <p className="text-[14px] font-[500] text-fg">{EMPTY_TEXT[`${categoryId}:${reportType}`] || EMPTY_TEXT[categoryId] || "No records found"}</p>
                             </td></tr>
                         ) : paginated.map((row) => {
                             const rs = REASON_STYLE[row.reason] || { text: "text-fg-secondary", bg: "bg-app" };
                             return (
                                 <tr key={row.id} className="border-b border-line hover:bg-subtle transition-colors">
-                                    <td className="py-3.5 px-4"><p className="text-[13px] text-fg whitespace-nowrap">{row.date}</p></td>
-                                    <td className="py-3.5 px-4"><p className="text-[13px] font-[600] text-fg">{row.product}</p></td>
-                                    <td className="py-3.5 px-4"><span className="text-[12px] font-[500] px-2 py-0.5 rounded-full bg-hover text-brand-fg">{row.category}</span></td>
-                                    <td className="py-3.5 px-4"><p className="text-[12px] text-fg-secondary">{row.outlet}</p></td>
-                                    <td className="py-3.5 px-4"><p className="text-[13px] font-[600] text-fg">{row.qty ?? "—"} {row.unit}</p></td>
-                                    <td className="py-3.5 px-4"><span className="text-[13px] text-fg">Rs. {row.costPerUnit.toLocaleString()}</span></td>
-                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-error">Rs. {row.totalCost.toLocaleString()}</span></td>
-                                    <td className="py-3.5 px-4">
-                                        <span className={`inline-flex items-center text-[12px] font-[500] px-2.5 py-1 rounded-full ${rs.bg} ${rs.text}`}>{row.reason}</span>
-                                    </td>
+                                    {columns.map(([key, , fmt]) => (
+                                        <td key={key} className="py-3.5 px-4">
+                                            {fmt ? (
+                                                <span className={`text-[13px] whitespace-nowrap ${key === "profit" || key === "net" ? "font-[700] text-fg"
+                                                    : (key === "variance" || key === "variancePct") && row[key] ? (row[key] > 0 ? "font-[600] text-warning" : "font-[600] text-info") : "text-fg"}`}>
+                                                    {detailValue(row, key, fmt)}
+                                                </span>
+                                            )
+                                            : key === "date" ? <p className="text-[13px] text-fg whitespace-nowrap">{row.date}</p>
+                                            : key === "product" || key === "supplier" || key === "employee" ? <p className="text-[13px] font-[600] text-fg">{row[key]}</p>
+                                            : key === "category" ? <span className="text-[12px] font-[500] px-2 py-0.5 rounded-full bg-hover text-brand-fg">{row.category}</span>
+                                            : key === "qty" ? <p className="text-[13px] font-[600] text-fg">{row.qty ?? "—"} {row.unit}</p>
+                                            : key === "costPerUnit" ? <span className="text-[13px] text-fg">Rs. {row.costPerUnit.toLocaleString()}</span>
+                                            : key === "totalCost" ? <span className={`text-[13px] font-[700] ${categoryId === "production" ? "text-error" : "text-fg"}`}>Rs. {row.totalCost.toLocaleString()}</span>
+                                            : key === "reason" ? <span className={`inline-flex items-center text-[12px] font-[500] px-2.5 py-1 rounded-full ${rs.bg} ${rs.text}`}>{row.reason}</span>
+                                            : key === "change" ? <span className={`text-[13px] font-[600] ${row.change > 0 ? "text-error" : row.change < 0 ? "text-success" : "text-fg-secondary"}`}>{detailValue(row, "change") || "—"}</span>
+                                            : <p className="text-[12px] text-fg-secondary">{row[key]}</p>}
+                                        </td>
+                                    ))}
                                     <td className="py-3.5 px-4">
                                         <button onClick={() => onView(row)} className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-hover text-brand-fg text-[12px] font-[500] rounded-lg hover:bg-brand-hover hover:text-on-brand transition-colors">
                                             <Eye size={12} /> View
@@ -810,15 +867,16 @@ export default function FinanceReports() {
         
         const headers = isPaymentReport ? ["Date", "Supplier", "Ref", "Invoiced (Rs.)", "Paid (Rs.)", "Outstanding (Rs.)", "Status"] :
                         isSalesReport ? ["Date", "Product", "Category", "Outlet", "Gross (Rs.)", "Net (Rs.)", "Cost (Rs.)", "GP (Rs.)"] :
-                        ["Date", "Product", "Outlet", "Qty", "Cost/Unit (Rs.)", "Total Cost (Rs.)", "Reason"];
+                        detailColumns(selectedCategory.id, selectedReport.type).map(([, label]) => label);
         
         const data = sorted.map(r => isPaymentReport ? [
             r.date, r.supplier, r.ref, r.totalInvoiced.toLocaleString(), r.paid.toLocaleString(), r.outstanding.toLocaleString(), r.status
         ] : isSalesReport ? [
             r.date, r.product, r.category, r.outlet, r.sales.toLocaleString(), r.net.toLocaleString(), r.totalCost.toLocaleString(), (r.net - r.totalCost).toLocaleString()
-        ] : [
-            r.date, r.product, r.outlet, `${r.qty ?? ""} ${r.unit}`, r.costPerUnit.toLocaleString(), r.totalCost.toLocaleString(), r.reason
-        ]);
+        ] : detailColumns(selectedCategory.id, selectedReport.type).map(([key, , fmt]) => {
+            const v = detailValue(r, key, fmt);
+            return typeof v === "number" ? v.toLocaleString() : v;
+        }));
 
         generatePDF({
             title: selectedReport.label,
@@ -834,15 +892,13 @@ export default function FinanceReports() {
         if (sorted.length === 0) return;
         const headers = isPaymentReport ? ["Date", "Supplier", "Ref", "Invoiced", "Paid", "Outstanding", "Status"] :
                         isSalesReport ? ["Date", "Product", "Category", "Outlet", "Gross", "Net", "Cost", "GP"] :
-                        ["Date", "Product", "Outlet", "Qty", "Cost/Unit", "Total Cost", "Reason"];
+                        detailColumns(selectedCategory.id, selectedReport.type).map(([, label]) => label.replace(" (Rs.)", ""));
         
         const rows = sorted.map(r => isPaymentReport ? [
             r.date, r.supplier, r.ref, r.totalInvoiced, r.paid, r.outstanding, r.status
         ] : isSalesReport ? [
             r.date, r.product, r.category, r.outlet, r.sales, r.net, r.totalCost, (r.net - r.totalCost)
-        ] : [
-            r.date, r.product, r.outlet, `${r.qty ?? ""} ${r.unit}`, r.costPerUnit, r.totalCost, r.reason
-        ]);
+        ] : detailColumns(selectedCategory.id, selectedReport.type).map(([key, , fmt]) => detailValue(r, key, fmt, true)));
 
         generateExcel({
             headers: headers,
@@ -887,7 +943,9 @@ export default function FinanceReports() {
 
     // Use a wastage-style table for staff/stock/purchase/wastage — they all
     // share the (qty, cost/unit, total cost, reason) shape.
-    const useWastageShape = isWastageReport || isStaffReport || isStockReport || isPurchaseReport;
+    const isProfitReport = selectedCategory.id === "profitability";
+    const isVarianceReport = selectedCategory.id === "variance";
+    const useWastageShape = isWastageReport || isStaffReport || isStockReport || isPurchaseReport || isProfitReport || isVarianceReport;
 
     const summaryCards = useMemo(() => {
         if (isPaymentReport) {
@@ -909,6 +967,31 @@ export default function FinanceReports() {
                 { label: "Total Returns", value: `Rs. ${filtered.reduce((s, r) => s + (r.returns || 0), 0).toLocaleString()}`, icon: <Repeat size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
             ];
         }
+        const sum = (key) => filtered.reduce((s, r) => s + (r[key] || 0), 0);
+        const money = (n) => `Rs. ${Math.round(n * 100) / 100 === 0 ? 0 : (Math.round(n * 100) / 100).toLocaleString()}`;
+        if (isProfitReport) {
+            const net = sum("net");
+            return [
+                { label: "Net Sales", value: money(net), icon: <Banknote size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
+                { label: "Recipe Cost", value: money(sum("totalCost")), icon: <Package size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
+                { label: "Gross Profit", value: money(sum("profit")), icon: <TrendingUp size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+                { label: "Margin", value: net > 0 ? `${(Math.round(sum("profit") / net * 10000) / 100)}%` : "—", icon: <PieChart size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+            ];
+        }
+        if (isVarianceReport) {
+            const type = selectedReport.type;
+            const over = filtered.filter((r) => (r.variance || 0) > 0).length;
+            const under = filtered.filter((r) => (r.variance || 0) < 0).length;
+            const first = type === "priceVariance" ? { label: "Paid vs PO prices", value: money(sum("variance")) }
+                : type === "quantityVariance" ? { label: "Cost of extra material", value: money(sum("totalCost")) }
+                    : { label: "Planned / Produced", value: `${sum("standard").toLocaleString()} / ${sum("actual").toLocaleString()}` };
+            return [
+                { ...first, icon: <Banknote size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
+                { label: "Lines", value: filtered.length, icon: <Layers size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
+                { label: type === "productionComparison" ? "Over plan" : "Above standard", value: over, icon: <TrendingUp size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+                { label: type === "productionComparison" ? "Under plan" : "Below standard", value: under, icon: <TrendingDown size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+            ];
+        }
         if (useWastageShape) {
             return [
                 { label: "Total Cost", value: `Rs. ${filtered.reduce((s, r) => s + (r.totalCost || 0), 0).toLocaleString()}`, icon: <AlertTriangle size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
@@ -923,7 +1006,7 @@ export default function FinanceReports() {
             { label: "Report Type", value: selectedCategory.label.split(" ")[0], icon: <PieChart size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
             { label: "Filters Active", value: [startDate, endDate, outlet !== "All Outlets"].filter(Boolean).length, icon: <Sliders size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
         ];
-    }, [filtered, isPaymentReport, isSalesReport, useWastageShape, period, selectedCategory, outlet, startDate, endDate]);
+    }, [filtered, isPaymentReport, isSalesReport, isProfitReport, isVarianceReport, useWastageShape, period, selectedCategory, selectedReport, outlet, startDate, endDate]);
 
     // Chart data for mini charts
     const chartData = useMemo(() => {
@@ -933,11 +1016,15 @@ export default function FinanceReports() {
         if (isSalesReport) {
             return filtered.slice(0, 6).map((r) => ({ label: (r.product || "").split(" ")[0], value: r.net }));
         }
+        if (isProfitReport) {
+            return filtered.slice(0, 6).map((r) => ({ label: (r.product || r.category || r.outlet || "").split(" ")[0] || "—", value: Math.max(0, r.profit || 0) }));
+        }
+        if (isVarianceReport) return [];   // differences can be negative; the table shows them
         if (useWastageShape) {
             return filtered.slice(0, 6).map((r) => ({ label: (r.product || "").split(" ")[0] || "—", value: r.totalCost }));
         }
         return [];
-    }, [filtered, isPaymentReport, isSalesReport, useWastageShape]);
+    }, [filtered, isPaymentReport, isSalesReport, isProfitReport, isVarianceReport, useWastageShape]);
 
     const dataUnavailable = !!reportEnvelope?.dataUnavailable;
 
@@ -1204,6 +1291,8 @@ export default function FinanceReports() {
                             />
                         ) : useWastageShape ? (
                             <WastageTable
+                                categoryId={selectedCategory.id}
+                                reportType={selectedReport.type}
                                 data={sorted}
                                 onView={setDetailModal}
                                 sortCol={sortCol} sortDir={sortDir} onSort={handleSort}
@@ -1221,6 +1310,7 @@ export default function FinanceReports() {
                 <ReportDetailModal
                     row={detailModal}
                     reportType={selectedReport.label}
+                    columns={detailColumns(selectedCategory.id, selectedReport.type)}
                     onClose={() => setDetailModal(null)}
                 />
             )}
