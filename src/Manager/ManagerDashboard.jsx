@@ -1,293 +1,115 @@
 import React, { useState } from "react";
-import { friendlyError } from "../utils/friendlyError";
-import {
-    Calendar,
-    TrendingUp,
-    Package,
-    Clock,
-    Users,
-    BarChart3,
-    CheckCircle,
-    XCircle,
-    Eye,
-    FileText,
-    Factory,
-    Store,
-    ChefHat,
-    ArrowRight
-} from "lucide-react";
-import { NavLink } from "react-router-dom";
-
+import { CalendarPlus, ClipboardCheck, DollarSign, Factory, PackageCheck, Receipt, Trash2, Truck } from "lucide-react";
 import ManagerNavBar from "../component/ManagerNavBar.jsx";
 import ManagerSidebar from "../component/ManagerSidebar.jsx";
-import Loader from "../component/Loader.jsx";
+import {
+  BarChart, DashHeader, ErrorState, KpiCard, KpiGrid, Panel, PeriodSwitch, QuickActions, Rows, Stats, TrendChart,
+  dateOnly, label, num, rs, useDashboard,
+} from "../component/dashboard/DashboardKit";
 
-export default function ManagerDashboard({ onBackToDashboard }) {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [activeSection, setActiveSection] = useState('Manager Dashboard');
+const COMPARE = { today: "vs yesterday", week: "vs last week", month: "vs last month", custom: "vs the days before" };
 
+/** Manager dashboard: all outlets of this system (or one), for today / this week / this month / a custom range. */
+export default function ManagerDashboard() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [period, setPeriod] = useState("today");
+  const [range, setRange] = useState({ from: "", to: "" });
+  const [outletId, setOutletId] = useState("");
 
-    const quickActions = [
-        {
-            name: "Production Planning",
-            icon: <Calendar size={20} />,
-            path: "/managerProductionPlanning",
-            description: "Create daily production plans",
-            color: "bg-brand",
-            hoverColor: "hover:bg-brand-hover"
-        },
-        {
-            name: "Kitchen Requests",
-            icon: <ChefHat size={20} />,
-            path: "/managerKitchenRequests",
-            description: "Manage kitchen production",
-            color: "bg-success-solid",
-            hoverColor: "hover:bg-success-solid"
-        },
-        {
-            name: "Bakery Requests",
-            icon: <Factory size={20} />,
-            path: "/managerBakeryRequests",
-            description: "Manage bakery production",
-            color: "bg-warning-solid",
-            hoverColor: "hover:bg-warning-solid"
-        },
-        {
-            name: "Outlet Distribution",
-            icon: <Store size={20} />,
-            path: "/managerOutletDistribution",
-            description: "Plan product distribution",
-            color: "bg-plum-solid",
-            hoverColor: "hover:bg-plum-solid"
-        },
-        {
-            name: "Actual Production",
-            icon: <Store size={20} />,
-            path: "/managerActualProduction",
-            description: "Manage stored items",
-            color: "bg-plum-solid",
-            hoverColor: "hover:bg-plum-solid"
-        }
-    ];
+  const custom = period === "custom";
+  const ready = !custom || (range.from && range.to);
+  const params = { period, outletId: outletId || undefined, ...(custom ? range : {}) };
+  const summary = useDashboard(ready ? "/api/dashboard/manager/summary" : null, { refreshMs: 60000, params });
+  const trendParams = { period: period === "today" ? "month" : period, outletId: outletId || undefined, ...(custom ? range : {}) };
+  const trend = useDashboard(ready ? "/api/dashboard/manager/sales-trend" : null, { params: trendParams });
 
-    const [recentPlans, setRecentPlans] = useState([]);
-    const [requestsOverview, setRequestsOverview] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const d = summary.data;
+  const sales = d?.sales || {};
+  const compare = COMPARE[period];
+  const waiting = d?.waitingForMe || {};
+  const points = trend.data?.points || [];
+  const outlets = d?.salesByOutlet || [];
 
-    React.useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const token = localStorage.getItem("authToken");
-                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/api/manager/production-plans`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                if (!response.ok) throw new Error("Failed to fetch plans");
-                const data = await response.json();
+  return (
+    <div className="flex bg-app h-screen overflow-hidden">
+      <ManagerSidebar sidebarOpen={sidebarOpen} />
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        <ManagerNavBar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeSection="Manager Dashboard" />
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
+          <DashHeader title="Dashboard" subtitle={d ? `${dateOnly(d.period.from)} – ${dateOnly(d.period.to)}${period === "today" ? " (each outlet from its opening float)" : ""}` : ""}
+            refreshedAt={summary.refreshedAt} onRefresh={() => { summary.reload(); trend.reload(); }} refreshing={summary.refreshing}>
+            <PeriodSwitch value={period} onChange={setPeriod} from={range.from} to={range.to} onRange={(from, to) => setRange({ from, to })} />
+            {(d?.outlets || []).length > 1 ? (
+              <select value={outletId} onChange={(e) => setOutletId(e.target.value)} aria-label="Outlet"
+                className="px-2 py-2 border border-line rounded-lg text-[12px] bg-surface text-fg">
+                <option value="">All outlets</option>
+                {d.outlets.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+              </select>
+            ) : null}
+          </DashHeader>
 
-                // Process Recent Plans (take first 4)
-                const processedRecentPlans = data.slice(0, 4).map(plan => {
-                    console.log("Processing plan:", plan); // DEBUG LOG
-                    return {
-                        originalId: plan.id,
-                        planName: plan.planName || `Plan #${plan.id}`,
-                        id: `PLAN-${plan.id.toString().padStart(3, '0')}`,
-                        date: plan.planDate ? new Date(plan.planDate).toLocaleDateString() : 'N/A',
-                        totalProducts: plan.productionItems?.length || 0,
-                        totalQty: plan.productionItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0,
-                        status: plan.status === 'COMPLETED' || plan.status === 'DISTRIBUTED' ? 'Completed' : 
-                                plan.status === 'DRAFT' ? 'Draft' : 'In Progress'
-                    };
-                });
-                setRecentPlans(processedRecentPlans);
+          {!ready ? <Panel title="Custom period" empty emptyText="Choose a start and end date" /> : summary.error ? <ErrorState message={summary.error} onRetry={summary.reload} /> : (
+            <>
+              <KpiGrid loading={summary.loading}>
+                <KpiCard title="Sales" icon={DollarSign} value={rs(sales.net)} compare={[sales.net, sales.previousNet, compare]}
+                  sub={Number(sales.credit) || Number(sales.freeMeals) ? `Credit ${rs(sales.credit)} · Free meals ${rs(sales.freeMeals)}` : null} />
+                <KpiCard title="Bills" icon={Receipt} tone="warning" value={num(sales.bills)} compare={[sales.bills, sales.previousBills, compare]} sub={`Average ${rs(sales.avgBill)}`} />
+                <KpiCard title="Production plans" icon={Factory} tone="plum" to="/managerProductionPlanning"
+                  value={`${num(d?.production?.inProgress)} in progress`} sub={`${num(d?.production?.approved)} approved · ${num(d?.production?.completed)} completed`} />
+                <KpiCard title="Wastage" icon={Trash2} tone="error" value={rs(d?.wastage?.value)} lowerIsBetter
+                  compare={[d?.wastage?.value, d?.wastage?.previousValue, compare]} sub="Confirmed wastage" />
+              </KpiGrid>
 
-                // Process Requests Overview
-                // A plan is considered a Bakery/Kitchen request if it has raw material requirements for that center
-                const bakeryPlans = data.filter(plan => 
-                    plan.rawMaterialRequirements?.some(req => req.productionCenterName?.toLowerCase().includes('bakery'))
-                );
-                const kitchenPlans = data.filter(plan => 
-                    plan.rawMaterialRequirements?.some(req => req.productionCenterName?.toLowerCase().includes('kitchen'))
-                );
+              <QuickActions actions={[
+                { name: "New Plan", path: "/managerProductionPlanning", icon: CalendarPlus, description: "Plan production" },
+                { name: "Outlet Distribution", path: "/managerOutletDistribution", icon: Truck, description: "Send stock to outlets" },
+                { name: "Actual Production", path: "/managerActualProduction", icon: PackageCheck, description: "Record what was made" },
+                { name: "Credit Orders", path: "/managerCreditOrders", icon: ClipboardCheck, description: "Special orders" },
+              ]} />
 
-                const getStats = (plans, type, icon, bgColor, path) => {
-                    const total = plans.length;
-                    const completed = plans.filter(p => p.status === 'COMPLETED' || p.status === 'DISTRIBUTED').length;
-                    const pending = total - completed;
-                    return { type, total, completed, pending, icon, bgColor, path };
-                };
+              {!summary.loading && (
+                <>
+                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-4">
+                    <Panel title="Sales trend" subtitle={period === "today" ? "This month, day by day, against last month" : "Day by day, against the previous period"}
+                      className="xl:col-span-2" empty={!points.some((p) => Number(p.net) || Number(p.previousNet))} emptyText="No sales in this period">
+                      <TrendChart labels={points.map((p) => dateOnly(p.date))} current={points.map((p) => Number(p.net))} previous={points.map((p) => (p.previousNet === null ? null : Number(p.previousNet)))} />
+                    </Panel>
+                    <Panel title="Sales by outlet" empty={!outlets.length || !!outletId} emptyText={outletId ? "Showing one outlet" : "No sales in this period"}>
+                      <BarChart labels={outlets.map((o) => o.name || `Outlet ${o.outletId}`)} values={outlets.map((o) => Number(o.paid))} height={220} />
+                    </Panel>
+                  </div>
 
-                setRequestsOverview([
-                    getStats(bakeryPlans, "Bakery Requests", <Factory size={20} className="text-warning" />, "bg-warning/10", "/managerBakeryRequests"),
-                    getStats(kitchenPlans, "Kitchen Requests", <ChefHat size={20} className="text-success" />, "bg-success/10", "/managerKitchenRequests")
-                ]);
-
-            } catch (err) {
-                console.error("Error fetching dashboard data:", err);
-                setError(friendlyError(err));
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-
-    return (
-        <div className="flex bg-app h-screen overflow-hidden">
-            <ManagerSidebar
-                sidebarOpen={sidebarOpen}
-            />
-
-            <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                <ManagerNavBar
-                    sidebarOpen={sidebarOpen}
-                    setSidebarOpen={setSidebarOpen}
-                    activeSection={activeSection}
-                />
-
-                {/* Manager Dashboard Content */}
-                <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
-
-                    {/* Quick Actions */}
-                    <div className="mb-8">
-                        <h2 className="text-[20px] font-[600] text-fg mb-4">Quick Actions</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {quickActions.map((action) => (
-                                <NavLink
-                                    key={action.path}
-                                    to={action.path}
-                                    className={`${action.color} ${action.hoverColor} text-on-brand p-6 rounded-lg transition-all duration-200 transform hover:scale-105 hover:shadow-lg text-left w-full`}
-                                >
-                                    <div className="flex items-center gap-3 mb-3">
-                                        {action.icon}
-                                        <h3 className="text-[16px] font-[600]">{action.name}</h3>
-                                    </div>
-                                    <p className="text-[14px] text-on-brand/80">{action.description}</p>
-                                </NavLink>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                        {/* Recent Production Plans */}
-                        <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-[18px] font-[600] text-fg">Recent Production Plans</h3>
-                                <NavLink
-                                    to={"/managerProductionPlanning"}
-                                    className="text-[14px] text-brand-fg hover:underline flex items-center gap-1 transition-colors"
-                                >
-                                    View All <ArrowRight size={14} />
-                                </NavLink>
-                            </div>
-
-                            <div className="space-y-3">
-                                {loading ? (
-                                    <Loader variant="section" text="Loading recent plans..." />
-                                ) : error ? (
-                                    <div className="text-center py-12 text-error">
-                                        <p>{error}</p>
-                                    </div>
-                                ) : recentPlans.length === 0 ? (
-                                    <div className="text-center py-12 bg-subtle rounded-lg">
-                                        <Package className="mx-auto text-fg-secondary mb-2" size={32} />
-                                        <p className="text-[14px] text-fg-secondary">No recent production plans</p>
-                                    </div>
-                                ) : (
-                                    recentPlans.map((plan) => (
-                                        <NavLink
-                                            key={plan.id}
-                                            to={`/managerProductionPlanning?id=${plan.originalId}`}
-                                            className="flex items-center justify-between p-4 bg-subtle rounded-lg border border-transparent hover:border-brand-fg hover:bg-brand/10 transition-all cursor-pointer group"
-                                        >
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className="text-[14px] font-[600] text-fg group-hover:text-brand-fg transition-colors block">
-                                                        {plan.planName}
-                                                    </span>
-                                                    <span className="text-[12px] text-fg-secondary font-[400] block">
-                                                        ID: {plan.id}
-                                                    </span>
-                                                    <span className={`text-[12px] px-2 py-0.5 rounded-full ${
-                                                        plan.status === 'Completed' ? 'bg-hover text-success' : 
-                                                        plan.status === 'Draft' ? 'bg-app text-fg-secondary' : 'bg-hover text-warning'
-                                                    }`}>
-                                                        {plan.status}
-                                                    </span>
-                                                </div>
-                                                <p className="text-[12px] text-fg-secondary">
-                                                    {plan.date} • {plan.totalProducts} products • {plan.totalQty} quantity
-                                                </p>
-                                            </div>
-                                            <ArrowRight size={16} className="text-fg-secondary opacity-0 group-hover:opacity-100 group-hover:text-brand-fg transition-all transform translate-x-2 group-hover:translate-x-0" />
-                                        </NavLink>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Requests Overview */}
-                        <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-[18px] font-[600] text-fg">Production Requests</h3>
-                            </div>
-
-                            <div className="space-y-4">
-                                {loading ? (
-                                    <div className="space-y-4">
-                                        {[1, 2].map(i => (
-                                            <div key={i} className="animate-pulse flex items-center justify-between p-4 bg-subtle rounded-lg">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-line rounded-lg"></div>
-                                                    <div className="space-y-2">
-                                                        <div className="h-4 w-24 bg-line rounded"></div>
-                                                        <div className="h-3 w-32 bg-line rounded"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : requestsOverview.map((request, index) => (
-                                    <div key={index} className="flex items-center justify-between p-4 bg-subtle rounded-lg border border-transparent hover:border-line transition-all">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`p-2.5 rounded-lg ${request.bgColor}`}>
-                                                {request.icon}
-                                            </div>
-                                            <div>
-                                                <p className="text-[14px] font-[600] text-fg">{request.type}</p>
-                                                <p className="text-[12px] text-fg-secondary">
-                                                    Total: <span className="font-[500] text-fg">{request.total}</span> | 
-                                                    Completed: <span className="font-[500] text-success">{request.completed}</span> | 
-                                                    Pending: <span className="font-[500] text-warning">{request.pending}</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <NavLink
-                                            to={request.path}
-                                            className="text-brand-fg hover:bg-surface p-2 rounded-lg transition-all"
-                                        >
-                                            <ArrowRight size={18} />
-                                        </NavLink>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                </main>
-            </div>
-
-            {sidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
-                    onClick={() => setSidebarOpen(false)}
-                />
-            )}
-        </div>
-    );
+                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <Panel title="Waiting for you">
+                      <Stats items={[
+                        { label: "Credit orders to approve", value: num(waiting.creditOrders), to: "/managerCreditOrders", className: waiting.creditOrders ? "text-warning" : "text-fg" },
+                        { label: "Cash advances (IOU)", value: num(waiting.iouApprovals), to: "/managerIouApprovals", className: waiting.iouApprovals ? "text-warning" : "text-fg" },
+                        { label: "Stock adjustments", value: num(waiting.stockAdjustments), to: "/managerStockAdjustments" },
+                        { label: "Plans not approved", value: num(waiting.plansNotApproved), to: "/managerProductionPlanning" },
+                      ]} />
+                    </Panel>
+                    <Panel title="Best sellers" subtitle="By quantity" empty={!d.topProducts.length} emptyText="No sales in this period">
+                      <Rows rows={d.topProducts.map((p) => ({ key: p.productId, main: p.name, sub: `${num(p.qty)} sold`, right: rs(p.amount) }))} />
+                    </Panel>
+                    <Panel title="Slowest sellers" subtitle="Sold least (of the items sold)" empty={!d.slowProducts.length} emptyText="No sales in this period">
+                      <Rows rows={d.slowProducts.map((p) => ({ key: p.productId, main: p.name, sub: `${num(p.qty)} sold`, right: rs(p.amount) }))} />
+                    </Panel>
+                    <Panel title="Upcoming production" viewAll="/managerProductionPlanning" empty={!d.production.upcoming.length} emptyText="No plans from today on">
+                      <Rows rows={d.production.upcoming.map((p) => ({ key: p.id, main: p.name || `Plan #${p.id}`, sub: dateOnly(p.date), right: label(p.status) }))} />
+                    </Panel>
+                    <Panel title="Low stock – store" subtitle="Raw materials under their minimum" viewAll="/managerInformationBase" empty={!d.lowStock.materials.length} emptyText="All materials are above their minimum">
+                      <Rows rows={d.lowStock.materials.map((m, i) => ({ key: i, main: m.name, sub: `Minimum ${num(m.minimum)} ${m.unit || ""}`, right: `${num(m.stock)} ${m.unit || ""}`, rightClass: "text-error" }))} />
+                    </Panel>
+                    <Panel title="Low stock – outlets" subtitle="Today's outlet stock under the product minimum" viewAll="/managerOutletStock" empty={!d.lowStock.products.length} emptyText="All outlet stock is above its minimum">
+                      <Rows rows={d.lowStock.products.map((p, i) => ({ key: i, main: p.name, sub: `${p.outlet || ""} · minimum ${num(p.minimum)}`, right: `${num(p.qty)} left`, rightClass: "text-error" }))} />
+                    </Panel>
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </main>
+      </div>
+    </div>
+  );
 }
