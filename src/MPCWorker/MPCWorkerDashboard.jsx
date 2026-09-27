@@ -15,6 +15,8 @@ import MPCWorkerSideBar from "../component/MPCWorkerSideBar";
 import toast from "react-hot-toast";
 
 import { getApiBaseUrl } from "../utils/config";
+import { ChefHat, ClipboardList, Truck } from "lucide-react";
+import { KpiCard, KpiGrid, num, useDashboard } from "../component/dashboard/DashboardKit";
 
 const BASE_URL = getApiBaseUrl();
 
@@ -228,6 +230,8 @@ export default function MPCWorkerDashboard() {
               <strong className="text-brand-fg">{me?.mpcName || "MPC Outlet Center"}</strong> (Outlet: {me?.outletName || "Main Outlet"})
             </p>
           </div>
+
+          <MpcSummary onOpen={setActiveTab} />
 
           {/* TAB 1: KOT Material Request via BOM */}
           {activeTab === "requestMaterials" && (
@@ -550,5 +554,27 @@ export default function MPCWorkerDashboard() {
         </main>
       </div>
     </div>
+  );
+}
+
+/** At-a-glance strip for the MPC worker (their own MPC); each card opens the matching tab. */
+function MpcSummary({ onOpen }) {
+  const { data: d, loading, error } = useDashboard("/api/dashboard/mpc/summary", { refreshMs: 60000 });
+  if (error) return null;   // the tabs below still work; the strip is only a summary
+  const req = d?.requests || {};
+  const kots = d?.kots || {};
+  const store = d?.store || {};
+  const card = (tab, props) => (
+    <button type="button" onClick={() => onOpen(tab)} className="text-left">
+      <KpiCard {...props} />
+    </button>
+  );
+  return (
+    <KpiGrid loading={loading}>
+      {card("requestMaterials", { title: "Material requests", icon: ClipboardList, tone: "warning", value: `${num(req.pendingManager)} waiting`, sub: "For Admin approval" })}
+      {card("deliveries", { title: "Approved requests", icon: Truck, tone: "success", value: num(req.approved), sub: "Stock already added to your store" })}
+      {card("kots", { title: "Kitchen orders (KOT)", icon: ChefHat, tone: "brand", value: `${num(kots.open)} open`, sub: `${num(kots.completedToday)} done today · ${num(kots.platesToday)} plates` })}
+      {card("storeInventory", { title: "MPC store", icon: Package, tone: "plum", value: `${num(store.items)} items`, sub: `${num(store.outOfStock)} empty · ${num(store.nearExpiry)} expiring within 2 days` })}
+    </KpiGrid>
   );
 }

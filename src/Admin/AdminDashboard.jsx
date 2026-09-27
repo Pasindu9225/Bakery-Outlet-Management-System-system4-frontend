@@ -1,316 +1,119 @@
 import React, { useState } from "react";
-import {
-    Users,
-    TrendingUp,
-    FileText,
-    Package,
-    BookOpen,
-    Boxes,
-    UserPlus,
-    Truck,
-} from "lucide-react";
-import { NavLink } from "react-router-dom";
-
+import { AlertTriangle, CheckSquare, DollarSign, FileText, Package, TrendingUp, UserPlus, Users } from "lucide-react";
 import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
+import {
+  BarChart, DashHeader, ErrorState, KpiCard, KpiGrid, Panel, QuickActions, Rows, Stats, TrendChart,
+  dateOnly, dateTime, label, num, rs, useDashboard,
+} from "../component/dashboard/DashboardKit";
 
+/** Admin dashboard: the whole system - sales across outlets, users, catalogue, approvals waiting and alerts. */
 export default function AdminDashboard() {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [activeSection, setActiveSection] = useState('Admin Dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const summary = useDashboard("/api/dashboard/admin/summary");
+  const trend = useDashboard("/api/dashboard/manager/sales-trend", { params: { period: "month" } });
+  const audit = useDashboard("/api/v1/audit/logs", { params: { page: 0, size: 8 } });
+  // the Finance rollup is slow, so it loads on its own and never holds up the rest of the page
+  const overdue = useDashboard("/api/v1/finance/outstanding-summary", { params: { overdueOnly: true } });
 
-    // Quick Actions
-    const quickActions = [
-        {
-            name: "Create User",
-            icon: <UserPlus size={20} />,
-            path: "/adminCreateUser",
-            description: "Add new system users",
-            color: "bg-brand",
-            hoverColor: "hover:bg-brand-hover"
-        },
-        {
-            name: "Direct Stock Entry",
-            icon: <Package size={20} />,
-            path: "/adminStockEntry",
-            description: "Add items directly to POS",
-            color: "bg-success-solid",
-            hoverColor: "hover:bg-success-solid"
-        },
-        {
-            name: "View Trends",
-            icon: <TrendingUp size={20} />,
-            path: "/adminViewTrends",
-            description: "Analyze performance metrics",
-            color: "bg-success-solid",
-            hoverColor: "hover:bg-success-solid"
-        },
-        {
-            name: "Generate Reports",
-            icon: <FileText size={20} />,
-            path: "/adminGenerateReports",
-            description: "Export detailed reports",
-            color: "bg-warning-solid",
-            hoverColor: "hover:bg-warning-solid"
-        }
-    ];
+  const d = summary.data;
+  const sales = d?.sales || {};
+  const users = d?.users || {};
+  const cat = d?.catalogue || {};
+  const ap = d?.approvals || {};
+  const alerts = d?.alerts || {};
+  const waitingTotal = ["purchaseOrders", "materialReturns", "stockAdjustments", "outletReturns", "mpcRequests"].reduce((n, k) => n + Number(ap[k] || 0), 0);
+  const points = trend.data?.points || [];
+  const overdueList = overdue.data || [];
+  const overdueAmount = overdueList.reduce((n, o) => n + Number(o.overdueAmount || 0), 0);
+  const reload = () => { summary.reload(); trend.reload(); audit.reload(); overdue.reload(); };
 
-    // System Statistics
-    const systemStats = [
-        {
-            title: "Total Users",
-            value: "47",
-            change: "+3 this month",
-            icon: <Users size={24} />,
-            color: "bg-brand",
-            textColor: "text-brand-fg"
-        },
-        {
-            title: "Active Products",
-            value: "156",
-            change: "+12 new items",
-            icon: <Package size={24} />,
-            color: "bg-success-solid",
-            textColor: "text-success"
-        },
-        {
-            title: "Total Suppliers",
-            value: "23",
-            change: "+2 this month",
-            icon: <Truck size={24} />,
-            color: "bg-warning-solid",
-            textColor: "text-warning"
-        },
-        {
-            title: "Raw Materials",
-            value: "89",
-            change: "Inventory items",
-            icon: <Boxes size={24} />,
-            color: "bg-plum-solid",
-            textColor: "text-plum"
-        }
-    ];
+  return (
+    <div className="flex bg-app h-screen overflow-hidden">
+      <AdminSidebar sidebarOpen={sidebarOpen} />
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        <AdminNavBar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeSection="Admin Dashboard" />
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
+          <DashHeader title="Dashboard" subtitle="The whole system, all outlets" refreshedAt={summary.refreshedAt} onRefresh={reload} refreshing={summary.refreshing} />
 
-    // Recent Activities
-    const recentActivities = [
-        {
-            id: 1,
-            action: "New user created",
-            user: "John Doe - POS Cashier",
-            time: "2 hours ago",
-            status: "success",
-            icon: <UserPlus size={16} />
-        },
-        {
-            id: 2,
-            action: "Product added",
-            user: "Chocolate Croissant - Rs. 450.00",
-            time: "3 hours ago",
-            status: "success",
-            icon: <Package size={16} />
-        },
-        {
-            id: 3,
-            action: "Supplier updated",
-            user: "Fresh Supplies Ltd - Contact updated",
-            time: "5 hours ago",
-            status: "info",
-            icon: <Truck size={16} />
-        },
-        {
-            id: 4,
-            action: "Recipe modified",
-            user: "Bread Dough v1.1 - Cost updated",
-            time: "Yesterday",
-            status: "warning",
-            icon: <BookOpen size={16} />
-        }
-    ];
+          {summary.error ? <ErrorState message={summary.error} onRetry={summary.reload} /> : (
+            <>
+              <KpiGrid loading={summary.loading}>
+                <KpiCard title="Sales today" icon={DollarSign} value={rs(sales.today)} compare={[sales.today, sales.yesterday, "vs yesterday"]} sub="Paid minus refunds" />
+                <KpiCard title="Sales this month" icon={TrendingUp} tone="success" value={rs(sales.month)} compare={[sales.month, sales.lastMonth, "vs same days last month"]} />
+                <KpiCard title="Active users" icon={Users} tone="plum" to="/adminCreateUser" value={num(users.active)}
+                  sub={`${num(users.newThisMonth)} new this month · ${num(users.inactive)} inactive`} />
+                <KpiCard title="Waiting for approval" icon={CheckSquare} tone="warning" to="/adminApprovalRequests" value={num(waitingTotal)}
+                  sub={`+ ${num(ap.wastageToReview)} wastage entries to review`} />
+              </KpiGrid>
 
-    // System Health Indicators
-    const systemHealth = [
-        {
-            module: "POS System",
-            status: "Operational",
-            outlets: "5/5 Active",
-            color: "text-success",
-            bgColor: "bg-success/10"
-        },
-        {
-            module: "Production",
-            status: "Running",
-            outlets: "3 Centers Active",
-            color: "text-success",
-            bgColor: "bg-success/10"
-        },
-        {
-            module: "Inventory",
-            status: "Warning",
-            outlets: "12 Low Stock Items",
-            color: "text-warning",
-            bgColor: "bg-warning/10"
-        }
-    ];
+              <QuickActions actions={[
+                { name: "Create User", path: "/adminCreateUser", icon: UserPlus, description: "Add a staff account" },
+                { name: "Admin Approval", path: "/adminApprovalRequests", icon: CheckSquare, description: "Approve requests" },
+                { name: "Generate Reports", path: "/adminGenerateReports", icon: FileText, description: "PDF, Excel, CSV" },
+                { name: "Wastage", path: "/adminWastage", icon: AlertTriangle, description: "Review wastage" },
+                { name: "Direct Stock Entry", path: "/adminStockEntry", icon: Package, description: "Add items directly to POS" },
+              ]} />
 
-    // Pending Approvals
-    const pendingApprovals = [
-        {
-            id: "REQ-001",
-            type: "User Role Change",
-            requester: "Manager - Sarah Wilson",
-            description: "Request to upgrade user access level",
-            priority: "Medium",
-            date: "2025-11-09"
-        },
-        {
-            id: "REQ-002",
-            type: "New Supplier",
-            requester: "Storekeeper - Mike Chen",
-            description: "Add new flour supplier - Quality Mills",
-            priority: "High",
-            date: "2025-11-09"
-        },
-        {
-            id: "REQ-003",
-            type: "Product Deletion",
-            requester: "Manager - David Lee",
-            description: "Remove discontinued pastry items",
-            priority: "Low",
-            date: "2025-11-08"
-        }
-    ];
-
-    return (
-        <div className="flex bg-app h-screen overflow-hidden">
-            {/* Sidebar */}
-            <AdminSidebar sidebarOpen={sidebarOpen} />
-
-            <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                {/* Navbar */}
-                <AdminNavBar
-                    sidebarOpen={sidebarOpen}
-                    setSidebarOpen={setSidebarOpen}
-                    activeSection={activeSection}
-                />
-
-                {/* Admin Dashboard Content */}
-                <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
-
-                    {/* Quick Actions */}
-                    <div className="mb-8">
-                        <h2 className="text-[20px] font-[600] text-fg mb-4">Quick Actions</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {quickActions.map((action, index) => (
-                                <NavLink
-                                    to={action.path}
-                                    key={index}
-                                    className={`${action.color} ${action.hoverColor} text-on-brand p-6 rounded-lg transition-all duration-200 transform hover:scale-105 hover:shadow-lg text-left w-full`}
-                                >
-                                    <div className="flex items-center gap-3 mb-3">
-                                        {action.icon}
-                                        <h3 className="text-[16px] font-[600]">{action.name}</h3>
-                                    </div>
-                                    <p className="text-[14px] text-on-brand/80">{action.description}</p>
-                                </NavLink>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-[18px] font-[600] text-fg">Recent Activities</h3>
-                <button className="text-[14px] text-brand-fg hover:underline flex items-center gap-1">
-                  View All <ArrowRight size={14} />
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                {recentActivities.map((activity) => (
-                  <div key={activity.id} className="flex items-start gap-3 p-4 bg-subtle rounded-lg">
-                    <div className={`mt-1 ${
-                      activity.status === 'success' ? 'text-success' :
-                      activity.status === 'warning' ? 'text-warning' :
-                      'text-brand-fg'
-                    }`}>
-                      {activity.icon}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-[14px] font-[500] text-fg mb-1">{activity.action}</p>
-                      <p className="text-[13px] text-fg-secondary mb-1">{activity.user}</p>
-                      <p className="text-[12px] text-fg-secondary">{activity.time}</p>
-                    </div>
+              {!summary.loading && (
+                <>
+                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-4">
+                    <Panel title="Sales trend" subtitle="This month, day by day, against last month" className="xl:col-span-2"
+                      empty={!points.some((p) => Number(p.net) || Number(p.previousNet))} emptyText={trend.error || "No sales this month"}>
+                      <TrendChart labels={points.map((p) => dateOnly(p.date))} current={points.map((p) => Number(p.net))} previous={points.map((p) => (p.previousNet === null ? null : Number(p.previousNet)))}
+                        currentLabel="This month" previousLabel="Last month" />
+                    </Panel>
+                    <Panel title="Sales by outlet" subtitle="This month" empty={!sales.byOutlet?.length} emptyText="No sales this month">
+                      <BarChart labels={sales.byOutlet.map((o) => o.name || (o.outletId == null ? "No outlet recorded" : `Outlet ${o.outletId}`))} values={sales.byOutlet.map((o) => Number(o.paid))} height={220} />
+                    </Panel>
                   </div>
-                ))}
-              </div>
-            </div>
 
-            <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-[18px] font-[600] text-fg">Pending Approvals</h3>
-                <span className="px-3 py-1 bg-hover text-warning rounded-full text-[12px] font-[500]">
-                  {pendingApprovals.length} Pending
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                {pendingApprovals.map((approval) => (
-                  <div key={approval.id} className="p-4 bg-subtle rounded-lg border-l-4 border-warning">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[14px] font-[600] text-fg">{approval.id}</span>
-                          <span className={`text-[12px] px-2 py-1 rounded-full ${
-                            approval.priority === 'High' ? 'bg-hover text-error' :
-                            approval.priority === 'Medium' ? 'bg-hover text-warning' :
-                            'bg-hover text-brand-fg'
-                          }`}>
-                            {approval.priority}
-                          </span>
-                        </div>
-                        <p className="text-[13px] font-[500] text-fg mb-1">{approval.type}</p>
-                        <p className="text-[12px] text-fg-secondary mb-2">{approval.description}</p>
-                        <p className="text-[12px] text-fg-secondary">By: {approval.requester} • {approval.date}</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 mt-3">
-                      <button className="flex-1 px-3 py-2 bg-brand text-on-brand rounded-lg text-[12px] font-[500] hover:bg-brand-hover">
-                        Approve
-                      </button>
-                      <button className="flex-1 px-3 py-2 bg-surface border border-line text-fg-secondary rounded-lg text-[12px] font-[500] hover:bg-subtle">
-                        Reject
-                      </button>
-                    </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <Panel title="Waiting in Admin Approval" viewAll="/adminApprovalRequests">
+                      <Stats items={[
+                        { label: "Purchase orders", value: num(ap.purchaseOrders) },
+                        { label: "Material returns", value: num(ap.materialReturns) },
+                        { label: "Stock adjustments", value: num(ap.stockAdjustments) },
+                        { label: "Outlet returns", value: num(ap.outletReturns) },
+                        { label: "MPC requests", value: num(ap.mpcRequests) },
+                        { label: "Wastage to review", value: num(ap.wastageToReview), to: "/adminWastage" },
+                      ]} />
+                    </Panel>
+                    <Panel title="Alerts">
+                      <Rows rows={[
+                        { key: "low", main: "Raw materials under minimum", right: num(alerts.lowStockMaterials), rightClass: alerts.lowStockMaterials ? "text-error" : "text-fg" },
+                        { key: "exp", main: "Store batches expiring within 2 days", right: num(alerts.nearExpiryBatches), rightClass: alerts.nearExpiryBatches ? "text-warning" : "text-fg" },
+                        { key: "due", main: "Suppliers with overdue invoices", sub: overdue.error || (overdueList.length ? `Overdue ${rs(overdueAmount)}` : null),
+                          right: overdue.loading ? "…" : overdue.error ? "–" : num(overdueList.length), rightClass: overdueList.length ? "text-error" : "text-fg" },
+                        { key: "day", main: "Outlets with an earlier day not closed", sub: (alerts.outletsWithUnclosedDay || []).join(", ") || null,
+                          right: num((alerts.outletsWithUnclosedDay || []).length), rightClass: (alerts.outletsWithUnclosedDay || []).length ? "text-warning" : "text-fg" },
+                      ]} />
+                    </Panel>
+                    <Panel title="Catalogue">
+                      <Stats items={[
+                        { label: "Products", value: num(cat.products), to: "/adminManageProducts" },
+                        { label: "Raw materials", value: num(cat.rawMaterials), to: "/adminRawMaterials" },
+                        { label: "Suppliers", value: num(cat.suppliers), to: "/adminManageSuppliers" },
+                        { label: "Outlets", value: num(cat.outlets), to: "/adminOutletManagement" },
+                        { label: "Production centres", value: num(cat.productionCentres), to: "/adminProductionCenter" },
+                        { label: "MPCs", value: num(cat.mpcs) },
+                      ]} />
+                    </Panel>
+                    <Panel title="Active users by role" viewAll="/adminCreateUser" empty={!users.byRole?.length} emptyText="No active users">
+                      <Rows rows={(users.byRole || []).map((r) => ({ key: r.roleId, main: r.role, right: num(r.active) }))} />
+                    </Panel>
+                    <Panel title="Recent activity" viewAll="/adminAuditLog" className="lg:col-span-2" empty={!audit.data?.content?.length} emptyText={audit.error || "No activity recorded yet"}>
+                      <Rows rows={(audit.data?.content || []).map((a) => ({
+                        key: a.id, main: a.summary || `${label(a.action)} ${a.entityType || ""}`, sub: `${a.userFullName || a.username || "System"} · ${label(a.module)}`, right: dateTime(a.occurredAt), rightClass: "text-fg-secondary font-[400]",
+                      }))} />
+                    </Panel>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
-            <h3 className="text-[18px] font-[600] text-fg mb-4">System Health Status</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {systemHealth.map((system, index) => (
-                <div key={index} className={`p-4 rounded-lg ${system.bgColor}`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-[14px] font-[600] text-fg">{system.module}</h4>
-                    <CheckCircle size={18} className={system.color} />
-                  </div>
-                  <p className={`text-[13px] font-[500] ${system.color} mb-1`}>{system.status}</p>
-                  <p className="text-[12px] text-fg-secondary">{system.outlets}</p>
-                </div>
-              ))}
-            </div>
-          </div> */}
-
-                </main>
-            </div>
-
-            {sidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9998] md:hidden"
-                    onClick={() => setSidebarOpen(false)}
-                />
-            )}
-        </div>
-    );
+                </>
+              )}
+            </>
+          )}
+        </main>
+      </div>
+    </div>
+  );
 }
