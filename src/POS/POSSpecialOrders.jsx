@@ -43,7 +43,8 @@ import axios from "axios";
 import posService from "../services/posService";
 import toast from "react-hot-toast";
 import useOutletInfo from "../utils/useOutletInfo";
-import { companyInfo, receiptHeaderHtml } from "../utils/companyInfo";
+import { companyInfo } from "../utils/companyInfo";
+import { BillSlip, printInWindow, printedAt } from "../component/print/ThermalPrint";
 
 export default function POSSpecialOrders() {
     const outlet = useOutletInfo(); // outlet name/address printed on bills
@@ -326,88 +327,29 @@ export default function POSSpecialOrders() {
             cashierName: orderInfo.cashierName
         };
 
-        const printContent = `
-            <div style="font-family: Arial, sans-serif; max-width: 300px; margin: 0 auto; padding: 20px;">
-                <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
-                    ${receiptHeaderHtml(outlet)}
-                    <p style="margin: 5px 0; font-size: 12px;">Special Order - ${isAdvance ? 'Advance Receipt' : 'Final Bill'}</p>
-                </div>
-                
-                <div style="margin-bottom: 15px; font-size: 12px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                        <span>Date & Time:</span>
-                        <span>${new Date().toLocaleString()}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                        <span>Order ID:</span>
-                        <span>${data.id}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                        <span>Cashier:</span>
-                        <span>${data.cashierName || orderInfo.cashierName}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                        <span>Customer:</span>
-                        <span>${data.customerName}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                        <span>Contact:</span>
-                        <span>${data.contactNumber}</span>
-                    </div>
-                </div>
-
-                <div style="border-top: 1px solid #ccc; padding-top: 10px; margin-bottom: 15px;">
-                    <div style="font-size: 12px;">
-                        ${data.items.map(item => `
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                                <span>${item.quantity}x ${item.name || item.productName}</span>
-                                <span>Rs. ${(item.quantity * (item.unitPrice || 0)).toFixed(2)}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-
-                <div style="border-top: 1px solid #ccc; padding-top: 10px; font-size: 12px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px; font-weight: bold;">
-                        <span>Total Amount:</span>
-                        <span>Rs. ${(data.totalAmount || 0).toFixed(2)}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px; color: green;">
-                        <span>Advance Paid:</span>
-                        <span>Rs. ${(data.advanceAmount || 0).toFixed(2)}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 3px; border-top: 1px dashed #ccc; padding-top: 3px; font-weight: bold;">
-                        <span>${isAdvance ? 'Balance Due' : 'Balance Paid'}:</span>
-                        <span>Rs. ${(isAdvance ? data.balanceAmount : data.balanceAmount || 0).toFixed(2)}</span>
-                    </div>
-                </div>
-
-                <div style="border-top: 1px solid #ccc; padding-top: 10px; text-align: center; font-size: 10px;">
-                    <p style="margin: 5px 0;">Delivery Date: ${new Date(data.deliveryDate).toLocaleDateString()}</p>
-                    <p style="margin: 5px 0; font-weight: bold;">${isAdvance ? 'Please bring this receipt for pickup' : 'Order Completed'}</p>
-                    <p style="margin: 5px 0;">Thank you for your order!</p>
-                </div>
-            </div>
-        `;
-
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
-            <html>
-                <head>
-                    <title>${isAdvance ? 'Advance Receipt' : 'Final Bill'}</title>
-                </head>
-                <body>
-                    ${printContent}
-                    <script>
-                        window.onload = function() {
-                            window.print();
-                            window.close();
-                        }
-                    </script>
-                </body>
-            </html>
-        `);
-        printWindow.document.close();
+        const delivery = data.deliveryDate ? new Date(data.deliveryDate) : null;
+        printInWindow(
+            <BillSlip
+                outlet={outlet}
+                title={isAdvance ? "SPECIAL ORDER - ADVANCE RECEIPT" : "SPECIAL ORDER - FINAL BILL"}
+                info={[
+                    ["Date", printedAt()],
+                    ["Order ID", data.id],
+                    ["Cashier", data.cashierName || orderInfo.cashierName],
+                    ["Customer", data.customerName],
+                    ["Contact", data.contactNumber],
+                    ["Delivery", delivery ? `${delivery.toLocaleDateString()} ${delivery.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : null],
+                ]}
+                sections={[{ items: data.items.map((item) => ({ name: item.name || item.productName, qty: item.quantity, amount: item.quantity * (item.unitPrice || 0) })) }]}
+                totals={[
+                    { label: "Total:", value: data.totalAmount || 0, bold: true },
+                    { label: "Advance paid:", value: data.advanceAmount || 0 },
+                    { label: isAdvance ? "Balance due:" : "Balance paid:", value: data.balanceAmount || 0, bold: true, rule: true },
+                ]}
+                footer={isAdvance ? ["Please bring this receipt for pickup.", "Thank you for your order!"] : ["Order completed.", "Thank you for your order!"]}
+            />,
+            isAdvance ? "Advance Receipt" : "Final Bill"
+        );
     };
 
     const handleCustomerLookup = async () => {

@@ -44,7 +44,7 @@ import managerService from "../services/managerService";
 import { Tag as TagIcon, Clock as ClockIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import useOutletInfo from "../utils/useOutletInfo";
-import ReceiptHeader from "../component/ReceiptHeader";
+import { PosPrintout } from "../component/print/ThermalPrint";
 
 export default function POSSales() {
     const outlet = useOutletInfo(); // outlet name/address printed on bills
@@ -2405,133 +2405,7 @@ export default function POSSales() {
             )}
 
             {/* Hidden Print Receipt Template */}
-            {printData && (
-                <div id="print-receipt" className="hidden print:block fixed inset-0 bg-surface z-[9999] p-4 text-fg-strong font-mono w-[80mm] text-xs">
-                    <style dangerouslySetInnerHTML={{
-                        __html: `
-                        @media print {
-                            body * {
-                                visibility: hidden !important;
-                            }
-                            #print-receipt, #print-receipt * {
-                                visibility: visible !important;
-                            }
-                            #print-receipt {
-                                position: absolute !important;
-                                left: 0 !important;
-                                top: 0 !important;
-                                width: 80mm !important;
-                                padding: 5mm !important;
-                            }
-                            .page-break {
-                                page-break-before: always !important;
-                                break-before: page !important;
-                                margin-top: 15px;
-                            }
-                        }
-                    `}} />
-
-                    {/* Main Receipt Content (Rendered only if printBill is true) */}
-                    {printData.printBill !== false && (
-                        <>
-                            {[...Array(printData.isUberOrPickMe ? 2 : 1)].map((_, copyIdx) => (
-                                <div key={copyIdx} className={copyIdx > 0 ? "page-break pt-4 mt-4 border-t border-dashed" : ""}>
-                                    <ReceiptHeader outlet={outlet} />
-                                    <div className="border-t border-dashed my-1"></div>
-                                    <div className="text-center font-bold text-xs mb-2">
-                                        {printData.type === 'PROFORMA'
-                                            ? 'PROFORMA INVOICE (UNPAID)'
-                                            : (printData.isUberOrPickMe
-                                                ? (copyIdx === 0 ? 'TAX INVOICE (CUSTOMER COPY)' : 'TAX INVOICE (DELIVERY COPY)')
-                                                : 'TAX INVOICE')
-                                        }
-                                    </div>
-                                    <div className="text-[10px] space-y-0.5 mb-2">
-                                        <div>Date: {new Date().toLocaleDateString()} Time: {new Date().toLocaleTimeString()}</div>
-                                        {printData.transactionId && <div>Bill ID: {printData.transactionId}</div>}
-                                        {printData.waiterName && <div>Waiter: {printData.waiterName}</div>}
-                                        {printData.cashierName && <div>Cashier: {printData.cashierName}</div>}
-                                        {printData.paymentMethod && <div>Payment: {printData.paymentMethod}</div>}
-                                        {printData.deliveryOption && <div>Channel: {printData.deliveryOption}</div>}
-                                    </div>
-                                    <div className="border-t border-dashed my-1"></div>
-                                    <table className="w-full text-[10px] text-left mb-2">
-                                        <thead>
-                                            <tr className="border-b border-dashed">
-                                                <th className="py-1">Item</th>
-                                                <th className="py-1 text-center">Qty</th>
-                                                <th className="py-1 text-right">Price</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {printData.items.map((item, idx) => (
-                                                <tr key={idx}>
-                                                    <td className="py-1 max-w-[40mm] truncate">{item.productName || item.name}</td>
-                                                    <td className="py-1 text-center">{item.qty || item.quantity}</td>
-                                                    <td className="py-1 text-right">Rs. {((item.unitPrice || item.price) * (item.qty || item.quantity)).toFixed(2)}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                    <div className="border-t border-dashed my-1"></div>
-                                    <div className="text-xs space-y-1 mb-2">
-                                        <div className="flex justify-between font-bold">
-                                            <span>Subtotal:</span>
-                                            <span>Rs. {printData.subTotal.toFixed(2)}</span>
-                                        </div>
-                                        {printData.discount > 0 && (
-                                            <div className="flex justify-between">
-                                                <span>Discount:</span>
-                                                <span>Rs. {printData.discount.toFixed(2)}</span>
-                                            </div>
-                                        )}
-                                        <div className="flex justify-between font-bold border-t border-dashed pt-1">
-                                            <span>Total:</span>
-                                            <span>Rs. {printData.finalTotal.toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                    <div className="border-t border-dashed my-2"></div>
-                                    <div className="text-center text-[10px] italic">
-                                        {printData.type === 'PROFORMA'
-                                            ? 'THIS IS A PROFORMA INVOICE. PLEASE SETTLE AT CASHIER TO GENERATE THE TAX INVOICE.'
-                                            : 'THANK YOU! COME AGAIN.'
-                                        }
-                                    </div>
-                                </div>
-                            ))}
-                        </>
-                    )}
-
-                    {/* Separate KOT Token Slips for Each KOT Item */}
-                    {printData.kotItems && printData.kotItems.length > 0 && printData.kotItems.map((item, idx) => (
-                        <div key={idx} className={`${(printData.printBill !== false || idx > 0) ? 'page-break pt-4' : 'pt-2'}`}>
-                            <div className="text-center font-bold text-sm mb-0.5">KITCHEN ORDER TICKET (KOT)</div>
-                            <div className="text-center text-[10px] font-bold mb-1">SLIP #{idx + 1} OF {printData.kotItems.length}</div>
-                            <div className="text-center text-[10px] mb-2">{outlet.name}</div>
-                            <div className="border-t border-dashed my-1"></div>
-                            <div className="text-[10px] space-y-0.5 mb-2">
-                                <div>Date: {new Date().toLocaleDateString()} Time: {new Date().toLocaleTimeString()}</div>
-                                {printData.transactionId && <div>Txn ID: {printData.transactionId}</div>}
-                                {printData.cashierName && <div>Cashier: {printData.cashierName}</div>}
-                            </div>
-                            <div className="border-t border-dashed my-1"></div>
-                            <div className="my-2 p-2 border border-dashed rounded">
-                                <div className="text-[12px] font-bold">KOT ITEM: {item.productName || item.name}</div>
-                                <div className="text-[12px] font-bold mt-1">QTY: {item.qty || item.quantity}</div>
-                                {item.specialInstructions && (
-                                    <div className="text-[10px] text-fg italic font-mono mt-1">
-                                        * Note: {item.specialInstructions}
-                                    </div>
-                                )}
-                            </div>
-                            <div className="border-t border-dashed my-2"></div>
-                            <div className="text-center text-[9px] italic font-bold">
-                                * PLEASE PREPARE KOT ITEM IMMEDIATELY *
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
+            {printData && <PosPrintout printData={printData} outlet={outlet} />}
 
             {/* Customer Registration Modal */}
             {showRegModal && (

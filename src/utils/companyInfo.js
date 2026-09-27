@@ -16,13 +16,3 @@ export const companyDetailLines = (info = companyInfo) =>
 export const escapeHtml = (value) =>
   String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-/** Receipt header for bills printed as HTML text (e.g. special orders): company, outlet, then details. */
-export const receiptHeaderHtml = (outlet = {}, info = companyInfo) => {
-  const line = (text, style) => `<div style="${style}">${escapeHtml(text)}</div>`;
-  return [
-    line(info.name.toUpperCase(), "font-size: 16px; font-weight: bold;"),
-    outlet.name ? line(outlet.name.toUpperCase(), "font-size: 12px;") : "",
-    outlet.address ? line(outlet.address, "font-size: 11px;") : "",
-    ...companyDetailLines(info).map((text) => line(text, "font-size: 11px;")),
-  ].join("");
-};

@@ -37,7 +37,7 @@ import posService from "../services/posService";
 import axios from "../services/api";
 import toast from "react-hot-toast";
 import useOutletInfo from "../utils/useOutletInfo";
-import ReceiptHeader from "../component/ReceiptHeader";
+import { BillSlip, PrintArea, printedAt } from "../component/print/ThermalPrint";
 
 export default function POSReturns() {
     const outlet = useOutletInfo(); // outlet name/address printed on bills
@@ -1371,105 +1371,30 @@ export default function POSReturns() {
 
             {/* Printable Return Receipt (Thermal Printer Template) */}
             {printReturnData && (
-                <div id="printable-return-receipt" className="hidden print:block fixed inset-0 bg-surface text-fg-strong p-2 font-mono text-xs z-[99999]">
-                    <style dangerouslySetInnerHTML={{ __html: `
-                        @media print {
-                            body * {
-                                visibility: hidden !important;
-                            }
-                            #printable-return-receipt, #printable-return-receipt * {
-                                visibility: visible !important;
-                            }
-                            #printable-return-receipt {
-                                position: absolute !important;
-                                left: 0 !important;
-                                top: 0 !important;
-                                width: 100% !important;
-                                display: block !important;
-                            }
-                        }
-                    `}} />
-                    <div className="w-full max-w-[80mm] mx-auto text-fg-strong">
-                        <ReceiptHeader outlet={outlet} />
-                        <div className="border-t border-dashed my-1"></div>
-                        <div className="text-center font-bold text-xs mb-2">
-                            RETURN / REFUND RECEIPT
-                        </div>
-                        <div className="text-[10px] space-y-0.5 mb-2">
-                            <div>Date: {new Date().toLocaleDateString()} Time: {new Date().toLocaleTimeString()}</div>
-                            <div>Return ID: {printReturnData.returnId}</div>
-                            <div>Original Bill: {foundTransaction?.billNumber || printReturnData.originalTransaction}</div>
-                            <div>Cashier: {localStorage.getItem("firstName") ? `${localStorage.getItem("firstName")} ${localStorage.getItem("lastName") || ''}`.trim() : (localStorage.getItem("userName") || "Cashier")}</div>
-                            <div>Refund Type: {printReturnData.refundType?.toUpperCase()}</div>
-                        </div>
-                        <div className="border-t border-dashed my-1"></div>
-                        <div className="text-[10px] font-bold mb-1">RETURNED ITEMS:</div>
-                        <table className="w-full text-[10px] text-left mb-2">
-                            <thead>
-                                <tr className="border-b border-dashed">
-                                    <th className="py-0.5">Item</th>
-                                    <th className="text-center py-0.5">Qty</th>
-                                    <th className="text-right py-0.5">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {printReturnData.returnItems?.map((item, idx) => (
-                                    <tr key={idx}>
-                                        <td className="py-0.5">{item.name}</td>
-                                        <td className="text-center py-0.5">{item.returnQuantity}</td>
-                                        <td className="text-right py-0.5">Rs. {(item.price * item.returnQuantity).toFixed(2)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        {printReturnData.exchangeItems && printReturnData.exchangeItems.length > 0 && (
-                            <>
-                                <div className="border-t border-dashed my-1"></div>
-                                <div className="text-[10px] font-bold mb-1">EXCHANGE ITEMS:</div>
-                                <table className="w-full text-[10px] text-left mb-2">
-                                    <thead>
-                                        <tr className="border-b border-dashed">
-                                            <th className="py-0.5">Item</th>
-                                            <th className="text-center py-0.5">Qty</th>
-                                            <th className="text-right py-0.5">Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {printReturnData.exchangeItems.map((item, idx) => (
-                                            <tr key={idx}>
-                                                <td className="py-0.5">{item.name}</td>
-                                                <td className="text-center py-0.5">{item.quantity}</td>
-                                                <td className="text-right py-0.5">Rs. {(item.price * item.quantity).toFixed(2)}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </>
-                        )}
-                        <div className="border-t border-dashed my-1"></div>
-                        <div className="text-[10px] space-y-1">
-                            <div className="flex justify-between font-bold">
-                                <span>RETURN TOTAL:</span>
-                                <span>Rs. {printReturnData.returnTotal?.toFixed(2)}</span>
-                            </div>
-                            {printReturnData.refundType === 'exchange' && (
-                                <div className="flex justify-between font-bold">
-                                    <span>EXCHANGE TOTAL:</span>
-                                    <span>Rs. {printReturnData.exchangeTotal?.toFixed(2)}</span>
-                                </div>
-                            )}
-                            <div className="flex justify-between font-bold text-xs border-t border-dashed pt-1">
-                                <span>NET REFUND:</span>
-                                <span>Rs. {printReturnData.balanceAmount?.toFixed(2)}</span>
-                            </div>
-                        </div>
-                        <div className="border-t border-dashed my-2"></div>
-                        <div className="text-center text-[9px]">
-                            <div>Thank You!</div>
-                            <div>Please keep this receipt for your records.</div>
-                        </div>
-                    </div>
-                </div>
+                <PrintArea id="printable-return-receipt">
+                    <BillSlip
+                        outlet={outlet}
+                        title="RETURN / REFUND RECEIPT"
+                        info={[
+                            ["Date", printedAt()],
+                            ["Return ID", printReturnData.returnId],
+                            ["Original Bill", foundTransaction?.billNumber || printReturnData.originalTransaction],
+                            ["Cashier", localStorage.getItem("firstName") ? `${localStorage.getItem("firstName")} ${localStorage.getItem("lastName") || ""}`.trim() : (localStorage.getItem("userName") || "Cashier")],
+                            ["Refund Type", printReturnData.refundType?.toUpperCase()],
+                        ]}
+                        amountLabel="Amount"
+                        sections={[
+                            { heading: "RETURNED ITEMS:", items: (printReturnData.returnItems || []).map((item) => ({ name: item.name, qty: item.returnQuantity, amount: item.price * item.returnQuantity })) },
+                            ...(printReturnData.exchangeItems?.length ? [{ heading: "EXCHANGE ITEMS:", items: printReturnData.exchangeItems.map((item) => ({ name: item.name, qty: item.quantity, amount: item.price * item.quantity })) }] : []),
+                        ]}
+                        totals={[
+                            { label: "Return total:", value: printReturnData.returnTotal || 0, bold: true },
+                            ...(printReturnData.refundType === "exchange" ? [{ label: "Exchange total:", value: printReturnData.exchangeTotal || 0, bold: true }] : []),
+                            { label: "Net refund:", value: printReturnData.balanceAmount || 0, bold: true, rule: true },
+                        ]}
+                        footer={["Thank You!", "Please keep this receipt for your records."]}
+                    />
+                </PrintArea>
             )}
         </div>
     );
