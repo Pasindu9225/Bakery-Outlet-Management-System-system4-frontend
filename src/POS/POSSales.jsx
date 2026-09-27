@@ -45,6 +45,7 @@ import { Tag as TagIcon, Clock as ClockIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import useOutletInfo from "../utils/useOutletInfo";
 import { PosPrintout } from "../component/print/ThermalPrint";
+import SplitPayment, { splitMethods, startSplit, splitProblem, splitPayload, splitText } from "../component/SplitPayment";
 
 export default function POSSales() {
     const outlet = useOutletInfo(); // outlet name/address printed on bills
@@ -65,6 +66,12 @@ export default function POSSales() {
     // Payment state
     const [paymentMethod, setPaymentMethod] = useState('');
     const [cashReceived, setCashReceived] = useState('');
+    // split payment: one bill over several methods (e.g. cash + card)
+    const [splitMode, setSplitMode] = useState(false);
+    const [splitParts, setSplitParts] = useState([]);
+    const [splitCashGiven, setSplitCashGiven] = useState('');
+    // a discount typed by the cashier needs a Manager's code
+    const [waiterDiscountManagerCode, setWaiterDiscountManagerCode] = useState('');
     const [cardRef, setCardRef] = useState('');
     const [bankName, setBankName] = useState('');
     const [bankRef, setBankRef] = useState('');
@@ -255,6 +262,7 @@ export default function POSSales() {
         fetchWaiterDetails(waiter.userId);
         setWaiterDiscountAmount('0');
         setWaiterDiscountReason('');
+        setWaiterDiscountManagerCode('');
     };
 
     const handleTransferWaiter = async () => {
@@ -741,6 +749,13 @@ export default function POSSales() {
 
     // Process payment
     const processPayment = async (shouldPrint = false) => {
+        if (splitMode) {
+            const problem = splitProblem(splitParts, availablePaymentMethods, total, splitCashGiven);
+            if (problem) {
+                toast.error(problem);
+                return;
+            }
+        }
         if (!paymentMethod || !paymentMethodId) {
             toast.error('Please select a valid payment method');
             return;
@@ -754,17 +769,17 @@ export default function POSSales() {
         const isFreeMeal = selectedMethodObj.category === 'FREE_MEAL';
 
         // Validation based on payment method
-        if (paymentMethod === 'cash' && (!isFreeMeal) && (!cashReceived || parseFloat(cashReceived) < total)) {
+        if (!splitMode && paymentMethod === 'cash' && (!isFreeMeal) && (!cashReceived || parseFloat(cashReceived) < total)) {
             toast.error('Please enter valid cash amount');
             return;
         }
 
-        if (paymentMethod === 'card' && !cardRef.trim()) {
+        if (!splitMode && paymentMethod === 'card' && !cardRef.trim()) {
             toast.error('Please enter card transaction reference');
             return;
         }
 
-        if (paymentMethod === 'bank' && (!bankName.trim() || !bankRef.trim())) {
+        if (!splitMode && paymentMethod === 'bank' && (!bankName.trim() || !bankRef.trim())) {
             toast.error('Please enter bank details');
             return;
         }
@@ -794,16 +809,17 @@ export default function POSSales() {
             redeemPoints: redeemPoints && otpVerified,
             otp: otpVerified ? otp : null,
             invoicePrinted: shouldPrint,
+            payments: splitMode ? splitPayload(splitParts) : null,
             items: cart.map(item => ({
                 dayProductionItemId: item.dayProductionItemId,
                 qty: item.quantity,
                 unitPrice: item.price,
-                paymentMethodId: paymentMethodId, // Explicitly using the ID resolved from backend
+                paymentMethodId: splitMode ? Number(splitParts[0].methodId) : paymentMethodId, // split: the parts are in payments
                 promotionId: appliedPromo?.id || null,
                 discountId: appliedDiscountsMeta[item.id]?.discountId || null,
                 manualDiscount: 0,
                 freeMealReason: isFreeMeal ? effectiveReason : null,
-                bankTransferCode: (paymentMethod === 'bank' || paymentMethod === 'bank transfer') ? bankRef : (paymentMethod === 'card' ? cardRef : null),
+                bankTransferCode: splitMode ? null : ((paymentMethod === 'bank' || paymentMethod === 'bank transfer') ? bankRef : (paymentMethod === 'card' ? cardRef : null)),
                 specialInstructions: item.specialInstructions || ""
             }))
         };
@@ -841,8 +857,8 @@ export default function POSSales() {
                 })),
                 subTotal: subtotal,
                 discount: totalDiscount,
-                finalTotal: total,
-                paymentMethod: selectedMethodObj.name,
+                finalTotal: data.data?.totalAmount ?? total,
+                paymentMethod: splitMode ? splitText(splitParts, availablePaymentMethods) : selectedMethodObj.name,
                 kotItems: kotItems,
                 printBill: shouldPrint,
                 isUberOrPickMe: isUberOrPickMe
@@ -895,6 +911,9 @@ export default function POSSales() {
     };
 
     const resetPaymentForm = () => {
+        setSplitMode(false);
+        setSplitParts([]);
+        setSplitCashGiven('');
         setPaymentMethod('');
         setPaymentMethodId(null);
         setCashReceived('');
@@ -1473,6 +1492,8 @@ export default function POSSales() {
                                                                                     paymentType: waiterPaymentType,
                                                                                     discountAmount: discountVal,
                                                                                     discountReason: waiterDiscountReason,
+                                                                                    manualDiscount: discountVal > 0,
+                                                                                    managerCode: discountVal > 0 ? waiterDiscountManagerCode : null,
                                                                                     outletId: parseInt(localStorage.getItem("outletId") || "1"),
                                                                                     invoicePrinted: false
                                                                                 };
@@ -1506,6 +1527,8 @@ export default function POSSales() {
                                                                                     paymentType: waiterPaymentType,
                                                                                     discountAmount: discountVal,
                                                                                     discountReason: waiterDiscountReason,
+                                                                                    manualDiscount: discountVal > 0,
+                                                                                    managerCode: discountVal > 0 ? waiterDiscountManagerCode : null,
                                                                                     outletId: parseInt(localStorage.getItem("outletId") || "1"),
                                                                                     invoicePrinted: true
                                                                                 };
@@ -1857,6 +1880,35 @@ export default function POSSales() {
                                                     </div>
                                                 )}
 
+                                                {/* Split payment: one bill over several methods */}
+                                                {!isFreeMeal && splitMethods(availablePaymentMethods).length > 1 && (
+                                                    <div className="mb-4">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const on = !splitMode;
+                                                                setSplitMode(on);
+                                                                setSplitParts(on ? startSplit(availablePaymentMethods, total) : []);
+                                                                setSplitCashGiven('');
+                                                            }}
+                                                            className={`w-full p-3 border rounded-lg text-left text-[14px] transition-colors ${splitMode ? 'border-brand-fg bg-brand/5 text-brand-fg font-[500]' : 'border-line hover:border-brand-fg/30 text-fg'}`}
+                                                        >
+                                                            {splitMode ? 'Split payment is on (tap to pay with one method)' : 'Split payment (e.g. cash + card)'}
+                                                        </button>
+                                                    </div>
+                                                )}
+                                                {splitMode && (
+                                                    <SplitPayment
+                                                        methods={availablePaymentMethods}
+                                                        total={total}
+                                                        parts={splitParts}
+                                                        onChange={setSplitParts}
+                                                        cashGiven={splitCashGiven}
+                                                        onCashGiven={setSplitCashGiven}
+                                                    />
+                                                )}
+
+                                                {!splitMode && (<>
                                                 {/* Payment Methods */}
                                                 <div className="mb-6">
                                                     <h4 className="text-[14px] font-[500] text-fg mb-3">Payment Method</h4>
@@ -2005,6 +2057,8 @@ export default function POSSales() {
                                                         </div>
                                                     </div>
                                                 )}
+
+                                                </>)}
 
                                                 {/* Order Channel Selection Checkboxes */}
                                                 <div className="mb-6">
@@ -2358,6 +2412,20 @@ export default function POSSales() {
                                 />
                             </div>
 
+                            {(parseFloat(waiterDiscountAmount) || 0) > 0 && (
+                                <div className="mb-6">
+                                    <label className="block text-[14px] font-[500] text-fg mb-1">Manager's code *</label>
+                                    <input
+                                        type="password"
+                                        autoComplete="off"
+                                        value={waiterDiscountManagerCode}
+                                        onChange={(e) => setWaiterDiscountManagerCode(e.target.value)}
+                                        placeholder="A Manager enters their code to approve"
+                                        className="w-full px-3 py-2 border border-line rounded-lg focus:border-brand-fg focus:outline-none"
+                                    />
+                                </div>
+                            )}
+
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => {
@@ -2380,6 +2448,10 @@ export default function POSSales() {
                                         }
                                         if (amount > 0 && !waiterDiscountReason.trim()) {
                                             toast.error("Please enter a reason for the discount");
+                                            return;
+                                        }
+                                        if (amount > 0 && !waiterDiscountManagerCode.trim()) {
+                                            toast.error("A Manager must enter their code to approve this discount");
                                             return;
                                         }
                                         setShowWaiterDiscountModal(false);

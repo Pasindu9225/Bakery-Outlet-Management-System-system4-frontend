@@ -41,6 +41,7 @@ import posService from "../services/posService";
 import toast from "react-hot-toast";
 import useOutletInfo from "../utils/useOutletInfo";
 import { PosPrintout } from "../component/print/ThermalPrint";
+import SplitPayment, { splitMethods, startSplit, splitProblem, splitPayload, splitText } from "../component/SplitPayment";
 
 
 export default function POSTableBilling() {
@@ -212,6 +213,12 @@ export default function POSTableBilling() {
     // Payment States
     const [showBillModal, setShowBillModal] = useState(false);
     const [amountReceived, setAmountReceived] = useState('');
+    // tax % the cashier types on the bill; the server charges and records it
+    const [taxRate, setTaxRate] = useState('0');
+    // split payment: one bill over several methods (e.g. cash + card)
+    const [splitMode, setSplitMode] = useState(false);
+    const [splitParts, setSplitParts] = useState([]);
+    const [splitCashGiven, setSplitCashGiven] = useState('');
     const [freeMealReason, setFreeMealReason] = useState('');
     const [staffId, setStaffId] = useState('');
     const [staffReason, setStaffReason] = useState('');
@@ -470,7 +477,8 @@ export default function POSTableBilling() {
     // Calculate totals
     const subtotal = currentOrder.reduce((sum, item) => sum + item.total, 0);
     const totalDiscount = Object.values(appliedDiscounts).reduce((sum, val) => sum + val, 0);
-    const tax = (subtotal - totalDiscount) * 0.1; // 10% tax on discounted amount
+    const taxPercent = Math.min(100, Math.max(0, parseFloat(taxRate) || 0));
+    const tax = Math.round((subtotal - totalDiscount) * taxPercent) / 100; // typed tax %, on the discounted amount
     const totalPayable = subtotal - totalDiscount + tax;
 
     // Promo verification
@@ -521,7 +529,14 @@ export default function POSTableBilling() {
 
     // Process payment
     const processPayment = async () => {
-        const receivedAmount = parseFloat(amountReceived) || 0;
+        if (splitMode) {
+            const problem = splitProblem(splitParts, paymentMethods, totalPayable, splitCashGiven);
+            if (problem) {
+                toast.error(problem);
+                return;
+            }
+        }
+        const receivedAmount = splitMode ? totalPayable : (parseFloat(amountReceived) || 0);
 
         const selectedMethod = paymentMethods.find(m => m.name.toUpperCase() === paymentMethod.toUpperCase()) || null;
         if (!selectedMethod) {
@@ -549,7 +564,9 @@ export default function POSTableBilling() {
                 cashierId: cashierId,
                 amountReceived: receivedAmount,
                 totalAmount: totalPayable,
-                paymentMethodId: selectedMethod.paymentMethodId,
+                taxRate: taxPercent,
+                payments: splitMode ? splitPayload(splitParts) : null,
+                paymentMethodId: splitMode ? Number(splitParts[0].methodId) : selectedMethod.paymentMethodId,
                 globalPromotionId: promoScope === 'TOTAL' ? appliedPromo?.id : null,
                 items: currentOrder.map(item => ({
                     dayProductionItemId: item.dayProductionItemId,
@@ -560,7 +577,7 @@ export default function POSTableBilling() {
                     discountId: null,
                     manualDiscount: 0,
                     promotionId: (promoScope === 'EVERY' || (promoScope === 'SELECTED' && selectedPromoItems.includes(item.id))) ? appliedPromo?.id : null,
-                    paymentMethodId: selectedMethod.paymentMethodId
+                    paymentMethodId: splitMode ? Number(splitParts[0].methodId) : selectedMethod.paymentMethodId
                 }))
             };
 
@@ -587,7 +604,7 @@ export default function POSTableBilling() {
                 transactionId: saleData.billNumber || saleData.billId || `BILL-${Date.now()}`,
                 waiterName: null,
                 cashierName: cashierInfo.name,
-                paymentMethod: paymentMethod,
+                paymentMethod: splitMode ? splitText(splitParts, paymentMethods) : paymentMethod,
                 deliveryOption: 'Dine-In',
                 items: currentOrder.map(item => ({
                     productName: item.name,
@@ -596,7 +613,7 @@ export default function POSTableBilling() {
                 })),
                 subTotal: subtotal,
                 discount: totalDiscount,
-                finalTotal: totalPayable,
+                finalTotal: saleData.totalAmount || totalPayable,
                 kotItems: kotItems,
                 isUberOrPickMe: isUberOrPickMe
             };
@@ -615,6 +632,9 @@ export default function POSTableBilling() {
             fetchTodayItems(); // Refresh stock in product grid
             setSelectedTable('');
             setAmountReceived('');
+            setSplitMode(false);
+            setSplitParts([]);
+            setSplitCashGiven('');
             setFreeMealReason('');
             setStaffId('');
             setStaffReason('');
@@ -1157,7 +1177,7 @@ export default function POSTableBilling() {
                                                         <span className="font-[500] text-fg">Rs. {subtotal}</span>
                                                     </div>
                                                     <div className="flex justify-between text-[14px]">
-                                                        <span className="text-fg-secondary">Tax (10%):</span>
+                                                        <span className="text-fg-secondary">Tax ({taxPercent}%):</span>
                                                         <span className="font-[500] text-fg">Rs. {tax.toFixed(2)}</span>
                                                     </div>
                                                     <div className="border-t border-line pt-3">
@@ -1363,7 +1383,7 @@ export default function POSTableBilling() {
                                         </div>
                                     )}
                                     <div className="flex justify-between text-[14px]">
-                                        <span className="text-fg-secondary">Tax (10%):</span>
+                                        <span className="text-fg-secondary">Tax ({taxPercent}%):</span>
                                         <span className="font-[500]">Rs. {tax.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-[16px] font-[600] border-t border-line pt-2">
@@ -1437,6 +1457,47 @@ export default function POSTableBilling() {
                             {/* Payment Section */}
                             <div className="space-y-4 mb-6">
                                 <div>
+                                    <label className="block text-[14px] font-[500] text-fg mb-2">Tax %</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.01"
+                                        value={taxRate}
+                                        onChange={(e) => setTaxRate(e.target.value)}
+                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
+                                        placeholder="0"
+                                    />
+                                    <p className="mt-1 text-[12px] text-fg-secondary">Charged on the total after discounts: Rs. {tax.toFixed(2)}</p>
+                                </div>
+
+                                {splitMethods(paymentMethods).length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const on = !splitMode;
+                                            setSplitMode(on);
+                                            setSplitParts(on ? startSplit(paymentMethods, totalPayable) : []);
+                                            setSplitCashGiven('');
+                                        }}
+                                        className={`w-full p-3 border rounded-lg text-left text-[14px] transition-colors ${splitMode ? 'border-brand-fg bg-brand/5 text-brand-fg font-[500]' : 'border-line hover:border-brand-fg/30 text-fg'}`}
+                                    >
+                                        {splitMode ? 'Split payment is on (tap to pay with one method)' : 'Split payment (e.g. cash + card)'}
+                                    </button>
+                                )}
+                                {splitMode && (
+                                    <SplitPayment
+                                        methods={paymentMethods}
+                                        total={totalPayable}
+                                        parts={splitParts}
+                                        onChange={setSplitParts}
+                                        cashGiven={splitCashGiven}
+                                        onCashGiven={setSplitCashGiven}
+                                    />
+                                )}
+
+                                {!splitMode && (<>
+                                <div>
                                     <label className="block text-[14px] font-[500] text-fg mb-2">Payment Method</label>
                                     <select
                                         value={paymentMethod}
@@ -1506,6 +1567,7 @@ export default function POSTableBilling() {
                                         </>
                                     );
                                 })()}
+                                </>)}
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-3">
@@ -1519,6 +1581,7 @@ export default function POSTableBilling() {
                                 <button
                                     onClick={processPayment}
                                     disabled={(() => {
+                                        if (splitMode) return false;   // checked when pressed
                                         const selectedMethodObj = paymentMethods.find(m => m.name === paymentMethod) || {};
                                         const isFreeMeal = selectedMethodObj.category === 'FREE_MEAL';
                                         return isFreeMeal ? freeMealReason.trim().length < 10 : (!amountReceived || parseFloat(amountReceived) < totalPayable);
