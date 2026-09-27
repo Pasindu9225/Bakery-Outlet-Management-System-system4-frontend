@@ -47,7 +47,7 @@ const CashFloatPopup = ({ isOpen, onConfirm, cashierInfo }) => {
         `${baseUrl}/api/pos/v1/cash-float/open`,
         {
           cashierId: cashierInfo.id,
-          outletId: 1,
+          outletId: Number(localStorage.getItem("outletId")) || 1, // the backend uses the cashier's own outlet
           openingBalance: amount
         },
         {
