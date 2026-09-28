@@ -1,12 +1,14 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { clearSession, hasLiveSession } from "./utils/session";
 
 // exclusive: only allowedRoles may open the route; Admin does not get its usual automatic access.
 export default function ProtectedRoute({ children, allowedRoles, exclusive = false }) {
   const token = localStorage.getItem("authToken");
   const role = localStorage.getItem("userRole");
 
-  if (!token) {
+  if (!token || !hasLiveSession()) {   // no login, or it has expired
+    clearSession();
     console.warn("[ProtectedRoute] No token found, redirecting to login.");
     return <Navigate to="/" replace />;
   }

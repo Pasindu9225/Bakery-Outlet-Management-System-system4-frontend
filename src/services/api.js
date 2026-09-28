@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { endSession } from '../utils/session';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -26,6 +27,10 @@ axiosInstance.interceptors.response.use(
         return response;
     },
     (error) => {
+        // the login has ended (expired, revoked or deactivated): back to the sign-in page
+        if (error.response?.status === 401 && !String(error.config?.url || '').includes('/bmsauth/')) {
+            endSession();
+        }
         if (error.response && error.response.data) {
             const data = error.response.data;
             if (typeof data === 'object') {

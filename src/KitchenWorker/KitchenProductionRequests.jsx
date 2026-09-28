@@ -16,7 +16,6 @@ import {
   ChevronDown,
   Calendar,
   Hash,
-  PauseCircle,
   ClipboardList,
   ChefHat,
 } from "lucide-react";
@@ -263,13 +262,13 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
           <div className="flex flex-wrap gap-3 pt-2">
             {["PENDING", "SUBMITTED", "APPROVED", "IN_PROGRESS"].includes(request.status?.toUpperCase()) && pct < 100 && (
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (request.ingredientsConfirmed === false) {
                     toast.error("Please confirm receipt of required ingredients in 'Get Ingredients' tab first!");
                     return;
                   }
-                  if (request.status?.toUpperCase() !== "IN_PROGRESS") {
-                    onUpdateStatus(request.id, "IN_PROGRESS");
+                  if (request.status?.toUpperCase() !== "IN_PROGRESS" && !(await onUpdateStatus(request.id, "IN_PROGRESS"))) {
+                    return;
                   }
                   onClose();
                   navigate(`/kitchenPartialProduction?id=${request.id}`);
@@ -282,23 +281,14 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
                 {request.status?.toUpperCase() === "IN_PROGRESS" && request.producedQty > 0 ? "Process Task" : "Start Task"}
               </button>
             )}
-            {request.status?.toUpperCase() === "IN_PROGRESS" && pct < 100 && (
-              <>
-                <button
-                  onClick={() => { onUpdateStatus(request.id, "PENDING"); onClose(); }}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-warning-solid text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover transition-colors"
-                >
-                  <PauseCircle size={16} />
-                  Pause
-                </button>
-                <button
-                  onClick={() => { onUpdateStatus(request.id, "COMPLETED"); onClose(); }}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-success-solid text-on-brand text-[13px] font-[500] rounded-lg hover:bg-success-solid transition-colors"
-                >
-                  <CheckCircle size={16} />
-                  Mark as Completed
-                </button>
-              </>
+            {request.status?.toUpperCase() === "IN_PROGRESS" && request.producedQty > 0 && (
+              <button
+                onClick={async () => { if (await onUpdateStatus(request.id, "COMPLETED")) onClose(); }}
+                className="flex items-center gap-2 px-5 py-2.5 bg-success-solid text-on-brand text-[13px] font-[500] rounded-lg hover:bg-success-solid transition-colors"
+              >
+                <CheckCircle size={16} />
+                Mark as Completed
+              </button>
             )}
             {request.status?.toUpperCase() === "COMPLETED" && (
               <div className="flex items-center gap-2 px-5 py-2.5 bg-hover text-success text-[13px] font-[500] rounded-lg border border-success/30">
@@ -430,13 +420,17 @@ export default function KitchenProductionRequests() {
         body: JSON.stringify({ status: newStatus }),
       });
       if (!res.ok) {
-        throw new Error(`Status update failed: ${res.status}`);
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `Status update failed: ${res.status}`);
       }
       setRequests((prev) =>
         prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r))
       );
+      return true;
     } catch (e) {
       console.error("Failed to update status:", e);
+      toast.error(e.message);
+      return false;
     }
   };
 
@@ -836,11 +830,11 @@ export default function KitchenProductionRequests() {
                               </button>
 
                               {/* Start / Process Task */}
-                              {request.status?.toUpperCase() !== "COMPLETED" && (
+                              {request.status?.toUpperCase() !== "COMPLETED" && pct < 100 && (
                                 <button
-                                  onClick={() => {
-                                    if (request.status?.toUpperCase() !== "IN_PROGRESS") {
-                                      handleUpdateStatus(request.id, "IN_PROGRESS");
+                                  onClick={async () => {
+                                    if (request.status?.toUpperCase() !== "IN_PROGRESS" && !(await handleUpdateStatus(request.id, "IN_PROGRESS"))) {
+                                      return;
                                     }
                                     navigate(`/kitchenPartialProduction?id=${request.id}`);
                                   }}
@@ -852,7 +846,7 @@ export default function KitchenProductionRequests() {
                               )}
 
                               {/* Complete Task */}
-                              {request.status?.toUpperCase() !== "COMPLETED" && (
+                              {request.status?.toUpperCase() === "IN_PROGRESS" && request.producedQty > 0 && (
                                 <button
                                   onClick={() => handleUpdateStatus(request.id, "COMPLETED")}
                                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-success-solid text-on-brand text-[12px] font-[500] rounded-lg hover:bg-success-solid transition-colors"

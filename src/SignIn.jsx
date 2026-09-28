@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Eye, EyeOff, User, Lock, AlertCircle, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Loader from "./component/Loader";
+import { clearSession, hasLiveSession } from "./utils/session";
 
 
 const moduleConfig = {
@@ -44,7 +45,8 @@ const SignIn = ({ targetModule }) => {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     const role = localStorage.getItem("userRole");
-    if (token && role) {
+    if (token && !hasLiveSession()) clearSession();   // an expired login must sign in again
+    if (token && role && hasLiveSession()) {
       const normalizedRole = role.toString().toUpperCase();
       console.log(`[SignIn] Existing session found. Redirecting role: ${normalizedRole}`);
 
