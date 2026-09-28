@@ -98,7 +98,7 @@ export default function ManagerDashboard() {
                       <Rows rows={d.production.upcoming.map((p) => ({ key: p.id, main: p.name || `Plan #${p.id}`, sub: dateOnly(p.date), right: label(p.status) }))} />
                     </Panel>
                     <Panel title="Low stock – store" subtitle="Raw materials under their minimum" viewAll="/managerInformationBase" empty={!d.lowStock.materials.length} emptyText="All materials are above their minimum">
-                      <Rows rows={d.lowStock.materials.map((m, i) => ({ key: i, main: m.name, sub: `Minimum ${num(m.minimum)} ${m.unit || ""}`, right: `${num(m.stock)} ${m.unit || ""}`, rightClass: "text-error" }))} />
+                      <Rows rows={d.lowStock.materials.map((m, i) => ({ key: i, main: m.name, sub: `${[m.code, m.pack && m.pack !== m.name ? m.pack : null].filter(Boolean).map((t) => `${t} · `).join("")}Minimum ${num(m.minimum)} ${m.unit || ""}`, right: `${num(m.stock)} ${m.unit || ""}`, rightClass: "text-error" }))} />
                     </Panel>
                     <Panel title="Low stock – outlets" subtitle="Today's outlet stock under the product minimum" viewAll="/managerOutletStock" empty={!d.lowStock.products.length} emptyText="All outlet stock is above its minimum">
                       <Rows rows={d.lowStock.products.map((p, i) => ({ key: i, main: p.name, sub: `${p.outlet || ""} · minimum ${num(p.minimum)}`, right: `${num(p.qty)} left`, rightClass: "text-error" }))} />

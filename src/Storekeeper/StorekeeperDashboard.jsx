@@ -51,10 +51,10 @@ export default function StorekeeperDashboard() {
                     <Rows rows={toIssue.items.map((i) => ({ key: `${i.type}-${i.ref}`, main: `${i.ref} · ${i.forWhom || ""}`, sub: `${label(i.type)} request · since ${dateTime(i.since)}`, right: "Issue", rightClass: "text-brand-fg" }))} />
                   </Panel>
                   <Panel title="Low stock" subtitle="Under the material's minimum level" viewAll="/storekeeperCreatePO" empty={!stock.lowItems?.length} emptyText="All materials are above their minimum">
-                    <Rows rows={stock.lowItems.map((m, i) => ({ key: i, main: m.name, sub: `Minimum ${num(m.minimum)} ${m.unit || ""}`, right: `${num(m.stock)} ${m.unit || ""}`, rightClass: "text-error" }))} />
+                    <Rows rows={stock.lowItems.map((m, i) => ({ key: i, main: m.name, sub: `${[m.code, m.pack && m.pack !== m.name ? m.pack : null].filter(Boolean).map((t) => `${t} · `).join("")}Minimum ${num(m.minimum)} ${m.unit || ""}`, right: `${num(m.stock)} ${m.unit || ""}`, rightClass: "text-error" }))} />
                   </Panel>
                   <Panel title="Expiring soon" subtitle="Batches with stock expiring within 2 days" viewAll="/storekeeperViewStore" empty={!d.nearExpiry.length} emptyText="No batches expiring soon">
-                    <Rows rows={d.nearExpiry.map((e) => ({ key: e.materialId, main: e.name, sub: `Batch ${e.batch || "-"} · ${num(e.qty)} ${e.unit || ""}`, right: expiredOrSoon(e), rightClass: "text-warning" }))} />
+                    <Rows rows={d.nearExpiry.map((e) => ({ key: e.materialId, main: e.name, sub: `${[e.code, e.pack && e.pack !== e.name ? e.pack : null].filter(Boolean).map((t) => `${t} · `).join("")}Batch ${e.batch || "-"} · ${num(e.qty)} ${e.unit || ""}`, right: expiredOrSoon(e), rightClass: "text-warning" }))} />
                   </Panel>
                   <Panel title="Open purchase orders" subtitle="Not fully received" viewAll="/storekeeperGRN" empty={!d.openPurchaseOrders.length} emptyText="No open purchase orders">
                     <Rows rows={d.openPurchaseOrders.map((p) => ({ key: p.poId, main: `${p.ref} · ${p.supplier || ""}`, sub: `Expected ${dateOnly(p.expected)} · ${label(p.status)}`, right: rs(p.value) }))} />
