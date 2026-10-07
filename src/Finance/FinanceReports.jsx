@@ -57,7 +57,7 @@ const REPORT_CATEGORIES = [
             { label: "Daily Payment Summary",   type: "Daily",   period: "Daily" },
             { label: "Monthly Payment Summary", type: "Monthly", period: "Monthly" },
             { label: "Yearly Payment Summary",  type: "Yearly",  period: "Yearly" },
-            { label: "Outstanding Balances",    type: "Monthly", period: "Monthly" },
+            { label: "Outstanding Balances",    type: "Outstanding", period: "Outstanding" },
         ],
     },
     {
@@ -80,7 +80,8 @@ const REPORT_CATEGORIES = [
         endpoint: "wastage",
         reports: [
             { label: "Raw Material Costs",  type: "rawMaterialCosts" },
-            { label: "Production Overheads", type: "byProduct" },
+            // "Production Overheads" is hidden: overheads (labour, power, rent) are not recorded anywhere yet,
+            // and it only repeated Wastage by Product. Add it back once overhead costs are captured.
             { label: "Wastage by Product",  type: "byProduct" },
             { label: "Wastage by Outlet",   type: "byOutlet" },
         ],
@@ -105,8 +106,8 @@ const REPORT_CATEGORIES = [
         color: "bg-plum-solid",
         endpoint: "staff-meals",
         reports: [
-            { label: "Free Meal Issuance",   type: "" },
-            { label: "Staff Meal Cost Report", type: "" },
+            { label: "Free Meal Issuance",   type: "issuance" },
+            { label: "Staff Meal Cost Report", type: "costReport" },
         ],
     },
     {
@@ -116,7 +117,7 @@ const REPORT_CATEGORIES = [
         color: "bg-success-solid",
         endpoint: "stock-movement",
         reports: [
-            { label: "Stock Inflow/Outflow", type: "inflow" },
+            { label: "Stock Inflow/Outflow", type: "inflowOutflow" },
             { label: "Adjustments Log",      type: "adjustments" },
             { label: "Current Stock Levels", type: "currentStock" },
         ],
@@ -534,7 +535,7 @@ const DETAIL_COLUMNS = {
     purchase: [["date", "Date"], ["supplier", "Supplier"], ["product", "Material"], ["qty", "Qty"],
         ["costPerUnit", "Price/Unit (Rs.)"], ["totalCost", "Total (Rs.)"], ["change", "Change vs last price"]],
     staff: [["date", "Date"], ["employee", "Staff"], ["product", "Item"], ["totalCost", "Value (Rs.)"], ["reason", "Reason"]],
-    stock: [["date", "Date"], ["product", "Item"], ["supplier", "From"], ["ref", "Ref"], ["qty", "Qty"],
+    stock: [["date", "Date"], ["product", "Item"], ["supplier", "From / To"], ["ref", "Ref"], ["qty", "Qty"],
         ["costPerUnit", "Cost/Unit (Rs.)"], ["totalCost", "Total (Rs.)"], ["reason", "Movement"]],
 };
 const EMPTY_TEXT = {
@@ -546,6 +547,8 @@ const EMPTY_TEXT = {
 const PROFIT_COLS = [["qty", "Sold"], ["net", "Net sales (Rs.)", "rs"], ["totalCost", "Recipe cost (Rs.)", "rs"],
     ["profit", "Profit (Rs.)", "rs"], ["marginPct", "Margin", "pct"]];
 Object.assign(DETAIL_COLUMNS, {
+    "staff:costReport": [["employee", "Staff"], ["qty", "Meals", "num"], ["sales", "Selling value (Rs.)", "rs"],
+        ["totalCost", "Recipe cost (Rs.)", "rs"]],
     "profitability:byProduct": [["product", "Product"], ["category", "Category"], ...PROFIT_COLS, ["reason", "Note"]],
     "profitability:byCategory": [["category", "Category"], ...PROFIT_COLS],
     "profitability:byOutlet": [["outlet", "Outlet"], ...PROFIT_COLS],
@@ -726,6 +729,7 @@ export default function FinanceReports() {
     const [outlet, setOutlet] = useState("All Outlets");
     const [outletOpen, setOutletOpen] = useState(false);
     const [outletOptions, setOutletOptions] = useState(["All Outlets"]);
+    const [outletList, setOutletList] = useState([]);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
@@ -759,10 +763,16 @@ export default function FinanceReports() {
         fetch(`${baseUrl}/api/v1/admin/outlet/all`, { headers })
             .then((r) => (r.ok ? r.json() : []))
             .then((data) => {
-                const names = Array.isArray(data)
-                    ? data.map((o) => o?.name).filter(Boolean)
+                const list = Array.isArray(data)
+                    ? data.filter((o) => o?.name).map((o) => ({ id: o.outletId ?? o.id, name: o.name, location: o.location }))
                     : [];
-                setOutletOptions(["All Outlets", ...names]);
+                // two outlets can share a name, so the dropdown label adds the location when it does
+                list.forEach((o) => {
+                    const twin = list.filter((x) => x.name === o.name).length > 1;
+                    o.label = twin ? `${o.name} (${o.location || `#${o.id}`})` : o.name;
+                });
+                setOutletList(list);
+                setOutletOptions(["All Outlets", ...list.map((o) => o.label)]);
             })
             .catch(() => {});
 
@@ -791,6 +801,11 @@ export default function FinanceReports() {
         setPage(1);
     };
 
+    const outletServerSide = selectedCategory.id === "sales"
+        || (selectedCategory.id === "production" && selectedReport.type !== "rawMaterialCosts");
+    const outletApplies = outletServerSide
+        || (selectedCategory.id === "profitability" && selectedReport.type === "byOutlet");
+
     // Fetch the selected report from the backend.
     const fetchReport = useCallback(async () => {
         if (!selectedCategory || !selectedReport) return;
@@ -810,12 +825,9 @@ export default function FinanceReports() {
             }
             if (startDate) params.set("from", startDate);
             if (endDate) params.set("to", endDate);
-            // outlet param: backend takes a numeric outlet id; we pass it only
-            // when the user selects something other than the default. If a
-            // server-side mapping table existed we'd resolve the id here; for
-            // now the placeholder just leaves it off.
-            // (See spec: outlet filtering by id is wireable once outlets are
-            // surfaced via an API.)
+            // sales and wastage filter by outlet id on the server
+            const outletId = outletList.find((o) => o.label === outlet)?.id;
+            if (outletServerSide && outletId != null) params.set("outlet", outletId);
 
             const url = `${baseUrl}/api/v1/finance/reports/${selectedCategory.endpoint}${
                 params.toString() ? `?${params.toString()}` : ""
@@ -835,7 +847,7 @@ export default function FinanceReports() {
         } finally {
             setLoading(false);
         }
-    }, [baseUrl, selectedCategory, selectedReport, period, startDate, endDate]);
+    }, [baseUrl, selectedCategory, selectedReport, period, startDate, endDate, outletServerSide, outletList, outlet]);
 
     const handleGenerate = () => {
         setGenerated(true);
@@ -910,7 +922,8 @@ export default function FinanceReports() {
     // Filter & sort (client-side, after server returns the report).
     const filtered = useMemo(() => {
         return rawData.filter((r) => {
-            if (outlet !== "All Outlets" && r.outlet && r.outlet !== outlet) return false;
+            if (outletApplies && !outletServerSide && outlet !== "All Outlets"
+                && r.outlet !== outletList.find((o) => o.label === outlet)?.name) return false;
             if (selectedReport.label === "Sales by Product" && selectedProduct !== "All Products" &&
                 r.product?.trim().toLowerCase() !== selectedProduct?.trim().toLowerCase()) return false;
             if (searchTerm) {
@@ -919,7 +932,7 @@ export default function FinanceReports() {
             }
             return true;
         });
-    }, [rawData, outlet, searchTerm, selectedReport, selectedProduct]);
+    }, [rawData, outlet, outletList, outletApplies, outletServerSide, searchTerm, selectedReport, selectedProduct]);
 
     const sorted = useMemo(() => {
         return [...filtered].sort((a, b) => {
@@ -1004,9 +1017,9 @@ export default function FinanceReports() {
             { label: "Total Records", value: filtered.length, icon: <BarChart2 size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
             { label: "Date Range", value: period, icon: <Calendar size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
             { label: "Report Type", value: selectedCategory.label.split(" ")[0], icon: <PieChart size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
-            { label: "Filters Active", value: [startDate, endDate, outlet !== "All Outlets"].filter(Boolean).length, icon: <Sliders size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+            { label: "Filters Active", value: [startDate, endDate, outletApplies && outlet !== "All Outlets"].filter(Boolean).length, icon: <Sliders size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
         ];
-    }, [filtered, isPaymentReport, isSalesReport, isProfitReport, isVarianceReport, useWastageShape, period, selectedCategory, selectedReport, outlet, startDate, endDate]);
+    }, [filtered, isPaymentReport, isSalesReport, isProfitReport, isVarianceReport, useWastageShape, period, selectedCategory, selectedReport, outlet, outletApplies, startDate, endDate]);
 
     // Chart data for mini charts
     const chartData = useMemo(() => {
@@ -1173,14 +1186,16 @@ export default function FinanceReports() {
                                 </div>
                             </div>
 
-                            {/* Outlet */}
+                            {/* Outlet (only for reports that can be narrowed to one outlet) */}
                             <div className={selectedReport.label === "Sales by Product" ? "lg:col-span-1" : "lg:col-span-2"}>
-                                <FilterDropdown
-                                    label="Outlet"
-                                    open={outletOpen} setOpen={setOutletOpen}
-                                    value={outlet} options={outletOptions}
-                                    onChange={setOutlet}
-                                />
+                                {outletApplies && (
+                                    <FilterDropdown
+                                        label="Outlet"
+                                        open={outletOpen} setOpen={setOutletOpen}
+                                        value={outlet} options={outletOptions}
+                                        onChange={setOutlet}
+                                    />
+                                )}
                             </div>
 
                             {/* Buttons */}
