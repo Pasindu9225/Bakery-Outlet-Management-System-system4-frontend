@@ -64,6 +64,25 @@ export default function AdminSidebar({ sidebarOpen }) {
       color: "text-fg",
     },
     {
+      name: "Raw Materials",
+      icon: Boxes,
+      path: "/adminRawMaterials",
+      color: "text-fg-secondary",
+    },
+    {
+      name: "Manage Products",
+      icon: Package,
+      path: "/adminManageProducts",
+      color: "text-fg-secondary",
+    },
+    {
+      name: "Product Ingredients (BOM)",
+      icon: FileText,
+      path: "/adminCreateBOM",
+      color: "text-fg-secondary",
+    },
+     { name: 'Production Center', icon: Factory, path: '/adminProductionCenter', color: 'text-fg-secondary' },
+    {
       name: "Customer Ledgers",
       icon: CreditCard,
       path: "/adminCustomers",
