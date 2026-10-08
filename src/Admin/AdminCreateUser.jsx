@@ -1158,7 +1158,9 @@ export default function AdminCreateUser() {
                           ).map((role) => (
                             <div
                               key={role}
-                              role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => {
+                              role="button" tabIndex={0} onKeyDown={onEnterClick}
+                              // keep focus in the box while pressed, or a slow click closes the list before it lands
+                              onMouseDown={(e) => e.preventDefault()} onClick={() => {
                                 setFormData((prev) => ({
                                   ...prev,
                                   role: role,
