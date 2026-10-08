@@ -31,6 +31,7 @@ import {
     Repeat,
     Sliders,
     Info,
+    Wallet,
 } from "lucide-react";
 
 import { generatePDF, generateExcel } from "../utils/exportUtils";
@@ -144,6 +145,18 @@ const REPORT_CATEGORIES = [
             { label: "Price Variance",       type: "priceVariance" },
             { label: "Quantity Variance",    type: "quantityVariance" },
             { label: "Production Comparison", type: "productionComparison" },
+        ],
+    },
+    {
+        id: "iou",
+        label: "IOU / Cash Advances",
+        icon: <Wallet size={16} />,
+        color: "bg-success-solid",
+        endpoint: "iou",
+        reports: [
+            { label: "IOU Summary",          type: "summary" },
+            { label: "Open IOUs",            type: "open" },
+            { label: "IOU Items Purchased",  type: "items" },
         ],
     },
 ];
@@ -546,7 +559,14 @@ const EMPTY_TEXT = {
 };
 const PROFIT_COLS = [["qty", "Sold"], ["net", "Net sales (Rs.)", "rs"], ["totalCost", "Recipe cost (Rs.)", "rs"],
     ["profit", "Profit (Rs.)", "rs"], ["marginPct", "Margin", "pct"]];
+const IOU_COLS = [["date", "Date"], ["ref", "IOU"], ["employee", "Requested by"], ["supplier", "Given to"], ["product", "Purpose"],
+    ["standard", "Cash issued (Rs.)", "rs"], ["actual", "Spent (Rs.)", "rs"], ["variance", "Over / under (Rs.)", "rs"], ["reason", "Status"]];
 Object.assign(DETAIL_COLUMNS, {
+    "iou:summary": IOU_COLS,
+    "iou:open": IOU_COLS,
+    "iou:items": [["date", "Date"], ["ref", "IOU"], ["product", "Item"], ["category", "Type"], ["supplier", "Bought from"], ["qty", "Qty"],
+        ["costPerUnit", "Price/Unit (Rs.)"], ["totalCost", "Total (Rs.)"], ["standard", "Estimated (Rs.)", "rs"],
+        ["variance", "Over / under (Rs.)", "rs"], ["reason", "Stock"]],
     "staff:costReport": [["employee", "Staff"], ["qty", "Meals", "num"], ["sales", "Selling value (Rs.)", "rs"],
         ["totalCost", "Recipe cost (Rs.)", "rs"]],
     "profitability:byProduct": [["product", "Product"], ["category", "Category"], ...PROFIT_COLS, ["reason", "Note"]],
@@ -568,6 +588,9 @@ Object.assign(EMPTY_TEXT, {
     profitability: "No paid sales in this period",
     "profitability:lowMargin": "No product is below its target margin in this period",
     variance: "Nothing to compare in this period",
+    iou: "No IOUs in this period",
+    "iou:open": "No IOU cash is waiting to be settled",
+    "iou:items": "No settled IOU purchases in this period",
 });
 const detailColumns = (categoryId, type) =>
     DETAIL_COLUMNS[`${categoryId}:${type}`] || DETAIL_COLUMNS[categoryId] || DETAIL_COLUMNS.production;
@@ -958,7 +981,8 @@ export default function FinanceReports() {
     // share the (qty, cost/unit, total cost, reason) shape.
     const isProfitReport = selectedCategory.id === "profitability";
     const isVarianceReport = selectedCategory.id === "variance";
-    const useWastageShape = isWastageReport || isStaffReport || isStockReport || isPurchaseReport || isProfitReport || isVarianceReport;
+    const isIouReport = selectedCategory.id === "iou";
+    const useWastageShape = isWastageReport || isStaffReport || isStockReport || isPurchaseReport || isProfitReport || isVarianceReport || isIouReport;
 
     const summaryCards = useMemo(() => {
         if (isPaymentReport) {
@@ -1005,6 +1029,20 @@ export default function FinanceReports() {
                 { label: type === "productionComparison" ? "Under plan" : "Below standard", value: under, icon: <TrendingDown size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
             ];
         }
+        if (isIouReport) {
+            const items = selectedReport.type === "items";
+            const spent = sum(items ? "totalCost" : "actual");
+            return [
+                items ? { label: "Estimated", value: money(sum("standard")) } : { label: "Cash Issued", value: money(sum("standard")) },
+                { label: "Spent", value: money(spent) },
+                items ? { label: "Added to Stock", value: filtered.filter((r) => r.reason === "Added to stock").length }
+                    : { label: "Over / Under", value: money(sum("variance")) },
+                { label: items ? "Items" : "IOUs", value: filtered.length },
+            ].map((c, i) => ({ ...c, icon: [<Wallet size={20} />, <Banknote size={20} />, <Repeat size={20} />, <Layers size={20} />][i],
+                color: i === 0 ? "bg-brand" : i === 1 ? "bg-plum-solid" : "bg-info-solid",
+                hoverColor: i === 0 ? "hover:bg-brand-hover" : i === 1 ? "hover:bg-plum-solid" : "hover:bg-info-solid",
+                iconBg: i === 0 ? "bg-brand/30" : i === 1 ? "bg-plum/30" : "bg-info/30" }));
+        }
         if (useWastageShape) {
             return [
                 { label: "Total Cost", value: `Rs. ${filtered.reduce((s, r) => s + (r.totalCost || 0), 0).toLocaleString()}`, icon: <AlertTriangle size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
@@ -1019,7 +1057,7 @@ export default function FinanceReports() {
             { label: "Report Type", value: selectedCategory.label.split(" ")[0], icon: <PieChart size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
             { label: "Filters Active", value: [startDate, endDate, outletApplies && outlet !== "All Outlets"].filter(Boolean).length, icon: <Sliders size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
         ];
-    }, [filtered, isPaymentReport, isSalesReport, isProfitReport, isVarianceReport, useWastageShape, period, selectedCategory, selectedReport, outlet, outletApplies, startDate, endDate]);
+    }, [filtered, isPaymentReport, isSalesReport, isProfitReport, isVarianceReport, isIouReport, useWastageShape, period, selectedCategory, selectedReport, outlet, outletApplies, startDate, endDate]);
 
     // Chart data for mini charts
     const chartData = useMemo(() => {
@@ -1032,12 +1070,12 @@ export default function FinanceReports() {
         if (isProfitReport) {
             return filtered.slice(0, 6).map((r) => ({ label: (r.product || r.category || r.outlet || "").split(" ")[0] || "—", value: Math.max(0, r.profit || 0) }));
         }
-        if (isVarianceReport) return [];   // differences can be negative; the table shows them
+        if (isVarianceReport || isIouReport) return [];   // differences can be negative; the table shows them
         if (useWastageShape) {
             return filtered.slice(0, 6).map((r) => ({ label: (r.product || "").split(" ")[0] || "—", value: r.totalCost }));
         }
         return [];
-    }, [filtered, isPaymentReport, isSalesReport, isProfitReport, isVarianceReport, useWastageShape]);
+    }, [filtered, isPaymentReport, isSalesReport, isProfitReport, isVarianceReport, isIouReport, useWastageShape]);
 
     const dataUnavailable = !!reportEnvelope?.dataUnavailable;
 
@@ -1085,7 +1123,7 @@ export default function FinanceReports() {
                     )}
 
                     {/* ── Report Category Cards ── */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-9 gap-3 mb-6">
                         {REPORT_CATEGORIES.map((cat) => (
                             <button
                                 key={cat.id}
