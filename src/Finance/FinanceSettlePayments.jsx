@@ -39,7 +39,8 @@ import Loader from "../component/Loader.jsx";
 
 
 const PAYMENT_METHODS = ["Bank Transfer", "Cash", "Cheque", "Credit Card", "Online Transfer"];
-const STATUS_FILTER_OPTIONS = ["All Status", "Pending", "Cleared"];
+// every payment is recorded as Cleared (there is no approval step), so "Pending" is not offered
+const STATUS_FILTER_OPTIONS = ["All Status", "Cleared"];
 
 const STATUS_STYLE = {
     Overdue: { text: "text-error", bg: "bg-subtle", icon: <AlertTriangle size={11} /> },
@@ -637,8 +638,10 @@ export default function FinanceSettlePayments() {
 
     // Summary metrics
     const totalPaid = history.filter((h) => h.status === "Cleared").reduce((s, h) => s + h.amount, 0);
-    const totalPending = history.filter((h) => h.status === "Pending").reduce((s, h) => s + h.amount, 0);
-    const pendingCount = history.filter((h) => h.status === "Pending").length;
+    const now = new Date();
+    const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const paidThisMonth = history.filter((h) => (h.date || "").startsWith(thisMonth)).reduce((s, h) => s + h.amount, 0);
+    const paymentCount = history.length;
     const totalOutstanding = invoiceList
         .filter((inv) => inv.outstanding > 0)
         .reduce((s, inv) => s + inv.outstanding, 0);
@@ -678,8 +681,8 @@ export default function FinanceSettlePayments() {
             orientation: "l",
             summary: [
                 { label: "Total Paid", value: `Rs. ${totalPaid.toLocaleString()}` },
-                { label: "Total Pending", value: `Rs. ${totalPending.toLocaleString()}` },
-                { label: "Pending Count", value: pendingCount.toString() }
+                { label: "Paid This Month", value: `Rs. ${paidThisMonth.toLocaleString()}` },
+                { label: "Payments", value: paymentCount.toString() }
             ],
             headers: ["ID", "Date", "Supplier", "Invoice Refs", "Amount (Rs.)", "Method", "Status"],
             data: sorted.map(r => [
@@ -864,9 +867,9 @@ export default function FinanceSettlePayments() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
                         {[
                             { label: "Total Paid (Cleared)", value: `Rs. ${totalPaid.toLocaleString()}`, icon: <BadgeCheck size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
-                            { label: "Pending Payments", value: `Rs. ${totalPending.toLocaleString()}`, icon: <Clock size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
+                            { label: "Paid This Month", value: `Rs. ${paidThisMonth.toLocaleString()}`, icon: <Clock size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
                             { label: "Total Outstanding", value: `Rs. ${totalOutstanding.toLocaleString()}`, icon: <TrendingDown size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
-                            { label: "Awaiting Approval", value: pendingCount, icon: <Receipt size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+                            { label: "Payments Recorded", value: paymentCount, icon: <Receipt size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
                         ].map((card, i) => (
                             <div
                                 key={i}

@@ -13,6 +13,7 @@ import {
 import ManagerNavBar from "../component/ManagerNavBar.jsx";
 import ManagerSidebar from "../component/ManagerSidebar.jsx";
 import FinanceSideBar from "../component/FinanceSideBar.jsx";
+import FinanceNavBar from "../component/FinanceNavBar.jsx";
 import Loader from "../component/Loader.jsx";
 import axios from "axios";
 
@@ -277,11 +278,19 @@ export default function ManagerIouApprovals() {
         <ManagerSidebar sidebarOpen={sidebarOpen} />
       )}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <ManagerNavBar
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-          activeSection={activeSection}
-        />
+        {isFinanceUser ? (
+          <FinanceNavBar
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+            activeSection={activeSection}
+          />
+        ) : (
+          <ManagerNavBar
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+            activeSection={activeSection}
+          />
+        )}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           <div className="mb-6">
             <h1 className="text-[20px] font-[600] text-fg mb-1">

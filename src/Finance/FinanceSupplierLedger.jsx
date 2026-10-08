@@ -37,7 +37,8 @@ import FinanceSideBar from "../component/FinanceSideBar.jsx";
 import Loader from "../component/Loader.jsx";
 
 
-const TX_TYPES  = ["All Types", "GRN", "PO", "Payment", "Return", "Adjustment"];
+// no "PO": a purchase order is not owed until its GRN arrives, so the ledger never lists one
+const TX_TYPES  = ["All Types", "GRN", "Payment", "Return", "Adjustment"];
 const TX_STATUS = ["All Status", "Overdue", "Pending", "Cleared"];
 
 const TYPE_STYLE = {
