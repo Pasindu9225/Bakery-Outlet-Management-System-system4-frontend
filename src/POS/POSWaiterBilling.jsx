@@ -241,7 +241,8 @@ export default function POSWaiterBilling() {
         const fetchPaymentMethods = async () => {
             try {
                 const response = await axios.get(`/api/pos/v1/payment-methods`);
-                setPaymentMethods(response.data);
+                // pay later (Credit) needs a named customer, which this screen does not take
+                setPaymentMethods(response.data.filter(m => m.category !== 'CREDIT'));
                 if (response.data.length > 0) {
                     setPaymentMethod(response.data[0].name);
                 }
