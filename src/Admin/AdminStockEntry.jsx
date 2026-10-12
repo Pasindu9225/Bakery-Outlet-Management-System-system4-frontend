@@ -30,12 +30,14 @@ export default function AdminStockEntry() {
     productId: "",
     productName: "",
     productCode: "",
+    outletId: "",
     quantity: "",
     source: "Store",
     unit: "pieces",
     remarks: "",
   });
 
+  const [outlets, setOutlets] = useState([]);
   const [recentEntries, setRecentEntries] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -82,6 +84,15 @@ export default function AdminStockEntry() {
 
   useEffect(() => {
     fetchProducts();
+    fetch(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/outlet/all`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        const list = Array.isArray(data) ? data : [];
+        setOutlets(list);
+        // only one shop: pick it for the Admin
+        if (list.length === 1) setForm((prev) => ({ ...prev, outletId: String(list[0].outletId) }));
+      })
+      .catch((err) => console.error("Error fetching outlets:", err));
   }, []);
 
   const handleProductSelect = (productId) => {
@@ -109,6 +120,10 @@ export default function AdminStockEntry() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!form.outletId) {
+      toast.error("Please choose the outlet that receives this stock");
+      return;
+    }
     if (!form.productId || !form.quantity || parseFloat(form.quantity) <= 0) {
       toast.error("Please select a product and enter a valid quantity greater than 0");
       return;
@@ -117,7 +132,6 @@ export default function AdminStockEntry() {
     try {
       setIsSubmitting(true);
       const userId = localStorage.getItem("userId") || "35000000-0000-0000-0000-000000000000";
-      const outletId = localStorage.getItem("outletId");
 
       const payload = {
         productId: parseInt(form.productId),
@@ -126,7 +140,7 @@ export default function AdminStockEntry() {
         remarks: form.remarks || "Direct Stock Entry by Admin",
         source: (form.source || "Store").toUpperCase(),
         userId: userId,
-        outletId: outletId ? parseInt(outletId) : 1,
+        outletId: parseInt(form.outletId),
       };
 
       const response = await fetch(`${process.env.REACT_APP_BASE_URL}/api/pos/v1/manual-entry`, {
@@ -147,8 +161,10 @@ export default function AdminStockEntry() {
       toast.success(`Stock added successfully! GTN ID: ${resData.gtnId}`);
 
       // Add to local recent list
+      const outlet = outlets.find((o) => String(o.outletId) === String(form.outletId));
       const newRecord = {
         id: resData.gtnId || Date.now(),
+        outletName: outlet ? outlet.name || outlet.address : "",
         productName: form.productName,
         productCode: form.productCode,
         quantity: form.quantity,
@@ -159,11 +175,12 @@ export default function AdminStockEntry() {
       };
       setRecentEntries((prev) => [newRecord, ...prev]);
 
-      // Reset Form
+      // Reset Form (keep the outlet: the next item usually goes to the same shop)
       setForm({
         productId: "",
         productName: "",
         productCode: "",
+        outletId: form.outletId,
         quantity: "",
         source: "Store",
         unit: "pieces",
@@ -214,6 +231,26 @@ export default function AdminStockEntry() {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Select Outlet */}
+                <div>
+                  <label className="block text-[13px] font-[500] text-fg mb-1">
+                    Outlet *
+                  </label>
+                  <select
+                    value={form.outletId}
+                    onChange={(e) => handleFormChange("outletId", e.target.value)}
+                    required
+                    className="w-full px-3 py-2.5 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg text-[14px]"
+                  >
+                    <option value="">-- Choose the Outlet --</option>
+                    {outlets.map((o) => (
+                      <option key={o.outletId} value={o.outletId}>
+                        {o.name || o.address} {o.location ? `· ${o.location}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* Select Product */}
                 <div>
                   <label className="block text-[13px] font-[500] text-fg mb-1">
@@ -366,6 +403,7 @@ export default function AdminStockEntry() {
                         </p>
                         <p className="text-[12px] text-fg-secondary mt-0.5">
                           {item.quantity} {item.unit} &bull; {item.source}
+                          {item.outletName ? <> &bull; {item.outletName}</> : null}
                         </p>
                         <span className="text-[12px] text-fg-muted">{item.timestamp}</span>
                       </div>

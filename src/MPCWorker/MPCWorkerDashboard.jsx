@@ -17,6 +17,8 @@ import toast from "react-hot-toast";
 import { getApiBaseUrl } from "../utils/config";
 import { ChefHat, ClipboardList, Truck } from "lucide-react";
 import { KpiCard, KpiGrid, num, useDashboard } from "../component/dashboard/DashboardKit";
+import ReportWastageModal from "../component/ReportWastageModal.jsx";
+import ExpiryTag from "../component/ExpiryTag.jsx";
 
 const BASE_URL = getApiBaseUrl();
 
@@ -63,6 +65,7 @@ export default function MPCWorkerDashboard() {
   // MPC store state (real data: stock + BOM-predicted plates)
   const [store, setStore] = useState({ items: [], dishes: [] });
   const [loadingStore, setLoadingStore] = useState(false);
+  const [reportItem, setReportItem] = useState(null); // MPC store row being reported as wastage
 
   // KOTs state
   const [kots, setKots] = useState([]);
@@ -447,7 +450,7 @@ export default function MPCWorkerDashboard() {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     {store.items.filter((i) => !stockQuery.trim() || (i.rawMaterialName || "").toLowerCase().includes(stockQuery.trim().toLowerCase())).map((item) => (
-                      <div key={item.materialKey} className="border border-line rounded-lg p-4 bg-subtle">
+                      <div key={item.id ?? item.materialKey} className="border border-line rounded-lg p-4 bg-subtle">
                         <p className="text-[12px] text-fg-secondary">Raw Material</p>
                         <p className="text-[15px] font-[600] text-fg mb-1">{item.rawMaterialName}</p>
                         {/* nothing left must not look "good": muted number + an Out of stock label */}
@@ -456,6 +459,20 @@ export default function MPCWorkerDashboard() {
                         </p>
                         {!(Number(item.qty) > 0) && (
                           <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-error/10 text-error text-[12px] font-[600]">Out of stock</span>
+                        )}
+                        {item.expiryDate && <div className="mt-1"><ExpiryTag expiryDate={item.expiryDate} /></div>}
+                        {item.id && Number(item.qty) > 0 && (
+                          <button
+                            onClick={() => setReportItem({
+                              stage: "MPC_STORE", locationType: "MPC", locationId: store.mpcId, locationName: store.mpcName,
+                              itemType: "RAW_MATERIAL", itemId: item.rawMaterialId, itemName: item.rawMaterialName,
+                              uom: item.unitOfMeasure, batchRef: item.batchNo || null, expiryDate: item.expiryDate || null,
+                              stockRef: `mpc_store_items:${item.id}`, available: item.qty,
+                            })}
+                            className="mt-2 px-3 py-1 text-[12px] font-[600] text-error border border-error/30 rounded-lg hover:bg-error/10 whitespace-nowrap"
+                          >
+                            Report wastage
+                          </button>
                         )}
                       </div>
                     ))}
@@ -553,6 +570,16 @@ export default function MPCWorkerDashboard() {
           )}
         </main>
       </div>
+      {reportItem && (
+        <ReportWastageModal
+          item={reportItem}
+          onClose={() => setReportItem(null)}
+          onDone={(entry) => {
+            setReportItem(null);
+            toast.success(`${entry?.entryNo || "Wastage"} sent to the Admin for review.`);
+          }}
+        />
+      )}
     </div>
   );
 }
