@@ -6,6 +6,7 @@ import { Package, Search, Plus, Edit, Trash2, X, Check, AlertTriangle, Archive, 
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
+import ExcelImport from "../component/ExcelImport.jsx";
 import rawMaterialService from "../services/rawMaterialService";
 import axiosInstance from "../services/api";
 import { exportToExcel } from "../utils/exportToExcel";
@@ -885,6 +886,9 @@ export default function AdminRawMaterials() {
                         <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
                             Add, view, and manage raw materials
                         </p>
+                        <div className="mt-3">
+                            <ExcelImport type="raw-materials" onImported={() => setTimeout(() => window.location.reload(), 1200)} />
+                        </div>
                     </div>
 
                     {/* Materials List Table */}

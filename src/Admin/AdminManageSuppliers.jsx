@@ -20,6 +20,7 @@ import {
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
+import ExcelImport from "../component/ExcelImport.jsx";
 import Loader from "../component/Loader.jsx";
 import axiosInstance from "../services/api";
 
@@ -693,6 +694,9 @@ export default function AdminManageSuppliers() {
             <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
               View, add, edit, and manage supplier details
             </p>
+              <div className="mt-3">
+                  <ExcelImport type="suppliers" onImported={() => fetchSuppliers()} />
+              </div>
           </div>
 
           {/* Supplier List Table */}

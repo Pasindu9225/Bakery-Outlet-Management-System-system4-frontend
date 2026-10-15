@@ -20,6 +20,7 @@ import {
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
+import ExcelImport from "../component/ExcelImport.jsx";
 
 export default function AdminCreateUser() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -679,6 +680,9 @@ export default function AdminCreateUser() {
             <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
               Create new users and assign roles
             </p>
+              <div className="mt-3">
+                  <ExcelImport type="users" onImported={() => fetchUsers()} note="New accounts are created switched off with no known password. Edit each person, set their starting password and switch the account on. Waiters are switched on (they do not log in)." />
+              </div>
           </div>
 
           {/* User List Table */}

@@ -6,6 +6,7 @@ import { Package, Search, Plus, Edit, Trash2, X, Check, AlertTriangle, ChevronDo
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
+import ExcelImport from "../component/ExcelImport.jsx";
 import Loader from "../component/Loader";
 
 export default function AdminCreateBOM() {
@@ -680,6 +681,9 @@ export default function AdminCreateBOM() {
                         <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
                             View and manage product composition hierarchy
                         </p>
+                        <div className="mt-3">
+                            <ExcelImport type="bom" onImported={() => fetchBOMs()} />
+                        </div>
                     </div>
 
                     {/* BOM List Table */}

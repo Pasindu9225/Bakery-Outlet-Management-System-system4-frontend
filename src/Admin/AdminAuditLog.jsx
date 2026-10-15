@@ -37,6 +37,7 @@ const ACTION_LABELS = {
   LOGIN_BLOCKED: "Login blocked",
   LOGOUT: "Logged out",
   EXPORT: "Exported",
+  IMPORT: "Imported",
   SYSTEM: "System",
 };
 
@@ -51,6 +52,7 @@ const ACTION_STYLES = {
   LOGIN_BLOCKED: "bg-error/10 text-error border-error/30",
   LOGOUT: "bg-hover text-fg border-line",
   EXPORT: "bg-plum/10 text-plum border-plum/30",
+  IMPORT: "bg-success/10 text-success border-success/30",
   SYSTEM: "bg-warning/10 text-warning border-warning/30",
 };
 

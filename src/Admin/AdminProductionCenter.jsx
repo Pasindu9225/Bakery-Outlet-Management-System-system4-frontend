@@ -6,6 +6,7 @@ import MpcMenuModal from "./MpcMenuModal.jsx";
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
+import ExcelImport from "../component/ExcelImport.jsx";
 import Loader from "../component/Loader.jsx";
 
 export default function AdminProductionCenter() {
@@ -329,6 +330,9 @@ export default function AdminProductionCenter() {
                         <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
                             Manage production centers
                         </p>
+                        <div className="mt-3">
+                            <ExcelImport type="production-centres" onImported={() => fetchCenters()} />
+                        </div>
                     </div>
 
                     <div className="bg-surface rounded-lg shadow-sm border border-line p-6">

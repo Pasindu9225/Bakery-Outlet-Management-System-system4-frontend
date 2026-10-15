@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 
 import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
+import ExcelImport from "../component/ExcelImport.jsx";
 import rawMaterialService from "../services/rawMaterialService";
 import { exportToExcel } from "../utils/exportToExcel";
 import Loader from "../component/Loader";
@@ -902,6 +903,9 @@ export default function AdminManageProducts() {
                         <p className="text-[14px] leading-[20px] font-[400] text-fg-secondary">
                             Add, edit, and manage product details
                         </p>
+                        <div className="mt-3">
+                            <ExcelImport type="products" onImported={() => setTimeout(() => window.location.reload(), 1200)} />
+                        </div>
                     </div>
 
                     {/* Product List Table */}
