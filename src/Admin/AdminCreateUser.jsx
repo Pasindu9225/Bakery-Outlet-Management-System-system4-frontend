@@ -368,6 +368,7 @@ export default function AdminCreateUser() {
             phone: formData.contactNumber.trim() || "",
             roleId: roleId,
             isActive: isActive,
+            username: formData.role === "Waiter" ? null : (formData.username?.trim() || null),
             waiterId: formData.role === "Waiter" ? (formData.waiterId?.trim() || null) : null,
             outletId: formData.outletId ? Number(formData.outletId) : null,
             productionCenterId: formData.productionCenterId ? Number(formData.productionCenterId) : null,
