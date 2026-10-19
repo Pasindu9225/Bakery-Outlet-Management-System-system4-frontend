@@ -1037,6 +1037,9 @@ export default function AdminManageProducts() {
                                                 VAT
                                             </th>
                                             <th className="text-center py-4 text-[14px] font-[500] text-fg">
+                                                KOT
+                                            </th>
+                                            <th className="text-center py-4 text-[14px] font-[500] text-fg">
                                                 Actions
                                             </th>
                                         </tr>
@@ -1133,6 +1136,13 @@ export default function AdminManageProducts() {
                                                                 No VAT
                                                             </span>
                                                         )}
+                                                    </div>
+                                                </td>
+                                                <td className="py-4">
+                                                    <div className="flex items-center justify-center">
+                                                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] bg-hover ${product.isKotEnabled ? 'text-brand-fg' : 'text-fg-secondary'}`}>
+                                                            {product.isKotEnabled ? 'KOT' : 'No KOT'}
+                                                        </span>
                                                     </div>
                                                 </td>
                                                 <td className="py-4">
