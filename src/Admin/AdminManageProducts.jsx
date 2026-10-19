@@ -652,6 +652,33 @@ export default function AdminManageProducts() {
         }
     };
 
+    // Switch KOT on/off straight from the list. The update endpoint skips fields that are not sent,
+    // except the production stage (missing = cleared), so the current stage goes along with it.
+    const handleToggleKot = async (product) => {
+        const enabled = !product.isKotEnabled;
+        const setKot = (value) => setProducts(prev => prev.map(p => p.id === product.id ? { ...p, isKotEnabled: value } : p));
+        setKot(enabled);
+        try {
+            const stage = productionStages.find(s => (typeof s === 'object' && s !== null ? s.productionStage : s) === product.productionStage);
+            const token = localStorage.getItem("authToken");
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/product/${product.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({ isKotEnabled: enabled, productionStageId: stage ? stage.id : null }),
+            });
+            if (!response.ok) {
+                setKot(!enabled);
+                toast.error(await parseFetchError(response, "Failed to update KOT."));
+            }
+        } catch (error) {
+            setKot(!enabled);
+            toast.error("Failed to update KOT.");
+        }
+    };
+
     const handleEdit = (product) => {
         setIsEditMode(true);
         setEditingProductId(product.id);
@@ -1140,9 +1167,14 @@ export default function AdminManageProducts() {
                                                 </td>
                                                 <td className="py-4">
                                                     <div className="flex items-center justify-center">
-                                                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-[500] bg-hover ${product.isKotEnabled ? 'text-brand-fg' : 'text-fg-secondary'}`}>
-                                                            {product.isKotEnabled ? 'KOT' : 'No KOT'}
-                                                        </span>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={!!product.isKotEnabled}
+                                                            onChange={() => handleToggleKot(product)}
+                                                            title={product.isKotEnabled ? 'KOT enabled - click to turn off' : 'KOT off - click to enable'}
+                                                            aria-label={`KOT for ${product.name}`}
+                                                            className="w-4 h-4 text-brand-fg border-line rounded focus:ring-2 focus:ring-brand-fg cursor-pointer"
+                                                        />
                                                     </div>
                                                 </td>
                                                 <td className="py-4">
