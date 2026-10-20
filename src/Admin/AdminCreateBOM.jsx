@@ -109,7 +109,7 @@ export default function AdminCreateBOM() {
                     code: rm.materialCode || '',
                     name: rm.genericMaterialName || rm.materialName || '',
                     type: 'Raw Material',
-                    unit: rm.unitOfMeasure || '',
+                    unit: rm.packDetails?.[0]?.packUom || rm.unitOfMeasure || '', // pack items: recipes are typed in what the pack holds (pieces, kg...)
                     productionCenter: 'Bakery',
                     availableStock: rm.currentStock || 0,
                     originalDetails: rm
