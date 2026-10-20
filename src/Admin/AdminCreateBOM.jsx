@@ -534,8 +534,9 @@ export default function AdminCreateBOM() {
             itemCode: item.itemCode,
             name: item.name,
             type: item.type,
-            qty: item.qty.toString(),
-            unit: item.unit,
+            // Pack items are edited in the pack's own unit (pieces, kg...); the server stores packs.
+            qty: (item.displayQty ?? item.qty).toString(),
+            unit: item.displayUnit ?? item.unit,
             productionCenter: item.productionCenter,
             active: item.active,
             searchTerm: ''  // Add this
@@ -880,12 +881,12 @@ export default function AdminCreateBOM() {
                                                                         </span>
                                                                     </td>
                                                                     <td className="py-3 text-right text-[14px] font-[600] text-fg">
-                                                                        {item.qty != null ? item.qty.toFixed(6) : '0.000000'}
+                                                                        {(item.displayQty ?? item.qty) != null ? (item.displayQty ?? item.qty).toFixed(6) : '0.000000'}
                                                                     </td>
-                                                                    <td className="py-3 text-[14px] text-fg">{item.unit}</td>
+                                                                    <td className="py-3 text-[14px] text-fg">{item.displayUnit ?? item.unit}</td>
                                                                     <td className="py-3 text-[14px] text-fg">{item.productionCenter}</td>
                                                                     {/* <td className="py-3 text-right text-[14px] text-fg">{item.cost?.toFixed(2)}</td> */}
-                                                                    <td className="py-3 text-right text-[14px] text-fg">{item.unitPrice?.toFixed(2)}</td>
+                                                                    <td className="py-3 text-right text-[14px] text-fg">{(item.displayUnitPrice ?? item.unitPrice)?.toFixed(2)}</td>
                                                                     {/* <td className="py-3 text-right text-[14px] text-fg">{item.totalCost?.toFixed(2)}</td> */}
                                                                     {/* <td className="py-3 text-right text-[14px] text-fg">{item.salePrice?.toFixed(2)}</td> */}
                                                                     <td className="py-3 text-center">
@@ -1159,6 +1160,16 @@ export default function AdminCreateBOM() {
                                                                 {errors[`childItem_${index}_qty`]}
                                                             </p>
                                                         )}
+                                                        {(() => {
+                                                            // Pack items: say what one pack holds, so the amount used is entered in pieces/kg, not packs.
+                                                            const pack = item.selectedType === 'Raw Material'
+                                                                && childItems.find(ci => ci.code === item.itemCode)?.originalDetails?.packDetails?.[0];
+                                                            return pack?.packSize ? (
+                                                                <p className="text-fg-secondary text-[12px] mt-1">
+                                                                    1 pack = {pack.packSize} {pack.packUom}. Enter the {pack.packUom} used for one unit.
+                                                                </p>
+                                                            ) : null;
+                                                        })()}
                                                     </div>
 
                                                     {/* Unit (Auto-filled) */}
