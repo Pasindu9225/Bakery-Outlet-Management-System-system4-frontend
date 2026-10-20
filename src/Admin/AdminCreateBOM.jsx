@@ -345,8 +345,8 @@ export default function AdminCreateBOM() {
             if (!item.itemCode) {
                 newErrors[`childItem_${index}_itemCode`] = 'Item is required';
             }
-            if (item.qty === '' || item.qty === null || item.qty === undefined || isNaN(item.qty) || parseFloat(item.qty) < 0) {
-                newErrors[`childItem_${index}_qty`] = 'Valid quantity is required';
+            if (item.qty === '' || item.qty === null || item.qty === undefined || isNaN(item.qty) || parseFloat(item.qty) <= 0) {
+                newErrors[`childItem_${index}_qty`] = 'Enter a quantity above 0 (remove the line if it is not used)';
             }
         });
 
@@ -1150,7 +1150,7 @@ export default function AdminCreateBOM() {
                                                             value={item.qty}
                                                             onChange={(e) => handleChildItemChange(item.tempId, 'qty', e.target.value)}
                                                             placeholder="0.00"
-                                                            step="0.01"
+                                                            step="any"
                                                             min="0"
                                                             className={`w-full px-4 py-2.5 border rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg ${errors[`childItem_${index}_qty`] ? 'border-error' : 'border-line'
                                                                 }`}
