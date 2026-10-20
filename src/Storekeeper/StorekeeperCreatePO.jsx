@@ -31,6 +31,17 @@ import Loader from "../component/Loader.jsx";
 
 const PO_DRAFT_KEY = "storekeeper.createPO.items";
 
+const WHOLE_UNITS = ["pack", "packs", "piece", "pieces", "pcs", "box", "boxes", "can", "cans", "bottle", "bottles", "nos", "unit", "units"];
+
+/** Starting PO quantity: tops stock up to the minimum level (at least 1). Packs/pieces round up to whole
+ *  items (6.6 packs -> 7); kg/L round to 2 decimals, so no 6.6034999. */
+const suggestedOrderQty = (item) => {
+  const shortfall = Math.max((item.reorderLevel || 0) - (item.currentStock || 0), 1);
+  return WHOLE_UNITS.includes(String(item.unit || "").trim().toLowerCase())
+    ? Math.ceil(shortfall - 1e-9)
+    : Math.round(shortfall * 100) / 100;
+};
+
 /** "B Onion - 1 kg": material type + item name (item names are often only a size), like RawMaterial.getDisplayName. */
 const materialDisplayName = (item) => {
   const type = item.genericMaterialName;
@@ -284,7 +295,7 @@ export default function StorekeeperCreatePO() {
         ...item,
         selectedBrand: item.brands[0],
         selectedSupplier: item.brands[0].suppliers[0],
-        quantity: Math.max(item.reorderLevel - item.currentStock, 1),
+        quantity: suggestedOrderQty(item),
         unitPrice: item.brands[0].lastPrice,
         totalPrice: 0,
       };
