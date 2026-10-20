@@ -37,6 +37,10 @@ function suggestNextCode(existingCodes, typedPrefix = '') {
     return `${best.base}${nextNumber}`;
 }
 
+// Container units: sold by the pack/can/box... with a size ("1 can = 18.5 kg"); stock and price are per container.
+const PACK_UNITS = ['pack', 'packet', 'can', 'box', 'bottle', 'sack'];
+const isPackUnit = (unit) => PACK_UNITS.includes(String(unit || '').trim().toLowerCase());
+
 export default function AdminRawMaterials() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('Manage Raw Materials');
@@ -253,7 +257,7 @@ export default function AdminRawMaterials() {
             let isPack = false;
             
             if (selectedGeneric) {
-                isPack = (selectedGeneric.unitOfMeasure || '').toLowerCase() === 'pack';
+                isPack = isPackUnit(selectedGeneric.unitOfMeasure);
                 if (isPack && selectedGeneric.description) {
                     try {
                         const descObj = JSON.parse(selectedGeneric.description);
@@ -325,7 +329,7 @@ export default function AdminRawMaterials() {
             packSize: ''
         }));
 
-        if ((selectedUnit || '').toLowerCase() === 'pack') {
+        if (isPackUnit(selectedUnit)) {
             setShowPackDetails(true);
         } else {
             setShowPackDetails(false);
@@ -365,6 +369,11 @@ export default function AdminRawMaterials() {
             newErrors.unit = 'Unit of Measure is required';
         }
 
+        // A pack/can/box needs to say what it holds (e.g. 1 can = 18.5 kg); stock, price and recipes depend on it.
+        if (isPackUnit(formData.unit) && (!formData.packUnit || !(parseFloat(formData.packSize) > 0))) {
+            newErrors.packSize = `Choose what is inside one ${formData.unit} and how much (e.g. kg and 18.5)`;
+        }
+
         if (!formData.unitCost || isNaN(formData.unitCost) || parseFloat(formData.unitCost) < 0) {
             newErrors.unitCost = 'Valid Unit Cost is required';
         }
@@ -389,7 +398,7 @@ export default function AdminRawMaterials() {
         setIsEditMode(true);
         setEditingMaterialId(material.id);
 
-        const isPack = (material.unit || '').toLowerCase() === 'pack';
+        const isPack = isPackUnit(material.unit);
 
         setFormData({
             code: material.code,
@@ -496,7 +505,7 @@ export default function AdminRawMaterials() {
                     isActive: formData.status === 'Active',
                     vatIncluded: formData.vatIncluded,
                     unitCost: parseFloat(formData.unitCost) || 0,
-                    packDetails: (formData.unit || '').toLowerCase() === 'pack' ? [
+                    packDetails: isPackUnit(formData.unit) ? [
                         {
                             packUom: formData.packUnit,
                             packSize: parseFloat(formData.packSize) || 0
@@ -558,7 +567,7 @@ export default function AdminRawMaterials() {
         if (!name.trim()) return;
 
         let description = '';
-        if (newGenericUom === 'pack') {
+        if (isPackUnit(newGenericUom)) {
             description = JSON.stringify({
                 packSize: parseFloat(newGenericPackSize) || 0,
                 packUnit: newGenericPackUnit || 'kg'
@@ -580,7 +589,7 @@ export default function AdminRawMaterials() {
 
             let parsedPackSize = '';
             let parsedPackUnit = '';
-            let isPack = (data.unitOfMeasure || '').toLowerCase() === 'pack';
+            let isPack = isPackUnit(data.unitOfMeasure);
             if (isPack && data.description) {
                 try {
                     const descObj = JSON.parse(data.description);
@@ -680,7 +689,7 @@ export default function AdminRawMaterials() {
         if (!editGenericName.trim()) return;
 
         let description = '';
-        if (editGenericUom === 'pack') {
+        if (isPackUnit(editGenericUom)) {
             description = JSON.stringify({
                 packSize: parseFloat(editGenericPackSize) || 0,
                 packUnit: editGenericPackUnit || 'kg'
@@ -1048,7 +1057,7 @@ export default function AdminRawMaterials() {
                                                     <p className="text-[14px] font-[600] text-fg">
                                                         {material.currentStock.toLocaleString()} {material.unit}
                                                     </p>
-                                                    {material.unit?.toLowerCase() === 'pack' && material.packDetails?.[0] && (
+                                                    {isPackUnit(material.unit) && material.packDetails?.[0] && (
                                                         <p className="text-[12px] text-fg-secondary">
                                                             Total: {(material.currentStock * material.packDetails[0].packSize).toLocaleString()} {material.packDetails[0].packUom}
                                                         </p>
@@ -1267,7 +1276,7 @@ export default function AdminRawMaterials() {
                                                     
                                                     let pSize = '';
                                                     let pUnit = 'kg';
-                                                    if ((genObj.unitOfMeasure || '').toLowerCase() === 'pack' && genObj.description) {
+                                                    if (isPackUnit(genObj.unitOfMeasure) && genObj.description) {
                                                         try {
                                                             const descObj = JSON.parse(genObj.description);
                                                             pSize = descObj.packSize || '';
@@ -1462,12 +1471,12 @@ export default function AdminRawMaterials() {
                                     )}
                                 </div>
 
-                                {/* Pack Details - Only show when "pack" is selected */}
+                                {/* Pack/can/box details - only for container units */}
                                 {showPackDetails && (
                                     <div className="md:col-span-2 p-4 bg-subtle border border-line rounded-lg">
                                         <h4 className="text-[14px] font-[600] text-fg mb-3 flex items-center gap-2">
                                             <Package className="w-4 h-4" />
-                                            Pack Details
+                                            {`${(formData.unit || 'pack').charAt(0).toUpperCase()}${(formData.unit || 'pack').slice(1)}`} Details
                                         </h4>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {/* Pack Unit */}
@@ -1496,7 +1505,7 @@ export default function AdminRawMaterials() {
                                                     })()}
                                                 </select>
                                                 <p className="text-[12px] text-fg-secondary mt-1">
-                                                    What unit is inside the pack?
+                                                    What unit is inside one {formData.unit || 'pack'}?
                                                 </p>
                                             </div>
 
@@ -1573,10 +1582,13 @@ export default function AdminRawMaterials() {
                                                     </div>
                                                 )}
                                                 <p className="text-[12px] text-fg-secondary mt-1">
-                                                    Size per pack (e.g., 500 for 500kg pack)
+                                                    How much is in one {formData.unit || 'pack'} (e.g. 18.5 for an 18.5 kg can)
                                                 </p>
                                             </div>
                                         </div>
+                                        {errors.packSize && (
+                                            <p className="text-error text-[12px] mt-2">{errors.packSize}</p>
+                                        )}
                                     </div>
                                 )}
 
@@ -1863,11 +1875,11 @@ export default function AdminRawMaterials() {
                                     value={newGenericUom}
                                     onChange={(e) => setNewGenericUom(e.target.value)}
                                 >
-                                    {['kg', 'L', 'pack', 'units', 'pieces'].map(u => <option key={u} value={u}>{u}</option>)}
+                                    {['kg', 'L', 'pack', 'units', 'pieces', 'can', 'box', 'bottle'].map(u => <option key={u} value={u}>{u}</option>)}
                                 </select>
                             </div>
 
-                            {newGenericUom === 'pack' && (
+                            {isPackUnit(newGenericUom) && (
                                 <div className="grid grid-cols-2 gap-3 p-3 bg-subtle rounded-md border border-line">
                                     <div>
                                         <label className="block text-[12px] font-[500] text-fg mb-1">Pack Size *</label>
@@ -2072,7 +2084,7 @@ export default function AdminRawMaterials() {
                                 </select>
                             </div>
 
-                            {editGenericUom === 'pack' && (
+                            {isPackUnit(editGenericUom) && (
                                 <div className="grid grid-cols-2 gap-3 p-3 bg-subtle rounded-md border border-line">
                                     <div>
                                         <label className="block text-[12px] font-[500] text-fg mb-1">Pack Size *</label>
