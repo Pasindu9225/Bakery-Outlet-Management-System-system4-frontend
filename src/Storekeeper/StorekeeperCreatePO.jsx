@@ -173,6 +173,24 @@ export default function StorekeeperCreatePO() {
         });
 
         setLowStockItems(mapped);
+        // Items kept from an earlier visit get today's stock and min/max; untouched quantities are re-suggested.
+        setSelectedItems((prev) =>
+          prev.map((item) => {
+            const fresh = mapped.find((m) => m.id === item.id);
+            if (!fresh) return item;
+            const updated = {
+              ...item,
+              currentStock: fresh.currentStock,
+              minStockLevel: fresh.minStockLevel,
+              maxStockLevel: fresh.maxStockLevel,
+              reorderLevel: fresh.reorderLevel,
+              unit: fresh.unit,
+            };
+            if (!item.qtyTyped) updated.quantity = suggestedOrderQty(updated);
+            updated.totalPrice = updated.quantity * updated.unitPrice;
+            return updated;
+          })
+        );
       } catch (e) {
         console.error("Failed to fetch initial data:", e);
         setLowStockItems([]);
@@ -331,6 +349,9 @@ export default function StorekeeperCreatePO() {
           }
 
           // Update total price when quantity or unit price changes
+          if (field === "quantity") {
+            updated.qtyTyped = true; // keep what the storekeeper typed; only suggestions are refreshed
+          }
           if (field === "quantity" || field === "unitPrice") {
             updated.totalPrice = updated.quantity * updated.unitPrice;
           }
