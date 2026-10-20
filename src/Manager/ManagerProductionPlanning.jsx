@@ -1193,14 +1193,13 @@ export default function ManagerProductionPlanning() {
 
       const productName = String(product.name || product.productName || "").toLowerCase();
       const productCode = String(product.code || product.productCode || "").toLowerCase();
-      const productDesc = String(product.description || "").toLowerCase();
       const productCategory = String(product.category || "").toLowerCase();
       const productType = String(product.type || "").toLowerCase();
 
+      // Not the description: words in it ("served with bread") pulled in unrelated products.
       const matchesSearch =
         productName.includes(cleanSearch) ||
         productCode.includes(cleanSearch) ||
-        productDesc.includes(cleanSearch) ||
         productCategory.includes(cleanSearch) ||
         productType.includes(cleanSearch);
 

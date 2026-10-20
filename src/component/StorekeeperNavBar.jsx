@@ -122,7 +122,8 @@ export default function StorekeeperNavBar({ sidebarOpen, setSidebarOpen, activeS
           <div className="flex items-center gap-3">
 
             {/* Search */}
-            <div className="hidden sm:flex relative">
+            {/* Hidden: not connected to any search yet; Ctrl+K now reaches the page's own search box */}
+            <div className="hidden">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary" size={16} />
               <input
                 type="text"

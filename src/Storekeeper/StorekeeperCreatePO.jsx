@@ -29,6 +29,8 @@ import StorekeeperNavBar from "../component/StorekeeperNavBar.jsx";
 import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
 import Loader from "../component/Loader.jsx";
 
+const PO_DRAFT_KEY = "storekeeper.createPO.items";
+
 /** "B Onion - 1 kg": material type + item name (item names are often only a size), like RawMaterial.getDisplayName. */
 const materialDisplayName = (item) => {
   const type = item.genericMaterialName;
@@ -44,7 +46,22 @@ export default function StorekeeperCreatePO() {
   const [activeSection, setActiveSection] = useState("Create PO");
   const [activeTab, setActiveTab] = useState("lowStock"); // 'lowStock', 'createPO', 'poHistory'
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedItems, setSelectedItems] = useState([]);
+  // Items added to the PO are kept in this browser until the PO is submitted, so a refresh does not lose them.
+  const [selectedItems, setSelectedItems] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(PO_DRAFT_KEY));
+      return Array.isArray(saved) ? saved : [];
+    } catch {
+      return [];
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(PO_DRAFT_KEY, JSON.stringify(selectedItems));
+    } catch {
+      // storage blocked (private window): the PO list just lasts until the page is closed
+    }
+  }, [selectedItems]);
   const [showPOForm, setShowPOForm] = useState(false);
   const [showPODetails, setShowPODetails] = useState(false);
   const [selectedPO, setSelectedPO] = useState(null);
