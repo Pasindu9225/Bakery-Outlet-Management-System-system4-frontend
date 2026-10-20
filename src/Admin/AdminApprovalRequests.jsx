@@ -848,9 +848,18 @@ export default function AdminApprovalRequests() {
                               <p className="text-[14px] font-[600] text-success">
                                 Rs.{request.totalCost.toFixed(2)}
                               </p>
-                              <p className="text-[12px] text-fg-secondary">
-                                {request.totalItems} items
-                              </p>
+                              {request.items.length > 0 ? (
+                                request.items.map((item, i) => (
+                                  <p key={item.poiId ?? i} className="text-[12px] text-fg">
+                                    {item.rawMaterialName || "Unknown material"}
+                                    <span className="text-fg-secondary"> · {item.requiredQty} {item.unitOfMeasure}</span>
+                                  </p>
+                                ))
+                              ) : (
+                                <p className="text-[12px] text-fg-secondary">
+                                  {request.totalItems} items
+                                </p>
+                              )}
                             </div>
                           ) : activeTab === "returnMaterials" ? (
                             <div>

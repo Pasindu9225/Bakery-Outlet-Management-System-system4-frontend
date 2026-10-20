@@ -28,6 +28,14 @@ import { printReactReport } from "../component/report/PrintHelper";
 import StorekeeperNavBar from "../component/StorekeeperNavBar.jsx";
 import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
 import Loader from "../component/Loader.jsx";
+
+/** "B Onion - 1 kg": material type + item name (item names are often only a size), like RawMaterial.getDisplayName. */
+const materialDisplayName = (item) => {
+  const type = item.genericMaterialName;
+  const name = item.name || "";
+  if (!type) return name || item.code;
+  return name.toLowerCase().includes(type.toLowerCase()) ? name : `${type} - ${name}`;
+};
 import toast from "react-hot-toast";
 import { companyInfo } from "../utils/companyInfo";
 
@@ -648,25 +656,17 @@ export default function StorekeeperCreatePO() {
                             <td className="py-4 min-w-[150px]">
                               <div>
                                 <p className="text-[14px] font-[600] text-fg">
-                                  {item.code}
+                                  {materialDisplayName(item)}
                                 </p>
-                                <p className="text-[14px] font-[500] text-fg">
-                                  {item.name}
-                                </p>
-                                {item.genericMaterialName && item.genericMaterialName !== item.name && (
-                                  <p className="text-[12px] text-brand-fg font-[500]">
-                                    Generic: {item.genericMaterialName}
-                                  </p>
-                                )}
                                 <p className="text-[12px] text-fg-secondary">
-                                  Unit: {item.unit}
+                                  Code: {item.code} · Unit: {item.unit}
                                 </p>
                               </div>
                             </td>
                             <td className="py-4 min-w-[150px]">
                               <div>
                                 <p className="text-[14px] font-[600] text-error">
-                                  {item.currentStock} {item.unit}
+                                  {Number(item.currentStock.toFixed(3))} {item.unit}
                                 </p>
                                 <p className="text-[12px] text-fg-secondary">
                                   Stock: {item.minStockLevel} (Min) - {item.maxStockLevel} (Max)

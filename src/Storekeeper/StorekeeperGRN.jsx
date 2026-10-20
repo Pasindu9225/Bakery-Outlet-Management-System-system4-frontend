@@ -173,7 +173,8 @@ export default function StorekeeperGRN() {
 
         return {
           id: poId,
-          grnId: po.grnId || poId,
+          // GRN and PO numbers differ; never guess the GRN from the PO number (it can be another PO's GRN).
+          grnId: po.grnId ?? null,
           poId: poId,
           poNumber: `PO-${po.poReference || poId}`,
           poDate:
@@ -455,6 +456,11 @@ export default function StorekeeperGRN() {
       ? "RECEIVED"
       : "RECEIVED";
 
+    if (!selectedPO.grnId) {
+      setSubmitError("This purchase order has no GRN yet. Refresh the page; if it still fails, ask the admin to re-approve the PO.");
+      return;
+    }
+
     setSubmitLoading(true);
     setSubmitError(null);
     setSubmitSuccess(null);
@@ -466,9 +472,7 @@ export default function StorekeeperGRN() {
         items: receivedItems,
         storekeeperSignature: grnData.storekeeperSignature ? grnData.storekeeperSignature.url : null,
       };
-      const postUrl = `${process.env.REACT_APP_BASE_URL}/STK/v1/grn/${
-        selectedPO.grnId || selectedPO.id
-      }/receive`;
+      const postUrl = `${process.env.REACT_APP_BASE_URL}/STK/v1/grn/${selectedPO.grnId}/receive`;
       console.log("[REQUEST] POST", postUrl, payload);
       const token = localStorage.getItem("authToken");
       const response = await fetch(postUrl, {
