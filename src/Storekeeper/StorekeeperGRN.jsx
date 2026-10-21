@@ -268,7 +268,8 @@ export default function StorekeeperGRN() {
 
         const matCode = rm.materialCode || `RM${rm.rawMaterialId}`;
         const seqStr = String(idx + 1).padStart(2, "0");
-        const defaultBatchNo = rm.batchNo || `BAT-${todayStr}-${matCode}-${seqStr}`;
+        // Each delivery is a new batch: rm.batchNo is the batch of the stock row the PO points to, not this one
+        const defaultBatchNo = `BAT-${todayStr}-${matCode}-${seqStr}`;
 
         return {
           id: rm.grnItemId || rm.rawMaterialId, // use GRN item id as primary id
