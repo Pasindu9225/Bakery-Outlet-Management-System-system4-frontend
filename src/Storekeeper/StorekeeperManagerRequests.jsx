@@ -1263,17 +1263,27 @@ export default function StorekeeperManagerRequests() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
-                {rawMaterials.map((material) => (
+                {rawMaterials.map((material) => {
+                  // Main store holds less than requested: the storekeeper cannot issue it all
+                  const available = Number(material.currentStock ?? 0);
+                  const shortBy = Math.max(0, Number(material.quantity ?? 0) - available);
+                  const issuing = Number(issuedQtyByMaterial[issuedQtyKey(centerName, material.childItemId)] || 0);
+                  return (
                   <React.Fragment key={material.childItemId}>
-                    <tr className="hover:bg-subtle">
+                    <tr className={shortBy > 0.0001 ? "bg-error/10 hover:bg-error/15" : "hover:bg-subtle"}>
                       <td className="py-3 px-4 text-[14px] text-fg font-[500]">
                         {material.childItemId}
                       </td>
                       <td className="py-3 px-4 text-[14px] text-fg font-[500]">
                         {material.childName}
                       </td>
-                      <td className="py-3 px-4 text-[14px] text-fg font-[600]">
-                        {(Number(material.currentStock ?? 0)).toFixed(2)} {material.unit}
+                      <td className={`py-3 px-4 text-[14px] font-[600] ${shortBy > 0.0001 ? "text-error" : "text-fg"}`}>
+                        {available.toFixed(2)} {material.unit}
+                        {shortBy > 0.0001 && (
+                          <span className="block text-[12px] font-[500]">
+                            Short {Number(shortBy.toFixed(3))} {material.unit}
+                          </span>
+                        )}
                       </td>
                       <td className="py-3 px-4 text-[14px] text-fg font-[600]">
                         {material.quantity} {material.unit}
@@ -1293,13 +1303,14 @@ export default function StorekeeperManagerRequests() {
                               [material.childItemId]: e.target.value,
                             }))
                           }
-                          className="w-20 p-2 border border-line rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] text-center"
+                          className={`w-20 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-brand-fg text-[14px] text-center ${issuing > available + 0.0001 ? "border-error text-error" : "border-line"}`}
                           placeholder="0"
                         />
                       </td>
                     </tr>
                   </React.Fragment>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
