@@ -197,7 +197,8 @@ export default function StorekeeperGRN() {
           itemCount: po.numberOfItems || (po.items ? po.items.length : 0),
           items: po.items || [],
           materialNames: po.materialNames || (po.items ? po.items.map(i => i.rawMaterialName || i.name).filter(Boolean).join(", ") : ""),
-          isReceived: po.isReceived || poStatus === "RECEIVED" || poStatus === "COMPLETED",
+          // The PO stays APPROVED after receiving; its GRN status says whether it is done
+          isReceived: po.grnStatus === "RECEIVED" || po.isReceived || poStatus === "RECEIVED" || poStatus === "COMPLETED",
         };
       });
 
@@ -537,7 +538,7 @@ export default function StorekeeperGRN() {
   const filteredPOs = purchaseOrders
     .filter((po) => {
       const status = (po.status || "").toUpperCase();
-      return (
+      return !po.isReceived && (
         status === "PENDING" ||
         status === "APPROVED" ||
         status.includes("APPROVED") ||
