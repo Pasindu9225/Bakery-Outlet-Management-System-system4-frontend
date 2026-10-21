@@ -332,7 +332,7 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
                               itemType: cat === "RAW_MATERIAL" ? "RAW_MATERIAL" : cat === "FINISHED_PRODUCT" ? "FINISHED" : "SEMI_FINISHED",
                               itemId: item.rawMaterialId || item.productId, itemName: item.name,
                               uom: item.unitOfMeasure || item.unit, expiryDate: item.expiryDate || null,
-                              stockRef: item.stockRef, available: item.physicalQty,
+                              stockRef: item.stockRef, available: item.stockRefQty ?? item.physicalQty, // one batch: report up to its qty
                             })}
                             className="px-3 py-1 text-[12px] font-[600] text-error border border-error/30 rounded-lg hover:bg-error/10 whitespace-nowrap"
                           >
