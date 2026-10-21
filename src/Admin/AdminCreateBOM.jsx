@@ -110,7 +110,7 @@ export default function AdminCreateBOM() {
                     name: rm.genericMaterialName || rm.materialName || '',
                     type: 'Raw Material',
                     unit: rm.packDetails?.[0]?.packUom || rm.unitOfMeasure || '', // pack items: recipes are typed in what the pack holds (pieces, kg...)
-                    productionCenter: 'Bakery',
+                    productionCenter: '', // a raw material line takes the centre of the product being made
                     availableStock: rm.currentStock || 0,
                     originalDetails: rm
                 })));
@@ -273,7 +273,7 @@ export default function AdminCreateBOM() {
                         updated.name = selectedItem.name;
                         updated.type = updated.selectedType === 'Product' ? 'Product' : 'Raw Material';
                         updated.unit = selectedItem.unit || '';
-                        updated.productionCenter = selectedItem.productionCenter || 'Bakery';
+                        updated.productionCenter = selectedItem.productionCenter || formData.parentProduct?.productionCenter || 'Bakery';
                     }
                 }
 
