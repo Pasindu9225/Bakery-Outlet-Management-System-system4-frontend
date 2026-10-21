@@ -14,7 +14,7 @@ import { NavLink } from "react-router-dom";
 import ManagerNavBar from "../component/ManagerNavBar.jsx";
 import ManagerSidebar from "../component/ManagerSidebar.jsx";
 import Loader from "../component/Loader.jsx";
-import ExpiryTag from "../component/ExpiryTag.jsx";
+import ExpiryTag, { isExpired } from "../component/ExpiryTag.jsx";
 import ReportWastageModal from "../component/ReportWastageModal.jsx";
 
 export default function ManagerActualProduction() {
@@ -99,6 +99,9 @@ export default function ManagerActualProduction() {
     fetchHistories();
   }, []);
 
+  // Expired lots cannot be sent to outlets, so only the rest is offered
+  const usableQty = (item) => Math.max(0, (item?.availableQuantity || 0) - (item?.expiredQuantity || 0));
+
   const openDistributeModal = (item) => {
     setSelectedProduct(item);
     setDistributeQty("");
@@ -113,8 +116,8 @@ export default function ManagerActualProduction() {
       return;
     }
 
-    if (parseInt(distributeQty) > selectedProduct.availableQuantity) {
-      setNotification({ type: 'error', message: "Quantity cannot exceed available inventory." });
+    if (parseInt(distributeQty) > usableQty(selectedProduct)) {
+      setNotification({ type: 'error', message: `Only ${usableQty(selectedProduct)} can be sent (expired stock cannot).` });
       setTimeout(() => setNotification(null), 3000);
       return;
     }
@@ -272,11 +275,15 @@ export default function ManagerActualProduction() {
                             </td>
                             <td className="py-4 px-4 text-center">
                               <span className="text-[14px] font-[600] text-fg">{item.availableQuantity}</span>
+                              {item.expiredQuantity > 0 && (
+                                <span className="block text-[12px] font-[600] text-success">{usableQty(item)} usable</span>
+                              )}
                             </td>
                             <td className="py-4 px-4">
                               {item.lots && item.lots.length > 0 ? (
                                 <div className="flex flex-col gap-1.5">
-                                  {item.lots.slice(0, 3).map((lot) => (
+                                  {/* good lots first, so the stock that can be sent is always visible */}
+                                  {[...item.lots].sort((a, b) => isExpired(a.expiryDate) - isExpired(b.expiryDate)).slice(0, 3).map((lot) => (
                                     <div key={lot.id} className="flex items-center gap-2 text-[12px] text-fg">
                                       <span className="font-[600] w-8 text-right">{lot.availableQty}</span>
                                       <ExpiryTag expiryDate={lot.expiryDate} warnDays={1} />
@@ -310,7 +317,7 @@ export default function ManagerActualProduction() {
                             <td className="py-4 px-4 text-right">
                               <button
                                 onClick={() => openDistributeModal(item)}
-                                disabled={item.availableQuantity <= 0}
+                                disabled={usableQty(item) <= 0}
                                 className="px-3 py-1.5 bg-brand text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 inline-flex"
                               >
                                 <Send size={14} /> Send to Store
@@ -446,8 +453,13 @@ export default function ManagerActualProduction() {
                 <p className="text-[14px] text-fg-secondary bg-subtle px-3 py-2 rounded border border-line">{selectedProduct?.productName}</p>
               </div>
               <div>
-                <p className="text-[13px] font-[500] text-fg mb-1">Available Quantity</p>
-                <p className="text-[14px] text-fg-secondary bg-subtle px-3 py-2 rounded border border-line">{selectedProduct?.availableQuantity}</p>
+                <p className="text-[13px] font-[500] text-fg mb-1">Available to Send</p>
+                <p className="text-[14px] text-fg-secondary bg-subtle px-3 py-2 rounded border border-line">
+                  {usableQty(selectedProduct)}
+                  {selectedProduct?.expiredQuantity > 0 && (
+                    <span className="text-error"> ({selectedProduct.expiredQuantity} expired, cannot be sent)</span>
+                  )}
+                </p>
               </div>
               <div>
                 <label className="text-[13px] font-[500] text-fg mb-1 block">Outlet / Store</label>
@@ -467,7 +479,7 @@ export default function ManagerActualProduction() {
                 <input
                   type="number"
                   min="1"
-                  max={selectedProduct?.availableQuantity || 1}
+                  max={usableQty(selectedProduct) || 1}
                   value={distributeQty}
                   onChange={(e) => setDistributeQty(e.target.value)}
                   className="w-full border border-line rounded px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-brand-fg"
