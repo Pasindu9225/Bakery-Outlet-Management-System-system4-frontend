@@ -27,6 +27,23 @@ import StorekeeperNavBar from "../component/StorekeeperNavBar.jsx";
 import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
 import Loader from "../component/Loader";
 
+// A plan can hold the same product more than once (made on its own and also used inside other products, often
+// covered from stock): show it once with the quantities added up, instead of letting the last row win.
+const mergeSameProduct = (list) => {
+  const byId = new Map();
+  (list || []).forEach((p) => {
+    const prev = byId.get(p.productId);
+    if (!prev) {
+      byId.set(p.productId, { ...p });
+      return;
+    }
+    ["plannedQuantity", "exactPlannedQuantity", "requiredQuantity", "coveredFromStock", "totalCost"].forEach((k) => {
+      if (p[k] != null || prev[k] != null) prev[k] = Number(prev[k] || 0) + Number(p[k] || 0);
+    });
+  });
+  return Array.from(byId.values());
+};
+
 export default function StorekeeperManagerRequests() {
   const [activeTab, setActiveTab] = useState("");
   const [productionCenters, setProductionCenters] = useState([]);
@@ -855,9 +872,9 @@ export default function StorekeeperManagerRequests() {
   const getSummaryProductsByCenter = (summaryProducts, center) => {
     if (!summaryProducts || summaryProducts.length === 0) return [];
 
-    return summaryProducts.filter(
+    return mergeSameProduct(summaryProducts.filter(
       (product) => product.productionCenter === center
-    );
+    ));
   };
 
   // Helper function to extract raw materials by production center with consolidation
@@ -1903,9 +1920,9 @@ export default function StorekeeperManagerRequests() {
 
                     // Get summary products for this center and sort for priority
                     const centerProducts =
-                      selectedRequest.summaryProducts?.filter(
+                      mergeSameProduct(selectedRequest.summaryProducts?.filter(
                         (product) => product.productionCenter === currentCenter
-                      ) || [];
+                      ));
                     const sortedCenterProducts = centerProducts
                       .slice()
                       .sort(
