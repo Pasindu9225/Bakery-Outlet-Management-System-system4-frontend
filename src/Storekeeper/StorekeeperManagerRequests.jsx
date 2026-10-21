@@ -56,6 +56,8 @@ export default function StorekeeperManagerRequests() {
   const [expandedProducts, setExpandedProducts] = useState({});
   const [showWorkflowTree, setShowWorkflowTree] = useState(true);
   const [issuedQtyByMaterial, setIssuedQtyByMaterial] = useState({});
+  // Each centre store's materials: in store, held for other plans in progress there, free to use for this plan
+  const [centreStoreStock, setCentreStoreStock] = useState([]);
 
   // Manager requests from backend
   const [managerRequests, setManagerRequests] = useState([]);
@@ -178,7 +180,26 @@ export default function StorekeeperManagerRequests() {
   //   setShowDetailsModal(true);
   // };
 
-  const handleViewDetails = (request) => {
+  const findCentreStock = (rows, center, materialId) =>
+    (rows || []).find(
+      (r) => (r.centerName || "").toLowerCase() === (center || "").toLowerCase() &&
+        (r.rawMaterialIds || []).map(Number).includes(Number(materialId))
+    );
+
+  const handleViewDetails = async (request) => {
+    // What the centre stores can already cover (not held for other plans in progress) is not issued again
+    let stockRows = [];
+    try {
+      const token = localStorage.getItem("authToken");
+      const res = await fetch(
+        `${process.env.REACT_APP_BASE_URL}/STK/v1/approved-plans/${request.planId}/centre-store-stock`,
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
+      if (res.ok) stockRows = await res.json();
+    } catch (err) {
+      console.error("Could not load centre store stock; issuing full quantities:", err);
+    }
+    setCentreStoreStock(stockRows);
     // Pre-fill issued quantities from the required quantities across all centers
     const initialIssuedQtys = {};
     const centerNames = productionCenters.map(c => c.centerName);
@@ -190,7 +211,9 @@ export default function StorekeeperManagerRequests() {
 
       centerRaws.forEach(material => {
         if (material.childItemId) {
-          initialIssuedQtys[material.childItemId] = material.quantity;
+          const free = findCentreStock(stockRows, center, material.childItemId)?.free ?? 0;
+          initialIssuedQtys[material.childItemId] =
+            Number(Math.max(0, (Number(material.quantity) || 0) - free).toFixed(6));
         }
       });
     });
@@ -1289,7 +1312,25 @@ export default function StorekeeperManagerRequests() {
                         {material.quantity} {material.unit}
                       </td>
                       <td className="py-3 px-4 text-[14px] text-fg font-[600]">
-                        {getMiniStoreQuantityForCenter(material, centerName)} {material.unit}
+                        {(() => {
+                          const stock = findCentreStock(centreStoreStock, centerName, material.childItemId);
+                          if (!stock) return `${getMiniStoreQuantityForCenter(material, centerName)} ${material.unit}`;
+                          return (
+                            <>
+                              {Number(Number(stock.inStore).toFixed(3))} {material.unit}
+                              {stock.held > 0.0001 && (
+                                <span className="block text-[12px] font-[500] text-warning">
+                                  {Number(Number(stock.held).toFixed(3))} held for other plans
+                                </span>
+                              )}
+                              {stock.free > 0.0001 && (
+                                <span className="block text-[12px] font-[500] text-success">
+                                  {Number(Number(stock.free).toFixed(3))} free: issue only the rest
+                                </span>
+                              )}
+                            </>
+                          );
+                        })()}
                       </td>
                       <td className="py-3 px-4">
                         <input
