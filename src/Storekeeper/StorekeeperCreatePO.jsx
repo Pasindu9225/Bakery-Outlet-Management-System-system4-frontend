@@ -76,6 +76,7 @@ export default function StorekeeperCreatePO() {
   const [showPOForm, setShowPOForm] = useState(false);
   const [showPODetails, setShowPODetails] = useState(false);
   const [selectedPO, setSelectedPO] = useState(null);
+  const [checkedIds, setCheckedIds] = useState(() => new Set()); // portfolio rows ticked for "Add selected"
 
   // Low stock items from backend
   const [lowStockItems, setLowStockItems] = useState([]);
@@ -307,20 +308,34 @@ export default function StorekeeperCreatePO() {
       (item.brands && item.brands.some(b => b.brand && b.brand.toLowerCase().includes(searchTerm.toLowerCase())))
   );
 
-  const handleAddToPO = (item) => {
-    if (!selectedItems.find((selected) => selected.id === item.id)) {
-      const newItem = {
-        ...item,
-        selectedBrand: item.brands[0],
-        selectedSupplier: item.brands[0].suppliers[0],
-        quantity: suggestedOrderQty(item),
-        unitPrice: item.brands[0].lastPrice,
-        totalPrice: 0,
-      };
-      newItem.totalPrice = newItem.quantity * newItem.unitPrice;
-      setSelectedItems([...selectedItems, newItem]);
-    }
+  const toPoItem = (item) => {
+    const newItem = {
+      ...item,
+      selectedBrand: item.brands[0],
+      selectedSupplier: item.brands[0].suppliers[0],
+      quantity: suggestedOrderQty(item),
+      unitPrice: item.brands[0].lastPrice,
+      totalPrice: 0,
+    };
+    newItem.totalPrice = newItem.quantity * newItem.unitPrice;
+    return newItem;
   };
+
+  // Ticked materials go into the PO together; ones already added are skipped.
+  const handleAddManyToPO = (items) => {
+    const fresh = items.filter((item) => !selectedItems.some((selected) => selected.id === item.id));
+    if (fresh.length > 0) setSelectedItems([...selectedItems, ...fresh.map(toPoItem)]);
+    setCheckedIds(new Set());
+  };
+
+  const handleAddToPO = (item) => handleAddManyToPO([item]);
+
+  const toggleChecked = (id) =>
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
 
   const handleRemoveFromPO = (itemId) => {
     setSelectedItems(selectedItems.filter((item) => item.id !== itemId));
@@ -651,11 +666,22 @@ export default function StorekeeperCreatePO() {
                   <h3 className="text-[18px] font-[600] text-fg">
                     Full Material Portfolio
                   </h3>
-                  <div className="flex items-center gap-2 mt-2 sm:mt-0">
+                  <div className="flex items-center gap-3 mt-2 sm:mt-0">
                     <span className="text-[12px] text-fg-secondary">
                       Showing {filteredLowStock.length} of{" "}
                       {lowStockItems.length} items
                     </span>
+                    <button
+                      onClick={() => handleAddManyToPO(lowStockItems.filter((item) => checkedIds.has(item.id)))}
+                      disabled={checkedIds.size === 0}
+                      className={`inline-flex items-center gap-2 px-3 py-2 text-[12px] font-[500] rounded-lg transition-colors ${checkedIds.size === 0
+                          ? "bg-subtle text-fg-secondary cursor-not-allowed"
+                          : "bg-brand text-on-brand hover:bg-brand-hover"
+                        }`}
+                    >
+                      <Plus size={14} />
+                      Add selected ({checkedIds.size})
+                    </button>
                   </div>
                 </div>
 
@@ -679,6 +705,22 @@ export default function StorekeeperCreatePO() {
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-line">
+                          <th className="py-3 pr-3 w-8">
+                            {(() => {
+                              const addable = filteredLowStock.filter((item) => !selectedItems.some((s) => s.id === item.id));
+                              const allTicked = addable.length > 0 && addable.every((item) => checkedIds.has(item.id));
+                              return (
+                                <input
+                                  type="checkbox"
+                                  aria-label="Select all shown materials"
+                                  checked={allTicked}
+                                  disabled={addable.length === 0}
+                                  onChange={() => setCheckedIds(allTicked ? new Set() : new Set(addable.map((item) => item.id)))}
+                                  className="h-4 w-4 accent-brand cursor-pointer"
+                                />
+                              );
+                            })()}
+                          </th>
                           <th className="text-left py-3 text-[12px] font-[600] text-fg uppercase">
                             Material
                           </th>
@@ -702,6 +744,16 @@ export default function StorekeeperCreatePO() {
                             key={item.id}
                             className="border-b border-line hover:bg-subtle"
                           >
+                            <td className="py-4 pr-3 w-8">
+                              <input
+                                type="checkbox"
+                                aria-label={`Select ${materialDisplayName(item)}`}
+                                checked={checkedIds.has(item.id)}
+                                disabled={selectedItems.some((selected) => selected.id === item.id)}
+                                onChange={() => toggleChecked(item.id)}
+                                className="h-4 w-4 accent-brand cursor-pointer disabled:cursor-not-allowed"
+                              />
+                            </td>
                             <td className="py-4 min-w-[150px]">
                               <div>
                                 <p className="text-[14px] font-[600] text-fg">
