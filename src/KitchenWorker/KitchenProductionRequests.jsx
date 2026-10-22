@@ -18,6 +18,7 @@ import {
   Hash,
   ClipboardList,
   ChefHat,
+  Truck,
 } from "lucide-react";
 
 import KitchenWorkerNavBar from "../component/KitchenWorkerNavBar.jsx";
@@ -50,6 +51,11 @@ const STATUS_META = {
     color: "text-success bg-hover",
     icon: <CheckCircle size={14} />,
   },
+  DISTRIBUTED: {
+    label: "Distributed",
+    color: "text-brand-fg bg-subtle",
+    icon: <Truck size={14} />,
+  },
 };
 
 const getStatusMeta = (status) =>
@@ -58,7 +64,7 @@ const getStatusMeta = (status) =>
 const progressPercent = (produced, total) =>
   total > 0 ? Math.min(100, Math.round((produced / total) * 100)) : 0;
 
-function TaskDetailModal({ request, onClose, onUpdateStatus }) {
+function TaskDetailModal({ request, onClose, onUpdateStatus, onDispatch }) {
   const navigate = useNavigate();
   if (!request) return null;
   const meta = getStatusMeta(request.status);
@@ -281,7 +287,8 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
                 {request.status?.toUpperCase() === "IN_PROGRESS" && request.producedQty > 0 ? "Process Task" : "Start Task"}
               </button>
             )}
-            {request.status?.toUpperCase() === "IN_PROGRESS" && request.producedQty > 0 && (
+            {/* Finish early: less than planned was made (at 100% Send to Store finishes it) */}
+            {request.status?.toUpperCase() === "IN_PROGRESS" && pct < 100 && request.producedQty > 0 && (
               <button
                 onClick={async () => { if (await onUpdateStatus(request.id, "COMPLETED")) onClose(); }}
                 className="flex items-center gap-2 px-5 py-2.5 bg-success-solid text-on-brand text-[13px] font-[500] rounded-lg hover:bg-success-solid transition-colors"
@@ -290,11 +297,26 @@ function TaskDetailModal({ request, onClose, onUpdateStatus }) {
                 Mark as Completed
               </button>
             )}
-            {request.status?.toUpperCase() === "COMPLETED" && (
-              <div className="flex items-center gap-2 px-5 py-2.5 bg-hover text-success text-[13px] font-[500] rounded-lg border border-success/30">
-                <CheckCircle size={16} />
-                Task Completed
+            {request.status?.toUpperCase() === "DISTRIBUTED" && (
+              <div className="flex items-center gap-2 px-5 py-2.5 bg-hover text-brand-fg text-[13px] font-[500] rounded-lg border border-line">
+                <Truck size={16} />
+                Sent to Store
               </div>
+            )}
+            {request.status?.toUpperCase() !== "DISTRIBUTED" && (request.status?.toUpperCase() === "COMPLETED" || pct === 100) && (
+              <>
+                <div className="flex items-center gap-2 px-5 py-2.5 bg-hover text-success text-[13px] font-[500] rounded-lg border border-success/30">
+                  <CheckCircle size={16} />
+                  Task {request.status?.toUpperCase() === "COMPLETED" ? "Completed" : "Ready"}
+                </div>
+                <button
+                  onClick={() => onDispatch(request.id)}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-brand text-on-brand text-[13px] font-[500] rounded-lg hover:bg-brand-hover transition-colors"
+                >
+                  <Truck size={16} />
+                  Send to Store
+                </button>
+              </>
             )}
             <button
               onClick={onClose}
@@ -431,6 +453,31 @@ export default function KitchenProductionRequests() {
       console.error("Failed to update status:", e);
       toast.error(e.message);
       return false;
+    }
+  };
+
+  // Send the finished goods from the kitchen store to the Manager's Actual Production (same call as the Bakery page)
+  const handleDispatch = async (id) => {
+    try {
+      const baseUrl = process.env.REACT_APP_BASE_URL;
+      const token = localStorage.getItem("authToken");
+      const res = await fetch(`${baseUrl}/api/v1/worker/production-requests/${id}/dispatch`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `Send to store failed: ${res.status}`);
+      }
+      toast.success("Sent to store successfully!");
+      setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: "DISTRIBUTED" } : r)));
+      setSelectedRequest(null);
+      setShowModal(false);
+    } catch (e) {
+      console.error("Failed to send to store:", e);
+      toast.error(e.message);
     }
   };
 
@@ -830,7 +877,7 @@ export default function KitchenProductionRequests() {
                               </button>
 
                               {/* Start / Process Task */}
-                              {request.status?.toUpperCase() !== "COMPLETED" && pct < 100 && (
+                              {!["COMPLETED", "DISTRIBUTED"].includes(request.status?.toUpperCase()) && pct < 100 && (
                                 <button
                                   onClick={async () => {
                                     if (request.status?.toUpperCase() !== "IN_PROGRESS" && !(await handleUpdateStatus(request.id, "IN_PROGRESS"))) {
@@ -846,13 +893,24 @@ export default function KitchenProductionRequests() {
                               )}
 
                               {/* Complete Task */}
-                              {request.status?.toUpperCase() === "IN_PROGRESS" && request.producedQty > 0 && (
+                              {request.status?.toUpperCase() === "IN_PROGRESS" && pct < 100 && request.producedQty > 0 && (
                                 <button
                                   onClick={() => handleUpdateStatus(request.id, "COMPLETED")}
                                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-success-solid text-on-brand text-[12px] font-[500] rounded-lg hover:bg-success-solid transition-colors"
                                 >
                                   <CheckCircle size={13} />
                                   Complete
+                                </button>
+                              )}
+
+                              {/* Send to Store (100% produced or Completed, but NOT already sent) */}
+                              {(pct === 100 || request.status?.toUpperCase() === "COMPLETED") && request.status?.toUpperCase() !== "DISTRIBUTED" && (
+                                <button
+                                  onClick={() => handleDispatch(request.id)}
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand text-on-brand text-[12px] font-[500] rounded-lg hover:bg-brand-hover transition-colors"
+                                >
+                                  <Truck size={13} />
+                                  Send to Store
                                 </button>
                               )}
                             </div>
@@ -874,6 +932,7 @@ export default function KitchenProductionRequests() {
           request={selectedRequest}
           onClose={() => { setSelectedRequest(null); setShowModal(false); }}
           onUpdateStatus={handleUpdateStatus}
+          onDispatch={handleDispatch}
         />
       )}
 
