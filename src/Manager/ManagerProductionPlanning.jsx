@@ -22,6 +22,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import ManagerNavBar from "../component/ManagerNavBar.jsx";
 import ManagerSidebar from "../component/ManagerSidebar.jsx";
 import { companyInfo, escapeHtml } from "../utils/companyInfo";
+import { soundsLike } from "../utils/productSearch";
 
 export default function ManagerProductionPlanning() {
   const location = useLocation();
@@ -1151,6 +1152,11 @@ export default function ManagerProductionPlanning() {
     const [addedItems, setAddedItems] = useState([]); // Track items added to the plan within this modal session
     const [expandedProducts, setExpandedProducts] = useState({});
 
+    // Products and raw materials are numbered separately, so the same id can be both (15 = Bread and a raw material).
+    // Keyed by id alone, the cards did not update on search and selecting one marked the other.
+    const itemKey = (p) => `${p.category === "raw_material" || p.type === "raw_material" ? "rm" : "p"}-${p.id}`;
+    const planItemKey = (item) => `${item.isRawMaterial || item.category === "raw_material" ? "rm" : "p"}-${item.productId}`;
+
     const toggleExpand = (productId) => {
       setExpandedProducts(prev => ({
         ...prev,
@@ -1201,7 +1207,8 @@ export default function ManagerProductionPlanning() {
         productName.includes(cleanSearch) ||
         productCode.includes(cleanSearch) ||
         productCategory.includes(cleanSearch) ||
-        productType.includes(cleanSearch);
+        productType.includes(cleanSearch) ||
+        soundsLike(productName, cleanSearch);
 
       return matchesProductionCenter && matchesProductType && matchesSearch;
     });
@@ -1209,10 +1216,10 @@ export default function ManagerProductionPlanning() {
     // Handle product selection/deselection
     const toggleProductSelection = (product) => {
       setSelectedProducts((prev) => {
-        const isSelected = prev.find((p) => p.id === product.id);
+        const isSelected = prev.find((p) => itemKey(p) === itemKey(product));
         if (isSelected) {
           // Remove from selection
-          const updated = prev.filter((p) => p.id !== product.id);
+          const updated = prev.filter((p) => itemKey(p) !== itemKey(product));
           // Remove from quantities as well
           setQuantities((prevQty) => {
             const newQty = { ...prevQty };
@@ -1246,7 +1253,7 @@ export default function ManagerProductionPlanning() {
           product.type === "raw_material";
 
         // Find fresh stock data from availableProducts global state
-        const freshProductData = availableProducts.find(p => p.id === product.id);
+        const freshProductData = availableProducts.find(p => itemKey(p) === itemKey(product));
 
         const newItem = {
           id: Date.now() + Math.random(),
@@ -1411,21 +1418,21 @@ export default function ManagerProductionPlanning() {
                   ) : (
                     filteredProducts.map((product) => {
                       const isSelected = selectedProducts.find(
-                        (p) => p.id === product.id
+                        (p) => itemKey(p) === itemKey(product)
                       );
                       const isAlreadyAdded =
                         addedItems.find(
-                          (item) => item.productId === product.id
+                          (item) => planItemKey(item) === itemKey(product)
                         ) ||
                         currentPlan.productionItems.find(
-                          (item) => item.productId === product.id
+                          (item) => planItemKey(item) === itemKey(product)
                         );
 
-                      const isExpanded = expandedProducts[product.id];
+                      const isExpanded = expandedProducts[itemKey(product)];
 
                       return (
                         <div
-                          key={product.id}
+                          key={itemKey(product)}
                           className={`border rounded-lg transition-all ${isAlreadyAdded
                             ? "border-success bg-success/10 opacity-75"
                             : isSelected
@@ -1519,7 +1526,7 @@ export default function ManagerProductionPlanning() {
                               className="flex items-center justify-center py-1 border-t border-line cursor-pointer hover:bg-subtle transition-colors"
                               role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={(e) => {
                                 e.stopPropagation();
-                                toggleExpand(product.id);
+                                toggleExpand(itemKey(product));
                               }}
                             >
                               <span className="text-[12px] text-fg-secondary mr-1">

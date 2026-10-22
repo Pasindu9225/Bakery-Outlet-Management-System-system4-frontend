@@ -24,3 +24,11 @@ test("inactive products are never offered", () => {
 test("empty text lists active products, capped", () => {
   expect(filterProducts(P, "", 2).map((p) => p.id)).toEqual([1, 2]);
 });
+
+test("finds names spelled differently (Sini Sumbal = Seeni Sambol), but not from short text", () => {
+  const S = [...P, { id: 5, productName: "Seeni Sambol", productCode: "MFK07", isActive: true }];
+  expect(filterProducts(S, "sini").map((p) => p.id)).toEqual([5]);
+  expect(filterProducts(S, "sini sumbal").map((p) => p.id)).toEqual([5]);
+  expect(filterProducts(S, "fesh").map((p) => p.id)).toEqual([1]);
+  expect(filterProducts(S, "sin")).toEqual([]);
+});
