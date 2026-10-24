@@ -132,6 +132,9 @@ export default function POSSales() {
     const [selectedWaiterItemIds, setSelectedWaiterItemIds] = useState([]);
     const [targetWaiterId, setTargetWaiterId] = useState('');
     const [waiterPaymentType, setWaiterPaymentType] = useState('CASH');
+    // a free meal is recorded with its reason (staff ID / why), like every other free-meal checkout
+    const [waiterFreeMealReason, setWaiterFreeMealReason] = useState('');
+    const waiterFreeMealMissing = waiterPaymentType === 'FREE_MEAL' && waiterFreeMealReason.trim().length < 10;
     const [printData, setPrintData] = useState(null);
     const [showWaiterDiscountModal, setShowWaiterDiscountModal] = useState(false);
     const [waiterDiscountAmount, setWaiterDiscountAmount] = useState('0');
@@ -1478,9 +1481,24 @@ export default function POSSales() {
                                                                     Discount
                                                                 </button>
                                                             </div>
+                                                            {waiterPaymentType === 'FREE_MEAL' && (
+                                                                <div className="mb-3">
+                                                                    <label className="block text-[13px] font-[500] text-fg mb-1">Reason for Free Meal *</label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={waiterFreeMealReason}
+                                                                        onChange={(e) => setWaiterFreeMealReason(e.target.value)}
+                                                                        placeholder="Staff ID / reason (minimum 10 characters)"
+                                                                        className={`w-full px-3 py-2 border rounded-lg text-[14px] focus:border-brand-fg focus:outline-none ${waiterFreeMealMissing ? 'border-warning' : 'border-line'}`}
+                                                                    />
+                                                                    {waiterFreeMealMissing && (
+                                                                        <p className="text-[12px] text-warning mt-1">Enter the reason (at least 10 characters) to finish.</p>
+                                                                    )}
+                                                                </div>
+                                                            )}
                                                             <div className="grid grid-cols-2 gap-3 mt-3">
                                                                 <button
-                                                                    disabled={selectedWaiterItemIds.length === 0}
+                                                                    disabled={selectedWaiterItemIds.length === 0 || waiterFreeMealMissing}
                                                                     onClick={async () => {
                                                                         const discountVal = parseFloat(waiterDiscountAmount) || 0;
                                                                         if (await confirmDialog(`Process payment and complete sale (without printing) for the ${selectedWaiterItemIds.length} selected items?`, { confirmText: "Process payment" })) {
@@ -1491,7 +1509,7 @@ export default function POSSales() {
                                                                                     finalTotal: selectedSubTotal - discountVal,
                                                                                     paymentType: waiterPaymentType,
                                                                                     discountAmount: discountVal,
-                                                                                    discountReason: waiterDiscountReason,
+                                                                                    discountReason: waiterPaymentType === 'FREE_MEAL' ? waiterFreeMealReason.trim() : waiterDiscountReason,
                                                                                     manualDiscount: discountVal > 0,
                                                                                     managerCode: discountVal > 0 ? waiterDiscountManagerCode : null,
                                                                                     outletId: parseInt(localStorage.getItem("outletId") || "1"),
@@ -1502,6 +1520,7 @@ export default function POSSales() {
                                                                                 toast.success("Payment successful! Sale completed.");
                                                                                 setWaiterDiscountAmount('0');
                                                                                 setWaiterDiscountReason('');
+                                                                                setWaiterFreeMealReason('');
                                                                                 fetchWaiterDetails(selectedWaiter.userId);
                                                                             } catch (e) {
                                                                                 console.error(e);
@@ -1514,7 +1533,7 @@ export default function POSSales() {
                                                                     Pay without Receipt
                                                                 </button>
                                                                 <button
-                                                                    disabled={selectedWaiterItemIds.length === 0}
+                                                                    disabled={selectedWaiterItemIds.length === 0 || waiterFreeMealMissing}
                                                                     onClick={async () => {
                                                                         const discountVal = parseFloat(waiterDiscountAmount) || 0;
                                                                         if (await confirmDialog(`Process payment and print invoice for the ${selectedWaiterItemIds.length} selected items?`, { confirmText: "Process payment" })) {
@@ -1526,7 +1545,7 @@ export default function POSSales() {
                                                                                     finalTotal: selectedSubTotal - discountVal,
                                                                                     paymentType: waiterPaymentType,
                                                                                     discountAmount: discountVal,
-                                                                                    discountReason: waiterDiscountReason,
+                                                                                    discountReason: waiterPaymentType === 'FREE_MEAL' ? waiterFreeMealReason.trim() : waiterDiscountReason,
                                                                                     manualDiscount: discountVal > 0,
                                                                                     managerCode: discountVal > 0 ? waiterDiscountManagerCode : null,
                                                                                     outletId: parseInt(localStorage.getItem("outletId") || "1"),
@@ -1558,6 +1577,7 @@ export default function POSSales() {
                                                                                 toast.success("Payment successful! Actual invoice printed.");
                                                                                 setWaiterDiscountAmount('0');
                                                                                 setWaiterDiscountReason('');
+                                                                                setWaiterFreeMealReason('');
                                                                                 fetchWaiterDetails(selectedWaiter.userId);
                                                                             } catch (e) {
                                                                                 console.error(e);

@@ -329,6 +329,15 @@ export default function POSGoodsEntry() {
       return;
     }
 
+    // never more than was sent (what is left after earlier acceptances)
+    const over = receivedExpectedItems.find(
+      (item) => parseFloat(item.receivedQty) > Math.max(0, item.expectedQty - item.alreadyReceivedQty) + 0.0001
+    );
+    if (over) {
+      toast.error(`You can't receive more than was sent: only ${Math.max(0, over.expectedQty - over.alreadyReceivedQty)} ${over.productName} left.`);
+      return;
+    }
+
     try {
       // Group expected items by gtnId for the API request
       const groupedByGtn = receivedExpectedItems.reduce((acc, item) => {
@@ -674,11 +683,14 @@ export default function POSGoodsEntry() {
                                   type="number"
                                   min="0"
                                   step="0.1"
+                                  max={Math.max(0, item.expectedQty - item.alreadyReceivedQty)}
                                   value={item.receivedQty}
                                   onChange={(e) =>
                                     handleQuantityChange(item.id, e.target.value)
                                   }
-                                  className="w-24 px-3 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg text-center"
+                                  className={`w-24 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg text-center ${
+                                    parseFloat(item.receivedQty) > Math.max(0, item.expectedQty - item.alreadyReceivedQty) + 0.0001 ? "border-error" : "border-line"
+                                  }`}
                                   placeholder="0"
                                   disabled={isConfirmed}
                                 />
@@ -695,6 +707,11 @@ export default function POSGoodsEntry() {
                                   Target
                                 </button>
                               </div>
+                              {parseFloat(item.receivedQty) > Math.max(0, item.expectedQty - item.alreadyReceivedQty) + 0.0001 && (
+                                <p className="text-[12px] text-error mt-1">
+                                  More than was sent: only {Math.max(0, item.expectedQty - item.alreadyReceivedQty)} left.
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>
