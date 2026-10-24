@@ -119,7 +119,9 @@ export default function AdminGenerateReports() {
             case 'Sales': return <TrendingUp className="w-5 h-5" />;
             case 'Stock': return <Package className="w-5 h-5" />;
             case 'Production': return <ShoppingCart className="w-5 h-5" />;
-            case 'Wastage': return <AlertTriangle className="w-5 h-5" />;
+            case 'Wastage':
+            case 'POS Wastage':
+            case 'Store Wastage': return <AlertTriangle className="w-5 h-5" />;
             default: return <FileText className="w-5 h-5" />;
         }
     };
@@ -156,6 +158,8 @@ export default function AdminGenerateReports() {
                     'Total Batches': data.length
                 };
             case 'Wastage':
+            case 'POS Wastage':
+            case 'Store Wastage':
                 const totalWastage = data.reduce((sum, item) => sum + item.quantity, 0);
                 const totalWastageCost = data.reduce((sum, item) => sum + item.cost, 0);
                 return {
@@ -441,7 +445,8 @@ export default function AdminGenerateReports() {
                                         <option value="Sales">Sales Report</option>
                                         <option value="Stock">Stock Report</option>
                                         <option value="Production">Production Report</option>
-                                        <option value="Wastage">Wastage Report</option>
+                                        <option value="POS Wastage">POS Wastage Report</option>
+                                        <option value="Store Wastage">Store &amp; Production Wastage Report</option>
                                         <option value="Purchases">Purchases Report</option>
                                         <option value="Outlet Distribution">Outlet Distribution</option>
                                     </select>
