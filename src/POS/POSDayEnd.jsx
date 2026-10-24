@@ -6,6 +6,7 @@ import {
     CreditCard,
     Calculator,
     AlertTriangle,
+    AlertCircle,
     CheckCircle,
     Package,
     TrendingUp,
@@ -106,6 +107,9 @@ export default function POSDayEnd() {
     const [isLoadingProducts, setIsLoadingProducts] = useState(false);
     const [productsError, setProductsError] = useState(null);
     const [stockReload, setStockReload] = useState(0);
+    // The outlet's action centres (rice corner, juice corner, ...): every ingredient they hold is counted at day end
+    const [centres, setCentres] = useState([]);
+    const [centresError, setCentresError] = useState(null);
 
     // Fetch Products for Stock Closing when entering Step 3
     useEffect(() => {
@@ -135,6 +139,22 @@ export default function POSDayEnd() {
                     }));
                     
                     setProductData(mappedProducts);
+
+                    // never-expiring ingredients start as carried forward, expired / expiring today as wastage
+                    setCentresError(null);
+                    const centresRes = await axios.get(
+                        `${baseUrl}/api/pos/day-end/action-centres`,
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    );
+                    setCentres((centresRes.data || []).map(c => ({
+                        ...c,
+                        items: (c.items || []).map(i => ({
+                            ...i,
+                            physicalQty: String(i.systemQty),
+                            wastageQty: i.suggestWastage ? String(i.systemQty) : '0',
+                            wastageReason: 'EXPIRED',
+                        })),
+                    })));
                 } catch (error) {
                     console.error("Failed to fetch closing inventory", error);
                     setProductsError(friendlyError(error, { fallback: "Could not load today's stock." }));
@@ -182,6 +202,24 @@ export default function POSDayEnd() {
         return null;
     };
 
+    const updateCentreItem = (mpcId, itemId, changes) =>
+        setCentres(prev => prev.map(c => c.mpcId !== mpcId ? c : {
+            ...c,
+            items: c.items.map(i => i.mpcStoreItemId === itemId ? { ...i, ...changes } : i),
+        }));
+
+    const centreRowError = (item) => {
+        if (item.physicalQty === '') return 'Enter the count';
+        const physical = parseFloat(item.physicalQty);
+        const wastage = parseFloat(item.wastageQty) || 0;
+        if (!(physical >= 0) || wastage < 0) return 'Quantities cannot be negative';
+        if (wastage > physical) return 'Wastage cannot be more than the counted quantity';
+        return null;
+    };
+
+    const centresReady = () => !centresError
+        && centres.every(c => c.openKots === 0 && c.items.every(i => !centreRowError(i)));
+
     const canProceedToNextStep = () => {
         switch (currentStep) {
             case 1:
@@ -193,6 +231,7 @@ export default function POSDayEnd() {
             case 3:
                 // the stock count cannot be skipped while the list is loading or after it failed to load
                 if (isLoadingProducts || productsError) return false;
+                if (!centresReady()) return false;
                 return productData.length > 0
                     ? productData.every(item => item.physicalQty !== '' && !stockRowError(item))
                     : true;
@@ -220,6 +259,12 @@ export default function POSDayEnd() {
             case 3:
                 if (isLoadingProducts) return 'Wait for the stock list to load.';
                 if (productsError) return 'The stock list did not load. Press Retry.';
+                if (centresError) return 'The action centres did not load. Press Retry.';
+                {
+                    const busy = centres.find(c => c.openKots > 0);
+                    if (busy) return `${busy.name} has ${busy.openKots} unfinished KOT(s). Mark them served or cancelled first.`;
+                    if (!centresReady()) return 'Count every action centre ingredient and fix any row marked in red.';
+                }
                 return 'Enter the physical count for every product and fix any row marked in red.';
             case 5:
                 if (!dayEndData.finalConfirmation) return 'Tick the final confirmation box.';
@@ -269,7 +314,13 @@ export default function POSDayEnd() {
                         carryForwardQty: item.carryForwardQty || 0,
                         wastageQty: parseInt(item.wastageQty) || 0,
                         wastageReason: item.wastageReason || 'UNSOLD'
-                    }))
+                    })),
+                    actionCentreItems: centres.flatMap(c => c.items.map(i => ({
+                        mpcStoreItemId: i.mpcStoreItemId,
+                        physicalQty: parseFloat(i.physicalQty) || 0,
+                        wastageQty: parseFloat(i.wastageQty) || 0,
+                        wastageReason: i.wastageReason || 'EXPIRED'
+                    })))
                 };
 
                 await axios.post(`${baseUrl}/api/pos/day-end/submit`, stockRequest, {
@@ -853,6 +904,96 @@ export default function POSDayEnd() {
                     </div>
                 )}
             </div>
+
+            {!isLoadingProducts && !productsError && (centresError || centres.length > 0) && (
+                <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
+                    <h3 className="text-[18px] font-[600] text-fg mb-1">Action Centres</h3>
+                    <p className="text-[13px] text-fg-secondary mb-5">
+                        Count what each centre holds. Counted = carry forward + wastage; carry forward stays for tomorrow, wastage goes to the Admin.
+                    </p>
+                    {centresError ? (
+                        <p className="text-[14px] text-error">{centresError}</p>
+                    ) : centres.map((c) => (
+                        <div key={c.mpcId} className="mb-6 last:mb-0">
+                            <h4 className="text-[15px] font-[600] text-fg mb-2">{c.name}</h4>
+                            {c.openKots > 0 && (
+                                <div className="flex items-center gap-2 p-3 mb-3 rounded-lg border border-error bg-hover text-error text-[13px]">
+                                    <AlertTriangle size={16} />
+                                    {c.openKots} unfinished KOT{c.openKots === 1 ? '' : 's'}. Mark them served or cancelled before the day end.
+                                </div>
+                            )}
+                            {c.items.length === 0 ? (
+                                <p className="text-[13px] text-fg-secondary">Nothing in stock.</p>
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b border-line">
+                                                {['Ingredient', 'System Qty', 'Counted', 'Wastage', 'Wastage Reason', 'Carry Forward', 'Difference', 'Unit'].map(h => (
+                                                    <th key={h} className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">{h}</th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {c.items.map((i) => {
+                                                const err = centreRowError(i);
+                                                const counted = parseFloat(i.physicalQty) || 0;
+                                                const wasted = parseFloat(i.wastageQty) || 0;
+                                                const carry = Math.max(0, counted - wasted);
+                                                const diff = i.physicalQty === '' ? 0 : Number(i.systemQty) - counted;
+                                                const fmt = (v) => Number(v.toFixed(3));
+                                                return (
+                                                    <tr key={i.mpcStoreItemId} className="border-b border-line">
+                                                        <td className="py-3 px-4 text-[14px] text-fg font-[500]">
+                                                            {i.name}
+                                                            {i.expiryDate && (
+                                                                <p className={`text-[12px] ${i.suggestWastage ? 'text-error' : 'text-fg-secondary'}`}>
+                                                                    {i.suggestWastage ? 'Expired / expires today' : 'Expires'} {i.expiryDate}
+                                                                </p>
+                                                            )}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-[14px] text-fg-secondary">{fmt(Number(i.systemQty))}</td>
+                                                        <td className="py-3 px-4">
+                                                            <input type="number" min="0" step="any" value={i.physicalQty}
+                                                                onChange={(e) => updateCentreItem(c.mpcId, i.mpcStoreItemId, { physicalQty: e.target.value })}
+                                                                className="w-24 px-2 py-1 border border-line rounded focus:ring-1 focus:ring-brand-fg text-[14px]" />
+                                                        </td>
+                                                        <td className="py-3 px-4">
+                                                            <input type="number" min="0" step="any" value={i.wastageQty}
+                                                                onChange={(e) => updateCentreItem(c.mpcId, i.mpcStoreItemId, { wastageQty: e.target.value })}
+                                                                className={`w-24 px-2 py-1 border rounded focus:ring-1 focus:ring-brand-fg text-[14px] ${err ? 'border-error' : 'border-line'}`} />
+                                                            {err && <p className="text-[12px] text-error mt-1 max-w-[160px]">{err}</p>}
+                                                        </td>
+                                                        <td className="py-3 px-4">
+                                                            {wasted > 0 ? (
+                                                                <select value={i.wastageReason}
+                                                                    onChange={(e) => updateCentreItem(c.mpcId, i.mpcStoreItemId, { wastageReason: e.target.value })}
+                                                                    className="px-2 py-1 border border-line rounded text-[13px] focus:ring-1 focus:ring-brand-fg">
+                                                                    <option value="EXPIRED">Expired</option>
+                                                                    <option value="UNSOLD">Not used today</option>
+                                                                    <option value="DAMAGED">Damaged</option>
+                                                                    <option value="SPILLAGE">Spillage</option>
+                                                                    <option value="QUALITY_REJECT">Quality reject</option>
+                                                                </select>
+                                                            ) : <span className="text-[13px] text-fg-muted">-</span>}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-[14px] text-success font-[600]">{fmt(carry)}</td>
+                                                        <td className={`py-3 px-4 text-[14px] font-[600] ${Math.abs(diff) > 0.0005 ? 'text-warning' : 'text-fg-muted'}`}
+                                                            title="System quantity minus counted quantity. Recorded as a stock difference, not wastage.">
+                                                            {fmt(diff)}
+                                                        </td>
+                                                        <td className="py-3 px-4 text-[14px] text-fg-secondary">{i.unit}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 
