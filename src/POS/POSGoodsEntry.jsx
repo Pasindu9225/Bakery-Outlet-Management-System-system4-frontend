@@ -273,6 +273,10 @@ export default function POSGoodsEntry() {
   };
 
   // Handle manual entry form
+  // counted units take whole numbers (50 fish buns, not 40.5); kg / liters take decimals (5.5 kg cake)
+  const isWholeUnit = (unit) => ["pieces", "packets", "boxes"].includes(String(unit || "").toLowerCase());
+  const notWhole = (unit, qty) => isWholeUnit(unit) && qty !== "" && qty != null && !Number.isInteger(parseFloat(qty));
+
   const handleManualEntryChange = (field, value) => {
     setManualEntry((prev) => ({
       ...prev,
@@ -287,6 +291,10 @@ export default function POSGoodsEntry() {
     }
     if (!manualEntry.quantity || manualEntry.quantity <= 0) {
       toast.error("Enter a quantity above 0.");
+      return;
+    }
+    if (notWhole(manualEntry.unit, manualEntry.quantity)) {
+      toast.error(`Items in ${manualEntry.unit} take whole numbers (e.g. 50, not 40.5).`);
       return;
     }
 
@@ -326,6 +334,12 @@ export default function POSGoodsEntry() {
 
     if (receivedExpectedItems.length === 0 && entries.length === 0) {
       toast.error("Please enter at least one product before confirming");
+      return;
+    }
+
+    const fraction = receivedExpectedItems.find((item) => notWhole(item.unit, item.receivedQty));
+    if (fraction) {
+      toast.error(`${fraction.productName} is counted in ${fraction.unit}: enter a whole number.`);
       return;
     }
 
@@ -682,7 +696,7 @@ export default function POSGoodsEntry() {
                                 <input
                                   type="number"
                                   min="0"
-                                  step="0.1"
+                                  step={isWholeUnit(item.unit) ? "1" : "any"}
                                   max={Math.max(0, item.expectedQty - item.alreadyReceivedQty)}
                                   value={item.receivedQty}
                                   onChange={(e) =>
@@ -707,6 +721,9 @@ export default function POSGoodsEntry() {
                                   Target
                                 </button>
                               </div>
+                              {notWhole(item.unit, item.receivedQty) && (
+                                <p className="text-[12px] text-error mt-1">Counted in {item.unit}: whole numbers only.</p>
+                              )}
                               {parseFloat(item.receivedQty) > Math.max(0, item.expectedQty - item.alreadyReceivedQty) + 0.0001 && (
                                 <p className="text-[12px] text-error mt-1">
                                   More than was sent: only {Math.max(0, item.expectedQty - item.alreadyReceivedQty)} left.
@@ -906,8 +923,8 @@ export default function POSGoodsEntry() {
                     </label>
                     <input
                       type="number"
-                      min="0.1"
-                      step="0.1"
+                      min={isWholeUnit(manualEntry.unit) ? "1" : "0.001"}
+                      step={isWholeUnit(manualEntry.unit) ? "1" : "any"}
                       value={manualEntry.quantity}
                       onChange={(e) =>
                         handleManualEntryChange("quantity", e.target.value)

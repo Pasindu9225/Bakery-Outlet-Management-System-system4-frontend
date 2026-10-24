@@ -106,6 +106,13 @@ export default function POSSales() {
 
     // Promo & discounts
     const [promoCode, setPromoCode] = useState('');
+    // promo codes valid right now, picked from a dropdown instead of typed
+    const [activePromos, setActivePromos] = useState([]);
+    useEffect(() => {
+        axios.get('/api/pos/v1/promotions/active')
+            .then((res) => setActivePromos(Array.isArray(res.data) ? res.data : []))
+            .catch(() => setActivePromos([]));
+    }, []);
     const [appliedPromo, setAppliedPromo] = useState(null); // { code, type:'percent', value }
     const [selectedPromoItems, setSelectedPromoItems] = useState([]); // Array of product/item IDs
     const [promoScope, setPromoScope] = useState('EVERY'); // EVERY, SELECTED, TOTAL
@@ -682,9 +689,9 @@ export default function POSSales() {
     };
 
     // Promo verification
-    const verifyPromo = async () => {
-        const code = (promoCode || '').trim().toUpperCase();
-        if (!code) return toast.error('Enter a promo code');
+    const verifyPromo = async (picked) => {
+        const code = (typeof picked === 'string' ? picked : (promoCode || '')).trim().toUpperCase();
+        if (!code) return toast.error('Pick a promo code');
 
         try {
             const promo = await posService.validatePromo(code);
@@ -747,6 +754,19 @@ export default function POSSales() {
             setPaymentMethod('cash');
             setPaymentMethodId(cashMethod.paymentMethodId);
         }
+        setShowPayment(true);
+    };
+
+    // Staff meal: the normal checkout with Free Meal chosen; the cashier types the reason (staff ID / why) there
+    const handleStaffMeal = () => {
+        if (cart.length === 0) return;
+        const freeMeal = availablePaymentMethods.find(m => m.category === 'FREE_MEAL');
+        if (!freeMeal) {
+            toast.error('No Free Meal payment method is set up. Ask the admin to add one.');
+            return;
+        }
+        setPaymentMethod(getPaymentConfig(freeMeal.name).key);
+        setPaymentMethodId(freeMeal.paymentMethodId);
         setShowPayment(true);
     };
 
@@ -1628,22 +1648,27 @@ export default function POSSales() {
                             {/* Promo Code Entry */}
                             {cart.length > 0 && (
                                 <div className="mb-3">
-                                    <label className="block text-[14px] text-fg mb-1">Promo Code</label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={promoCode}
-                                            onChange={(e) => setPromoCode(e.target.value)}
-                                            placeholder="Enter code"
-                                            className="flex-1 min-w-0 px-3 py-2 border border-line rounded-lg text-[14px]"
-                                        />
-                                        <button
-                                            onClick={verifyPromo}
-                                            className="px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover"
-                                        >
-                                            Apply
-                                        </button>
-                                    </div>
+                                    <label htmlFor="promo-pick" className="block text-[14px] text-fg mb-1">Discount (promo code)</label>
+                                    <select
+                                        id="promo-pick"
+                                        value={appliedPromo ? appliedPromo.code : promoCode}
+                                        onChange={(e) => {
+                                            const code = e.target.value;
+                                            setPromoCode(code);
+                                            if (code) verifyPromo(code);
+                                            else removePromo();
+                                        }}
+                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] bg-surface text-fg"
+                                    >
+                                        <option value="">{activePromos.length ? 'No discount' : 'No promo codes available'}</option>
+                                        {activePromos.map((p) => (
+                                            <option key={p.code} value={String(p.code).toUpperCase()}>
+                                                {p.code} — {p.discountType === 'PERCENTAGE' ? `${p.discountValue}% off` : `Rs.${p.discountValue} off`}
+                                                {p.maximumDiscountValue != null ? ` (max Rs.${p.maximumDiscountValue})` : ''}
+                                                {p.description ? ` · ${p.description}` : ''}
+                                            </option>
+                                        ))}
+                                    </select>
 
                                     {appliedPromo && (
                                         <div className="mt-2 p-2 bg-hover rounded-lg flex items-center justify-between">
@@ -1828,15 +1853,31 @@ export default function POSSales() {
                                             >
                                                 Normal Checkout
                                             </button>
+                                            <button
+                                                onClick={handleStaffMeal}
+                                                className="w-full border border-line text-fg py-2 rounded-lg text-sm font-[500] hover:bg-subtle transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                <Users size={16} /> Staff Meal
+                                            </button>
                                         </div>
                                     ) : (
-                                        <button
-                                            onClick={handleCheckout}
-                                            className="w-full bg-brand text-on-brand py-3 rounded-lg font-[500] hover:bg-brand-hover transition-colors flex items-center justify-center gap-2"
-                                        >
-                                            <Calculator size={16} />
-                                            Checkout
-                                        </button>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            <button
+                                                onClick={handleCheckout}
+                                                className="col-span-2 bg-brand text-on-brand py-3 rounded-lg font-[500] hover:bg-brand-hover transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                <Calculator size={16} />
+                                                Checkout
+                                            </button>
+                                            <button
+                                                onClick={handleStaffMeal}
+                                                title="Checkout as a staff meal (Free Meal, with a reason)"
+                                                className="border border-line text-fg py-3 rounded-lg font-[500] hover:bg-subtle transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                <Users size={16} />
+                                                Staff Meal
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
                             )}
