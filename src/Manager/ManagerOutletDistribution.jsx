@@ -1067,7 +1067,8 @@ export default function ManagerOutletDistribution() {
       <ProductListModal />
 
       {/* Outlet Distribution Modal */}
-      <OutletDistributionModal />
+      {/* called, not <Rendered />: it is declared inside this page, so as a component its fields would remount and lose the cursor on every keystroke */}
+      {OutletDistributionModal()}
 
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (

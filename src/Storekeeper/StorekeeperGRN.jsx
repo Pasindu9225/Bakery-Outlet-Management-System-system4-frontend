@@ -21,6 +21,7 @@ import {
   Hash,
   Clock,
   Minus,
+  ArrowLeft,
 } from "lucide-react";
 
 // Report printing
@@ -55,6 +56,8 @@ export default function StorekeeperGRN() {
   const [searchPO, setSearchPO] = useState("");
   const [showGRNDetails, setShowGRNDetails] = useState(false);
   const [selectedGRNForView, setSelectedGRNForView] = useState(null);
+  const [confirmClose, setConfirmClose] = useState(false);
+  const [closeLoading, setCloseLoading] = useState(false);
 
   // GRN Data from API
   const [grnHistory, setGrnHistory] = useState([]);
@@ -107,6 +110,8 @@ export default function StorekeeperGRN() {
         status:
           grn.grnStatus === "PARTIAL"
             ? "Partial"
+            : grn.shortClosed
+            ? "Closed (short)"
             : grn.grnStatus === "RECEIVED" || grn.isReceived
             ? "Received"
             : grn.grnStatus || "Pending",
@@ -255,13 +260,17 @@ export default function StorekeeperGRN() {
         expectedDelivery: data.estimatedDeliveryDate || prev?.expectedDelivery,
         status: prev?.status || "PENDING",
         totalAmount: data.totalCost ?? prev?.totalAmount,
+        hasDeliveries: (data.rawMaterials || []).some((rm) => Number(rm.receivedQty || 0) > 0),
       }));
 
       // Map raw materials to GRN items structure used by the form
       const todayStr = new Date().toISOString().split("T")[0].replace(/-/g, "");
+      // Earlier deliveries are already in: each line shows what is still to come, fully received lines drop out
       const initialItems = (data.rawMaterials || []).map((rm, idx) => {
         const requiredQty = rm.requiredQty || 0;
-        const receivedQty = 0; // initialize to 0 so user can input remaining qty
+        const receivedSoFar = Number(rm.receivedQty || 0);
+        const remainingQty = Math.max(requiredQty - receivedSoFar, 0);
+        const receivedQty = 0; // initialize to 0 so user can input this delivery's qty
         const estimatedCost = rm.estimatedCost || 0;
         const actualCost =
           rm.actualCost != null ? rm.actualCost : estimatedCost;
@@ -281,7 +290,9 @@ export default function StorekeeperGRN() {
           brand: "",
           unit: rm.unitOfMeasure,
           orderedQty: requiredQty,
-          invoiceQty: requiredQty,
+          receivedSoFar,
+          remainingQty,
+          invoiceQty: remainingQty,
           unitPrice: estimatedCost,
           totalPrice: estimatedCost * requiredQty,
           receivedQty: receivedQty,
@@ -290,10 +301,10 @@ export default function StorekeeperGRN() {
           batchNo: defaultBatchNo,
           expiryDate: "",
           accepted: true,
-          variance: requiredQty - (receivedQty || 0),
+          variance: remainingQty - (receivedQty || 0),
           actualTotal: actualTotal,
         };
-      });
+      }).filter((item) => item.remainingQty > 0);
 
       setGrnItems(initialItems);
     } catch (error) {
@@ -315,7 +326,7 @@ export default function StorekeeperGRN() {
           // Calculate variance and total
           if (field === "receivedQty" || field === "invoiceQty") {
             const actQ = parseFloat(updatedItem.receivedQty || 0);
-            updatedItem.variance = updatedItem.orderedQty - actQ;
+            updatedItem.variance = updatedItem.remainingQty - actQ;
           }
 
           if (
@@ -404,8 +415,8 @@ export default function StorekeeperGRN() {
       const matCode = item.materialCode || `RM${item.rawMaterialId || item.id}`;
       const seqStr = String(idx + 1).padStart(2, "0");
       const autoBatch = `BAT-${todayStr}-${matCode}-${seqStr}`;
-      const actQty = parseFloat(item.receivedQty || 0);
-      const invQty = item.invoiceQty !== undefined && item.invoiceQty !== "" ? parseFloat(item.invoiceQty) : actQty;
+      const actQty = item.accepted ? parseFloat(item.receivedQty || 0) : 0;
+      const invQty = !item.accepted ? 0 : item.invoiceQty !== undefined && item.invoiceQty !== "" ? parseFloat(item.invoiceQty) : actQty;
       const actPrice = parseFloat(item.actualCost || 0);
       const invPrice = item.invoicePrice !== undefined && item.invoicePrice !== "" ? parseFloat(item.invoicePrice) : actPrice;
 
@@ -443,20 +454,8 @@ export default function StorekeeperGRN() {
       return;
     }
 
-    // Determine GRN status: PARTIAL if any receivedQty is > 0 and < orderedQty; RECEIVED if all receivedQty === orderedQty
-    const hasPartial = grnItems.some((item) => {
-      const ordered = Number(item.orderedQty || 0);
-      const received = Number(item.receivedQty || 0);
-      return received > 0 && received < ordered;
-    });
-    const allFullyReceived = grnItems.every(
-      (item) => Number(item.receivedQty || 0) >= Number(item.orderedQty || 0)
-    );
-    const computedStatus = hasPartial
-      ? "PARTIAL"
-      : allFullyReceived
-      ? "RECEIVED"
-      : "RECEIVED";
+    // The backend decides from all deliveries whether the GRN is complete
+    const computedStatus = "PARTIAL";
 
     if (!selectedPO.grnId) {
       setSubmitError("This purchase order has no GRN yet. Refresh the page; if it still fails, ask the admin to re-approve the PO.");
@@ -509,8 +508,9 @@ export default function StorekeeperGRN() {
       const resBody = await response.json().catch(() => null);
       console.log("[RESPONSE] POST", postUrl, resBody ?? "[no body]");
 
-      setSubmitSuccess("GRN received successfully.");
-      toast.success("GRN received successfully.");
+      const doneMessage = resBody?.message || "GRN received successfully.";
+      setSubmitSuccess(doneMessage);
+      toast.success(doneMessage);
 
       // Refresh GRN history and Purchase Orders list in real-time
       fetchGRNData();
@@ -531,6 +531,41 @@ export default function StorekeeperGRN() {
       toast.error(friendlyError(error, { fallback: "Failed to submit GRN. Please try again." }));
     } finally {
       setSubmitLoading(false);
+    }
+  };
+
+  const backToList = () => {
+    setSelectedPO(null);
+    setGrnItems([]);
+    setConfirmClose(false);
+  };
+
+  // Supplier won't send the rest: close the GRN with what has arrived
+  const handleCloseGRN = async () => {
+    if (!confirmClose) {
+      setConfirmClose(true);
+      return;
+    }
+    setCloseLoading(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(
+        `${process.env.REACT_APP_BASE_URL}/STK/v1/grn/${selectedPO.grnId}/close`,
+        { method: "POST", headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.message || body?.error || `Server error: ${response.status}`);
+      }
+      toast.success(`${selectedPO.poNumber} closed. The remaining items will not be received.`);
+      backToList();
+      fetchGRNData();
+      fetchPurchaseOrders();
+    } catch (error) {
+      toast.error(friendlyError(error, { fallback: "Could not close the GRN. Please try again." }));
+    } finally {
+      setCloseLoading(false);
+      setConfirmClose(false);
     }
   };
 
@@ -576,9 +611,35 @@ export default function StorekeeperGRN() {
           expiryDate: rm.grnExpireDate || rm.expireDate || "-",
         };
       });
-      return { ...grn, items };
+      const token = localStorage.getItem("authToken");
+      const delRes = await fetch(
+        `${process.env.REACT_APP_BASE_URL}/STK/v1/grn/${grn.grnId}/deliveries`,
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
+      const deliveries = delRes.ok ? await delRes.json() : [];
+      // Billed value per material over all deliveries (each bill can have its own price)
+      const billed = {};
+      deliveries.forEach((d) => (d.items || []).forEach((it) => {
+        const m = (billed[it.rawMaterialId] ||= { qty: 0, total: 0, batches: [] });
+        m.qty += Number(it.actualQuantity || 0);
+        m.total += Number(it.lineTotal || 0);
+        m.batches.push(it.batchNo);
+        m.expiry = it.expireDate;
+      }));
+      const billedItems = items.map((item) => {
+        const m = billed[item.rawMaterialId];
+        if (!m || m.qty <= 0) return item;
+        return {
+          ...item,
+          unitCost: Math.round((m.total / m.qty) * 100) / 100,
+          total: Math.round(m.total * 100) / 100,
+          batchNo: m.batches.length > 1 ? m.batches.join(", ") : m.batches[0] || "-",
+          expiryDate: m.expiry || item.expiryDate,
+        };
+      });
+      return { ...grn, items: billedItems, deliveries };
     } catch (e) {
-      return { ...grn, items: [] };
+      return { ...grn, items: [], deliveries: [] };
     }
   };
 
@@ -596,7 +657,13 @@ export default function StorekeeperGRN() {
       unit: item.unit || item.unitOfMeasure || "pcs",
       qtyOrdered: item.orderedQty ?? item.quantity ?? 0,
       qtyReceived: item.receivedQty ?? item.quantity ?? 0,
-      remarks: grn.status || "Unknown",
+      // per item: what is still to come, unless the GRN was closed without it
+      remarks: (() => {
+        const left = Number(item.orderedQty || 0) - Number(item.receivedQty || 0);
+        if (left <= 0) return "Complete";
+        if (grn.status === "Closed (short)") return `Not received: ${left}`;
+        return Number(item.receivedQty || 0) > 0 ? `Remaining: ${left}` : "Not received yet";
+      })(),
     }));
 
     const report = (
@@ -606,7 +673,9 @@ export default function StorekeeperGRN() {
         date={new Date(grn.grnDate).toLocaleDateString()}
         supplier={grn.supplier}
         poRefNo={grn.poNumber}
+        invoiceNo={grn.invoiceNumber}
         data={grnItems}
+        deliveries={grn.deliveries || []}
       />
     );
 
@@ -631,7 +700,18 @@ export default function StorekeeperGRN() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-[20px] font-[600] text-fg mb-1">
+            <h1 className="text-[20px] font-[600] text-fg mb-1 flex items-center gap-2">
+              {activeTab === "create" && selectedPO && (
+                <button
+                  type="button"
+                  onClick={backToList}
+                  aria-label="Back to purchase order list"
+                  title="Back to list"
+                  className="p-1 -ml-1 rounded-md text-fg-secondary hover:text-fg hover:bg-hover transition-colors"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+              )}
               Goods Received Note (GRN)
             </h1>
             <p className="text-[14px] text-fg-secondary">
@@ -812,7 +892,7 @@ export default function StorekeeperGRN() {
                         </p>
                       </div>
                       <button aria-label="Close"
-                        onClick={() => setSelectedPO(null)}
+                        onClick={backToList}
                         className="p-2 hover:bg-surface rounded-lg transition-colors"
                       >
                         <X size={16} className="text-fg-secondary" />
@@ -1065,6 +1145,11 @@ export default function StorekeeperGRN() {
                                   <span className="text-[14px] font-[600] text-fg">
                                     {item.orderedQty} {item.unit}
                                   </span>
+                                  {item.receivedSoFar > 0 && (
+                                    <p className="text-[12px] text-fg-secondary mt-1">
+                                      Received {item.receivedSoFar} · Remaining {item.remainingQty}
+                                    </p>
+                                  )}
                                 </td>
                                 <td className="py-4 px-2 text-center">
                                   <input
@@ -1268,6 +1353,23 @@ export default function StorekeeperGRN() {
                         </div>
                       </div>
 
+                      <div className="flex flex-col sm:flex-row gap-2">
+                      {selectedPO.hasDeliveries && (
+                        <button
+                          type="button"
+                          onClick={handleCloseGRN}
+                          disabled={closeLoading}
+                          title="The supplier will not send the remaining items"
+                          className={`flex items-center justify-center gap-2 px-4 py-2 text-[14px] font-[500] rounded-md border transition-colors disabled:opacity-60 ${
+                            confirmClose
+                              ? "border-error text-error bg-hover"
+                              : "border-line text-fg-secondary hover:text-fg hover:bg-subtle"
+                          }`}
+                        >
+                          <X size={16} />
+                          {confirmClose ? "Click again to close without the remaining items" : "Close GRN"}
+                        </button>
+                      )}
                       <button
                         onClick={handleSubmitGRN}
                         className="flex items-center gap-2 px-6 py-2 bg-brand text-on-brand text-[14px] font-[500] rounded-md hover:bg-brand-hover transition-colors"
@@ -1275,6 +1377,7 @@ export default function StorekeeperGRN() {
                         <Save size={16} />
                         Confirm & Submit GRN
                       </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1561,6 +1664,56 @@ export default function StorekeeperGRN() {
                   </div>
                 </div>
               </div>
+
+              {/* Deliveries: each bill as entered */}
+              {(selectedGRNForView.deliveries || []).length > 0 && (
+                <div className="mb-6 space-y-4">
+                  <h4 className="text-[16px] font-[600] text-fg">
+                    Deliveries ({selectedGRNForView.deliveries.length})
+                  </h4>
+                  {selectedGRNForView.deliveries.map((d) => (
+                    <div key={d.deliveryId} className="border border-line rounded-lg">
+                      <div className="flex flex-wrap items-center justify-between gap-2 bg-subtle px-4 py-3 border-b border-line text-[13px]">
+                        <span className="font-[600] text-fg">Invoice {d.invoiceNumber || "-"}</span>
+                        <span className="text-fg-secondary">
+                          {d.receivedDate ? new Date(d.receivedDate).toLocaleString() : "-"}
+                        </span>
+                        <span className="font-[600] text-fg">Rs.{Number(d.total || 0).toLocaleString()}</span>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full min-w-[640px] text-[13px]">
+                          <thead>
+                            <tr className="text-fg-secondary uppercase text-[11px]">
+                              <th className="text-left py-2 px-4">Material</th>
+                              <th className="text-right py-2 px-2">Invoice Qty</th>
+                              <th className="text-right py-2 px-2">Actual Qty</th>
+                              <th className="text-right py-2 px-2">Invoice Price</th>
+                              <th className="text-right py-2 px-2">Actual Price</th>
+                              <th className="text-right py-2 px-2">Total</th>
+                              <th className="text-left py-2 px-2">Batch</th>
+                              <th className="text-left py-2 px-4">Expiry</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-line">
+                            {(d.items || []).map((it, i) => (
+                              <tr key={i}>
+                                <td className="py-2 px-4 text-fg">{it.materialName}</td>
+                                <td className="py-2 px-2 text-right text-fg">{it.invoiceQuantity ?? "-"} {it.unit || ""}</td>
+                                <td className="py-2 px-2 text-right font-[600] text-fg">{it.actualQuantity} {it.unit || ""}</td>
+                                <td className="py-2 px-2 text-right text-fg">{it.invoicePrice != null ? `Rs.${it.invoicePrice}` : "-"}</td>
+                                <td className="py-2 px-2 text-right text-fg">Rs.{it.actualPrice}</td>
+                                <td className="py-2 px-2 text-right font-[600] text-fg">Rs.{Number(it.lineTotal || 0).toLocaleString()}</td>
+                                <td className="py-2 px-2 font-mono text-fg">{it.batchNo || "-"}</td>
+                                <td className="py-2 px-4 text-fg">{it.expireDate || "-"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Items Table */}
               <div className="border border-line rounded-lg">

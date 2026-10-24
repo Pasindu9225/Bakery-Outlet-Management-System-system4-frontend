@@ -1290,7 +1290,7 @@ export default function StorekeeperManagerRequests() {
                   // Main store holds less than requested: the storekeeper cannot issue it all
                   const available = Number(material.currentStock ?? 0);
                   const shortBy = Math.max(0, Number(material.quantity ?? 0) - available);
-                  const issuing = Number(issuedQtyByMaterial[issuedQtyKey(centerName, material.childItemId)] || 0);
+                  const issuing = Number(issuedQtyByMaterial[material.childItemId] || 0); // this system keys issued qty by material only
                   return (
                   <React.Fragment key={material.childItemId}>
                     <tr className={shortBy > 0.0001 ? "bg-error/10 hover:bg-error/15" : "hover:bg-subtle"}>
@@ -1945,12 +1945,12 @@ export default function StorekeeperManagerRequests() {
                 </div>
 
                 {/* Dynamic Tab Content */}
-                {activeTab && (
-                  <ProductionCenterContent
-                    centerName={getCenterNameFromTab(activeTab)}
-                    activeTab={activeTab}
-                  />
-                )}
+                {/* called, not <Rendered />: it is declared inside this page, so as a component its fields would remount and lose the cursor on every keystroke */}
+                {activeTab &&
+                  ProductionCenterContent({
+                    centerName: getCenterNameFromTab(activeTab),
+                    activeTab,
+                  })}
               </div>
 
               {/* Production Flow Structure - NEW SECTION */}

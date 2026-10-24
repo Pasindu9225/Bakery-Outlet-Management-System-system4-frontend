@@ -7,8 +7,12 @@ const GRNReport = ({
   date = "",
   supplier = "",
   poRefNo = "",
+  invoiceNo = "",
   data = [],
+  deliveries = [],
 }) => {
+  const money = (v) => Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const grandTotal = deliveries.reduce((sum, d) => sum + Number(d.total || 0), 0);
   return (
     <div
       style={{
@@ -47,6 +51,7 @@ const GRNReport = ({
         <p style={{ lineHeight: "1" }}><strong>Date:</strong> {date}</p>
         <p style={{ lineHeight: "1" }}><strong>Supplier:</strong> {supplier}</p>
         <p style={{ lineHeight: "1" }}><strong>PO Ref No:</strong> {poRefNo}</p>
+        {invoiceNo && <p style={{ lineHeight: "1" }}><strong>Invoice No:</strong> {invoiceNo}</p>}
       </div>
 
       {/* Table */}
@@ -91,6 +96,46 @@ const GRNReport = ({
           )}
         </tbody>
       </table>
+
+      {/* Each supplier bill received on this GRN */}
+      {deliveries.length > 0 && (
+        <>
+          <h4 style={{ margin: "0 0 8px" }}>Deliveries</h4>
+          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+            <thead>
+              <tr>
+                <th style={styles.th}>Date</th>
+                <th style={styles.th}>Invoice No</th>
+                <th style={styles.th}>Description</th>
+                <th style={styles.th}>Qty</th>
+                <th style={styles.th}>Price</th>
+                <th style={styles.th}>Amount</th>
+                <th style={styles.th}>Batch</th>
+              </tr>
+            </thead>
+            <tbody>
+              {deliveries.flatMap((d) =>
+                (d.items || []).map((it, i) => (
+                  <tr key={`${d.deliveryId}-${i}`}>
+                    <td style={styles.td}>{i === 0 && d.receivedDate ? new Date(d.receivedDate).toLocaleDateString() : ""}</td>
+                    <td style={styles.td}>{i === 0 ? d.invoiceNumber : ""}</td>
+                    <td style={styles.td}>{it.materialName}</td>
+                    <td style={{ ...styles.td, textAlign: "right" }}>{it.actualQuantity} {it.unit || ""}</td>
+                    <td style={{ ...styles.td, textAlign: "right" }}>{money(it.actualPrice)}</td>
+                    <td style={{ ...styles.td, textAlign: "right" }}>{money(it.lineTotal)}</td>
+                    <td style={styles.td}>{it.batchNo}</td>
+                  </tr>
+                ))
+              )}
+              <tr>
+                <td style={{ ...styles.td, fontWeight: "bold" }} colSpan="5" align="right">Total</td>
+                <td style={{ ...styles.td, textAlign: "right", fontWeight: "bold" }}>{money(grandTotal)}</td>
+                <td style={styles.td}></td>
+              </tr>
+            </tbody>
+          </table>
+        </>
+      )}
 
       {/* Notes */}
       <div style={{ marginBottom: "40px", lineHeight: "1.8" }}>

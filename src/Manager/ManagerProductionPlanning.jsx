@@ -1,7 +1,7 @@
 import { confirmDialog } from "../component/ConfirmDialog";
 import { onEnterClick } from "../utils/a11y";
 import { friendlyError } from "../utils/friendlyError";
-import {
+import { ArrowLeft,
   CheckCircle,
   Check,
   Clock,
@@ -23,6 +23,477 @@ import ManagerNavBar from "../component/ManagerNavBar.jsx";
 import ManagerSidebar from "../component/ManagerSidebar.jsx";
 import { companyInfo, escapeHtml } from "../utils/companyInfo";
 import { soundsLike } from "../utils/productSearch";
+
+// Add Product Modal (module level: declared inside the page it was re-created on every render, resetting its fields)
+const AddProductModal = ({ availableProducts, productsLoading, currentPlan, setCurrentPlan, productionCenterList, productTypes, isExecutionMode, setShowAddProductModal, showNotification }) => {
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [quantities, setQuantities] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeProductionCenter, setActiveProductionCenter] =
+    useState("All");
+  const [activeProductType, setActiveProductType] = useState("All");
+  const [addedItems, setAddedItems] = useState([]); // Track items added to the plan within this modal session
+  const [expandedProducts, setExpandedProducts] = useState({});
+
+  // Products and raw materials are numbered separately, so the same id can be both (15 = Bread and a raw material).
+  // Keyed by id alone, the cards did not update on search and selecting one marked the other.
+  const itemKey = (p) => `${p.category === "raw_material" || p.type === "raw_material" ? "rm" : "p"}-${p.id}`;
+  const planItemKey = (item) => `${item.isRawMaterial || item.category === "raw_material" ? "rm" : "p"}-${item.productId}`;
+
+  const toggleExpand = (productId) => {
+    setExpandedProducts(prev => ({
+      ...prev,
+      [productId]: !prev[productId]
+    }));
+  };
+
+  // Filter products by production center, product type, and search term
+  const filteredProducts = availableProducts.filter((product) => {
+    // For raw materials, they are available for all production centers
+    const isRawMaterial =
+      product.category === "raw_material" || product.type === "raw_material";
+
+    // Check if product belongs to active production center (or is raw material)
+    const matchesProductionCenter =
+      activeProductionCenter === "All" ||
+      isRawMaterial ||
+      product.productionCenters?.some(
+        (center) => {
+          const centerName = String(center.centerName || "").toLowerCase();
+          const filterName = activeProductionCenter.toLowerCase();
+          // Allow partial matches (e.g. "Bakery" matches "Main Bakery Kitchen")
+          return centerName.includes(filterName) || filterName.includes(centerName);
+        }
+      ) ||
+      (product.productionCenterName &&
+       String(product.productionCenterName).toLowerCase().includes(activeProductionCenter.toLowerCase()));
+
+    // Check if product matches active product type (All = show everything)
+    const matchesProductType =
+      activeProductType === "All" ||
+      (product.type && String(product.type).toLowerCase() === activeProductType.toLowerCase()) ||
+      (product.category && String(product.category).toLowerCase() === activeProductType.toLowerCase());
+
+    // Check search term safely
+    const cleanSearch = searchTerm ? String(searchTerm).trim().toLowerCase() : "";
+    if (!cleanSearch) {
+      return matchesProductionCenter && matchesProductType;
+    }
+
+    const productName = String(product.name || product.productName || "").toLowerCase();
+    const productCode = String(product.code || product.productCode || "").toLowerCase();
+    const productCategory = String(product.category || "").toLowerCase();
+    const productType = String(product.type || "").toLowerCase();
+
+    // Not the description: words in it ("served with bread") pulled in unrelated products.
+    const matchesSearch =
+      productName.includes(cleanSearch) ||
+      productCode.includes(cleanSearch) ||
+      productCategory.includes(cleanSearch) ||
+      productType.includes(cleanSearch) ||
+      soundsLike(productName, cleanSearch);
+
+    return matchesProductionCenter && matchesProductType && matchesSearch;
+  });
+
+  // Handle product selection/deselection
+  const toggleProductSelection = (product) => {
+    setSelectedProducts((prev) => {
+      const isSelected = prev.find((p) => itemKey(p) === itemKey(product));
+      if (isSelected) {
+        // Remove from selection
+        const updated = prev.filter((p) => itemKey(p) !== itemKey(product));
+        // Remove from quantities as well
+        setQuantities((prevQty) => {
+          const newQty = { ...prevQty };
+          delete newQty[product.id];
+          return newQty;
+        });
+        return updated;
+      } else {
+        // Add to selection
+        return [...prev, product];
+      }
+    });
+  };
+
+  // Handle quantity change
+  const updateQuantity = (productId, quantity) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [productId]: quantity,
+    }));
+  };
+
+  // Handle adding selected products to the plan (and modal's added items table)
+  const handleAddSelectedProducts = () => {
+    const newAddedItems = [];
+
+    selectedProducts.forEach((product) => {
+      // Robust check for raw material to match filtering logic
+      const isRawMaterial =
+        product.category === "raw_material" ||
+        product.type === "raw_material";
+
+      // Find fresh stock data from availableProducts global state
+      const freshProductData = availableProducts.find(p => itemKey(p) === itemKey(product));
+
+      const newItem = {
+        id: Date.now() + Math.random(),
+        productId: product.id,
+        productName: product.name || product.productName,
+        productCode: product.code || product.productCode,
+        category: product.category,
+        description: product.description,
+        unitPrice: product.unitPrice,
+        productionCenters: product.productionCenters,
+        // Use fresh stock data if available
+        miniStoreAvailability: freshProductData?.miniStoreAvailability || product.miniStoreAvailability || [],
+        outletAvailability: freshProductData?.outletAvailability || product.outletAvailability || [],
+        isActive: product.isActive,
+        quantity: 1, // Default quantity
+        addedAt: new Date().toISOString(),
+        // Add destination center for raw materials
+        isRawMaterial: isRawMaterial,
+        destinationProductionCenter: isRawMaterial ? "" : null,
+      };
+
+      // Add to main plan
+      setCurrentPlan((prev) => ({
+        ...prev,
+        productionItems: [...prev.productionItems, newItem],
+      }));
+
+      // Add to modal's added items table
+      newAddedItems.push(newItem);
+    });
+
+    // Update added items in modal
+    setAddedItems((prev) => [...prev, ...newAddedItems]);
+
+    // Reset selections for next batch
+    setSelectedProducts([]);
+    setQuantities({});
+
+    // Show success message
+    showNotification(`${newAddedItems.length} product(s) added to plan successfully!`, "success");
+    handleCloseModal();
+  };
+
+  // Reset modal state when closed
+  const handleCloseModal = () => {
+    setSelectedProducts([]);
+    setQuantities([]);
+    setSearchTerm("");
+    setActiveProductionCenter("All");
+    setActiveProductType("All");
+    setAddedItems([]);
+    setShowAddProductModal(false);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+      <div className="bg-elevated rounded-lg shadow-xl w-full max-w-5xl max-h-[95vh] overflow-y-auto">
+        <div className="p-6 border-b border-line">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div>
+                <h3 className="text-[20px] font-[600] text-fg">
+                  Add Products to Plan
+                </h3>
+                <p className="text-[12px] text-fg-secondary mt-1">
+                  {activeProductionCenter} - {activeProductType}
+                </p>
+              </div>
+              {selectedProducts.length > 0 && (
+                <span className="px-3 py-1 bg-brand text-on-brand text-[12px] rounded-full">
+                  {selectedProducts.length} selected
+                </span>
+              )}
+              {addedItems.length > 0 && (
+                <span className="px-3 py-1 bg-success-solid text-on-brand text-[12px] rounded-full">
+                  {addedItems.length} added to plan
+                </span>
+              )}
+            </div>
+            <button aria-label="Close"
+              onClick={handleCloseModal}
+              className="p-2 hover:bg-app rounded-lg"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6 pt-0">
+          {/* Product Selection */}
+          <div>
+              {/* Production Center Tabs */}
+              <div className="flex border-b border-line mb-4">
+                {productionCenterList.map((center) => (
+                  <button
+                    key={center}
+                    onClick={() => {
+                      setActiveProductionCenter(center);
+                      if (center === "All") {
+                        setActiveProductType("All"); // Show all types in All tab
+                      } else {
+                        setActiveProductType("Product"); // Reset to default for specific centers
+                      }
+                    }}
+                    className={`px-6 py-3 text-[14px] font-[500] border-b-2 transition-colors ${activeProductionCenter === center
+                      ? "border-brand-fg text-brand-fg"
+                      : "border-transparent text-fg-secondary hover:text-fg"
+                      }`}
+                  >
+                    {center}
+                  </button>
+                ))}
+              </div>
+
+              {/* Product Type Filter */}
+              <div className="flex gap-2 mb-4">
+                {productTypes.map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setActiveProductType(type)}
+                    className={`px-4 py-2 text-[12px] font-[500] rounded-lg transition-colors ${activeProductType === type
+                      ? "bg-brand text-on-brand"
+                      : "bg-subtle text-fg-secondary hover:bg-line"
+                      }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+              {/* Search */}
+              <div className="mb-4">
+                <div className="relative">
+                  <Search
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
+                    size={20}
+                  />
+                  <input
+                    type="text"
+                    placeholder={`Search ${activeProductionCenter} ${activeProductType} products...`}
+                    className="w-full pl-10 pr-4 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-transparent"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Products Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                {productsLoading ? (
+                  <div className="col-span-full flex items-center justify-center py-8">
+                    <div className="text-[14px] text-fg-secondary">
+                      Loading products...
+                    </div>
+                  </div>
+                ) : filteredProducts.length === 0 ? (
+                  <div className="col-span-full flex items-center justify-center py-8">
+                    <div className="text-[14px] text-fg-secondary">
+                      No {activeProductionCenter} {activeProductType} products
+                      found
+                    </div>
+                  </div>
+                ) : (
+                  filteredProducts.map((product) => {
+                    const isSelected = selectedProducts.find(
+                      (p) => itemKey(p) === itemKey(product)
+                    );
+                    const isAlreadyAdded =
+                      addedItems.find(
+                        (item) => planItemKey(item) === itemKey(product)
+                      ) ||
+                      currentPlan.productionItems.find(
+                        (item) => planItemKey(item) === itemKey(product)
+                      );
+
+                    const isExpanded = expandedProducts[itemKey(product)];
+
+                    return (
+                      <div
+                        key={itemKey(product)}
+                        className={`border rounded-lg transition-all ${isAlreadyAdded
+                          ? "border-success bg-success/10 opacity-75"
+                          : isSelected
+                            ? "border-brand-fg bg-brand/10"
+                            : "border-line hover:border-brand-fg"
+                          }`}
+                      >
+                        {/* Collapsed Header - always visible, clicking selects */}
+                        <div
+                          className="p-3 cursor-pointer"
+                          role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => !isAlreadyAdded && toggleProductSelection(product)}
+                        >
+                          <div className="flex items-start justify-between mb-0">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="text-[14px] font-[600] text-fg">
+                                  {product.name || product.productName}
+                                </h4>
+                                {isSelected && (
+                                  <CheckCircle
+                                    size={16}
+                                    className="text-brand-fg"
+                                  />
+                                )}
+                                {isAlreadyAdded && (
+                                  <CheckCircle
+                                    size={16}
+                                    className="text-success"
+                                  />
+                                )}
+                              </div>
+                              <p className="text-[12px] text-fg-secondary">
+                                Code: {product.code || product.productCode}
+                              </p>
+
+                              <p className="text-[12px] text-fg-secondary">{product.description}</p>
+                              <div className="text-[12px] text-fg-secondary flex justify-between">
+                                <span>Unit Cost:</span>
+                                <span className="font-[500]">
+                                  Rs. {product.unitPrice != null ? (typeof product.unitPrice === 'number' ? product.unitPrice.toFixed(2) : parseFloat(product.unitPrice).toFixed(2)) : "0.00"}
+                                </span>
+                              </div>
+                              {product.salePrice != null && product.salePrice !== product.unitPrice && (
+                                <div className="text-[12px] text-success flex justify-between">
+                                  <span>POS Price:</span>
+                                  <span className="font-[600]">
+                                    Rs. {product.salePrice != null ? (typeof product.salePrice === 'number' ? product.salePrice.toFixed(2) : parseFloat(product.salePrice).toFixed(2)) : "0.00"}
+                                  </span>
+                                </div>
+                              )}
+                              <div className="text-[12px] text-brand-fg flex justify-between mt-1 font-[600]">
+                                <span>Total Available:</span>
+                                <span>
+                                  {(product.miniStoreAvailability?.reduce((sum, store) => sum + (parseFloat(store.availableQty) || 0), 0) || 0) +
+                                   (product.outletAvailability?.reduce((sum, outlet) => sum + (outlet.availableQty || 0), 0) || 0)}
+                                </span>
+                              </div>
+                            </div>
+                            <span className="text-[12px] px-2 py-1 rounded-full bg-brand/10 text-brand-fg">
+                              {product.category}
+                            </span>
+                          </div>
+                          {/* Production Centers */}
+                          {product.productionCenters &&
+                            product.productionCenters.length > 0 && (
+                              <div className="">
+                                <span className="text-[14px] font-[600] text-fg">
+                                  Production Centers:
+                                </span>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {product.productionCenters.map(
+                                    (center, idx) => (
+                                      <span
+                                        key={idx}
+                                        className="px-2 py-1 bg-brand/10 text-brand-fg rounded text-[12px]"
+                                      >
+                                        {center.centerName}
+                                      </span>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                        </div>
+
+                        {/* Expand / Collapse Button */}
+                        {((product.miniStoreAvailability && product.miniStoreAvailability.length > 0) || 
+                          (product.outletAvailability && product.outletAvailability.length > 0)) && (
+                          <div
+                            className="flex items-center justify-center py-1 border-t border-line cursor-pointer hover:bg-subtle transition-colors"
+                            role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={(e) => {
+                              e.stopPropagation();
+                              toggleExpand(itemKey(product));
+                            }}
+                          >
+                            <span className="text-[12px] text-fg-secondary mr-1">
+                              {isExpanded ? 'Hide' : 'Store & Outlet Availability'}
+                            </span>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className={`text-fg-secondary transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                            >
+                              <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                          </div>
+                        )}
+
+                        {/* Expanded Store & Outlet Availability */}
+                        {isExpanded && (
+                          <div className="px-3 pb-3 border-t border-line bg-surface rounded-b-lg">
+                            {product.miniStoreAvailability && product.miniStoreAvailability.length > 0 && (
+                              <>
+                                <p className="text-[12px] font-[600] text-fg mt-2 mb-1">Store Availability:</p>
+                                <div className="grid grid-cols-1 gap-1 pl-2">
+                                  {product.miniStoreAvailability.map((store, idx) => (
+                                    <div key={idx} className="flex justify-between text-[12px]">
+                                      <span className="text-fg-secondary">{store.miniStoreName}:</span>
+                                      <span className={`font-[500] ${store.availableQty > 0 ? "text-success" : "text-error"}`}>
+                                        {store.availableQty}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                            {product.outletAvailability && product.outletAvailability.length > 0 && (
+                              <>
+                                <p className="text-[12px] font-[600] text-fg mt-2 mb-1">Outlet Availability:</p>
+                                <div className="grid grid-cols-1 gap-1 pl-2">
+                                  {product.outletAvailability.map((outlet, idx) => (
+                                    <div key={idx} className="flex justify-between text-[12px]">
+                                      <span className="text-fg-secondary">{outlet.outletName}:</span>
+                                      <span className={`font-[500] ${outlet.availableQty > 0 ? "text-success" : "text-error"}`}>
+                                        {outlet.availableQty}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-between pt-6 border-t border-line mt-6">
+                <div className="text-[14px] text-fg-secondary">
+                  {selectedProducts.length} product(s) selected
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleAddSelectedProducts}
+                    className="px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover disabled:opacity-50"
+                    disabled={selectedProducts.length === 0}
+                  >
+                  Add {selectedProducts.length} Products to Plan
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  );
+};
 
 export default function ManagerProductionPlanning() {
   const location = useLocation();
@@ -1139,477 +1610,6 @@ export default function ManagerProductionPlanning() {
       console.error("Failed to delete plan:", error);
       showNotification("Failed to delete plan. Please try again.", "error");
     }
-  };
-
-  // Add Product Modal
-  const AddProductModal = ({ availableProducts, productsLoading, currentPlan, setCurrentPlan, productionCenterList, productTypes, isExecutionMode, setShowAddProductModal }) => {
-    const [selectedProducts, setSelectedProducts] = useState([]);
-    const [quantities, setQuantities] = useState({});
-    const [searchTerm, setSearchTerm] = useState("");
-    const [activeProductionCenter, setActiveProductionCenter] =
-      useState("All");
-    const [activeProductType, setActiveProductType] = useState("All");
-    const [addedItems, setAddedItems] = useState([]); // Track items added to the plan within this modal session
-    const [expandedProducts, setExpandedProducts] = useState({});
-
-    // Products and raw materials are numbered separately, so the same id can be both (15 = Bread and a raw material).
-    // Keyed by id alone, the cards did not update on search and selecting one marked the other.
-    const itemKey = (p) => `${p.category === "raw_material" || p.type === "raw_material" ? "rm" : "p"}-${p.id}`;
-    const planItemKey = (item) => `${item.isRawMaterial || item.category === "raw_material" ? "rm" : "p"}-${item.productId}`;
-
-    const toggleExpand = (productId) => {
-      setExpandedProducts(prev => ({
-        ...prev,
-        [productId]: !prev[productId]
-      }));
-    };
-
-    // Filter products by production center, product type, and search term
-    const filteredProducts = availableProducts.filter((product) => {
-      // For raw materials, they are available for all production centers
-      const isRawMaterial =
-        product.category === "raw_material" || product.type === "raw_material";
-
-      // Check if product belongs to active production center (or is raw material)
-      const matchesProductionCenter =
-        activeProductionCenter === "All" ||
-        isRawMaterial ||
-        product.productionCenters?.some(
-          (center) => {
-            const centerName = String(center.centerName || "").toLowerCase();
-            const filterName = activeProductionCenter.toLowerCase();
-            // Allow partial matches (e.g. "Bakery" matches "Main Bakery Kitchen")
-            return centerName.includes(filterName) || filterName.includes(centerName);
-          }
-        ) ||
-        (product.productionCenterName &&
-         String(product.productionCenterName).toLowerCase().includes(activeProductionCenter.toLowerCase()));
-
-      // Check if product matches active product type (All = show everything)
-      const matchesProductType =
-        activeProductType === "All" ||
-        (product.type && String(product.type).toLowerCase() === activeProductType.toLowerCase()) ||
-        (product.category && String(product.category).toLowerCase() === activeProductType.toLowerCase());
-
-      // Check search term safely
-      const cleanSearch = searchTerm ? String(searchTerm).trim().toLowerCase() : "";
-      if (!cleanSearch) {
-        return matchesProductionCenter && matchesProductType;
-      }
-
-      const productName = String(product.name || product.productName || "").toLowerCase();
-      const productCode = String(product.code || product.productCode || "").toLowerCase();
-      const productCategory = String(product.category || "").toLowerCase();
-      const productType = String(product.type || "").toLowerCase();
-
-      // Not the description: words in it ("served with bread") pulled in unrelated products.
-      const matchesSearch =
-        productName.includes(cleanSearch) ||
-        productCode.includes(cleanSearch) ||
-        productCategory.includes(cleanSearch) ||
-        productType.includes(cleanSearch) ||
-        soundsLike(productName, cleanSearch);
-
-      return matchesProductionCenter && matchesProductType && matchesSearch;
-    });
-
-    // Handle product selection/deselection
-    const toggleProductSelection = (product) => {
-      setSelectedProducts((prev) => {
-        const isSelected = prev.find((p) => itemKey(p) === itemKey(product));
-        if (isSelected) {
-          // Remove from selection
-          const updated = prev.filter((p) => itemKey(p) !== itemKey(product));
-          // Remove from quantities as well
-          setQuantities((prevQty) => {
-            const newQty = { ...prevQty };
-            delete newQty[product.id];
-            return newQty;
-          });
-          return updated;
-        } else {
-          // Add to selection
-          return [...prev, product];
-        }
-      });
-    };
-
-    // Handle quantity change
-    const updateQuantity = (productId, quantity) => {
-      setQuantities((prev) => ({
-        ...prev,
-        [productId]: quantity,
-      }));
-    };
-
-    // Handle adding selected products to the plan (and modal's added items table)
-    const handleAddSelectedProducts = () => {
-      const newAddedItems = [];
-
-      selectedProducts.forEach((product) => {
-        // Robust check for raw material to match filtering logic
-        const isRawMaterial =
-          product.category === "raw_material" ||
-          product.type === "raw_material";
-
-        // Find fresh stock data from availableProducts global state
-        const freshProductData = availableProducts.find(p => itemKey(p) === itemKey(product));
-
-        const newItem = {
-          id: Date.now() + Math.random(),
-          productId: product.id,
-          productName: product.name || product.productName,
-          productCode: product.code || product.productCode,
-          category: product.category,
-          description: product.description,
-          unitPrice: product.unitPrice,
-          productionCenters: product.productionCenters,
-          // Use fresh stock data if available
-          miniStoreAvailability: freshProductData?.miniStoreAvailability || product.miniStoreAvailability || [],
-          outletAvailability: freshProductData?.outletAvailability || product.outletAvailability || [],
-          isActive: product.isActive,
-          quantity: 1, // Default quantity
-          addedAt: new Date().toISOString(),
-          // Add destination center for raw materials
-          isRawMaterial: isRawMaterial,
-          destinationProductionCenter: isRawMaterial ? "" : null,
-        };
-
-        // Add to main plan
-        setCurrentPlan((prev) => ({
-          ...prev,
-          productionItems: [...prev.productionItems, newItem],
-        }));
-
-        // Add to modal's added items table
-        newAddedItems.push(newItem);
-      });
-
-      // Update added items in modal
-      setAddedItems((prev) => [...prev, ...newAddedItems]);
-
-      // Reset selections for next batch
-      setSelectedProducts([]);
-      setQuantities({});
-
-      // Show success message
-      showNotification(`${newAddedItems.length} product(s) added to plan successfully!`, "success");
-      handleCloseModal();
-    };
-
-    // Reset modal state when closed
-    const handleCloseModal = () => {
-      setSelectedProducts([]);
-      setQuantities([]);
-      setSearchTerm("");
-      setActiveProductionCenter("All");
-      setActiveProductType("All");
-      setAddedItems([]);
-      setShowAddProductModal(false);
-    };
-
-    return (
-      <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
-        <div className="bg-elevated rounded-lg shadow-xl w-full max-w-5xl max-h-[95vh] overflow-y-auto">
-          <div className="p-6 border-b border-line">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div>
-                  <h3 className="text-[20px] font-[600] text-fg">
-                    Add Products to Plan
-                  </h3>
-                  <p className="text-[12px] text-fg-secondary mt-1">
-                    {activeProductionCenter} - {activeProductType}
-                  </p>
-                </div>
-                {selectedProducts.length > 0 && (
-                  <span className="px-3 py-1 bg-brand text-on-brand text-[12px] rounded-full">
-                    {selectedProducts.length} selected
-                  </span>
-                )}
-                {addedItems.length > 0 && (
-                  <span className="px-3 py-1 bg-success-solid text-on-brand text-[12px] rounded-full">
-                    {addedItems.length} added to plan
-                  </span>
-                )}
-              </div>
-              <button aria-label="Close"
-                onClick={handleCloseModal}
-                className="p-2 hover:bg-app rounded-lg"
-              >
-                <X size={20} />
-              </button>
-            </div>
-          </div>
-
-          <div className="p-6 pt-0">
-            {/* Product Selection */}
-            <div>
-                {/* Production Center Tabs */}
-                <div className="flex border-b border-line mb-4">
-                  {productionCenterList.map((center) => (
-                    <button
-                      key={center}
-                      onClick={() => {
-                        setActiveProductionCenter(center);
-                        if (center === "All") {
-                          setActiveProductType("All"); // Show all types in All tab
-                        } else {
-                          setActiveProductType("Product"); // Reset to default for specific centers
-                        }
-                      }}
-                      className={`px-6 py-3 text-[14px] font-[500] border-b-2 transition-colors ${activeProductionCenter === center
-                        ? "border-brand-fg text-brand-fg"
-                        : "border-transparent text-fg-secondary hover:text-fg"
-                        }`}
-                    >
-                      {center}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Product Type Filter */}
-                <div className="flex gap-2 mb-4">
-                  {productTypes.map((type) => (
-                    <button
-                      key={type}
-                      onClick={() => setActiveProductType(type)}
-                      className={`px-4 py-2 text-[12px] font-[500] rounded-lg transition-colors ${activeProductType === type
-                        ? "bg-brand text-on-brand"
-                        : "bg-subtle text-fg-secondary hover:bg-line"
-                        }`}
-                    >
-                      {type}
-                    </button>
-                  ))}
-                </div>
-                {/* Search */}
-                <div className="mb-4">
-                  <div className="relative">
-                    <Search
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary"
-                      size={20}
-                    />
-                    <input
-                      type="text"
-                      placeholder={`Search ${activeProductionCenter} ${activeProductType} products...`}
-                      className="w-full pl-10 pr-4 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-transparent"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                {/* Products Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-                  {productsLoading ? (
-                    <div className="col-span-full flex items-center justify-center py-8">
-                      <div className="text-[14px] text-fg-secondary">
-                        Loading products...
-                      </div>
-                    </div>
-                  ) : filteredProducts.length === 0 ? (
-                    <div className="col-span-full flex items-center justify-center py-8">
-                      <div className="text-[14px] text-fg-secondary">
-                        No {activeProductionCenter} {activeProductType} products
-                        found
-                      </div>
-                    </div>
-                  ) : (
-                    filteredProducts.map((product) => {
-                      const isSelected = selectedProducts.find(
-                        (p) => itemKey(p) === itemKey(product)
-                      );
-                      const isAlreadyAdded =
-                        addedItems.find(
-                          (item) => planItemKey(item) === itemKey(product)
-                        ) ||
-                        currentPlan.productionItems.find(
-                          (item) => planItemKey(item) === itemKey(product)
-                        );
-
-                      const isExpanded = expandedProducts[itemKey(product)];
-
-                      return (
-                        <div
-                          key={itemKey(product)}
-                          className={`border rounded-lg transition-all ${isAlreadyAdded
-                            ? "border-success bg-success/10 opacity-75"
-                            : isSelected
-                              ? "border-brand-fg bg-brand/10"
-                              : "border-line hover:border-brand-fg"
-                            }`}
-                        >
-                          {/* Collapsed Header - always visible, clicking selects */}
-                          <div
-                            className="p-3 cursor-pointer"
-                            role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => !isAlreadyAdded && toggleProductSelection(product)}
-                          >
-                            <div className="flex items-start justify-between mb-0">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <h4 className="text-[14px] font-[600] text-fg">
-                                    {product.name || product.productName}
-                                  </h4>
-                                  {isSelected && (
-                                    <CheckCircle
-                                      size={16}
-                                      className="text-brand-fg"
-                                    />
-                                  )}
-                                  {isAlreadyAdded && (
-                                    <CheckCircle
-                                      size={16}
-                                      className="text-success"
-                                    />
-                                  )}
-                                </div>
-                                <p className="text-[12px] text-fg-secondary">
-                                  Code: {product.code || product.productCode}
-                                </p>
-
-                                <p className="text-[12px] text-fg-secondary">{product.description}</p>
-                                <div className="text-[12px] text-fg-secondary flex justify-between">
-                                  <span>Unit Cost:</span>
-                                  <span className="font-[500]">
-                                    Rs. {product.unitPrice != null ? (typeof product.unitPrice === 'number' ? product.unitPrice.toFixed(2) : parseFloat(product.unitPrice).toFixed(2)) : "0.00"}
-                                  </span>
-                                </div>
-                                {product.salePrice != null && product.salePrice !== product.unitPrice && (
-                                  <div className="text-[12px] text-success flex justify-between">
-                                    <span>POS Price:</span>
-                                    <span className="font-[600]">
-                                      Rs. {product.salePrice != null ? (typeof product.salePrice === 'number' ? product.salePrice.toFixed(2) : parseFloat(product.salePrice).toFixed(2)) : "0.00"}
-                                    </span>
-                                  </div>
-                                )}
-                                <div className="text-[12px] text-brand-fg flex justify-between mt-1 font-[600]">
-                                  <span>Total Available:</span>
-                                  <span>
-                                    {(product.miniStoreAvailability?.reduce((sum, store) => sum + (parseFloat(store.availableQty) || 0), 0) || 0) +
-                                     (product.outletAvailability?.reduce((sum, outlet) => sum + (outlet.availableQty || 0), 0) || 0)}
-                                  </span>
-                                </div>
-                              </div>
-                              <span className="text-[12px] px-2 py-1 rounded-full bg-brand/10 text-brand-fg">
-                                {product.category}
-                              </span>
-                            </div>
-                            {/* Production Centers */}
-                            {product.productionCenters &&
-                              product.productionCenters.length > 0 && (
-                                <div className="">
-                                  <span className="text-[14px] font-[600] text-fg">
-                                    Production Centers:
-                                  </span>
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {product.productionCenters.map(
-                                      (center, idx) => (
-                                        <span
-                                          key={idx}
-                                          className="px-2 py-1 bg-brand/10 text-brand-fg rounded text-[12px]"
-                                        >
-                                          {center.centerName}
-                                        </span>
-                                      )
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-
-                          </div>
-
-                          {/* Expand / Collapse Button */}
-                          {((product.miniStoreAvailability && product.miniStoreAvailability.length > 0) || 
-                            (product.outletAvailability && product.outletAvailability.length > 0)) && (
-                            <div
-                              className="flex items-center justify-center py-1 border-t border-line cursor-pointer hover:bg-subtle transition-colors"
-                              role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={(e) => {
-                                e.stopPropagation();
-                                toggleExpand(itemKey(product));
-                              }}
-                            >
-                              <span className="text-[12px] text-fg-secondary mr-1">
-                                {isExpanded ? 'Hide' : 'Store & Outlet Availability'}
-                              </span>
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="12"
-                                height="12"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className={`text-fg-secondary transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                              >
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                              </svg>
-                            </div>
-                          )}
-
-                          {/* Expanded Store & Outlet Availability */}
-                          {isExpanded && (
-                            <div className="px-3 pb-3 border-t border-line bg-surface rounded-b-lg">
-                              {product.miniStoreAvailability && product.miniStoreAvailability.length > 0 && (
-                                <>
-                                  <p className="text-[12px] font-[600] text-fg mt-2 mb-1">Store Availability:</p>
-                                  <div className="grid grid-cols-1 gap-1 pl-2">
-                                    {product.miniStoreAvailability.map((store, idx) => (
-                                      <div key={idx} className="flex justify-between text-[12px]">
-                                        <span className="text-fg-secondary">{store.miniStoreName}:</span>
-                                        <span className={`font-[500] ${store.availableQty > 0 ? "text-success" : "text-error"}`}>
-                                          {store.availableQty}
-                                        </span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </>
-                              )}
-                              {product.outletAvailability && product.outletAvailability.length > 0 && (
-                                <>
-                                  <p className="text-[12px] font-[600] text-fg mt-2 mb-1">Outlet Availability:</p>
-                                  <div className="grid grid-cols-1 gap-1 pl-2">
-                                    {product.outletAvailability.map((outlet, idx) => (
-                                      <div key={idx} className="flex justify-between text-[12px]">
-                                        <span className="text-fg-secondary">{outlet.outletName}:</span>
-                                        <span className={`font-[500] ${outlet.availableQty > 0 ? "text-success" : "text-error"}`}>
-                                          {outlet.availableQty}
-                                        </span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-
-                {/* Actions */}
-                <div className="flex justify-between pt-6 border-t border-line mt-6">
-                  <div className="text-[14px] text-fg-secondary">
-                    {selectedProducts.length} product(s) selected
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={handleAddSelectedProducts}
-                      className="px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover disabled:opacity-50"
-                      disabled={selectedProducts.length === 0}
-                    >
-                    Add {selectedProducts.length} Products to Plan
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-    );
   };
 
   // Load Previous Plan Modal
@@ -2786,7 +2786,7 @@ export default function ManagerProductionPlanning() {
                   onClick={() => setViewMode("dashboard")}
                   className="text-brand-fg text-[14px] font-[500] flex items-center gap-1 hover:underline"
                  >
-                   <History size={16} /> Back to Dashboard
+                   <ArrowLeft size={16} /> Back to Dashboard
                  </button>
                  <div className="flex gap-2">
                    <button onClick={startNewPlan} className="px-4 py-2 text-brand-fg border border-brand-fg rounded-lg text-[14px] font-[500] hover:bg-brand/10">
@@ -3154,6 +3154,7 @@ export default function ManagerProductionPlanning() {
         productTypes={productTypes}
         isExecutionMode={isExecutionMode}
         setShowAddProductModal={setShowAddProductModal}
+        showNotification={showNotification}
       />}
       {showLoadPlanModal && <LoadPlanModal />}
       {showRawMaterialModal && <RawMaterialModal />}
@@ -3164,7 +3165,8 @@ export default function ManagerProductionPlanning() {
           setShowConfirmationPopup={setShowConfirmationPopup}
         />
       )}
-      {showOutletDistributionModal && <OutletDistributionModal />}
+      {/* called, not <Rendered />: it is declared inside this page, so as a component its fields would remount and lose the cursor on every keystroke */}
+      {showOutletDistributionModal && OutletDistributionModal()}
       {showViewPlanModal && selectedPlanForView && (
         <ViewPlanModal
           plan={selectedPlanForView}
