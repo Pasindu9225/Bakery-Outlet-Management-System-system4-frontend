@@ -592,44 +592,30 @@ function EntryTable({ rows, empty, pending, onConfirm, onDismiss }) {
   );
 }
 
-function ConfirmModal({ entry, reasons, onClose, onDone, onError }) {
+function ConfirmModal({ entry, onClose, onDone, onError }) {
   const unitCost = entry.systemUnitCost !== null && entry.systemUnitCost !== undefined ? Number(entry.systemUnitCost) : null;
-  const [actualQty, setActualQty] = useState(String(entry.qty));
-  const [valueEdited, setValueEdited] = useState(false);
-  const [actualValue, setActualValue] = useState(entry.systemValue !== null && entry.systemValue !== undefined ? String(entry.systemValue) : "");
-  const [reasonCode, setReasonCode] = useState(entry.reasonCode);
+  // Confirmed as reported: quantity, value and reason are fixed. A value is typed only when there is no cost on record.
+  const reportedValue = entry.systemValue !== null && entry.systemValue !== undefined ? Number(entry.systemValue)
+    : unitCost !== null ? Math.round(Number(entry.qty) * unitCost * 100) / 100 : null;
+  const [typedValue, setTypedValue] = useState("");
   const [adminNotes, setAdminNotes] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Follow the suggested cost while the Admin changes the quantity, until they type their own value.
-  useEffect(() => {
-    if (!valueEdited && unitCost !== null) {
-      const q = Number(actualQty);
-      setActualValue(Number.isFinite(q) ? (q * unitCost).toFixed(2) : "");
-    }
-  }, [actualQty, unitCost, valueEdited]);
-
-  const qtyNum = Number(actualQty);
-  const valueNum = actualValue === "" ? null : Number(actualValue);
-  const changed =
-    qtyNum !== Number(entry.qty) ||
-    (entry.systemValue !== null && entry.systemValue !== undefined && valueNum !== null && Math.abs(valueNum - Number(entry.systemValue)) > 0.004);
+  const qtyNum = Number(entry.qty);
+  const valueNum = reportedValue !== null ? reportedValue : typedValue === "" ? null : Number(typedValue);
   const overStock = entry.stockAvailable !== null && entry.stockAvailable !== undefined && !entry.stockDeducted && qtyNum > Number(entry.stockAvailable);
 
   let error = null;
   if (!(qtyNum > 0)) error = "Enter a quantity greater than zero.";
   else if (overStock) error = `Only ${qty(entry.stockAvailable, entry.uom)} is in stock at this location.`;
-  else if (valueNum === null || !(valueNum >= 0)) error = "Enter the actual value.";
-  else if (changed && !adminNotes.trim()) error = "Add a note explaining the change.";
+  else if (valueNum === null || !(valueNum >= 0)) error = "Enter the value: there is no cost on record for this item.";
 
   const submit = async () => {
     if (error) return;
     setSaving(true);
     try {
       await axiosInstance.post(`/api/v1/wastage/admin/entries/${entry.id}/confirm`, {
-        actualQty: qtyNum,
-        actualValue: valueNum,
-        reasonCode,
+        actualValue: reportedValue === null ? valueNum : undefined,
         adminNotes: adminNotes.trim() || null,
       });
       onDone(`${entry.entryNo} confirmed${entry.stockDeducted ? "" : " and removed from stock"}.`);
@@ -650,22 +636,19 @@ function ConfirmModal({ entry, reasons, onClose, onDone, onError }) {
       </div>
       {entry.notes && <p className="text-[12px] text-fg-secondary bg-subtle border border-line rounded-lg p-3 mb-4">{entry.notes}</p>}
 
-      <div className="grid grid-cols-2 gap-3">
-        <Field label={`Actual quantity${entry.uom ? ` (${entry.uom})` : ""}`}>
-          <input type="number" min="0" step="any" value={actualQty} onChange={(e) => setActualQty(e.target.value)} className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px]" />
-        </Field>
-        <Field label="Actual value (Rs.)">
-          <input type="number" min="0" step="0.01" value={actualValue} onChange={(e) => { setValueEdited(true); setActualValue(e.target.value); }} className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px]" />
-        </Field>
+      <div className="grid grid-cols-3 gap-3 mb-4 text-[13px]">
+        <Info label="Quantity" value={qty(entry.qty, entry.uom)} />
+        {reportedValue !== null ? (
+          <Info label="Value" value={money(reportedValue)} />
+        ) : (
+          <Field label="Value (Rs.) — no cost on record">
+            <input type="number" min="0" step="0.01" value={typedValue} onChange={(e) => setTypedValue(e.target.value)} className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px]" />
+          </Field>
+        )}
+        <Info label="Reason" value={entry.reasonLabel || entry.reasonCode} />
       </div>
-      <Field label="Reason">
-        <select value={reasonCode} onChange={(e) => setReasonCode(e.target.value)} className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px] bg-surface">
-          {(reasons.length ? reasons : [{ code: entry.reasonCode, label: entry.reasonLabel }]).map((r) => (
-            <option key={r.code} value={r.code}>{r.label}</option>
-          ))}
-        </select>
-      </Field>
-      <Field label={`Admin note${changed ? " (required — quantity or value changed)" : " (optional)"}`}>
+      <p className="text-[12px] text-fg-secondary mb-3">Wastage is confirmed as reported. If it is wrong, dismiss it and have it reported again.</p>
+      <Field label="Admin note (optional)">
         <textarea rows={2} value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px]" />
       </Field>
 
