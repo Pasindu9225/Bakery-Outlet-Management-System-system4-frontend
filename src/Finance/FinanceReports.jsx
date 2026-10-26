@@ -125,6 +125,17 @@ const REPORT_CATEGORIES = [
         ],
     },
     {
+        id: "returns",
+        label: "Customer Returns",
+        icon: <Repeat size={16} />,
+        color: "bg-plum-solid",
+        endpoint: "customer-returns",
+        reports: [
+            { label: "All Returns",          type: "all" },
+            { label: "Returns Without Bill", type: "withoutBill" },
+        ],
+    },
+    {
         id: "goods",
         label: "Goods Sent to POS",
         icon: <Truck size={16} />,
@@ -608,6 +619,9 @@ Object.assign(DETAIL_COLUMNS, {
         ["standard", "Sent", "unit"], ["actual", "Accepted", "unit"], ["wasted", "Not received", "unit"], ["outstanding", "Waiting", "unit"],
         ["employee", "Accepted by"], ["acceptedAt", "Accepted at"], ["dueDate", "Expiry"], ["reason", "Status"],
         ["note", "Not received: reason → returned to"]],
+    returns: [["date", "Date"], ["ref", "Return"], ["supplier", "Bill"], ["employee", "Customer (phone)"], ["outlet", "Outlet"],
+        ["product", "Items"], ["reason", "Reason"], ["category", "Type"], ["standard", "Returned (Rs.)", "rs"],
+        ["actual", "Exchanged (Rs.)", "rs"], ["outstanding", "Paid back (Rs.)", "rs"], ["note", "Cashier"]],
     "staff:costReport": [["employee", "Staff"], ["qty", "Meals", "num"], ["sales", "Selling value (Rs.)", "rs"],
         ["totalCost", "Recipe cost (Rs.)", "rs"]],
     "profitability:byProduct": [["product", "Product"], ["category", "Category"], ...PROFIT_COLS, ["reason", "Note"]],
@@ -634,6 +648,8 @@ Object.assign(EMPTY_TEXT, {
     "iou:items": "No settled IOU purchases in this period",
     credit: "No credit orders in this period",
     goods: "No goods were sent to the POS in this period",
+    returns: "No customer returns in this period",
+    "returns:withoutBill": "No returns without a bill in this period",
     "goods:short": "Every item sent in this period was fully accepted",
     "credit:open": "No credit orders are waiting for payment or closing",
     "credit:creditSales": "No pay-later bills in this period",
@@ -871,7 +887,7 @@ export default function FinanceReports() {
         setPage(1);
     };
 
-    const outletServerSide = selectedCategory.id === "sales" || selectedCategory.id === "goods"
+    const outletServerSide = selectedCategory.id === "sales" || selectedCategory.id === "goods" || selectedCategory.id === "returns"
         || (selectedCategory.id === "production" && selectedReport.type !== "rawMaterialCosts");
     const outletApplies = outletServerSide
         || (selectedCategory.id === "profitability" && selectedReport.type === "byOutlet");
@@ -1031,8 +1047,9 @@ export default function FinanceReports() {
     const isIouReport = selectedCategory.id === "iou";
     const isCreditReport = selectedCategory.id === "credit";
     const isGoodsReport = selectedCategory.id === "goods";
+    const isReturnsReport = selectedCategory.id === "returns";
     const useWastageShape = isWastageReport || isStaffReport || isStockReport || isPurchaseReport || isProfitReport || isVarianceReport
-        || isIouReport || isCreditReport || isGoodsReport;
+        || isIouReport || isCreditReport || isGoodsReport || isReturnsReport;
 
     const summaryCards = useMemo(() => {
         if (isPaymentReport) {
@@ -1087,6 +1104,17 @@ export default function FinanceReports() {
                 { label: bills ? "Unpaid" : "Balance Owed", value: money(sum("outstanding")) },
                 { label: selectedReport.type === "byCustomer" ? "Customers" : bills ? "Bills" : "Orders", value: filtered.length },
             ].map((c, i) => ({ ...c, icon: [<CreditCard size={20} />, <CheckCircle size={20} />, <AlertTriangle size={20} />, <Layers size={20} />][i],
+                color: i === 0 ? "bg-brand" : i === 1 ? "bg-plum-solid" : "bg-info-solid",
+                hoverColor: i === 0 ? "hover:bg-brand-hover" : i === 1 ? "hover:bg-plum-solid" : "hover:bg-info-solid",
+                iconBg: i === 0 ? "bg-brand/30" : i === 1 ? "bg-plum/30" : "bg-info/30" }));
+        }
+        if (isReturnsReport) {
+            return [
+                { label: "Returned", value: money(sum("standard")) },
+                { label: "Paid Back", value: money(sum("outstanding")) },
+                { label: "Without Bill", value: filtered.filter((r) => r.supplier === "Without bill").length },
+                { label: "Returns", value: filtered.length },
+            ].map((c, i) => ({ ...c, icon: [<Repeat size={20} />, <Banknote size={20} />, <AlertTriangle size={20} />, <Layers size={20} />][i],
                 color: i === 0 ? "bg-brand" : i === 1 ? "bg-plum-solid" : "bg-info-solid",
                 hoverColor: i === 0 ? "hover:bg-brand-hover" : i === 1 ? "hover:bg-plum-solid" : "hover:bg-info-solid",
                 iconBg: i === 0 ? "bg-brand/30" : i === 1 ? "bg-plum/30" : "bg-info/30" }));

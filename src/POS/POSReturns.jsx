@@ -48,6 +48,11 @@ export default function POSReturns() {
 
     // Step 1: Transaction Search
     const [receiptId, setReceiptId] = useState('');
+    // 'bill' = the customer has the bill; 'nobill' = found by the customer's phone, or items picked by hand
+    const [returnMode, setReturnMode] = useState('bill');
+    const [custPhone, setCustPhone] = useState('');
+    const [custName, setCustName] = useState('');
+    const [manualFilter, setManualFilter] = useState('');
     const [foundTransaction, setFoundTransaction] = useState(null);
 
     // Step 2: Item Selection
@@ -265,7 +270,47 @@ export default function POSReturns() {
             );
         });
         
-        if (transaction) {
+        if (transaction) openBill(transaction);
+        else toast.error('Transaction not found in today\'s sales. Please check the Bill ID (e.g. BILL-000001 or 1).');
+    };
+
+    // the customer's bills today, by phone (only bills where the cashier entered the customer's phone)
+    const phoneDigits = (p) => String(p || '').replace(/\D/g, '').slice(-9);
+    const billsForPhone = phoneDigits(custPhone).length >= 9
+        ? todaySales.filter(s => s && phoneDigits(s.customerPhone) === phoneDigits(custPhone))
+        : [];
+
+    // no bill at all: today's products at their current price, picked by hand
+    const startWithoutBill = () => {
+        if (!phoneDigits(custPhone) || phoneDigits(custPhone).length < 9) return toast.error("Enter the customer's phone number.");
+        if (!custName.trim()) return toast.error("Enter the customer's name.");
+        const items = exchangeProducts.map(p => ({
+            id: `p-${p.id}`,
+            productId: p.id,
+            name: p.name,
+            code: p.code,
+            price: p.price,
+            quantity: 99,
+            total: 0
+        }));
+        setFoundTransaction({
+            id: 'WITHOUT-BILL',
+            saleId: null,
+            manual: true,
+            billNumber: 'Without bill',
+            date: new Date().toLocaleDateString('en-CA'),
+            time: '',
+            cashier: `${custName.trim()} (${custPhone.trim()})`,
+            total: 0,
+            items
+        });
+        setSelectedItems(items.map(item => ({ ...item, returnQuantity: 0, resellable: true })));
+        setManualFilter('');
+        setCurrentStep(2);
+    };
+
+    const openBill = (transaction) => {
+        {
             const mappedTransaction = {
                 id: transaction.saleId.toString(),
                 saleId: transaction.saleId,
@@ -291,8 +336,6 @@ export default function POSReturns() {
                 resellable: true
             })));
             setCurrentStep(2);
-        } else {
-            toast.error('Transaction not found in today\'s sales. Please check the Bill ID (e.g. BILL-000001 or 1).');
         }
     };
 
@@ -455,18 +498,23 @@ export default function POSReturns() {
 
             const finalPaymentMethodId = selectedPaymentMethod ? selectedPaymentMethod.paymentMethodId : (defaultCash ? defaultCash.paymentMethodId : 1);
 
-            const targetSaleId = foundTransaction.saleId || parseInt(String(foundTransaction.id).replace(/\D/g, '')) || 1;
+            const targetSaleId = foundTransaction.manual ? null
+                : (foundTransaction.saleId || parseInt(String(foundTransaction.id).replace(/\D/g, '')) || 1);
 
             // Construct the final request body
             const requestBody = {
                 saleId: targetSaleId,
+                // without the bill the customer is recorded by phone and name
+                customerPhone: returnMode === 'nobill' ? custPhone.trim() : null,
+                customerName: returnMode === 'nobill' ? custName.trim() : null,
                 returnReason: processedReturn.returnReason,
                 refundType: refundType.toUpperCase(), // "REFUND" or "EXCHANGE"
                 cashierId: cashierId,
                 paymentMethodId: finalPaymentMethodId,
                 verificationCode: managerVerificationCode,
                 returnItems: returnItems.map(item => ({
-                    saleItemId: item.id,
+                    saleItemId: foundTransaction.manual ? null : item.id,
+                    productId: foundTransaction.manual ? item.productId : undefined,
                     qty: item.returnQuantity,
                     unitPrice: item.price,
                     isResellable: item.resellable
@@ -515,6 +563,9 @@ export default function POSReturns() {
         setCurrentStep(1);
         setReceiptId('');
         setFoundTransaction(null);
+        setCustPhone('');
+        setCustName('');
+        setManualFilter('');
         setSelectedItems([]);
         setReturnReason('');
         setCustomReason('');
@@ -578,6 +629,62 @@ export default function POSReturns() {
                                             </p>
                                         </div>
 
+                                        <div className="grid grid-cols-2 gap-2 mb-5" role="tablist">
+                                            {[['bill', 'Customer has the bill'], ['nobill', 'No bill']].map(([mode, label]) => (
+                                                <button key={mode} role="tab" aria-selected={returnMode === mode} onClick={() => setReturnMode(mode)}
+                                                    className={`py-2.5 rounded-lg text-[14px] font-[600] border transition-colors ${returnMode === mode ? 'bg-brand text-on-brand border-brand' : 'border-line text-fg hover:bg-subtle'}`}>
+                                                    {label}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {returnMode === 'nobill' && (
+                                            <div className="space-y-4">
+                                                <p className="text-[13px] text-fg-secondary">
+                                                    Check the customer by phone. If they bought it today with their phone on the bill, pick that bill.
+                                                    Otherwise pick the items by hand: they are priced at today's price.
+                                                </p>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    <div>
+                                                        <label htmlFor="ret-phone" className="block text-[14px] font-[500] text-fg mb-2">Customer phone *</label>
+                                                        <input id="ret-phone" type="tel" value={custPhone} onChange={(e) => setCustPhone(e.target.value)}
+                                                            placeholder="07X XXX XXXX"
+                                                            className="w-full px-3 py-3 border border-line rounded-lg text-[14px] bg-surface text-fg focus:border-brand-fg focus:outline-none" />
+                                                    </div>
+                                                    <div>
+                                                        <label htmlFor="ret-name" className="block text-[14px] font-[500] text-fg mb-2">Customer name *</label>
+                                                        <input id="ret-name" type="text" value={custName} onChange={(e) => setCustName(e.target.value)}
+                                                            placeholder="Name"
+                                                            className="w-full px-3 py-3 border border-line rounded-lg text-[14px] bg-surface text-fg focus:border-brand-fg focus:outline-none" />
+                                                    </div>
+                                                </div>
+                                                {billsForPhone.length > 0 && (
+                                                    <div className="border border-line rounded-lg divide-y divide-line">
+                                                        <p className="px-4 py-2 text-[12px] font-[600] text-fg-secondary uppercase">Today's bills for this phone</p>
+                                                        {billsForPhone.map(s => (
+                                                            <button key={s.saleId} onClick={() => { if (!custName.trim() && s.customerName) setCustName(s.customerName); openBill(s); }}
+                                                                className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-subtle">
+                                                                <span className="text-[14px] font-[600] text-brand-fg">{s.billNumber}</span>
+                                                                <span className="text-[13px] text-fg-secondary">{s.saleTime ? String(s.saleTime).slice(0, 5) : ''} · {(s.saleItems || []).length} item(s)</span>
+                                                                <span className="text-[14px] font-[500] text-fg">Rs. {Number(s.totalAmount || 0).toLocaleString()}</span>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                {phoneDigits(custPhone).length >= 9 && billsForPhone.length === 0 && (
+                                                    <p className="text-[13px] text-fg-secondary">No bill today with this phone number.</p>
+                                                )}
+                                                <button onClick={startWithoutBill}
+                                                    disabled={phoneDigits(custPhone).length < 9 || !custName.trim()}
+                                                    className="w-full border border-brand-fg text-brand-fg py-3 rounded-lg font-[500] hover:bg-brand/5 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                                                    <Package size={16} />
+                                                    No bill: pick the returned items
+                                                </button>
+                                                <ButtonHint show={phoneDigits(custPhone).length < 9 || !custName.trim()}>Enter the customer's phone number and name first.</ButtonHint>
+                                            </div>
+                                        )}
+
+                                        {returnMode === 'bill' && (
                                         <div className="space-y-4">
                                             <div>
                                                 <label className="block text-[14px] font-[500] text-fg mb-2">
@@ -612,6 +719,7 @@ export default function POSReturns() {
                                             </button>
                                             <ButtonHint show={!receiptId.trim()}>Type or scan the transaction ID first.</ButtonHint>
                                         </div>
+                                        )}
 
 
                                     </div>
@@ -635,7 +743,7 @@ export default function POSReturns() {
                                                 <p className="text-[14px] font-[500] text-fg">{foundTransaction.date} {foundTransaction.time}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[12px] text-fg-secondary">Cashier</p>
+                                                <p className="text-[12px] text-fg-secondary">{foundTransaction.manual ? 'Customer' : 'Cashier'}</p>
                                                 <p className="text-[14px] font-[500] text-fg">{foundTransaction.cashier}</p>
                                             </div>
                                             <div>
@@ -646,15 +754,21 @@ export default function POSReturns() {
 
                                         {/* Items Selection */}
                                         <h4 className="text-[16px] font-[500] text-fg mb-4">Select Items to Return</h4>
+                                        {foundTransaction.manual && (
+                                            <input type="search" aria-label="Find the returned product" value={manualFilter}
+                                                onChange={(e) => setManualFilter(e.target.value)} placeholder="Find the product..."
+                                                className="w-full mb-3 px-3 py-2 border border-line rounded-lg text-[14px] bg-surface text-fg focus:border-brand-fg focus:outline-none" />
+                                        )}
                                         <div className="space-y-3">
-                                            {selectedItems.map((item) => (
+                                            {selectedItems.filter((item) => !foundTransaction.manual || item.returnQuantity > 0
+                                                || !manualFilter.trim() || `${item.name} ${item.code || ''}`.toLowerCase().includes(manualFilter.trim().toLowerCase())).map((item) => (
                                                 <div key={item.id} className="border border-line rounded-lg p-4">
                                                     <div className="flex items-start justify-between mb-3">
                                                         <div className="flex-1">
                                                             <p className="text-[14px] font-[500] text-fg">{item.name}</p>
                                                             <p className="text-[12px] text-fg-secondary">{item.code}</p>
                                                             <p className="text-[14px] text-brand-fg font-[500]">
-                                                                Rs. {item.price} × {item.quantity} = Rs. {item.total.toLocaleString()}
+                                                                {foundTransaction.manual ? `Rs. ${item.price} each (today's price)` : `Rs. ${item.price} × ${item.quantity} = Rs. ${item.total.toLocaleString()}`}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -687,7 +801,7 @@ export default function POSReturns() {
                                                                         <Plus size={14} />
                                                                     </button>
                                                                 </div>
-                                                                <span className="text-[12px] text-fg-secondary whitespace-nowrap">/ {item.quantity}</span>
+                                                                {!foundTransaction.manual && <span className="text-[12px] text-fg-secondary whitespace-nowrap">/ {item.quantity}</span>}
                                                             </div>
 
                                                             {item.returnQuantity > 0 && (
