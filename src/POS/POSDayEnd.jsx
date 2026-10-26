@@ -110,6 +110,11 @@ export default function POSDayEnd() {
     // The outlet's action centres (rice corner, juice corner, ...): every ingredient they hold is counted at day end
     const [centres, setCentres] = useState([]);
     const [centresError, setCentresError] = useState(null);
+    // goods sent to this outlet not fully accepted: each is accepted or marked not received before the day end
+    const [pendingGoods, setPendingGoods] = useState([]);
+    const [pendingGoodsError, setPendingGoodsError] = useState(null);
+    const [notReceivedReason, setNotReceivedReason] = useState({});
+    const [settlingGoods, setSettlingGoods] = useState(null);
 
     // Fetch Products for Stock Closing when entering Step 3
     useEffect(() => {
@@ -140,6 +145,15 @@ export default function POSDayEnd() {
                     
                     setProductData(mappedProducts);
 
+                    setPendingGoodsError(null);
+                    try {
+                        const goodsRes = await axios.get(`${baseUrl}/api/pos/day-end/pending-goods`,
+                            { headers: { Authorization: `Bearer ${token}` } });
+                        setPendingGoods(goodsRes.data || []);
+                    } catch (goodsErr) {
+                        setPendingGoodsError(friendlyError(goodsErr, { fallback: 'Could not load the goods waiting to be accepted.' }));
+                    }
+
                     // never-expiring ingredients start as carried forward, expired / expiring today as wastage
                     setCentresError(null);
                     const centresRes = await axios.get(
@@ -168,6 +182,41 @@ export default function POSDayEnd() {
     }, [currentStep, stockReload]);
 
     const pendingTransactions = [];
+
+    // Accept the rest: the same receive as POS Goods Entry (it adds to today's stock, so the stock list reloads)
+    const acceptRestOfGoods = async (g) => {
+        setSettlingGoods(g.gtnItemId);
+        try {
+            const baseUrl = process.env.REACT_APP_BASE_URL || '';
+            await axios.post(`${baseUrl}/api/pos/v1/gtn/receive`,
+                { gtnId: g.gtnId, receivedItems: [{ gtnItemId: g.gtnItemId, receivedQty: g.remainingQty }] },
+                { headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` } });
+            toast.success(`${g.remainingQty} ${g.productName} accepted`);
+            setStockReload((n) => n + 1);
+        } catch (err) {
+            toast.error(friendlyError(err, { fallback: 'Could not accept the goods.' }));
+        } finally {
+            setSettlingGoods(null);
+        }
+    };
+
+    // Not received: closed with the reason; the quantity goes back to whoever sent it
+    const markGoodsNotReceived = async (g) => {
+        const reason = (notReceivedReason[g.gtnItemId] || '').trim();
+        if (!reason) return toast.error('Enter why it was not received.');
+        setSettlingGoods(g.gtnItemId);
+        try {
+            const baseUrl = process.env.REACT_APP_BASE_URL || '';
+            const res = await axios.post(`${baseUrl}/api/pos/day-end/pending-goods/${g.gtnItemId}/not-received`, { reason },
+                { headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` } });
+            toast.success(`${g.remainingQty} ${g.productName} marked not received${res.data?.returnedTo ? ` (back to ${res.data.returnedTo})` : ''}`);
+            setPendingGoods((prev) => prev.filter((p) => p.gtnItemId !== g.gtnItemId));
+        } catch (err) {
+            toast.error(friendlyError(err, { fallback: 'Could not save it.' }));
+        } finally {
+            setSettlingGoods(null);
+        }
+    };
 
 
 
@@ -232,6 +281,7 @@ export default function POSDayEnd() {
                 // the stock count cannot be skipped while the list is loading or after it failed to load
                 if (isLoadingProducts || productsError) return false;
                 if (!centresReady()) return false;
+                if (pendingGoodsError || pendingGoods.length > 0) return false;
                 return productData.length > 0
                     ? productData.every(item => item.physicalQty !== '' && !stockRowError(item))
                     : true;
@@ -260,6 +310,8 @@ export default function POSDayEnd() {
                 if (isLoadingProducts) return 'Wait for the stock list to load.';
                 if (productsError) return 'The stock list did not load. Press Retry.';
                 if (centresError) return 'The action centres did not load. Press Retry.';
+                if (pendingGoodsError) return 'The goods waiting to be accepted did not load. Press Retry.';
+                if (pendingGoods.length > 0) return `${pendingGoods.length} item(s) sent to this outlet are not fully accepted: accept the rest or mark not received.`;
                 {
                     const busy = centres.find(c => c.openKots > 0);
                     if (busy) return `${busy.name} has ${busy.openKots} unfinished KOT(s). Mark them served or cancelled first.`;
@@ -810,6 +862,74 @@ export default function POSDayEnd() {
 
     const renderStep3 = () => (
         <div className="space-y-6">
+            {!isLoadingProducts && (pendingGoods.length > 0 || pendingGoodsError) && (
+                <div className="bg-surface rounded-lg shadow-sm border border-warning p-6">
+                    <h3 className="text-[18px] font-[600] text-fg mb-1 flex items-center gap-2">
+                        <Package size={18} className="text-warning" /> Goods not fully accepted
+                    </h3>
+                    <p className="text-[13px] text-fg-secondary mb-4">
+                        These were sent to this outlet and part is still not accepted. If it arrived, accept the rest.
+                        If it never arrived, mark it not received with the reason: it goes back to whoever sent it.
+                    </p>
+                    {pendingGoodsError ? (
+                        <div className="flex items-center gap-3">
+                            <p className="text-[14px] text-error">{pendingGoodsError}</p>
+                            <button onClick={() => setStockReload((n) => n + 1)}
+                                className="px-4 py-2 rounded-lg bg-brand text-on-brand text-[13px] font-[600] hover:bg-brand-hover">Retry</button>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-line">
+                                        {['Goods note', 'From', 'Product', 'Sent', 'Accepted', 'Remaining', 'Not received: reason', ''].map((h) => (
+                                            <th key={h} className="text-left py-3 px-3 text-[12px] font-[600] text-fg-secondary uppercase">{h}</th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {pendingGoods.map((g) => (
+                                        <tr key={g.gtnItemId} className="border-b border-line">
+                                            <td className="py-3 px-3 text-[13px] text-fg whitespace-nowrap">
+                                                #{g.gtnId}<div className="text-[12px] text-fg-secondary">{g.date ? new Date(g.date).toLocaleString() : ''}</div>
+                                            </td>
+                                            <td className="py-3 px-3 text-[13px] text-fg">{g.from}</td>
+                                            <td className="py-3 px-3 text-[13px] font-[600] text-fg">{g.productName}</td>
+                                            <td className="py-3 px-3 text-[13px] text-fg whitespace-nowrap">{g.sentQty} {g.unit}</td>
+                                            <td className="py-3 px-3 text-[13px] text-fg whitespace-nowrap">{g.acceptedQty} {g.unit}</td>
+                                            <td className="py-3 px-3 text-[13px] font-[700] text-warning whitespace-nowrap">{g.remainingQty} {g.unit}</td>
+                                            <td className="py-3 px-3 min-w-[180px]">
+                                                <input
+                                                    type="text"
+                                                    aria-label={`Why ${g.productName} was not received`}
+                                                    value={notReceivedReason[g.gtnItemId] || ''}
+                                                    onChange={(e) => { const v = e.target.value; setNotReceivedReason((prev) => ({ ...prev, [g.gtnItemId]: v })); }}
+                                                    placeholder="e.g. short in the delivery"
+                                                    className="w-full px-3 py-2 border border-line rounded-lg text-[13px] bg-surface text-fg focus:border-brand-fg focus:outline-none"
+                                                />
+                                            </td>
+                                            <td className="py-3 px-3">
+                                                <div className="flex gap-2 whitespace-nowrap">
+                                                    <button onClick={() => acceptRestOfGoods(g)} disabled={settlingGoods === g.gtnItemId}
+                                                        className="px-3 py-2 rounded-lg bg-brand text-on-brand text-[12px] font-[600] hover:bg-brand-hover disabled:opacity-50">
+                                                        Accept rest
+                                                    </button>
+                                                    <button onClick={() => markGoodsNotReceived(g)}
+                                                        disabled={settlingGoods === g.gtnItemId || !(notReceivedReason[g.gtnItemId] || '').trim()}
+                                                        title={(notReceivedReason[g.gtnItemId] || '').trim() ? '' : 'Enter the reason first'}
+                                                        className="px-3 py-2 rounded-lg border border-line text-fg text-[12px] font-[600] hover:bg-subtle disabled:opacity-50">
+                                                        Not received
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            )}
             <div className="bg-surface rounded-lg shadow-sm border border-line p-6">
                 <h3 className="text-[18px] font-[600] text-fg mb-6">End-of-Day Stock Management</h3>
                 {isLoadingProducts ? (

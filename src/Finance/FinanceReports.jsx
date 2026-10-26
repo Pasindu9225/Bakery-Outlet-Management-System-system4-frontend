@@ -108,7 +108,7 @@ const REPORT_CATEGORIES = [
         color: "bg-plum-solid",
         endpoint: "staff-meals",
         reports: [
-            { label: "Free Meal Issuance",   type: "issuance" },
+            { label: "Staff Meal Issuance",  type: "issuance" },
             { label: "Staff Meal Cost Report", type: "costReport" },
         ],
     },
@@ -122,6 +122,17 @@ const REPORT_CATEGORIES = [
             { label: "Stock Inflow/Outflow", type: "inflowOutflow" },
             { label: "Adjustments Log",      type: "adjustments" },
             { label: "Current Stock Levels", type: "currentStock" },
+        ],
+    },
+    {
+        id: "goods",
+        label: "Goods Sent to POS",
+        icon: <Truck size={16} />,
+        color: "bg-info-solid",
+        endpoint: "goods-to-pos",
+        reports: [
+            { label: "Sent vs Accepted",         type: "lines" },
+            { label: "Not Fully Accepted",       type: "short" },
         ],
     },
     {
@@ -228,6 +239,8 @@ function normaliseRow(raw, idx) {
         variance: raw.variance != null ? toNumber(raw.variance) : null,
         variancePct: raw.variancePct != null ? toNumber(raw.variancePct) : null,
         wasted: raw.wasted != null ? toNumber(raw.wasted) : null,
+        acceptedAt: raw.acceptedAt || "—",
+        note: raw.note || "—",
     };
 }
 
@@ -591,6 +604,10 @@ Object.assign(DETAIL_COLUMNS, {
     "iou:items": [["date", "Date"], ["ref", "IOU"], ["product", "Item"], ["category", "Type"], ["supplier", "Bought from"], ["qty", "Qty"],
         ["costPerUnit", "Price/Unit (Rs.)"], ["totalCost", "Total (Rs.)"], ["standard", "Estimated (Rs.)", "rs"],
         ["variance", "Over / under (Rs.)", "rs"], ["reason", "Stock"]],
+    goods: [["date", "Sent"], ["ref", "Goods note"], ["supplier", "From"], ["outlet", "To outlet"], ["product", "Product"],
+        ["standard", "Sent", "unit"], ["actual", "Accepted", "unit"], ["wasted", "Not received", "unit"], ["outstanding", "Waiting", "unit"],
+        ["employee", "Accepted by"], ["acceptedAt", "Accepted at"], ["dueDate", "Expiry"], ["reason", "Status"],
+        ["note", "Not received: reason → returned to"]],
     "staff:costReport": [["employee", "Staff"], ["qty", "Meals", "num"], ["sales", "Selling value (Rs.)", "rs"],
         ["totalCost", "Recipe cost (Rs.)", "rs"]],
     "profitability:byProduct": [["product", "Product"], ["category", "Category"], ...PROFIT_COLS, ["reason", "Note"]],
@@ -616,6 +633,8 @@ Object.assign(EMPTY_TEXT, {
     "iou:open": "No IOU cash is waiting to be settled",
     "iou:items": "No settled IOU purchases in this period",
     credit: "No credit orders in this period",
+    goods: "No goods were sent to the POS in this period",
+    "goods:short": "Every item sent in this period was fully accepted",
     "credit:open": "No credit orders are waiting for payment or closing",
     "credit:creditSales": "No pay-later bills in this period",
     "credit:byCustomer": "No credit orders or pay-later bills in this period",
@@ -852,7 +871,7 @@ export default function FinanceReports() {
         setPage(1);
     };
 
-    const outletServerSide = selectedCategory.id === "sales"
+    const outletServerSide = selectedCategory.id === "sales" || selectedCategory.id === "goods"
         || (selectedCategory.id === "production" && selectedReport.type !== "rawMaterialCosts");
     const outletApplies = outletServerSide
         || (selectedCategory.id === "profitability" && selectedReport.type === "byOutlet");
@@ -1011,8 +1030,9 @@ export default function FinanceReports() {
     const isVarianceReport = selectedCategory.id === "variance";
     const isIouReport = selectedCategory.id === "iou";
     const isCreditReport = selectedCategory.id === "credit";
+    const isGoodsReport = selectedCategory.id === "goods";
     const useWastageShape = isWastageReport || isStaffReport || isStockReport || isPurchaseReport || isProfitReport || isVarianceReport
-        || isIouReport || isCreditReport;
+        || isIouReport || isCreditReport || isGoodsReport;
 
     const summaryCards = useMemo(() => {
         if (isPaymentReport) {
@@ -1067,6 +1087,18 @@ export default function FinanceReports() {
                 { label: bills ? "Unpaid" : "Balance Owed", value: money(sum("outstanding")) },
                 { label: selectedReport.type === "byCustomer" ? "Customers" : bills ? "Bills" : "Orders", value: filtered.length },
             ].map((c, i) => ({ ...c, icon: [<CreditCard size={20} />, <CheckCircle size={20} />, <AlertTriangle size={20} />, <Layers size={20} />][i],
+                color: i === 0 ? "bg-brand" : i === 1 ? "bg-plum-solid" : "bg-info-solid",
+                hoverColor: i === 0 ? "hover:bg-brand-hover" : i === 1 ? "hover:bg-plum-solid" : "hover:bg-info-solid",
+                iconBg: i === 0 ? "bg-brand/30" : i === 1 ? "bg-plum/30" : "bg-info/30" }));
+        }
+        if (isGoodsReport) {
+            const qty = (key) => Math.round(sum(key) * 1000) / 1000;
+            return [
+                { label: "Sent", value: qty("standard").toLocaleString() },
+                { label: "Accepted", value: qty("actual").toLocaleString() },
+                { label: "Not Received", value: qty("wasted").toLocaleString() },
+                { label: "Still Waiting", value: qty("outstanding").toLocaleString() },
+            ].map((c, i) => ({ ...c, icon: [<Truck size={20} />, <CheckCircle size={20} />, <AlertTriangle size={20} />, <Clock size={20} />][i],
                 color: i === 0 ? "bg-brand" : i === 1 ? "bg-plum-solid" : "bg-info-solid",
                 hoverColor: i === 0 ? "hover:bg-brand-hover" : i === 1 ? "hover:bg-plum-solid" : "hover:bg-info-solid",
                 iconBg: i === 0 ? "bg-brand/30" : i === 1 ? "bg-plum/30" : "bg-info/30" }));
