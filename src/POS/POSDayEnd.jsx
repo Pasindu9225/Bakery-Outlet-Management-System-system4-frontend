@@ -1186,17 +1186,17 @@ export default function POSDayEnd() {
                                 <tr className="border-b border-line">
                                     <td className="py-3 px-4 text-[14px] text-fg font-[500]">Cash (incl. Float)</td>
                                     <td className="py-3 px-4 text-[14px] text-fg-secondary text-right">
-                                        Rs. {((dayEndSummary?.expectedCash || 0) + (dayEndSummary?.openingFloat || 0)).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                        Rs. {(dayEndSummary?.expectedCash || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </td>
                                     <td className="py-3 px-4 text-[14px] text-fg text-right font-[500]">
                                         Rs. {dayEndData.cashCounted ? parseFloat(dayEndData.cashCounted).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00'}
                                     </td>
                                     <td className={`py-3 px-4 text-[14px] text-right font-[600] ${
-                                        (parseFloat(dayEndData.cashCounted) || 0) - ((dayEndSummary?.expectedCash || 0) + (dayEndSummary?.openingFloat || 0)) >= 0 
+                                        (parseFloat(dayEndData.cashCounted) || 0) - (dayEndSummary?.expectedCash || 0) >= 0 
                                             ? 'text-success' 
                                             : 'text-error'
                                     }`}>
-                                        Rs. {((parseFloat(dayEndData.cashCounted) || 0) - ((dayEndSummary?.expectedCash || 0) + (dayEndSummary?.openingFloat || 0))).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                        Rs. {((parseFloat(dayEndData.cashCounted) || 0) - (dayEndSummary?.expectedCash || 0)).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </td>
                                 </tr>
                                 {/* Card */}
