@@ -12,7 +12,7 @@ const money = (n) => `Rs. ${round2(n).toLocaleString(undefined, { minimumFractio
 
 /** Methods a bill can be split over: money only (no free meal, no credit). */
 export const splitMethods = (methods) =>
-    (methods || []).filter((m) => m.category !== "FREE_MEAL" && m.category !== "CREDIT");
+    (methods || []).filter((m) => m.category !== "FREE_MEAL" && m.category !== "STAFF_MEAL" && m.category !== "CREDIT");
 
 const methodOf = (methods, id) => (methods || []).find((m) => m.paymentMethodId === Number(id));
 const needsReference = (method) => method && (method.category === "CARD" || method.category === "BANK_TRANSFER");

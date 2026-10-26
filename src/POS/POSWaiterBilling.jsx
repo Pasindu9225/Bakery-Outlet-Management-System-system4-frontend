@@ -468,15 +468,20 @@ export default function POSWaiterBilling() {
         }
         // the methods list has only id and name: "Bank Transfer" -> BANK_TRANSFER, "Free Meal" -> FREE_MEAL
         const paymentCategory = selectedMethod.category || selectedMethod.name.trim().toUpperCase().replace(/\s+/g, '_');
-        const isFreeMeal = paymentCategory === 'FREE_MEAL';
+        const isStaffMeal = paymentCategory === 'STAFF_MEAL';
+        const isFreeMeal = paymentCategory === 'FREE_MEAL' || isStaffMeal;   // both no charge
 
         if (!isFreeMeal && receivedAmount < totalPayable) {
             toast.error('Insufficient payment amount');
             return;
         }
 
-        const effectiveReason = freeMealReason.trim() || (staffId.trim() ? `Staff ID: ${staffId.trim()}${staffReason.trim() ? ` - ${staffReason.trim()}` : ''}` : '');
+        const effectiveReason = isStaffMeal ? (freeMealReason.trim() ? `Staff ID: ${freeMealReason.trim()}` : '') : freeMealReason.trim() || (staffId.trim() ? `Staff ID: ${staffId.trim()}${staffReason.trim() ? ` - ${staffReason.trim()}` : ''}` : '');
 
+        if (isStaffMeal && !effectiveReason) {
+            toast.error('Enter the staff ID');
+            return;
+        }
         if (isFreeMeal && effectiveReason.length < 10) {
             toast.error('Please enter a valid staff ID or reason (minimum 10 characters)');
             return;
@@ -1310,22 +1315,23 @@ export default function POSWaiterBilling() {
 
                                 {(() => {
                                     const selectedMethodObj = paymentMethods.find(m => m.name.toUpperCase() === (paymentMethod || '').toUpperCase()) || {};
-                                    const isFreeMeal = selectedMethodObj.category === 'FREE_MEAL';
+                                    const isStaffMeal = selectedMethodObj.category === 'STAFF_MEAL';
+                                    const isFreeMeal = selectedMethodObj.category === 'FREE_MEAL' || isStaffMeal;
 
                                     return (
                                         <>
                                             {isFreeMeal ? (
                                                 <div>
-                                                    <label className="block text-[14px] font-[500] text-fg mb-2">Reason for Free Meal *</label>
+                                                    <label className="block text-[14px] font-[500] text-fg mb-2">{isStaffMeal ? 'Staff ID *' : 'Reason for Free Meal *'}</label>
                                                     <textarea
-                                                        placeholder="Please specify the reason (minimum 10 characters)"
+                                                        placeholder={isStaffMeal ? 'Enter staff ID' : 'Please specify the reason (minimum 10 characters)'}
                                                         value={freeMealReason}
                                                         onChange={(e) => setFreeMealReason(e.target.value)}
                                                         className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none resize-none"
                                                         rows="3"
                                                     />
                                                     <div className="mt-2 p-2 bg-subtle border border-brand-fg rounded-lg text-[13px] text-brand-fg">
-                                                        Free Meal: No charge for this transaction.
+                                                        {isStaffMeal ? 'Staff Meal' : 'Free Meal'}: No charge for this transaction.
                                                     </div>
                                                 </div>
                                             ) : (
@@ -1375,6 +1381,7 @@ export default function POSWaiterBilling() {
                                     onClick={processPayment}
                                     disabled={(() => {
                                         const selectedMethodObj = paymentMethods.find(m => m.name === paymentMethod) || {};
+                                        if (selectedMethodObj.category === 'STAFF_MEAL') return !freeMealReason.trim();
                                         const isFreeMeal = selectedMethodObj.category === 'FREE_MEAL';
                                         return isFreeMeal ? freeMealReason.trim().length < 10 : (!amountReceived || parseFloat(amountReceived) < totalPayable);
                                     })()}

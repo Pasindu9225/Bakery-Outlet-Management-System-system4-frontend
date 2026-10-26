@@ -141,7 +141,10 @@ export default function POSSales() {
     const [waiterPaymentType, setWaiterPaymentType] = useState('CASH');
     // a free meal is recorded with its reason (staff ID / why), like every other free-meal checkout
     const [waiterFreeMealReason, setWaiterFreeMealReason] = useState('');
-    const waiterFreeMealMissing = waiterPaymentType === 'FREE_MEAL' && waiterFreeMealReason.trim().length < 10;
+    const waiterFreeMealMissing = (waiterPaymentType === 'FREE_MEAL' && waiterFreeMealReason.trim().length < 10)
+        || (waiterPaymentType === 'STAFF_MEAL' && !waiterFreeMealReason.trim());
+    // what the bill records: a staff meal's box holds the staff ID
+    const waiterMealReason = waiterPaymentType === 'STAFF_MEAL' ? `Staff ID: ${waiterFreeMealReason.trim()}` : waiterFreeMealReason.trim();
     const [printData, setPrintData] = useState(null);
     const [showWaiterDiscountModal, setShowWaiterDiscountModal] = useState(false);
     const [waiterDiscountAmount, setWaiterDiscountAmount] = useState('0');
@@ -738,6 +741,7 @@ export default function POSSales() {
 
     const selectedPaymentMethodObj = availablePaymentMethods.find(m => m.paymentMethodId === paymentMethodId) || {};
     const isFreeMeal = selectedPaymentMethodObj.category === 'FREE_MEAL';
+    const isStaffMeal = selectedPaymentMethodObj.category === 'STAFF_MEAL';
 
     // Uber / PickMe payments are app orders: the order channel is the same app, so it is set for the cashier.
     const channelFromMethod = (name) => {
@@ -758,16 +762,16 @@ export default function POSSales() {
         setShowPayment(true);
     };
 
-    // Staff meal: the normal checkout with Free Meal chosen; the cashier types the reason (staff ID / why) there
+    // Staff meal: the normal checkout with the Staff Meal method chosen; the cashier types the staff ID there
     const handleStaffMeal = () => {
         if (cart.length === 0) return;
-        const freeMeal = availablePaymentMethods.find(m => m.category === 'FREE_MEAL');
-        if (!freeMeal) {
-            toast.error('No Free Meal payment method is set up. Ask the admin to add one.');
+        const staffMeal = availablePaymentMethods.find(m => m.category === 'STAFF_MEAL');
+        if (!staffMeal) {
+            toast.error('No Staff Meal payment method is set up. Ask the admin to add one.');
             return;
         }
-        setPaymentMethod(getPaymentConfig(freeMeal.name).key);
-        setPaymentMethodId(freeMeal.paymentMethodId);
+        setPaymentMethod(getPaymentConfig(staffMeal.name).key);
+        setPaymentMethodId(staffMeal.paymentMethodId);
         setShowPayment(true);
     };
 
@@ -791,6 +795,7 @@ export default function POSSales() {
             return;
         }
         const isFreeMeal = selectedMethodObj.category === 'FREE_MEAL';
+        const isStaffMeal = selectedMethodObj.category === 'STAFF_MEAL';
 
         // Validation based on payment method
         if (!splitMode && paymentMethod === 'cash' && (!isFreeMeal) && (!cashReceived || parseFloat(cashReceived) < total)) {
@@ -808,14 +813,15 @@ export default function POSSales() {
             return;
         }
 
-        const effectiveReason = freeMealReason.trim() || (staffId.trim() ? `Staff ID: ${staffId.trim()}${staffReason.trim() ? ` - ${staffReason.trim()}` : ''}` : '');
+        const staffMealReason = staffId.trim() ? `Staff ID: ${staffId.trim()}${staffReason.trim() ? ` - ${staffReason.trim()}` : ''}` : '';
+        const effectiveReason = isStaffMeal ? staffMealReason : freeMealReason.trim() || (staffId.trim() ? `Staff ID: ${staffId.trim()}${staffReason.trim() ? ` - ${staffReason.trim()}` : ''}` : '');
 
         if (isFreeMeal && effectiveReason.length < 10) {
             toast.error('Please enter a valid staff ID or reason (minimum 10 characters)');
             return;
         }
 
-        if (paymentMethod === 'staff' && !staffId.trim()) {
+        if (isStaffMeal && !staffId.trim()) {
             toast.error('Please enter valid staff ID');
             return;
         }
@@ -842,7 +848,7 @@ export default function POSSales() {
                 promotionId: appliedPromo?.id || null,
                 discountId: appliedDiscountsMeta[item.id]?.discountId || null,
                 manualDiscount: 0,
-                freeMealReason: isFreeMeal ? effectiveReason : null,
+                freeMealReason: (isFreeMeal || isStaffMeal) ? effectiveReason : null,
                 bankTransferCode: splitMode ? null : ((paymentMethod === 'bank' || paymentMethod === 'bank transfer') ? bankRef : (paymentMethod === 'card' ? cardRef : null)),
                 specialInstructions: item.specialInstructions || ""
             }))
@@ -1493,6 +1499,7 @@ export default function POSSales() {
                                                                         <option value="CARD">Card</option>
                                                                         <option value="BANK_TRANSFER">Bank Transfer</option>
                                                                         <option value="FREE_MEAL">Free Meal</option>
+                                                                        <option value="STAFF_MEAL">Staff Meal</option>
                                                                     </select>
                                                                 </div>
                                                                 <button
@@ -1502,18 +1509,18 @@ export default function POSSales() {
                                                                     Discount
                                                                 </button>
                                                             </div>
-                                                            {waiterPaymentType === 'FREE_MEAL' && (
+                                                            {(waiterPaymentType === 'FREE_MEAL' || waiterPaymentType === 'STAFF_MEAL') && (
                                                                 <div className="mb-3">
-                                                                    <label className="block text-[13px] font-[500] text-fg mb-1">Reason for Free Meal *</label>
+                                                                    <label className="block text-[13px] font-[500] text-fg mb-1">{waiterPaymentType === 'STAFF_MEAL' ? 'Staff ID *' : 'Reason for Free Meal *'}</label>
                                                                     <input
                                                                         type="text"
                                                                         value={waiterFreeMealReason}
                                                                         onChange={(e) => setWaiterFreeMealReason(e.target.value)}
-                                                                        placeholder="Staff ID / reason (minimum 10 characters)"
+                                                                        placeholder={waiterPaymentType === 'STAFF_MEAL' ? 'Enter staff ID' : 'Reason (minimum 10 characters)'}
                                                                         className={`w-full px-3 py-2 border rounded-lg text-[14px] focus:border-brand-fg focus:outline-none ${waiterFreeMealMissing ? 'border-warning' : 'border-line'}`}
                                                                     />
                                                                     {waiterFreeMealMissing && (
-                                                                        <p className="text-[12px] text-warning mt-1">Enter the reason (at least 10 characters) to finish.</p>
+                                                                        <p className="text-[12px] text-warning mt-1">{waiterPaymentType === 'STAFF_MEAL' ? 'Enter the staff ID to finish.' : 'Enter the reason (at least 10 characters) to finish.'}</p>
                                                                     )}
                                                                 </div>
                                                             )}
@@ -1530,7 +1537,7 @@ export default function POSSales() {
                                                                                     finalTotal: selectedSubTotal - discountVal,
                                                                                     paymentType: waiterPaymentType,
                                                                                     discountAmount: discountVal,
-                                                                                    discountReason: waiterPaymentType === 'FREE_MEAL' ? waiterFreeMealReason.trim() : waiterDiscountReason,
+                                                                                    discountReason: (waiterPaymentType === 'FREE_MEAL' || waiterPaymentType === 'STAFF_MEAL') ? waiterMealReason : waiterDiscountReason,
                                                                                     manualDiscount: discountVal > 0,
                                                                                     managerCode: discountVal > 0 ? waiterDiscountManagerCode : null,
                                                                                     outletId: parseInt(localStorage.getItem("outletId") || "1"),
@@ -1566,7 +1573,7 @@ export default function POSSales() {
                                                                                     finalTotal: selectedSubTotal - discountVal,
                                                                                     paymentType: waiterPaymentType,
                                                                                     discountAmount: discountVal,
-                                                                                    discountReason: waiterPaymentType === 'FREE_MEAL' ? waiterFreeMealReason.trim() : waiterDiscountReason,
+                                                                                    discountReason: (waiterPaymentType === 'FREE_MEAL' || waiterPaymentType === 'STAFF_MEAL') ? waiterMealReason : waiterDiscountReason,
                                                                                     manualDiscount: discountVal > 0,
                                                                                     managerCode: discountVal > 0 ? waiterDiscountManagerCode : null,
                                                                                     outletId: parseInt(localStorage.getItem("outletId") || "1"),
@@ -2095,7 +2102,7 @@ export default function POSSales() {
                                                     </div>
                                                 )}
 
-                                                {paymentMethod === 'staff' && !isFreeMeal && (
+                                                {isStaffMeal && (
                                                     <div className="mb-6 space-y-3">
                                                         <div>
                                                             <label className="block text-[14px] font-[500] text-fg mb-2">Staff ID *</label>
@@ -2343,7 +2350,7 @@ export default function POSSales() {
                                         </button>
                                         <button
                                             onClick={() => processPayment(false)}
-                                            disabled={!paymentMethod || (isFreeMeal && freeMealReason.trim().length < 10)}
+                                            disabled={!paymentMethod || (isFreeMeal && freeMealReason.trim().length < 10) || (isStaffMeal && !staffId.trim())}
                                             className="flex-1 px-4 py-3 border border-line-strong bg-surface text-fg rounded-lg hover:bg-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-[500]"
                                         >
                                             <Receipt size={16} />
@@ -2351,7 +2358,7 @@ export default function POSSales() {
                                         </button>
                                         <button
                                             onClick={() => processPayment(true)}
-                                            disabled={!paymentMethod || (isFreeMeal && freeMealReason.trim().length < 10)}
+                                            disabled={!paymentMethod || (isFreeMeal && freeMealReason.trim().length < 10) || (isStaffMeal && !staffId.trim())}
                                             className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:bg-line disabled:text-fg-secondary flex items-center justify-center gap-2 font-[600] text-[16px]"
                                         >
                                             <Printer size={18} />
@@ -2360,6 +2367,9 @@ export default function POSSales() {
                                     </div>
                                     <ButtonHint show={isFreeMeal && freeMealReason.trim().length < 10}>
                                         Enter the free-meal reason (at least 10 characters) to finish.
+                                    </ButtonHint>
+                                    <ButtonHint show={isStaffMeal && !staffId.trim()}>
+                                        Enter the staff ID to finish.
                                     </ButtonHint>
 
                                 </div>
