@@ -370,7 +370,8 @@ export default function POSSales() {
     useEffect(() => {
         const fetchPaymentMethods = async () => {
             try {
-                const data = await posService.getPaymentMethods();
+                // the free-meal reason box and the Staff Meal button go by category ("Free Meal" -> FREE_MEAL if unset)
+                const data = (await posService.getPaymentMethods() || []).map(m => ({ ...m, category: m.category || String(m.name || '').trim().toUpperCase().replace(/\s+/g, '_') }));
                 setAvailablePaymentMethods(data);
 
                 // Automatically set Cash as default if available
