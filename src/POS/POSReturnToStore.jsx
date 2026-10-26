@@ -86,6 +86,7 @@ export default function POSReturnToStore() {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [generatedReturnId, setGeneratedReturnId] = useState('');
+    const [returnResultMessage, setReturnResultMessage] = useState('');
 
     // Fetch available stock from backend
     const fetchStock = async (outletId = null) => {
@@ -277,15 +278,17 @@ export default function POSReturnToStore() {
 
         const selectedItems = getSelectedItems();
         const returnData = {
-            outletId: 1, // Defaulting to 1 as per POSSales pattern
-            reason: selectedItems[0]?.reason || "EXCESS", // Primary reason from first item or general
+            outletId: Number(localStorage.getItem("outletId")) || null, // the server uses the cashier's own outlet
+            reason: selectedItems[0]?.reason || "EXCESS",
             remarks: returnRemarks,
             initiatorId: initiatorId,
             items: selectedItems.map(item => ({
                 productId: item.id,
                 dayProductionItemId: item.dayProductionItemId,
                 qty: item.returnQty,
-                batchNote: item.batch
+                batchNote: item.batch,
+                // damaged / expired go to the Admin as wastage for approval; the rest go back to the store
+                reason: item.reason
             }))
         };
 
@@ -293,7 +296,8 @@ export default function POSReturnToStore() {
             setLoading(true);
             const response = await posService.initiateOutletReturn(returnData);
             
-            setGeneratedReturnId(response.returnId || `RTN-${Date.now()}`);
+            setGeneratedReturnId(response.returnNoteId || '');
+            setReturnResultMessage(response.message || '');
             setShowConfirmModal(false);
             setShowSuccessModal(true);
             
@@ -316,6 +320,7 @@ export default function POSReturnToStore() {
         setBatchFilter('');
         setShowSuccessModal(false);
         setGeneratedReturnId('');
+        setReturnResultMessage('');
     };
 
     return (
@@ -776,12 +781,14 @@ export default function POSReturnToStore() {
                                 </div>
                                 <h3 className="text-[20px] font-[600] text-fg mb-2">Return Submitted Successfully!</h3>
                                 <p className="text-[14px] text-fg-secondary mb-4">
-                                    Your return request has been sent to the main store for processing
+                                    {returnResultMessage || 'Your return request has been sent for approval.'}
                                 </p>
+                                {generatedReturnId && (
                                 <div className="bg-subtle border border-brand-fg rounded-lg p-4">
                                     <p className="text-[12px] text-fg-secondary mb-1">Return Note ID</p>
                                     <p className="text-[18px] font-[600] text-brand-fg">{generatedReturnId}</p>
                                 </div>
+                                )}
                             </div>
 
                             <div className="space-y-4 mb-6">
