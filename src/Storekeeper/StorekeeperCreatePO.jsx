@@ -206,7 +206,7 @@ export default function StorekeeperCreatePO() {
   // PO Form state
   const [poForm, setPOForm] = useState({
     poNumber: `PO-${Date.now()}`,
-    poDate: new Date().toISOString().split("T")[0],
+    poDate: new Date().toLocaleDateString("en-CA"),
     expectedDeliveryDate: "",
     items: [],
   });
@@ -239,7 +239,7 @@ export default function StorekeeperCreatePO() {
         const mapped = list.map((p) => {
           const expectedDelivery = p.estimatedDeliveryDate;
           const date =
-            expectedDelivery || new Date().toISOString().split("T")[0];
+            expectedDelivery || new Date().toLocaleDateString("en-CA");
           const items = (p.items || []).map((it) => ({
             // Fields used by the modal UI
             id: it.poiId,
@@ -517,7 +517,7 @@ export default function StorekeeperCreatePO() {
       setShowPOForm(false);
       setPOForm({
         poNumber: `PO-${Date.now()}`,
-        poDate: new Date().toISOString().split("T")[0],
+        poDate: new Date().toLocaleDateString("en-CA"),
         expectedDeliveryDate: "",
         items: [],
       });

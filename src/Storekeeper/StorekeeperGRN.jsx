@@ -45,7 +45,7 @@ export default function StorekeeperGRN() {
   const [poItemsError, setPoItemsError] = useState(null);
   const [grnData, setGrnData] = useState({
     grnNumber: `GRN-${Date.now()}`,
-    grnDate: new Date().toISOString().split("T")[0],
+    grnDate: new Date().toLocaleDateString("en-CA"),
     invoiceNumber: "",
     storekeeperSignature: null,
   });
@@ -104,7 +104,7 @@ export default function StorekeeperGRN() {
         grnDate:
           grn.receivedDate ||
           grn.createdAt ||
-          new Date().toISOString().split("T")[0],
+          new Date().toLocaleDateString("en-CA"),
         totalItems: grn.numberOfItems,
         totalAmount: grn.total,
         status:
@@ -186,7 +186,7 @@ export default function StorekeeperGRN() {
             po.createdAt ||
             po.estimatedDeliveryDate ||
             po.receivedDate ||
-            new Date().toISOString().split("T")[0],
+            new Date().toLocaleDateString("en-CA"),
           supplier: {
             name: supplierName,
             contact: "N/A",
@@ -196,7 +196,7 @@ export default function StorekeeperGRN() {
             po.estimatedDeliveryDate ||
             po.receivedDate ||
             po.createdAt ||
-            new Date().toISOString().split("T")[0],
+            new Date().toLocaleDateString("en-CA"),
           status: po.status || po.grnStatus || "Approved",
           totalAmount: po.totalCost || po.total || 0,
           itemCount: po.numberOfItems || (po.items ? po.items.length : 0),
@@ -264,7 +264,7 @@ export default function StorekeeperGRN() {
       }));
 
       // Map raw materials to GRN items structure used by the form
-      const todayStr = new Date().toISOString().split("T")[0].replace(/-/g, "");
+      const todayStr = new Date().toLocaleDateString("en-CA").replace(/-/g, "");
       // Earlier deliveries are already in: each line shows what is still to come, fully received lines drop out
       const initialItems = (data.rawMaterials || []).map((rm, idx) => {
         const requiredQty = rm.requiredQty || 0;
@@ -410,7 +410,7 @@ export default function StorekeeperGRN() {
       }
     }
 
-    const todayStr = new Date().toISOString().split("T")[0].replace(/-/g, "");
+    const todayStr = new Date().toLocaleDateString("en-CA").replace(/-/g, "");
     const receivedItems = grnItems.map((item, idx) => {
       const matCode = item.materialCode || `RM${item.rawMaterialId || item.id}`;
       const seqStr = String(idx + 1).padStart(2, "0");
@@ -521,7 +521,7 @@ export default function StorekeeperGRN() {
       setGrnItems([]);
       setGrnData({
         grnNumber: `GRN-${Date.now()}`,
-        grnDate: new Date().toISOString().split("T")[0],
+        grnDate: new Date().toLocaleDateString("en-CA"),
         invoiceNumber: "",
         storekeeperSignature: null,
       });
