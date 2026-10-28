@@ -18,7 +18,14 @@ import Loader from "../component/Loader.jsx";
 import ExpiryTag, { isExpired as isPastExpiry } from "./ExpiryTag.jsx";
 import ReportWastageModal from "./ReportWastageModal.jsx";
 
-export default function WorkerStoreInventory({ moduleTitle = "Production Center Store" }) {
+export default function WorkerStoreInventory({
+  moduleTitle = "Production Center Store",
+  // the storekeeper passes another store's rows (/STK/v1/stores/items) and where its wastage is
+  loadUrl = "/api/v1/worker/production-requests/store-inventory",
+  stage = "MINI_STORE",
+  locationType = "MINI_STORE",
+  locationId = null,
+}) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,7 +40,7 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
       const baseUrl = process.env.REACT_APP_BASE_URL;
       const token = localStorage.getItem("authToken");
 
-      const res = await fetch(`${baseUrl}/api/v1/worker/production-requests/store-inventory`, {
+      const res = await fetch(`${baseUrl}${loadUrl}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -53,7 +60,7 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
 
   useEffect(() => {
     fetchInventory();
-  }, []);
+  }, [loadUrl]);
 
   const getItemCategory = (item) => {
     if (item.rawMaterialId) return "RAW_MATERIAL";
@@ -328,7 +335,7 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
                         {item.stockRef && Number(item.physicalQty) > 0 && (
                           <button
                             onClick={() => setReportItem({
-                              stage: "MINI_STORE", locationType: "MINI_STORE", locationId: item.miniStoreId, locationName: moduleTitle,
+                              stage, locationType, locationId: locationId ?? item.miniStoreId, locationName: moduleTitle,
                               itemType: cat === "RAW_MATERIAL" ? "RAW_MATERIAL" : cat === "FINISHED_PRODUCT" ? "FINISHED" : "SEMI_FINISHED",
                               itemId: item.rawMaterialId || item.productId, itemName: item.name,
                               uom: item.unitOfMeasure || item.unit, expiryDate: item.expiryDate || null,
@@ -353,7 +360,7 @@ export default function WorkerStoreInventory({ moduleTitle = "Production Center 
           onClose={() => setReportItem(null)}
           onDone={(entry) => {
             setReportItem(null);
-            toast.success(`${entry?.entryNo || "Wastage"} sent to the Admin for review.`);
+            toast.success(`${entry?.entryNo || "Wastage"} sent to the Manager for review.`);
           }}
         />
       )}

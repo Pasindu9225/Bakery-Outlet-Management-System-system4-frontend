@@ -53,6 +53,9 @@ const money = (v) =>
     ? "—"
     : `Rs. ${Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+/** wastage in the stores: confirmed by the Manager (Manager > Approvals), not here */
+const STORE_STAGES = ["MAIN_STORE", "MINI_STORE", "MPC_STORE"];
+
 const qty = (v, uom) => (v === null || v === undefined ? "—" : `${Number(v).toLocaleString(undefined, { maximumFractionDigits: 3 })}${uom ? ` ${uom}` : ""}`);
 
 const stageLabel = (s) => STAGE_LABELS[s] || s;
@@ -116,7 +119,7 @@ export default function AdminWastage() {
       axiosInstance.get("/api/v1/wastage/admin/entries", { params: { status: "PENDING" } }),
     ]);
     setSummary(s.data);
-    setPending(p.data || []);
+    setPending((p.data || []).filter((e) => !STORE_STAGES.includes(e.stage)));
   }, []);
 
   const loadHistory = useCallback(async () => {
@@ -520,7 +523,7 @@ function ExpiryTable({ rows }) {
   );
 }
 
-function EntryTable({ rows, empty, pending, onConfirm, onDismiss }) {
+export function EntryTable({ rows, empty, pending, onConfirm, onDismiss }) {
   if (rows.length === 0) {
     return (
       <div className="bg-surface rounded-xl border border-line p-10 text-center text-[14px] text-fg-secondary">{empty}</div>
@@ -592,7 +595,7 @@ function EntryTable({ rows, empty, pending, onConfirm, onDismiss }) {
   );
 }
 
-function ConfirmModal({ entry, onClose, onDone, onError }) {
+export function ConfirmModal({ entry, onClose, onDone, onError, api = "/api/v1/wastage/admin" }) {
   const unitCost = entry.systemUnitCost !== null && entry.systemUnitCost !== undefined ? Number(entry.systemUnitCost) : null;
   // Confirmed as reported: quantity, value and reason are fixed. A value is typed only when there is no cost on record.
   const reportedValue = entry.systemValue !== null && entry.systemValue !== undefined ? Number(entry.systemValue)
@@ -614,7 +617,7 @@ function ConfirmModal({ entry, onClose, onDone, onError }) {
     if (error) return;
     setSaving(true);
     try {
-      await axiosInstance.post(`/api/v1/wastage/admin/entries/${entry.id}/confirm`, {
+      await axiosInstance.post(`${api}/entries/${entry.id}/confirm`, {
         actualValue: reportedValue === null ? valueNum : undefined,
         adminNotes: adminNotes.trim() || null,
       });
@@ -648,7 +651,7 @@ function ConfirmModal({ entry, onClose, onDone, onError }) {
         <Info label="Reason" value={entry.reasonLabel || entry.reasonCode} />
       </div>
       <p className="text-[12px] text-fg-secondary mb-3">Wastage is confirmed as reported. If it is wrong, dismiss it and have it reported again.</p>
-      <Field label="Admin note (optional)">
+      <Field label="Note (optional)">
         <textarea rows={2} value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} className="w-full px-3 py-2 border border-line-strong rounded-lg text-[14px]" />
       </Field>
 
@@ -663,14 +666,14 @@ function ConfirmModal({ entry, onClose, onDone, onError }) {
   );
 }
 
-function DismissModal({ entry, onClose, onDone, onError }) {
+export function DismissModal({ entry, onClose, onDone, onError, api = "/api/v1/wastage/admin" }) {
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const submit = async () => {
     if (!notes.trim()) return;
     setSaving(true);
     try {
-      await axiosInstance.post(`/api/v1/wastage/admin/entries/${entry.id}/dismiss`, { adminNotes: notes.trim() });
+      await axiosInstance.post(`${api}/entries/${entry.id}/dismiss`, { adminNotes: notes.trim() });
       onDone(`${entry.entryNo} dismissed. Stock was not changed.`);
     } catch (err) {
       onError(err.message || "Could not dismiss");

@@ -11,7 +11,8 @@ import {
   LogOut,
   BarChart3,
   Tag,
-  CreditCard
+  CreditCard,
+  ClipboardCheck,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { performLogout, getRoleName } from "../utils/auth";
@@ -30,6 +31,12 @@ export default function ManagerSidebar({ sidebarOpen }) {
       icon: LayoutDashboard,
       path: "/managerDashboard",
       color: "text-brand-fg",
+    },
+    {
+      name: "Approvals",
+      icon: ClipboardCheck,
+      path: "/managerApprovals",
+      color: "text-fg-secondary",
     },
     {
       name: "Credit Orders",

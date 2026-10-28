@@ -41,6 +41,16 @@ export default function StorekeeperStockAdjustments() {
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [productsError, setProductsError] = useState(null);
+  // Main Store, or another store (kitchen/bakery store, MPC store) the storekeeper looks after
+  const [stores, setStores] = useState([{ type: "MAIN", id: null, name: "Main Store" }]);
+  const [storeKey, setStoreKey] = useState("MAIN");
+  const selectedStore = stores.find((s) => `${s.type}:${s.id ?? ""}` === storeKey) || stores[0];
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_BASE_URL}/STK/v1/stores`, { headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => { if (Array.isArray(data) && data.length) setStores(data); })
+      .catch(() => {});
+  }, []);
   const [materialSearchTerm, setMaterialSearchTerm] = useState("");
   const [showMaterialDropdown, setShowMaterialDropdown] = useState(false);
 
@@ -50,6 +60,26 @@ export default function StorekeeperStockAdjustments() {
       try {
         setLoadingProducts(true);
         setProductsError(null);
+
+        // another store: its stock rows (each adjustment changes one row; the Manager approves it)
+        if (selectedStore.type !== "MAIN") {
+          const res = await fetch(
+            `${process.env.REACT_APP_BASE_URL}/STK/v1/stores/items?type=${selectedStore.type}&id=${selectedStore.id}`,
+            { headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` } }
+          );
+          if (!res.ok) throw new Error(`Server error: ${res.status}`);
+          const rows = await res.json();
+          setProducts((rows || []).filter((r) => r.stockRef).map((r) => {
+            const have = Number(r.stockRefQty ?? r.physicalQty ?? 0);
+            return {
+              id: r.stockRef, stockRef: r.stockRef, code: "", name: r.name,
+              brand: r.brandName && r.brandName !== "N/A" ? r.brandName : "",
+              unit: r.unitOfMeasure || r.unit, totalQuantity: have, expireDate: r.expiryDate,
+              batches: [{ batchNo: "Current stock", quantity: have, expiryDate: r.expiryDate }],
+            };
+          }));
+          return;
+        }
 
         const response = await fetch(
           `${process.env.REACT_APP_BASE_URL}/STK/v1/materials/all`
@@ -94,7 +124,7 @@ export default function StorekeeperStockAdjustments() {
     };
 
     fetchRawMaterials();
-  }, []);
+  }, [storeKey, stores]);
 
   // Stock adjustments from backend API
   const [adjustments, setAdjustments] = useState([]);
@@ -163,11 +193,11 @@ export default function StorekeeperStockAdjustments() {
             adjustmentId: `ADJ-${adjustment.id}`,
             date: adjustment.createdAt.split("T")[0],
             productName: finalMaterialName || "Raw Material",
-            productCode: `MAT${String(adjustment.rawMaterialId).padStart(
+            productCode: adjustment.rawMaterialId == null ? "—" : `MAT${String(adjustment.rawMaterialId).padStart(
               3,
               "0"
             )}`,
-            batchNo: `BATCH-${adjustment.rawMaterialId}`,
+            batchNo: adjustment.rawMaterialId == null ? "—" : `BATCH-${adjustment.rawMaterialId}`,
             systemQty: adjustment.beforeQuantity,
             physicalQty: adjustment.afterQuantity,
             adjustmentQty: adjustment.changeQuantity,
@@ -217,7 +247,7 @@ export default function StorekeeperStockAdjustments() {
   // Get selected product details
   const getSelectedProduct = () => {
     if (!newAdjustment.productId) return null;
-    return products.find((p) => p.id === parseInt(newAdjustment.productId));
+    return products.find((p) => String(p.id) === String(newAdjustment.productId));
   };
 
   // Get selected batch details
@@ -305,7 +335,9 @@ export default function StorekeeperStockAdjustments() {
 
       // Prepare request body according to API structure
       const requestBody = {
-        rawMaterialId: parseInt(product.id),
+        ...(product.stockRef
+          ? { stockRef: product.stockRef, storeName: selectedStore.name, itemName: product.name, uom: product.unit }
+          : { rawMaterialId: parseInt(product.id) }),
         date: new Date(newAdjustment.date).toISOString(),
         adjustmentQty: adjustmentQty,
         reasonForAdjustment: newAdjustment.reason,
@@ -348,11 +380,11 @@ export default function StorekeeperStockAdjustments() {
           adjustmentId: `ADJ-${adjustment.id}`,
           date: adjustment.createdAt.split("T")[0],
           productName: adjustment.rawMaterialName,
-          productCode: `MAT${String(adjustment.rawMaterialId).padStart(
+          productCode: adjustment.rawMaterialId == null ? "—" : `MAT${String(adjustment.rawMaterialId).padStart(
             3,
             "0"
           )}`,
-          batchNo: `BATCH-${adjustment.rawMaterialId}`,
+          batchNo: adjustment.rawMaterialId == null ? "—" : `BATCH-${adjustment.rawMaterialId}`,
           systemQty: adjustment.beforeQuantity,
           physicalQty: adjustment.afterQuantity,
           adjustmentQty: adjustment.changeQuantity,
@@ -468,11 +500,11 @@ export default function StorekeeperStockAdjustments() {
           adjustmentId: `ADJ-${adjustment.id}`,
           date: adjustment.createdAt.split("T")[0],
           productName: adjustment.rawMaterialName,
-          productCode: `MAT${String(adjustment.rawMaterialId).padStart(
+          productCode: adjustment.rawMaterialId == null ? "—" : `MAT${String(adjustment.rawMaterialId).padStart(
             3,
             "0"
           )}`,
-          batchNo: `BATCH-${adjustment.rawMaterialId}`,
+          batchNo: adjustment.rawMaterialId == null ? "—" : `BATCH-${adjustment.rawMaterialId}`,
           systemQty: adjustment.beforeQuantity,
           physicalQty: adjustment.afterQuantity,
           adjustmentQty: adjustment.changeQuantity,
@@ -539,6 +571,16 @@ export default function StorekeeperStockAdjustments() {
               Correct inventory discrepancies between system records and
               physical stock
             </p>
+            <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
+              <label htmlFor="store-pick" className="text-[13px] font-[500] text-fg-secondary">Store</label>
+              <select id="store-pick" value={storeKey} onChange={(e) => setStoreKey(e.target.value)}
+                className="w-full sm:w-80 px-3 py-2 border border-line rounded-md text-[14px] bg-surface text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg">
+                {stores.map((s) => (
+                  <option key={`${s.type}:${s.id ?? ""}`} value={`${s.type}:${s.id ?? ""}`}>{s.name}</option>
+                ))}
+              </select>
+              {selectedStore.type !== "MAIN" && <span className="text-[12px] text-fg-muted">New adjustments are for this store; the Manager approves them. Damaged or expired goods: report wastage in View Full Store.</span>}
+            </div>
           </div>
 
           {/* Controls */}
@@ -936,7 +978,7 @@ export default function StorekeeperStockAdjustments() {
                     {getSelectedProduct()?.batches.map((batch) => (
                       <option key={batch.batchNo} value={batch.batchNo}>
                         {batch.batchNo} (Qty: {formatQuantity(batch.quantity)}, Exp:{" "}
-                        {new Date(batch.expiryDate).toLocaleDateString()})
+                        {batch.expiryDate ? new Date(batch.expiryDate).toLocaleDateString() : "none"})
                       </option>
                     ))}
                   </select>
@@ -1061,9 +1103,10 @@ export default function StorekeeperStockAdjustments() {
                 >
                   <option value="">Select Reason</option>
                   <option value="LOSS">Loss</option>
-                  <option value="DAMAGE">Damage</option>
+                  {/* other stores: damaged / expired goods are wastage (View Full Store > Report wastage) */}
+                  {selectedStore.type === "MAIN" && <option value="DAMAGE">Damage</option>}
                   <option value="COUNTING_ERROR">Counting Error</option>
-                  <option value="EXPIRED">Expired</option>
+                  {selectedStore.type === "MAIN" && <option value="EXPIRED">Expired</option>}
                   <option value="OTHER">Other</option>
                 </select>
               </div>

@@ -651,7 +651,9 @@ export default function AdminApprovalRequests() {
                 <RotateCcw size={16} />
                 Return Materials
               </button>
+              {/* stock adjustments are approved by the Manager (Manager > Approvals) */}
               <button
+                hidden
                 onClick={() => setActiveTab("stockAdjustments")}
                 className={`flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 text-[14px] font-[500] border-b-2 transition-colors ${
                   activeTab === "stockAdjustments"

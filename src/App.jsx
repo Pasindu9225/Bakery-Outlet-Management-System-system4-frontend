@@ -35,6 +35,7 @@ const ManagerBakeryRequests = lazy(() => import("./Manager/ManagerBakeryRequests
 const ManagerKitchenRequests = lazy(() => import("./Manager/ManagerKitchenRequests"));
 const ManagerOutletDistribution = lazy(() => import("./Manager/ManagerOutletDistribution"));
 const ManagerActualProduction = lazy(() => import("./Manager/ManagerActualProduction"));
+const ManagerApprovals = lazy(() => import("./Manager/ManagerApprovals"));
 const ManagerOutletStock = lazy(() => import("./Manager/ManagerOutletStock"));
 const ManagerStockAdjustments = lazy(() => import("./Manager/ManagerStockAdjustments"));
 const AdminApprovalRequests = lazy(() => import("./Admin/AdminApprovalRequests"));
@@ -370,6 +371,14 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["10"]}>
               <ManagerCreditOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/managerApprovals"
+          element={
+            <ProtectedRoute allowedRoles={["10"]}>
+              <ManagerApprovals />
             </ProtectedRoute>
           }
         />

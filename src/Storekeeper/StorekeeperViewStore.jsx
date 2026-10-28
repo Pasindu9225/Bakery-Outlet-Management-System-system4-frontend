@@ -26,6 +26,7 @@ import {
 
 import StorekeeperNavBar from "../component/StorekeeperNavBar.jsx";
 import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
+import WorkerStoreInventory from "../component/WorkerStoreInventory.jsx";
 import { formatQuantity } from "../utils/quantityFormatter";
 import ExpiryTag, { daysUntil } from "../component/ExpiryTag.jsx";
 import ReportWastageModal from "../component/ReportWastageModal.jsx";
@@ -76,6 +77,16 @@ export default function StorekeeperViewStore() {
 
   // Inventory data (fetched from backend)
   const [inventory, setInventory] = useState([]);
+  // Main Store, or another store (kitchen/bakery store, MPC store) the storekeeper looks after
+  const [stores, setStores] = useState([{ type: "MAIN", id: null, name: "Main Store" }]);
+  const [storeKey, setStoreKey] = useState("MAIN");
+  const selectedStore = stores.find((s) => `${s.type}:${s.id ?? ""}` === storeKey) || stores[0];
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_BASE_URL}/STK/v1/stores`, { headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => { if (Array.isArray(data) && data.length) setStores(data); })
+      .catch(() => {});
+  }, []);
   const [reportItem, setReportItem] = useState(null);
   const [reportMsg, setReportMsg] = useState("");
 
@@ -359,7 +370,28 @@ export default function StorekeeperViewStore() {
               Monitor raw materials, track expiry dates, and manage stock levels
               with FIFO principle
             </p>
+            <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
+              <label htmlFor="store-pick" className="text-[13px] font-[500] text-fg-secondary">Store</label>
+              <select id="store-pick" value={storeKey} onChange={(e) => setStoreKey(e.target.value)}
+                className="w-full sm:w-80 px-3 py-2 border border-line rounded-md text-[14px] bg-surface text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg">
+                {stores.map((s) => (
+                  <option key={`${s.type}:${s.id ?? ""}`} value={`${s.type}:${s.id ?? ""}`}>{s.name}</option>
+                ))}
+              </select>
+              {selectedStore.type !== "MAIN" && <span className="text-[12px] text-fg-muted">Report wastage here; the Manager confirms it. Stock adjustments: Stock Adjustment tab.</span>}
+            </div>
           </div>
+
+          {selectedStore.type !== "MAIN" ? (
+            <WorkerStoreInventory
+              key={storeKey}
+              moduleTitle={selectedStore.name}
+              loadUrl={`/STK/v1/stores/items?type=${selectedStore.type}&id=${selectedStore.id}`}
+              stage={selectedStore.type === "MPC" ? "MPC_STORE" : "MINI_STORE"}
+              locationType={selectedStore.type === "MPC" ? "MPC" : "MINI_STORE"}
+              locationId={selectedStore.id}
+            />
+          ) : (<>
 
           {/* Alerts & Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -716,6 +748,7 @@ export default function StorekeeperViewStore() {
               </div>
             )}
           </div>
+          </>)}
         </main>
       </div>
 
