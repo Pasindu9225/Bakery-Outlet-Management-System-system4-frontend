@@ -4,6 +4,7 @@ import { friendlyError } from "../utils/friendlyError";
 import ButtonHint from "../component/ButtonHint.jsx";
 import { confirmDialog } from "../component/ConfirmDialog";
 import {
+    MoreHorizontal,
     ShoppingCart,
     Search,
     Plus,
@@ -374,7 +375,12 @@ export default function POSSales() {
         const fetchPaymentMethods = async () => {
             try {
                 // the free-meal reason box and the Staff Meal button go by category ("Free Meal" -> FREE_MEAL if unset)
-                const data = (await posService.getPaymentMethods() || []).map(m => ({ ...m, category: m.category || String(m.name || '').trim().toUpperCase().replace(/\s+/g, '_') }));
+                const loaded = (await posService.getPaymentMethods() || []).map(m => ({ ...m, category: m.category || String(m.name || '').trim().toUpperCase().replace(/\s+/g, '_') }));
+                // Staff Meal sits right after Cash (before Free Meal) in the payment popup
+                const staffMeal = loaded.filter(m => m.category === 'STAFF_MEAL');
+                const data = loaded.filter(m => m.category !== 'STAFF_MEAL');
+                const cashAt = data.findIndex(m => m.category === 'CASH');
+                data.splice(cashAt >= 0 ? cashAt + 1 : data.length, 0, ...staffMeal);
                 setAvailablePaymentMethods(data);
 
                 // Automatically set Cash as default if available
@@ -762,18 +768,30 @@ export default function POSSales() {
         setShowPayment(true);
     };
 
-    // Staff meal: the normal checkout with the Staff Meal method chosen; the cashier types the staff ID there
-    const handleStaffMeal = () => {
-        if (cart.length === 0) return;
-        const staffMeal = availablePaymentMethods.find(m => m.category === 'STAFF_MEAL');
-        if (!staffMeal) {
-            toast.error('No Staff Meal payment method is set up. Ask the admin to add one.');
+    // Checkout: one click, cash for the exact amount, receipt printed; anything else goes through More (the popup)
+    const [quickCheckout, setQuickCheckout] = useState(false);
+    const [noteOpen, setNoteOpen] = useState({});
+    const handleQuickCheckout = () => {
+        if (cart.length === 0 || quickCheckout) return;
+        const cashMethod = availablePaymentMethods.find(m => m.category === 'CASH')
+            || availablePaymentMethods.find(m => getPaymentConfig(m.name).key === 'cash');
+        if (!cashMethod) {
+            toast.error('No Cash payment method is set up. Use More to choose how to pay.');
             return;
         }
-        setPaymentMethod(getPaymentConfig(staffMeal.name).key);
-        setPaymentMethodId(staffMeal.paymentMethodId);
-        setShowPayment(true);
+        setSplitMode(false);
+        setPaymentMethod('cash');
+        setPaymentMethodId(cashMethod.paymentMethodId);
+        setCashReceived(String(total));
+        setQuickCheckout(true);
     };
+    useEffect(() => {
+        // runs once the cash method and amount above are in place
+        if (!quickCheckout || paymentMethod !== 'cash' || !paymentMethodId || cashReceived !== String(total)) return;
+        setQuickCheckout(false);
+        processPayment(true);
+        // eslint-disable-next-line
+    }, [quickCheckout, paymentMethod, paymentMethodId, cashReceived]);
 
     // Process payment
     const processPayment = async (shouldPrint = false) => {
@@ -1653,52 +1671,6 @@ export default function POSSales() {
                                 )}
                             </div>
 
-                            {/* Promo Code Entry */}
-                            {cart.length > 0 && (
-                                <div className="mb-3">
-                                    <label htmlFor="promo-pick" className="block text-[14px] text-fg mb-1">Discount (promo code)</label>
-                                    <select
-                                        id="promo-pick"
-                                        value={appliedPromo ? appliedPromo.code : promoCode}
-                                        onChange={(e) => {
-                                            const code = e.target.value;
-                                            setPromoCode(code);
-                                            if (code) verifyPromo(code);
-                                            else removePromo();
-                                        }}
-                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] bg-surface text-fg"
-                                    >
-                                        <option value="">{activePromos.length ? 'No discount' : 'No promo codes available'}</option>
-                                        {activePromos.map((p) => (
-                                            <option key={p.code} value={String(p.code).toUpperCase()}>
-                                                {p.code} — {p.discountType === 'PERCENTAGE' ? `${p.discountValue}% off` : `Rs.${p.discountValue} off`}
-                                                {p.maximumDiscountValue != null ? ` (max Rs.${p.maximumDiscountValue})` : ''}
-                                                {p.description ? ` · ${p.description}` : ''}
-                                            </option>
-                                        ))}
-                                    </select>
-
-                                    {appliedPromo && (
-                                        <div className="mt-2 p-2 bg-hover rounded-lg flex items-center justify-between">
-                                            <div className="text-[13px]">
-                                                <strong>{appliedPromo.code}</strong> applied{' '}
-                                                {appliedPromo.type === 'PERCENTAGE'
-                                                    ? `(${appliedPromo.value}% off)`
-                                                    : appliedPromo.type === 'FIXED'
-                                                        ? `(Rs.${appliedPromo.value} off)`
-                                                        : ''}
-                                                {appliedPromo.maxCap != null && (
-                                                    <span className="ml-1 text-warning font-[500]">
-                                                        · max cap Rs. {appliedPromo.maxCap}
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <button onClick={removePromo} className="text-[12px] text-error">Remove</button>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
                             {/* Cart Items */}
                             <div className="flex-1 overflow-y-auto mb-4">
                                 {cart.length === 0 ? (
@@ -1710,54 +1682,57 @@ export default function POSSales() {
                                 ) : (
                                     <div className="space-y-3">
                                         {cart.map((item) => (
-                                            <div key={item.id} className={`p-3 rounded-lg transition-all ${highlightedItemId === item.id ? 'pulse-item bg-brand/10 border border-brand-fg' : 'bg-subtle'}`}>
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <div className="flex-1">
-                                                        <p className="text-[14px] font-[500] text-fg">{item.name}</p>
-                                                        <p className="text-[12px] text-fg-secondary">{item.code}</p>
-                                                        <p className="text-[14px] font-[600] text-brand-fg">Rs. {item.price} each</p>
+                                            <div key={item.id} className={`px-2 py-2 rounded-lg transition-all ${highlightedItemId === item.id ? 'pulse-item bg-brand/10 border border-brand-fg' : 'bg-subtle'}`}>
+                                                <div className="flex items-center gap-1.5">
+                                                    <p className="flex-1 min-w-0 text-[14px] font-[500] text-fg leading-snug break-normal" title={item.name}>{item.name}</p>
+                                                    <div className="flex items-center gap-1 shrink-0">
+                                                        <button
+                                                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                            aria-label={`One less ${item.name}`}
+                                                            className="w-7 h-7 flex items-center justify-center border border-line text-fg-secondary hover:bg-hover rounded-lg"
+                                                        >
+                                                            <Minus size={14} />
+                                                        </button>
+                                                        <span className="w-6 text-center text-[14px] font-[600]">{item.quantity}</span>
+                                                        <button
+                                                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                            aria-label={`One more ${item.name}`}
+                                                            className="w-7 h-7 flex items-center justify-center border border-line text-fg-secondary hover:bg-hover rounded-lg"
+                                                        >
+                                                            <Plus size={14} />
+                                                        </button>
                                                     </div>
-                                                    <button aria-label="Delete"
+                                                    <p className="min-w-[60px] text-right text-[14px] font-[600] text-fg whitespace-nowrap">Rs. {(item.price * item.quantity).toLocaleString()}</p>
+                                                    <button
                                                         onClick={() => removeFromCart(item.id)}
                                                         aria-label={`Remove ${item.name}`}
                                                         title="Remove from cart"
-                                                        className="p-1 text-error hover:bg-error/10 rounded"
+                                                        className="p-1.5 text-error hover:bg-error/10 rounded shrink-0"
                                                     >
                                                         <Trash2 size={14} />
                                                     </button>
                                                 </div>
 
-                                                <div className="flex items-center justify-between gap-2">
-                                                    <div className="flex items-center gap-1">
+                                                {/* a note for the kitchen / MPC: KOT items only; it shows on the KOT ticket */}
+                                                {(item.kotBased || item.isKotEnabled || item.isMpcDish) && (
+                                                    noteOpen[item.id] || item.specialInstructions ? (
+                                                        <input
+                                                            type="text"
+                                                            aria-label={`Note for ${item.name}`}
+                                                            placeholder="Note for the kitchen (e.g. no chilli)"
+                                                            value={item.specialInstructions || ""}
+                                                            onChange={(e) => updateSpecialInstructions(item.id, e.target.value)}
+                                                            className="mt-1.5 w-full px-2 py-1 bg-surface border border-line rounded text-[12px] text-fg focus:outline-none focus:border-brand-fg"
+                                                        />
+                                                    ) : (
                                                         <button
-                                                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                                            aria-label={`One less ${item.name}`}
-                                                            className="w-9 h-9 xl:w-10 xl:h-10 flex items-center justify-center border border-line text-fg-secondary hover:bg-hover rounded-lg"
+                                                            onClick={() => setNoteOpen(prev => ({ ...prev, [item.id]: true }))}
+                                                            className="mt-1 text-[12px] text-brand-fg hover:underline"
                                                         >
-                                                            <Minus size={16} />
+                                                            + Add note for the kitchen
                                                         </button>
-                                                        <span className="w-8 text-center text-[14px] font-[600]">{item.quantity}</span>
-                                                        <button
-                                                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                                            aria-label={`One more ${item.name}`}
-                                                            className="w-9 h-9 xl:w-10 xl:h-10 flex items-center justify-center border border-line text-fg-secondary hover:bg-hover rounded-lg"
-                                                        >
-                                                            <Plus size={16} />
-                                                        </button>
-                                                    </div>
-                                                    <p className="text-[16px] font-[600] text-fg whitespace-nowrap">Rs. {(item.price * item.quantity).toLocaleString()}</p>
-                                                </div>
-
-                                                {/* Special Instructions Input */}
-                                                <div className="mt-2">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Special instructions (e.g. No sugar, pack separately)"
-                                                        value={item.specialInstructions || ""}
-                                                        onChange={(e) => updateSpecialInstructions(item.id, e.target.value)}
-                                                        className="w-full px-2 py-1.5 bg-surface border border-line rounded text-[12px] text-fg focus:outline-none focus:ring-1 focus:ring-brand-fg/20 focus:border-brand-fg"
-                                                    />
-                                                </div>
+                                                    )
+                                                )}
 
                                                 {/* Per-item KOT (kotBased items only) */}
                                                 {item.kotBased && productionCenters.length > 0 && (
@@ -1817,31 +1792,14 @@ export default function POSSales() {
                             {/* Cart Summary */}
                             {cart.length > 0 && (
                                 <div className="border-t border-line pt-4">
-                                    <div className="space-y-2 mb-4">
-                                        <div className="flex justify-between text-[14px]">
-                                            <span className="text-fg-secondary">Subtotal:</span>
-                                            <span className="text-fg">Rs. {subtotal.toLocaleString()}</span>
-                                        </div>
-
-                                        {totalDiscount > 0 ? (
-                                            <div className="flex justify-between text-[14px] p-2 bg-hover/50 rounded border border-success/20">
-                                                <span className="text-success font-[500] flex items-center gap-1">
-                                                    <TagIcon size={13} />
-                                                    Discount{appliedPromo ? ` (${appliedPromo.code})` : ''}:
-                                                </span>
-                                                <span className="text-success font-[600]">- Rs. {totalDiscount.toLocaleString()}</span>
-                                            </div>
-                                        ) : (
-                                            <div className="flex justify-between text-[14px]">
-                                                <span className="text-fg-secondary">Discount:</span>
-                                                <span className="text-fg">Rs. 0</span>
-                                            </div>
-                                        )}
-
-                                        <div className="flex justify-between text-[16px] font-[600]">
-                                            <span className="text-fg">Total:</span>
-                                            <span className="text-brand-fg">Rs. {total.toLocaleString()}</span>
-                                        </div>
+                                    <div className="flex justify-between items-baseline mb-4">
+                                        <span className="text-[16px] font-[600] text-fg">Total</span>
+                                        <span className="text-right">
+                                            <span className="block text-[20px] font-[700] text-brand-fg">Rs. {total.toLocaleString()}</span>
+                                            {totalDiscount > 0 && (
+                                                <span className="block text-[12px] text-success">incl. Rs. {totalDiscount.toLocaleString()} discount</span>
+                                            )}
+                                        </span>
                                     </div>
 
 
@@ -1855,35 +1813,42 @@ export default function POSSales() {
                                                 <Calculator size={16} />
                                                 Save to Waiter & Print Proforma
                                             </button>
-                                            <button
-                                                onClick={handleCheckout}
-                                                className="w-full border border-brand-fg text-brand-fg py-2 rounded-lg text-sm font-[500] hover:bg-brand/5 transition-colors flex items-center justify-center gap-2"
-                                            >
-                                                Normal Checkout
-                                            </button>
-                                            <button
-                                                onClick={handleStaffMeal}
-                                                className="w-full border border-line text-fg py-2 rounded-lg text-sm font-[500] hover:bg-subtle transition-colors flex items-center justify-center gap-2"
-                                            >
-                                                <Users size={16} /> Staff Meal
-                                            </button>
+                                            <div className="grid grid-cols-3 gap-2">
+                                                <button
+                                                    onClick={handleQuickCheckout}
+                                                    disabled={quickCheckout}
+                                                    title="Cash, exact amount, prints the receipt"
+                                                    className="col-span-2 border border-brand-fg text-brand-fg py-2 rounded-lg text-sm font-[500] hover:bg-brand/5 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                                >
+                                                    Checkout
+                                                </button>
+                                                <button
+                                                    onClick={handleCheckout}
+                                                    title="Card, staff meal, discount, split payment..."
+                                                    className="border border-line text-fg py-2 rounded-lg text-sm font-[500] hover:bg-subtle transition-colors flex items-center justify-center gap-2"
+                                                >
+                                                    <MoreHorizontal size={16} /> More
+                                                </button>
+                                            </div>
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-3 gap-2">
                                             <button
-                                                onClick={handleCheckout}
-                                                className="col-span-2 bg-brand text-on-brand py-3 rounded-lg font-[500] hover:bg-brand-hover transition-colors flex items-center justify-center gap-2"
+                                                onClick={handleQuickCheckout}
+                                                disabled={quickCheckout}
+                                                title="Cash, exact amount, prints the receipt"
+                                                className="col-span-2 bg-brand text-on-brand py-3 rounded-lg font-[500] hover:bg-brand-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                                             >
                                                 <Calculator size={16} />
                                                 Checkout
                                             </button>
                                             <button
-                                                onClick={handleStaffMeal}
-                                                title="Checkout as a staff meal (Free Meal, with a reason)"
+                                                onClick={handleCheckout}
+                                                title="Card, staff meal, discount, split payment..."
                                                 className="border border-line text-fg py-3 rounded-lg font-[500] hover:bg-subtle transition-colors flex items-center justify-center gap-2"
                                             >
-                                                <Users size={16} />
-                                                Staff Meal
+                                                <MoreHorizontal size={16} />
+                                                More
                                             </button>
                                         </div>
                                     )}
@@ -2166,6 +2131,52 @@ export default function POSSales() {
                                 </div>
 
                                 <div>
+
+                            {/* Promo code: chosen here, in the payment popup (More) */}
+                            {cart.length > 0 && (
+                                <div className="mb-3">
+                                    <label htmlFor="promo-pick" className="block text-[14px] text-fg mb-1">Discount (promo code)</label>
+                                    <select
+                                        id="promo-pick"
+                                        value={appliedPromo ? appliedPromo.code : promoCode}
+                                        onChange={(e) => {
+                                            const code = e.target.value;
+                                            setPromoCode(code);
+                                            if (code) verifyPromo(code);
+                                            else removePromo();
+                                        }}
+                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] bg-surface text-fg"
+                                    >
+                                        <option value="">{activePromos.length ? 'No discount' : 'No promo codes available'}</option>
+                                        {activePromos.map((p) => (
+                                            <option key={p.code} value={String(p.code).toUpperCase()}>
+                                                {p.code} — {p.discountType === 'PERCENTAGE' ? `${p.discountValue}% off` : `Rs.${p.discountValue} off`}
+                                                {p.maximumDiscountValue != null ? ` (max Rs.${p.maximumDiscountValue})` : ''}
+                                                {p.description ? ` · ${p.description}` : ''}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    {appliedPromo && (
+                                        <div className="mt-2 p-2 bg-hover rounded-lg flex items-center justify-between">
+                                            <div className="text-[13px]">
+                                                <strong>{appliedPromo.code}</strong> applied{' '}
+                                                {appliedPromo.type === 'PERCENTAGE'
+                                                    ? `(${appliedPromo.value}% off)`
+                                                    : appliedPromo.type === 'FIXED'
+                                                        ? `(Rs.${appliedPromo.value} off)`
+                                                        : ''}
+                                                {appliedPromo.maxCap != null && (
+                                                    <span className="ml-1 text-warning font-[500]">
+                                                        · max cap Rs. {appliedPromo.maxCap}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <button onClick={removePromo} className="text-[12px] text-error">Remove</button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                                     {/* Order Summary */}
                                     <div className="mb-6 p-4 bg-subtle rounded-lg">

@@ -563,7 +563,10 @@ export default function MPCWorkerDashboard() {
                         <tbody>
                           {(kot.items || []).map((item, idx) => (
                             <tr key={idx} className="border-b last:border-0">
-                              <td className="py-1.5 font-medium text-fg">{item.productName}</td>
+                              <td className="py-1.5 font-medium text-fg">
+                                {item.productName}
+                                {item.instructions && <p className="text-[12px] font-[500] text-warning mt-0.5">Note: {item.instructions}</p>}
+                              </td>
                               <td className="py-1.5 text-right text-fg">{item.plannedQuantity}</td>
                             </tr>
                           ))}
