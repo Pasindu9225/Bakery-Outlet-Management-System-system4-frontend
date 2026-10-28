@@ -10,8 +10,8 @@ import {
  * `Sidebar` is the module's menu, `base` the page prefix ("bakery" or "kitchen"), `actions` the module's link cards,
  * `producedTo` the page behind "Produced today" (null when the module has no partial-production page).
  */
-export default function WorkerDashboard({ Sidebar, base, title, actions, producedTo = `/${base}PartialProduction` }) {
-  const [sidebarOpen] = useState(false);
+export default function WorkerDashboard({ Sidebar, NavBar, base, title, actions, producedTo = `/${base}PartialProduction` }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { data: d, loading, error, reload, refreshedAt, refreshing } = useDashboard("/api/dashboard/worker/summary", { refreshMs: 60000 });
   const req = d?.requests || {};
   const ing = d?.ingredients || {};
@@ -21,7 +21,9 @@ export default function WorkerDashboard({ Sidebar, base, title, actions, produce
   return (
     <div className="flex min-h-screen bg-app">
       <Sidebar sidebarOpen={sidebarOpen} />
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      {NavBar && <NavBar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} activeSection="Dashboard" />}
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden overflow-y-auto">
         <DashHeader title={title} subtitle={d ? `${d.centre.name} · ${label(d.centre.type)}` : ""} refreshedAt={refreshedAt} onRefresh={reload} refreshing={refreshing} />
 
         {error ? <ErrorState message={error} onRetry={reload} /> : (
@@ -66,6 +68,7 @@ export default function WorkerDashboard({ Sidebar, base, title, actions, produce
           </>
         )}
       </main>
+      </div>
     </div>
   );
 }

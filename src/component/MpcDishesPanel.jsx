@@ -62,7 +62,7 @@ export default function MpcDishesPanel({ mpcId }) {
           <h3 className="text-[18px] font-[600] text-fg">Dishes made here</h3>
           <p className="text-[13px] text-fg-secondary mb-4">
             Semi-finished and finished items on this MPC's menu are not kept in stock: they are made from the raw
-            materials above when ordered. The number is how many the current stock can make.
+            materials above when ordered. The number is how many the current stock can make. Semi-finished items are also in the list above: report wastage or adjust them there and their raw materials change by the recipe.
           </p>
         </div>
         <button onClick={load}

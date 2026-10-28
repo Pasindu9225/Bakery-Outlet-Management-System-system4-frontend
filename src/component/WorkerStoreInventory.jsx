@@ -63,6 +63,7 @@ export default function WorkerStoreInventory({
   }, [loadUrl]);
 
   const getItemCategory = (item) => {
+    if (item.productType) return item.productType;
     if (item.rawMaterialId) return "RAW_MATERIAL";
     if (item.productId) {
       const name = (item.name || "").toLowerCase();

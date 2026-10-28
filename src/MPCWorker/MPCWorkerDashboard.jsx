@@ -12,6 +12,7 @@ import {
   Search,
 } from "lucide-react";
 import MPCWorkerSideBar from "../component/MPCWorkerSideBar";
+import MPCWorkerNavBar from "../component/MPCWorkerNavBar.jsx";
 import toast from "react-hot-toast";
 
 import { getApiBaseUrl } from "../utils/config";
@@ -222,6 +223,12 @@ export default function MPCWorkerDashboard() {
       />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        <MPCWorkerNavBar
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          activeSection={{ requestMaterials: "Production Plan & Request", deliveries: "Deliveries & Acceptance",
+            storeInventory: "MPC Store Inventory", kots: "Kitchen Orders (KOT)" }[activeTab] || "MPC Dashboard"}
+        />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {/* Header */}
           <div className="mb-6">
