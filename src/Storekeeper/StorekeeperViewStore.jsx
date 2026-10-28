@@ -27,6 +27,7 @@ import {
 import StorekeeperNavBar from "../component/StorekeeperNavBar.jsx";
 import StorekeeperSidebar from "../component/StorekeeperSidebar.jsx";
 import WorkerStoreInventory from "../component/WorkerStoreInventory.jsx";
+import MpcDishesPanel from "../component/MpcDishesPanel.jsx";
 import { formatQuantity } from "../utils/quantityFormatter";
 import ExpiryTag, { daysUntil } from "../component/ExpiryTag.jsx";
 import ReportWastageModal from "../component/ReportWastageModal.jsx";
@@ -382,7 +383,7 @@ export default function StorekeeperViewStore() {
             </div>
           </div>
 
-          {selectedStore.type !== "MAIN" ? (
+          {selectedStore.type !== "MAIN" ? (<>
             <WorkerStoreInventory
               key={storeKey}
               moduleTitle={selectedStore.name}
@@ -391,7 +392,8 @@ export default function StorekeeperViewStore() {
               locationType={selectedStore.type === "MPC" ? "MPC" : "MINI_STORE"}
               locationId={selectedStore.id}
             />
-          ) : (<>
+            {selectedStore.type === "MPC" && <MpcDishesPanel key={`dishes-${storeKey}`} mpcId={selectedStore.id} />}
+          </>) : (<>
 
           {/* Alerts & Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
