@@ -271,7 +271,14 @@ export default function POSSales() {
         );
     };
 
+    const clearWaiter = () => {
+        setSelectedWaiter(null);
+        setWaiterDetails(null);
+        setSelectedWaiterItemIds([]);
+    };
+
     const handleWaiterClick = (waiter) => {
+        if (selectedWaiter?.userId === waiter.userId) { clearWaiter(); return; } // tap again to unselect
         setSelectedWaiter(waiter);
         fetchWaiterDetails(waiter.userId);
         setWaiterDiscountAmount('0');
@@ -1160,6 +1167,7 @@ export default function POSSales() {
                             <div className="mb-4">
                                 <div className="flex items-center justify-between gap-3 mb-3">
                                     <h2 className="text-[20px] font-[600] text-fg">Product Selection</h2>
+                                    <div className="flex items-center gap-1">
                                     <button
                                         onClick={() => setShowWaiterPanel(true)}
                                         className="flex items-center gap-2 px-3 py-2 bg-subtle border border-line rounded-lg text-[13px] font-[500] text-fg hover:bg-line"
@@ -1168,6 +1176,13 @@ export default function POSSales() {
                                         Waiter Billing
                                         {selectedWaiter && <span className="text-brand-fg">({selectedWaiter.name})</span>}
                                     </button>
+                                    {selectedWaiter && (
+                                        <button aria-label="Unselect waiter" title="Unselect waiter" onClick={clearWaiter}
+                                            className="p-2 border border-line rounded-lg text-fg-secondary hover:bg-line">
+                                            <X size={16} />
+                                        </button>
+                                    )}
+                                    </div>
                                 </div>
                                 {/* Search Input */}
                                 <div className="relative mb-3">
