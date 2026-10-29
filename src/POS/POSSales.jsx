@@ -107,6 +107,10 @@ export default function POSSales() {
 
     // Promo & discounts
     const [promoCode, setPromoCode] = useState('');
+    // direct discount typed in the payment popup: % or Rs. off the bill, approved with a Manager's code
+    const [directType, setDirectType] = useState('PERCENTAGE');
+    const [directValue, setDirectValue] = useState('');
+    const [directManagerCode, setDirectManagerCode] = useState('');
     // promo codes valid right now, picked from a dropdown instead of typed
     const [activePromos, setActivePromos] = useState([]);
     useEffect(() => {
@@ -392,11 +396,13 @@ export default function POSSales() {
             try {
                 // the free-meal reason box and the Staff Meal button go by category ("Free Meal" -> FREE_MEAL if unset)
                 const loaded = (await posService.getPaymentMethods() || []).map(m => ({ ...m, category: m.category || String(m.name || '').trim().toUpperCase().replace(/\s+/g, '_') }));
-                // Staff Meal sits right after Cash (before Free Meal) in the payment popup
-                const staffMeal = loaded.filter(m => m.category === 'STAFF_MEAL');
-                const data = loaded.filter(m => m.category !== 'STAFF_MEAL');
-                const cashAt = data.findIndex(m => m.category === 'CASH');
-                data.splice(cashAt >= 0 ? cashAt + 1 : data.length, 0, ...staffMeal);
+                // payment popup order: Cash, Card, Bank Transfer, Staff Meal, then the rest as set up (Free Meal, Uber, PickMe...)
+                const rank = (m) => {
+                    const key = m.category === 'CASH' ? 'cash' : m.category === 'STAFF_MEAL' ? 'staff' : getPaymentConfig(m.name).key;
+                    const i = ['cash', 'card', 'bank', 'staff'].indexOf(key);
+                    return i < 0 ? 4 : i;
+                };
+                const data = [...loaded].sort((x, y) => rank(x) - rank(y));
                 setAvailablePaymentMethods(data);
 
                 // Automatically set Cash as default if available
@@ -755,9 +761,16 @@ export default function POSSales() {
     // Raw discount before any cap
     const rawDiscount = cart.reduce((sum, item) => sum + ((appliedDiscounts[item.id] || 0) * item.quantity), 0);
     // Apply Max Discount Cap from promo (if set)
-    const totalDiscount = (appliedPromo?.maxCap != null)
+    const promoDiscount = (appliedPromo?.maxCap != null)
         ? Math.min(rawDiscount, appliedPromo.maxCap)
         : rawDiscount;
+    // direct discount comes off what is left after the promo / auto discounts
+    const afterPromo = Math.max(0, subtotal - promoDiscount);
+    const directNum = Math.max(0, parseFloat(directValue) || 0);
+    const directDiscount = Math.min(afterPromo, directType === 'PERCENTAGE'
+        ? Math.round(afterPromo * Math.min(directNum, 100)) / 100
+        : directNum);
+    const totalDiscount = promoDiscount + directDiscount;
     const redemptionDiscount = (customer && redeemPoints && otpVerified) ? Math.min(1000.00, Math.max(0, subtotal - totalDiscount)) : 0.00;
     const total = subtotal - totalDiscount - redemptionDiscount;
 
@@ -860,6 +873,19 @@ export default function POSSales() {
             return;
         }
 
+        if (directDiscount > 0 && !directManagerCode.trim()) {
+            toast.error("A direct discount needs a Manager's code");
+            return;
+        }
+        const lineLeft = cart.map(item => Math.max(0, item.price * item.quantity - (appliedDiscounts[item.id] || 0) * item.quantity));
+        const leftTotal = lineLeft.reduce((x, y) => x + y, 0);
+        let directLeft = Math.round(directDiscount * 100);
+        const directShares = lineLeft.map((left, i) => {
+            const share = i === lineLeft.length - 1 ? directLeft : Math.round(directDiscount * 100 * left / (leftTotal || 1));
+            directLeft -= share;
+            return share / 100;
+        });
+
         const cashierId = localStorage.getItem("userId");
         const outletId = localStorage.getItem("outletId");
         const baseUrl = process.env.REACT_APP_BASE_URL;
@@ -874,14 +900,15 @@ export default function POSSales() {
             otp: otpVerified ? otp : null,
             invoicePrinted: shouldPrint,
             payments: splitMode ? splitPayload(splitParts) : null,
-            items: cart.map(item => ({
+            managerCode: directDiscount > 0 ? directManagerCode.trim() : null,
+            items: cart.map((item, i) => ({
                 dayProductionItemId: item.dayProductionItemId,
                 qty: item.quantity,
                 unitPrice: item.price,
                 paymentMethodId: splitMode ? Number(splitParts[0].methodId) : paymentMethodId, // split: the parts are in payments
                 promotionId: appliedPromo?.id || null,
                 discountId: appliedDiscountsMeta[item.id]?.discountId || null,
-                manualDiscount: 0,
+                manualDiscount: directShares[i],
                 freeMealReason: (isFreeMeal || isStaffMeal) ? effectiveReason : null,
                 bankTransferCode: splitMode ? null : ((paymentMethod === 'bank' || paymentMethod === 'bank transfer') ? bankRef : (paymentMethod === 'card' ? cardRef : null)),
                 specialInstructions: item.specialInstructions || ""
@@ -988,6 +1015,8 @@ export default function POSSales() {
         setStaffId('');
         setStaffReason('');
         setDeliveryOption(null);
+        setDirectValue('');
+        setDirectManagerCode('');
 
         // Reset Customer loyalty states
         setCustomer(null);
@@ -2118,8 +2147,8 @@ export default function POSSales() {
 
                                                 </>)}
 
-                                                {/* Order Channel Selection Checkboxes */}
-                                                <div className="mb-6">
+                                                {/* Order Channel Selection Checkboxes - hidden: the channel follows an Uber / PickMe payment method */}
+                                                <div className="mb-6" hidden>
                                                     <label className="block text-[14px] font-[500] text-fg mb-2">Order Channel (Optional)</label>
                                                     {impliedChannel ? (
                                                     <p className="p-3 border border-line rounded-lg bg-subtle text-[14px] text-fg">
@@ -2198,6 +2227,42 @@ export default function POSSales() {
                                             </div>
                                             <button onClick={removePromo} className="text-[12px] text-error">Remove</button>
                                         </div>
+                                    )}
+
+                                    <label htmlFor="direct-discount" className="block text-[14px] text-fg mt-3 mb-1">Direct discount</label>
+                                    <div className="flex gap-2">
+                                        <div className="flex bg-subtle p-1 rounded-lg shrink-0">
+                                            {[['PERCENTAGE', '%'], ['FLAT', 'Rs.']].map(([t, label]) => (
+                                                <button key={t} type="button" onClick={() => setDirectType(t)}
+                                                    className={`px-3 py-1 rounded-md text-[13px] font-[500] ${directType === t ? 'bg-surface text-brand-fg shadow-sm' : 'text-fg-secondary hover:text-fg'}`}>
+                                                    {label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <input
+                                            id="direct-discount"
+                                            type="number"
+                                            min="0"
+                                            max={directType === 'PERCENTAGE' ? 100 : undefined}
+                                            value={directValue}
+                                            onChange={(e) => setDirectValue(e.target.value)}
+                                            placeholder={directType === 'PERCENTAGE' ? 'e.g. 10 (%)' : 'e.g. 100 (Rs.)'}
+                                            className="flex-1 min-w-0 px-3 py-2 border border-line rounded-lg text-[14px] bg-surface text-fg focus:border-brand-fg focus:outline-none"
+                                        />
+                                    </div>
+                                    {directDiscount > 0 && (
+                                        <>
+                                            <p className="mt-1 text-[12px] text-success">Rs. {directDiscount.toLocaleString()} off the bill</p>
+                                            <input
+                                                type="password"
+                                                autoComplete="off"
+                                                aria-label="Manager's code"
+                                                value={directManagerCode}
+                                                onChange={(e) => setDirectManagerCode(e.target.value)}
+                                                placeholder="Manager's code to approve *"
+                                                className="mt-2 w-full px-3 py-2 border border-line rounded-lg text-[14px] bg-surface text-fg focus:border-brand-fg focus:outline-none"
+                                            />
+                                        </>
                                     )}
                                 </div>
                             )}
