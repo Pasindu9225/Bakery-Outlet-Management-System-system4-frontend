@@ -135,6 +135,7 @@ export default function POSDayEnd() {
                         productId: item.productId,
                         productName: item.productName,
                         systemQty: item.currentQty,
+                        pendingWastageQty: item.pendingWastageQty || 0,
                         unit: item.unitName || 'pcs',
                         physicalQty: '',
                         carryForwardQty: 0,
@@ -950,6 +951,8 @@ export default function POSDayEnd() {
                                 <tr className="border-b border-line">
                                     <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Product</th>
                                     <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">System Qty</th>
+                                    <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase"
+                                        title="Reported as wastage today and waiting for the Admin. It is off the shelf, so do not count it.">Pending Wastage</th>
                                     <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Physical Qty</th>
                                     <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Wastage</th>
                                     <th className="text-left py-3 px-4 text-[12px] font-[600] text-fg-secondary uppercase">Wastage Reason</th>
@@ -961,11 +964,15 @@ export default function POSDayEnd() {
                             <tbody>
                                 {productData.map((item) => {
                                     const rowError = stockRowError(item);
-                                    const missing = item.physicalQty === '' ? 0 : Math.max(0, (item.systemQty || 0) - (parseInt(item.physicalQty) || 0));
+                                    const missing = item.physicalQty === '' ? 0 : Math.max(0, (item.systemQty || 0) - (item.pendingWastageQty || 0) - (parseInt(item.physicalQty) || 0));
                                     return (
                                     <tr key={item.productId} className="border-b border-line">
                                         <td className="py-3 px-4 text-[14px] text-fg font-[500]">{item.productName}</td>
                                         <td className="py-3 px-4 text-[14px] text-fg-secondary">{item.systemQty}</td>
+                                        <td className={`py-3 px-4 text-[14px] ${item.pendingWastageQty > 0 ? 'text-warning font-[600]' : 'text-fg-muted'}`}
+                                            title={item.pendingWastageQty > 0 ? 'Reported as wastage today, waiting for the Admin. Off the shelf: do not count it.' : undefined}>
+                                            {item.pendingWastageQty > 0 ? item.pendingWastageQty : '-'}
+                                        </td>
                                         <td className="py-3 px-4">
                                             <input
                                                 type="number"
@@ -1007,7 +1014,7 @@ export default function POSDayEnd() {
                                             {item.carryForwardQty}
                                         </td>
                                         <td className={`py-3 px-4 text-[14px] font-[600] ${missing > 0 ? 'text-warning' : 'text-fg-muted'}`}
-                                            title="System quantity minus counted quantity. Not recorded as wastage.">
+                                            title="System quantity minus pending wastage minus counted quantity. Not recorded as wastage.">
                                             {missing}
                                         </td>
                                         <td className="py-3 px-4 text-[14px] text-fg-secondary">{item.unit}</td>

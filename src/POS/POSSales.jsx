@@ -300,6 +300,7 @@ export default function POSSales() {
 
     const handleSaveToWaiter = async () => {
         if (!selectedWaiter || cart.length === 0) return;
+        const saved = []; // cart lines already on the waiter bill
         try {
             const billId = "BILL-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
             for (const item of cart) {
@@ -313,6 +314,7 @@ export default function POSSales() {
                     billId: billId
                 };
                 await axios.post(`/api/pos/v1/waiter-billing/add-item`, requestBody);
+                saved.push(item);
             }
 
             const printPayload = {
@@ -345,7 +347,14 @@ export default function POSSales() {
             fetchWaiterDetails(selectedWaiter.userId);
         } catch (error) {
             const errMsg = error.response?.data?.message || error.response?.data || "Failed to save items to waiter bill";
-            toast.error(typeof errMsg === 'object' ? JSON.stringify(errMsg) : errMsg);
+            const text = typeof errMsg === 'object' ? JSON.stringify(errMsg) : errMsg;
+            if (saved.length > 0) {
+                // those lines are on the waiter bill now; keep only the rest so Save again does not add them twice
+                setCart(prev => prev.filter(line => !saved.includes(line)));
+                toast.error(`${text} ${saved.length} item(s) before it were saved to ${selectedWaiter.name}; the rest are still in the cart.`, { duration: 8000 });
+            } else {
+                toast.error(text);
+            }
         }
     };
 
