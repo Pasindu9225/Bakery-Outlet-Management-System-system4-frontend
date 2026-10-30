@@ -174,13 +174,15 @@ export default function StorekeeperCreatePO() {
         });
 
         setLowStockItems(mapped);
-        // Items kept from an earlier visit get today's stock and min/max; untouched quantities are re-suggested.
+        // Items kept from an earlier visit get today's name, stock and min/max; untouched quantities are re-suggested.
         setSelectedItems((prev) =>
           prev.map((item) => {
-            const fresh = mapped.find((m) => m.id === item.id);
+            const fresh = mapped.find((m) => m.id === item.id) || mapped.find((m) => m.code && m.code === item.code);
             if (!fresh) return item;
             const updated = {
               ...item,
+              name: fresh.name,
+              genericMaterialName: fresh.genericMaterialName,
               currentStock: fresh.currentStock,
               minStockLevel: fresh.minStockLevel,
               maxStockLevel: fresh.maxStockLevel,
