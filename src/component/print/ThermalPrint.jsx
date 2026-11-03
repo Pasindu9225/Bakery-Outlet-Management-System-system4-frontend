@@ -112,8 +112,8 @@ export function BillSlip({ outlet, title, info = [], sections = [], amountLabel 
   );
 }
 
-/** A kitchen order ticket: one slip per item, always the same fields in the same order. */
-export function KotSlip({ outlet = {}, index = 0, count = 1, info = [], item }) {
+/** A kitchen order ticket: one slip per kitchen listing its items, always the same fields in the same order. */
+export function KotSlip({ outlet = {}, index = 0, count = 1, info = [], item, items = item ? [item] : [] }) {
   return (
     <div style={S.slip}>
       <div style={{ ...S.title, fontSize: 13 }}>KITCHEN ORDER TICKET (KOT)</div>
@@ -123,9 +123,13 @@ export function KotSlip({ outlet = {}, index = 0, count = 1, info = [], item }) 
       <InfoLines info={info} />
       <Rule />
       <div style={S.kotItem}>
-        <div>KOT ITEM: {item.name}</div>
-        <div style={{ marginTop: 2 }}>QTY: {item.qty}</div>
-        {item.note && <div style={{ fontSize: 11, fontWeight: 400, fontStyle: "italic", marginTop: 2 }}>Note: {item.note}</div>}
+        {items.map((it, i) => (
+          <div key={i} style={i ? { marginTop: 6, paddingTop: 6, borderTop: "1px dashed #000" } : undefined}>
+            <div>KOT ITEM: {it.name}</div>
+            <div style={{ marginTop: 2 }}>QTY: {it.qty}</div>
+            {it.note && <div style={{ fontSize: 11, fontWeight: 400, fontStyle: "italic", marginTop: 2 }}>Note: {it.note}</div>}
+          </div>
+        ))}
       </div>
       <Rule />
       <div style={{ ...S.footer, fontWeight: 700 }}>* PLEASE PREPARE KOT ITEM IMMEDIATELY *</div>
@@ -185,13 +189,18 @@ export function posTotals({ subTotal = 0, discount = 0, finalTotal = 0 }) {
 
 /**
  * Everything a POS screen prints for one sale (the shape used by POS Sales, Table Billing and Waiter Billing):
- * the bill (twice for Uber / PickMe: customer and delivery copy) followed by one KOT slip per kitchen item.
+ * the bill (twice for Uber / PickMe: customer and delivery copy) followed by one KOT slip per kitchen, listing its items.
  */
 export function PosPrintout({ printData, outlet = {}, id = "print-receipt" }) {
   const when = printedAt();
   const proforma = printData.type === "PROFORMA";
   const copies = printData.printBill === false ? [] : printData.isUberOrPickMe ? ["CUSTOMER COPY", "DELIVERY COPY"] : [null];
-  const kots = printData.kotItems || [];
+  // one slip per kitchen: two dishes for the same kitchen come out on one KOT
+  const kotGroups = Object.values((printData.kotItems || []).reduce((groups, item) => {
+    const key = `${item.outletName || ""}|${item.mpcName || ""}`;
+    (groups[key] = groups[key] || []).push(item);
+    return groups;
+  }, {}));
   const slips = [
     ...copies.map((copy) => (
       <BillSlip
@@ -211,21 +220,21 @@ export function PosPrintout({ printData, outlet = {}, id = "print-receipt" }) {
         footer={proforma ? ["THIS IS A PROFORMA INVOICE.", "PLEASE SETTLE AT CASHIER TO GET THE TAX INVOICE."] : ["THANK YOU! COME AGAIN."]}
       />
     )),
-    ...kots.map((item, i) => (
+    ...kotGroups.map((group, i) => (
       <KotSlip
-        outlet={{ name: item.outletName || outlet.name }}
+        outlet={{ name: group[0].outletName || outlet.name }}
         index={i}
-        count={kots.length}
+        count={kotGroups.length}
         info={[
-          ["KOT No", item.kotNumber],
-          ["Kitchen", item.mpcName],
+          ["KOT No", [...new Set(group.map((item) => item.kotNumber).filter(Boolean))].join(", ")],
+          ["Kitchen", group[0].mpcName],
           ["Table", printData.tableName],
           ["Waiter", printData.waiterName],
           ["Bill", printData.transactionId],
           ["Date", when],
           ["Cashier", printData.cashierName],
         ]}
-        item={{ name: item.productName || item.name, qty: item.qty ?? item.quantity, note: item.specialInstructions }}
+        items={group.map((item) => ({ name: item.productName || item.name, qty: item.qty ?? item.quantity, note: item.specialInstructions }))}
       />
     )),
   ];

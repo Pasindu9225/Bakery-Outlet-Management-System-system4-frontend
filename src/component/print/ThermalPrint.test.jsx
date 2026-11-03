@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { BillSlip, KotSlip, money, posTotals } from "./ThermalPrint";
+import { BillSlip, KotSlip, PosPrintout, money, posTotals } from "./ThermalPrint";
 
 test("amounts are shown as Rs. with thousand separators and 2 decimals", () => {
   expect(money(1234.5)).toBe("Rs. 1,234.50");
@@ -26,4 +26,18 @@ test("empty fields are left out of bills and KOT slips", () => {
   expect(kot).toContain("KOT No: KOT-1");
   expect(kot).not.toContain("Table");
   expect(kot).not.toContain("plover.lk");   // KOT slips are for the kitchen, not the customer
+});
+
+test("kitchen items print one KOT slip per kitchen, listing all of that kitchen's items", () => {
+  const html = renderToStaticMarkup(<PosPrintout printData={{ printBill: false, kotItems: [
+    { productName: "Chicken Kottu", qty: 1, kotNumber: "KOT-1", mpcName: "Rice Corner" },
+    { productName: "Egg Kottu", qty: 2, kotNumber: "KOT-2", mpcName: "Rice Corner", specialInstructions: "No chilli" },
+    { productName: "Fresh Juice", qty: 1, kotNumber: "KOT-3", mpcName: "Juice Bar" },
+  ] }} />);
+  expect(html.match(/KITCHEN ORDER TICKET/g)).toHaveLength(2);
+  expect(html).toContain("SLIP #1 OF 2");
+  expect(html).toContain("KOT No: KOT-1, KOT-2");
+  expect(html).toContain("KOT ITEM: Egg Kottu");
+  expect(html).toContain("Note: No chilli");
+  expect(html).toContain("Kitchen: Juice Bar");
 });
