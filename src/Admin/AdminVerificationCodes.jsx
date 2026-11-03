@@ -17,6 +17,7 @@ import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
 import Loader from "../component/Loader.jsx";
 import adminService from "../services/adminService";
+import { getRoleName } from "../utils/auth";
 
 export default function AdminVerificationCodes() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -113,7 +114,8 @@ export default function AdminVerificationCodes() {
     }
   };
 
-  const roles = [...new Set(users.map((u) => u.roleId))].filter(Boolean);
+  const roles = [...new Set(users.map((u) => u.roleId))].filter(Boolean)
+    .sort((a, b) => getRoleName(a).localeCompare(getRoleName(b)));
 
   return (
     <div className="flex bg-app h-screen overflow-hidden relative font-sans">
@@ -168,7 +170,7 @@ export default function AdminVerificationCodes() {
                 >
                   <option value="ALL">All Roles</option>
                   {roles.map((role) => (
-                    <option key={role} value={role}>{role}</option>
+                    <option key={role} value={role}>{getRoleName(role)}</option>
                   ))}
                 </select>
 
@@ -233,12 +235,12 @@ export default function AdminVerificationCodes() {
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[12px] font-[500] border ${
-                            user.roleId === 'ADMIN' ? 'bg-plum/10 text-plum border-plum/30' :
-                            user.roleId === 'MANAGER' ? 'bg-brand/10 text-brand-fg border-brand/20' :
+                            getRoleName(user.roleId) === 'Administrator' ? 'bg-plum/10 text-plum border-plum/30' :
+                            getRoleName(user.roleId) === 'Manager' ? 'bg-brand/10 text-brand-fg border-brand/20' :
                             'bg-subtle text-fg border-line'
                           }`}>
                             <Shield size={10} />
-                            {user.roleId}
+                            {getRoleName(user.roleId)}
                           </span>
                         </td>
                         <td className="px-6 py-4">
