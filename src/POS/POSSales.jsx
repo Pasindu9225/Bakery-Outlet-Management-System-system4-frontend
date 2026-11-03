@@ -2188,6 +2188,8 @@ export default function POSSales() {
                             {/* Promo code: chosen here, in the payment popup (More) */}
                             {cart.length > 0 && (
                                 <div className="mb-3">
+                                    {/* promo-code dropdown hidden: the popup offers the direct discount only */}
+                                    <div hidden>
                                     <label htmlFor="promo-pick" className="block text-[14px] text-fg mb-1">Discount (promo code)</label>
                                     <select
                                         id="promo-pick"
@@ -2229,7 +2231,9 @@ export default function POSSales() {
                                         </div>
                                     )}
 
-                                    <label htmlFor="direct-discount" className="block text-[14px] text-fg mt-3 mb-1">Direct discount</label>
+                                    </div>
+
+                                    <label htmlFor="direct-discount" className="block text-[14px] text-fg mb-1">Direct discount</label>
                                     <div className="flex gap-2">
                                         <div className="flex bg-subtle p-1 rounded-lg shrink-0">
                                             {[['PERCENTAGE', '%'], ['FLAT', 'Rs.']].map(([t, label]) => (
