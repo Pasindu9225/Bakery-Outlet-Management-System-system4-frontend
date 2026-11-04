@@ -215,7 +215,8 @@ export default function POSWaiterBilling() {
     const [staffReason, setStaffReason] = useState('');
     const [meal, setMeal] = useState(EMPTY_MEAL);
     const [direct, setDirect] = useState(EMPTY_DIRECT);     // direct discount, needs a Manager's code
-    const [loyalty, setLoyalty] = useState(EMPTY_LOYALTY);  // customer loyalty: earn / redeem points   // staff meal: checked Staff ID; free meal: requested by + reason
+    const [loyalty, setLoyalty] = useState(EMPTY_LOYALTY);  // customer loyalty: earn / redeem points
+    const [payRef, setPayRef] = useState('');               // card / bank transfer reference   // staff meal: checked Staff ID; free meal: requested by + reason
     const [paymentMethod, setPaymentMethod] = useState('');
     const [showKOTModal, setShowKOTModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -472,7 +473,7 @@ export default function POSWaiterBilling() {
     // Process payment
     const eBillPhoneRef = useRef(null);   // set by Pay & Send E-Bill: the bill goes to this phone once paid
     const processPayment = async () => {
-        const receivedAmount = parseFloat(amountReceived) || 0;
+        let receivedAmount = parseFloat(amountReceived) || 0;
 
         const selectedMethod = paymentMethods.find(m => m.name.toUpperCase() === paymentMethod.toUpperCase()) || null;
         if (!selectedMethod) {
@@ -483,6 +484,12 @@ export default function POSWaiterBilling() {
         const paymentCategory = selectedMethod.category || selectedMethod.name.trim().toUpperCase().replace(/\s+/g, '_');
         const isStaffMeal = paymentCategory === 'STAFF_MEAL';
         const isFreeMeal = paymentCategory === 'FREE_MEAL' || isStaffMeal;   // both no charge
+        // only cash is counted: card, transfer, PickMe, Uber pay the bill's total
+        if (paymentCategory !== 'CASH') receivedAmount = totalPayable;
+        if (paymentCategory === 'CARD' && !payRef.trim()) {
+            toast.error('Enter the card transaction reference');
+            return;
+        }
 
         if (!isFreeMeal && receivedAmount < totalPayable) {
             toast.error('Insufficient payment amount');
@@ -516,6 +523,7 @@ export default function POSWaiterBilling() {
                 manualDiscount: directDiscount > 0,
                 managerCode: directDiscount > 0 ? direct.managerCode.trim() : null,
                 ...loyaltyRequest(loyalty),
+                paymentReference: ['CARD', 'BANK_TRANSFER'].includes(paymentCategory) ? (payRef.trim() || null) : null,
                 outletId: Number(localStorage.getItem("outletId")) || null,
                 invoicePrinted: true
             };
@@ -559,6 +567,7 @@ export default function POSWaiterBilling() {
             setPrintPayloadToUse(printPayload);
             setDirect(EMPTY_DIRECT);
             setLoyalty(EMPTY_LOYALTY);
+            setPayRef('');
             if (eBillPhoneRef.current) {
                 const phone = eBillPhoneRef.current;
                 eBillPhoneRef.current = null;
@@ -1353,6 +1362,19 @@ export default function POSWaiterBilling() {
                                         <>
                                             {isFreeMeal ? (
                                                 <MealDetails kind={isStaffMeal ? 'staff' : 'free'} value={meal} onChange={setMeal} />
+                                            ) : selectedMethodObj.category !== 'CASH' ? (
+                                                ['CARD', 'BANK_TRANSFER'].includes(selectedMethodObj.category) && (
+                                                    <div>
+                                                        <label className="block text-[14px] font-[500] text-fg mb-2">{selectedMethodObj.category === 'CARD' ? 'Transaction Reference *' : 'Transfer Reference'}</label>
+                                                        <input
+                                                            type="text"
+                                                            value={payRef}
+                                                            onChange={(e) => setPayRef(e.target.value)}
+                                                            placeholder={selectedMethodObj.category === 'CARD' ? 'Enter card transaction reference' : 'Reference (optional)'}
+                                                            className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
+                                                        />
+                                                    </div>
+                                                )
                                             ) : (
                                                 <>
                                                     <div>
@@ -1375,7 +1397,7 @@ export default function POSWaiterBilling() {
                                                         <div className="p-3 bg-subtle border border-brand-fg rounded-lg">
                                                             <div className="flex justify-between text-[14px]">
                                                                 <span className="text-fg">Change Due:</span>
-                                                                <span className="font-[600] text-brand-fg">
+                                                                <span className="font-[700] text-error">
                                                                     Rs. {Math.max(0, parseFloat(amountReceived || 0) - totalPayable).toFixed(2)}
                                                                 </span>
                                                             </div>
@@ -1402,7 +1424,10 @@ export default function POSWaiterBilling() {
                                         const selectedMethodObj = paymentMethods.find(m => m.name === paymentMethod) || {};
                                         if (selectedMethodObj.category === 'STAFF_MEAL') return !mealReason('staff', meal);
                                         const isFreeMeal = selectedMethodObj.category === 'FREE_MEAL';
-                                        return isFreeMeal ? !mealReason('free', meal) : (!amountReceived || parseFloat(amountReceived) < totalPayable);
+                                        if (isFreeMeal) return !mealReason('free', meal);
+                                        if (selectedMethodObj.category === 'CARD') return !payRef.trim();
+                                        if (selectedMethodObj.category !== 'CASH') return false;   // transfer, PickMe, Uber
+                                        return !amountReceived || parseFloat(amountReceived) < totalPayable;
                                     })()}
                                     className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 w-full"
                                 >

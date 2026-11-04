@@ -230,7 +230,8 @@ export default function POSTableBilling() {
     const [staffReason, setStaffReason] = useState('');
     const [meal, setMeal] = useState(EMPTY_MEAL);
     const [direct, setDirect] = useState(EMPTY_DIRECT);     // direct discount, needs a Manager's code
-    const [loyalty, setLoyalty] = useState(EMPTY_LOYALTY);  // customer loyalty: earn / redeem points   // staff meal: checked Staff ID; free meal: requested by + reason
+    const [loyalty, setLoyalty] = useState(EMPTY_LOYALTY);  // customer loyalty: earn / redeem points
+    const [payRef, setPayRef] = useState('');               // card / bank transfer reference   // staff meal: checked Staff ID; free meal: requested by + reason
     const [paymentMethod, setPaymentMethod] = useState('');
     const [showKOTModal, setShowKOTModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -432,13 +433,23 @@ export default function POSTableBilling() {
         }
         setMovingCartToOrder(true);
         try {
-            for (const item of cart) {
-                await handleOrderItemOrder({
-                    ...item,
-                    unitPrice: item.price,
-                });
-            }
+            // the whole cart in one request: the server makes one KOT per production center
+            await axios.post(`/api/pos/v1/table-billing/add-items`, cart.map(item => ({
+                tableId: parseInt(selectedTable),
+                productId: item.id,
+                productName: item.name,
+                qty: item.qty,
+                unitPrice: item.price,
+                instructions: item.instructions || null,
+                isPaid: false
+            })));
+            toast.success(`${cart.length} item(s) added to the table`);
             setCart([]);
+            fetchTableDetails();
+            fetchTodayItems();
+        } catch (error) {
+            console.error("Error adding the cart to the table:", error);
+            toast.error(error.response?.data?.message || "Failed to add the items to the table");
         } finally {
             setMovingCartToOrder(false);
         }
@@ -548,7 +559,7 @@ export default function POSTableBilling() {
                 return;
             }
         }
-        const receivedAmount = splitMode ? totalPayable : (parseFloat(amountReceived) || 0);
+        let receivedAmount = splitMode ? totalPayable : (parseFloat(amountReceived) || 0);
 
         const selectedMethod = paymentMethods.find(m => m.name.toUpperCase() === paymentMethod.toUpperCase()) || null;
         if (!selectedMethod) {
@@ -557,6 +568,12 @@ export default function POSTableBilling() {
         }
         const isStaffMeal = selectedMethod.category === 'STAFF_MEAL';
         const isFreeMeal = selectedMethod.category === 'FREE_MEAL' || isStaffMeal;   // both no charge
+        // only cash is counted: card, transfer, PickMe, Uber pay the bill's total
+        if (!splitMode && selectedMethod.category !== 'CASH') receivedAmount = totalPayable;
+        if (!splitMode && selectedMethod.category === 'CARD' && !payRef.trim()) {
+            toast.error('Enter the card transaction reference');
+            return;
+        }
 
         if (!isFreeMeal && receivedAmount < totalPayable) {
             toast.error('Insufficient payment amount');
@@ -602,7 +619,7 @@ export default function POSTableBilling() {
                     qty: item.qty,
                     unitPrice: item.unitPrice,
                     freeMealReason: isFreeMeal ? effectiveReason : null,
-                    bankTransferCode: null,
+                    bankTransferCode: !splitMode && ['CARD', 'BANK_TRANSFER'].includes(selectedMethod.category) ? (payRef.trim() || null) : null,
                     discountId: null,
                     manualDiscount: directShares[i],   // this line's share, like POS Sales
                     promotionId: (promoScope === 'EVERY' || (promoScope === 'SELECTED' && selectedPromoItems.includes(item.id))) ? appliedPromo?.id : null,
@@ -649,6 +666,7 @@ export default function POSTableBilling() {
             setPrintPayloadToUse(printPayload);
             setDirect(EMPTY_DIRECT);
             setLoyalty(EMPTY_LOYALTY);
+            setPayRef('');
             if (eBillPhoneRef.current) {
                 const phone = eBillPhoneRef.current;
                 eBillPhoneRef.current = null;
@@ -1547,6 +1565,19 @@ export default function POSTableBilling() {
                                         <>
                                             {isFreeMeal ? (
                                                 <MealDetails kind={isStaffMeal ? 'staff' : 'free'} value={meal} onChange={setMeal} />
+                                            ) : selectedMethodObj.category !== 'CASH' ? (
+                                                ['CARD', 'BANK_TRANSFER'].includes(selectedMethodObj.category) && (
+                                                    <div>
+                                                        <label className="block text-[14px] font-[500] text-fg mb-2">{selectedMethodObj.category === 'CARD' ? 'Transaction Reference *' : 'Transfer Reference'}</label>
+                                                        <input
+                                                            type="text"
+                                                            value={payRef}
+                                                            onChange={(e) => setPayRef(e.target.value)}
+                                                            placeholder={selectedMethodObj.category === 'CARD' ? 'Enter card transaction reference' : 'Reference (optional)'}
+                                                            className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
+                                                        />
+                                                    </div>
+                                                )
                                             ) : (
                                                 <>
                                                     <div>
@@ -1570,7 +1601,7 @@ export default function POSTableBilling() {
                                                         <div className="p-3 bg-subtle border border-brand-fg rounded-lg">
                                                             <div className="flex justify-between text-[14px]">
                                                                 <span className="text-fg">Change Due:</span>
-                                                                <span className="font-[600] text-brand-fg">
+                                                                <span className="font-[700] text-error">
                                                                     Rs. {Math.max(0, parseFloat(amountReceived || 0) - totalPayable).toFixed(2)}
                                                                 </span>
                                                             </div>
@@ -1599,7 +1630,10 @@ export default function POSTableBilling() {
                                         const selectedMethodObj = paymentMethods.find(m => m.name === paymentMethod) || {};
                                         if (selectedMethodObj.category === 'STAFF_MEAL') return !mealReason('staff', meal);
                                         const isFreeMeal = selectedMethodObj.category === 'FREE_MEAL';
-                                        return isFreeMeal ? !mealReason('free', meal) : (!amountReceived || parseFloat(amountReceived) < totalPayable);
+                                        if (isFreeMeal) return !mealReason('free', meal);
+                                        if (selectedMethodObj.category === 'CARD') return !payRef.trim();
+                                        if (selectedMethodObj.category !== 'CASH') return false;   // transfer, PickMe, Uber
+                                        return !amountReceived || parseFloat(amountReceived) < totalPayable;
                                     })()}
                                     className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 w-full"
                                 >
