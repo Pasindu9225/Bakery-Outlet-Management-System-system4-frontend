@@ -396,21 +396,21 @@ export default function POSSales() {
             try {
                 // the free-meal reason box and the Staff Meal button go by category ("Free Meal" -> FREE_MEAL if unset)
                 const loaded = (await posService.getPaymentMethods() || []).map(m => ({ ...m, category: m.category || String(m.name || '').trim().toUpperCase().replace(/\s+/g, '_') }));
-                // payment popup order: Cash, Card, Bank Transfer, Staff Meal, then the rest as set up (Free Meal, Uber, PickMe...)
+                // payment popup order: Card, Bank Transfer, Staff Meal, the rest as set up (Free Meal, Uber, PickMe...), Cash last
                 const rank = (m) => {
                     const key = m.category === 'CASH' ? 'cash' : m.category === 'STAFF_MEAL' ? 'staff' : getPaymentConfig(m.name).key;
-                    const i = ['cash', 'card', 'bank', 'staff'].indexOf(key);
-                    return i < 0 ? 4 : i;
+                    if (key === 'cash') return 4;
+                    const i = ['card', 'bank', 'staff'].indexOf(key);
+                    return i < 0 ? 3 : i;
                 };
                 const data = [...loaded].sort((x, y) => rank(x) - rank(y));
                 setAvailablePaymentMethods(data);
 
-                // Automatically set Cash as default if available
+                // Card is selected by default (cash sales use the one-click Checkout)
                 if (data && data.length > 0) {
-                    const cashMethod = data.find(m => m.category === 'CASH' || m.name.toLowerCase().includes('cash')) || data[0];
-                    const config = getPaymentConfig(cashMethod.name);
-                    setPaymentMethod(config.key);
-                    setPaymentMethodId(cashMethod.paymentMethodId);
+                    const cardMethod = data.find(m => getPaymentConfig(m.name).key === 'card') || data[0];
+                    setPaymentMethod(getPaymentConfig(cardMethod.name).key);
+                    setPaymentMethodId(cardMethod.paymentMethodId);
                 }
             } catch (error) {
                 console.error("Error fetching payment methods:", error);
@@ -789,15 +789,16 @@ export default function POSSales() {
 
     const handleCheckout = () => {
         if (cart.length === 0) return;
-        const cashMethod = availablePaymentMethods.find(m => getPaymentConfig(m.name).key === 'cash');
-        if (cashMethod) {
-            setPaymentMethod('cash');
-            setPaymentMethodId(cashMethod.paymentMethodId);
+        // the Others popup opens on Card
+        const cardMethod = availablePaymentMethods.find(m => getPaymentConfig(m.name).key === 'card') || availablePaymentMethods[0];
+        if (cardMethod) {
+            setPaymentMethod(getPaymentConfig(cardMethod.name).key);
+            setPaymentMethodId(cardMethod.paymentMethodId);
         }
         setShowPayment(true);
     };
 
-    // Checkout: one click, cash for the exact amount, receipt printed; anything else goes through More (the popup)
+    // Checkout: one click, cash for the exact amount, receipt printed; anything else goes through Others (the popup)
     const [quickCheckout, setQuickCheckout] = useState(false);
     const [noteOpen, setNoteOpen] = useState({});
     const handleQuickCheckout = () => {
@@ -805,7 +806,7 @@ export default function POSSales() {
         const cashMethod = availablePaymentMethods.find(m => m.category === 'CASH')
             || availablePaymentMethods.find(m => getPaymentConfig(m.name).key === 'cash');
         if (!cashMethod) {
-            toast.error('No Cash payment method is set up. Use More to choose how to pay.');
+            toast.error('No Cash payment method is set up. Use Others to choose how to pay.');
             return;
         }
         setSplitMode(false);
@@ -1880,7 +1881,7 @@ export default function POSSales() {
                                                     title="Card, staff meal, discount, split payment..."
                                                     className="border border-line text-fg py-2 rounded-lg text-sm font-[500] hover:bg-subtle transition-colors flex items-center justify-center gap-2"
                                                 >
-                                                    <MoreHorizontal size={16} /> More
+                                                    <MoreHorizontal size={16} /> Others
                                                 </button>
                                             </div>
                                         </div>
@@ -1901,7 +1902,7 @@ export default function POSSales() {
                                                 className="border border-line text-fg py-3 rounded-lg font-[500] hover:bg-subtle transition-colors flex items-center justify-center gap-2"
                                             >
                                                 <MoreHorizontal size={16} />
-                                                More
+                                                Others
                                             </button>
                                         </div>
                                     )}
@@ -2060,7 +2061,7 @@ export default function POSSales() {
                                                         />
                                                         {cashReceived && parseFloat(cashReceived) >= total && (
                                                             <div className="mt-2 p-2 bg-hover rounded-lg">
-                                                                <p className="text-[14px] text-success">Change: Rs. {calculateChange().toLocaleString()}</p>
+                                                                <p className="text-[14px] text-error font-[700]">Change: Rs. {calculateChange().toLocaleString()}</p>
                                                             </div>
                                                         )}
                                                     </div>
