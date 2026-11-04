@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import EBillBox from "../component/EBillBox";
 import { onEnterClick } from "../utils/a11y";
 import { friendlyError } from "../utils/friendlyError";
 import ButtonHint from "../component/ButtonHint.jsx";
@@ -311,6 +312,15 @@ export default function POSSpecialOrders() {
             setIsLoading(false);
         }
     };
+
+    // The receipt / final bill of a special order as an e-bill (SMS)
+    const orderEBill = (data, isAdvance) => ({
+        outletName: outlet.name,
+        title: isAdvance ? "Special order advance" : "Special order bill",
+        id: data.id,
+        lines: (data.items || []).map((item) => ({ name: item.name || item.productName, qty: item.quantity, amount: item.quantity * (item.unitPrice || 0) })),
+        totals: [["Total", data.totalAmount || 0], [isAdvance ? "Advance paid" : "Paid", data.advanceAmount || 0], [isAdvance ? "Balance due" : "Balance", data.balanceAmount || 0]],
+    });
 
     // Print receipt or bill
     const printReceipt = (orderData = null, type = 'ADVANCE') => {
@@ -1328,6 +1338,10 @@ export default function POSSpecialOrders() {
                                 </div>
                             </div>
 
+                            <EBillBox
+                                defaultPhone={customerDetails.contactNumber}
+                                bill={orderEBill({ id: generatedOrderId, totalAmount, advanceAmount: advanceAmountNum, balanceAmount: remainingBalance, items: selectedProducts }, true)}
+                            />
                             <div className="flex flex-col sm:flex-row gap-3">
                                 <button
                                     onClick={() => printReceipt()}
@@ -1518,6 +1532,11 @@ export default function POSSpecialOrders() {
                                             Manager Approval
                                         </button>
 
+                                        {Number(selectedOrder.balanceAmount) === 0 && (
+                                            <div className="w-full">
+                                                <EBillBox defaultPhone={selectedOrder.contactNumber || selectedOrder.customerContact} bill={orderEBill(selectedOrder, false)} />
+                                            </div>
+                                        )}
                                         <button
                                             onClick={closeOrder}
                                             disabled={isLoading}

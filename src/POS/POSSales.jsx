@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { isMobile, posBill, sendEBill } from "../utils/eBill";
 import { DeliveryAppLogo, deliveryAppOf } from "../component/AppLogos";
 import { onEnterClick } from "../utils/a11y";
 import { friendlyError } from "../utils/friendlyError";
@@ -29,7 +30,8 @@ import {
     Loader2,
     Coins,
     Check,
-    Banknote
+    Banknote,
+    MessageSquare
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "../services/api";
@@ -790,6 +792,7 @@ export default function POSSales() {
 
     const handleCheckout = () => {
         if (cart.length === 0) return;
+        eBillPhoneRef.current = null;
         // the Others popup opens on Card
         const cardMethod = availablePaymentMethods.find(m => getPaymentConfig(m.name).key === 'card') || availablePaymentMethods[0];
         if (cardMethod) {
@@ -800,17 +803,29 @@ export default function POSSales() {
     };
 
     // Cash (cart button): pays cash with the amount typed in the cart (empty = exact), receipt printed;
-    // anything else goes through Others (the popup). quickCheckout holds the cash amount being paid.
+    // anything else goes through More (the popup). quickCheckout holds the cash amount being paid.
     const [quickCheckout, setQuickCheckout] = useState(false);
     const [cartCash, setCartCash] = useState('');
-    useEffect(() => { if (cart.length === 0) setCartCash(''); }, [cart.length]);
+    // E-Bill: paid like Cash, the bill goes to this phone as an SMS instead of being printed
+    const [eBillOpen, setEBillOpen] = useState(false);
+    const [eBillPhone, setEBillPhone] = useState('');
+    const eBillPhoneRef = useRef(null);
+    useEffect(() => { if (cart.length === 0) { setCartCash(''); setEBillOpen(false); setEBillPhone(''); } }, [cart.length]);
     const [noteOpen, setNoteOpen] = useState({});
-    const handleQuickCheckout = () => {
+    const handleEBill = () => {
+        if (!isMobile(eBillPhone)) {
+            toast.error('Enter the customer\'s mobile number, e.g. 0771234567.');
+            return;
+        }
+        handleQuickCheckout(eBillPhone);
+    };
+    const handleQuickCheckout = (eBillTo = null) => {
         if (cart.length === 0 || quickCheckout) return;
+        eBillPhoneRef.current = typeof eBillTo === 'string' ? eBillTo : null;
         const cashMethod = availablePaymentMethods.find(m => m.category === 'CASH')
             || availablePaymentMethods.find(m => getPaymentConfig(m.name).key === 'cash');
         if (!cashMethod) {
-            toast.error('No Cash payment method is set up. Use Others to choose how to pay.');
+            toast.error('No Cash payment method is set up. Use More to choose how to pay.');
             return;
         }
         const amount = cartCash === '' ? total : parseFloat(cartCash);
@@ -828,9 +843,69 @@ export default function POSSales() {
         // runs once the cash method and amount above are in place
         if (!quickCheckout || paymentMethod !== 'cash' || !paymentMethodId || cashReceived !== quickCheckout) return;
         setQuickCheckout(false);
-        processPayment(true);
+        processPayment(!eBillPhoneRef.current);   // an e-bill is sent, not printed
         // eslint-disable-next-line
     }, [quickCheckout, paymentMethod, paymentMethodId, cashReceived]);
+
+    // Cart payment buttons, one per row: Cash (prints), E-Bill (cash, bill sent by SMS), More (the payment popup)
+    const cartPayButtons = (
+        <div className="space-y-2">
+            <button
+                onClick={() => handleQuickCheckout()}
+                disabled={!!quickCheckout}
+                title="Cash: the amount received above (empty = exact), prints the receipt"
+                className="w-full bg-brand text-on-brand py-3 rounded-lg font-[500] hover:bg-brand-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+                <Banknote size={16} />
+                Cash
+            </button>
+            {eBillOpen ? (
+                <div className="flex gap-2">
+                    <input
+                        type="tel"
+                        autoFocus
+                        value={eBillPhone}
+                        onChange={(e) => setEBillPhone(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') { e.preventDefault(); handleEBill(); }
+                            if (e.key === 'Escape') setEBillOpen(false);
+                        }}
+                        placeholder="Customer mobile, e.g. 0771234567"
+                        className="flex-1 min-w-0 px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
+                    />
+                    <button
+                        onClick={handleEBill}
+                        disabled={!!quickCheckout}
+                        title="Cash (amount above), the bill is sent to this number as an SMS"
+                        className="px-4 bg-plum-solid text-on-brand rounded-lg text-[14px] font-[500] flex items-center gap-2 disabled:opacity-50"
+                    >
+                        <MessageSquare size={16} />
+                        Send
+                    </button>
+                    <button onClick={() => setEBillOpen(false)} aria-label="Cancel e-bill" className="px-3 border border-line rounded-lg text-fg-secondary hover:bg-subtle">
+                        <X size={16} />
+                    </button>
+                </div>
+            ) : (
+                <button
+                    onClick={() => setEBillOpen(true)}
+                    title="Cash, and the bill is sent to the customer's phone as an SMS (no printed bill)"
+                    className="w-full border border-plum text-plum py-3 rounded-lg font-[500] hover:bg-plum/10 transition-colors flex items-center justify-center gap-2"
+                >
+                    <MessageSquare size={16} />
+                    E-Bill
+                </button>
+            )}
+            <button
+                onClick={handleCheckout}
+                title="Card, staff meal, discount, split payment..."
+                className="w-full border border-line text-fg py-3 rounded-lg font-[500] hover:bg-subtle transition-colors flex items-center justify-center gap-2"
+            >
+                <MoreHorizontal size={16} />
+                More
+            </button>
+        </div>
+    );
 
     // Process payment
     const processPayment = async (shouldPrint = false) => {
@@ -964,6 +1039,12 @@ export default function POSSales() {
                 printBill: shouldPrint,
                 isUberOrPickMe: isUberOrPickMe
             };
+
+            if (eBillPhoneRef.current) {
+                const phone = eBillPhoneRef.current;
+                eBillPhoneRef.current = null;
+                sendEBill(phone, posBill(printPayload, outlet)).then((m) => toast.success(m)).catch((e) => toast.error(e.message));
+            }
 
             if (shouldPrint || hasKotItems) {
                 setPrintData(printPayload);
@@ -1895,44 +1976,10 @@ export default function POSSales() {
                                                 <Calculator size={16} />
                                                 Save to Waiter & Print Proforma
                                             </button>
-                                            <div className="grid grid-cols-3 gap-2">
-                                                <button
-                                                    onClick={handleQuickCheckout}
-                                                    disabled={quickCheckout}
-                                                    title="Cash: the amount received above (empty = exact), prints the receipt"
-                                                    className="col-span-2 border border-brand-fg text-brand-fg py-2 rounded-lg text-sm font-[500] hover:bg-brand/5 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                                                >
-                                                    Cash
-                                                </button>
-                                                <button
-                                                    onClick={handleCheckout}
-                                                    title="Card, staff meal, discount, split payment..."
-                                                    className="border border-line text-fg py-2 rounded-lg text-sm font-[500] hover:bg-subtle transition-colors flex items-center justify-center gap-2"
-                                                >
-                                                    <MoreHorizontal size={16} /> Others
-                                                </button>
-                                            </div>
+                                            {cartPayButtons}
                                         </div>
                                     ) : (
-                                        <div className="grid grid-cols-3 gap-2">
-                                            <button
-                                                onClick={handleQuickCheckout}
-                                                disabled={quickCheckout}
-                                                title="Cash: the amount received above (empty = exact), prints the receipt"
-                                                className="col-span-2 bg-brand text-on-brand py-3 rounded-lg font-[500] hover:bg-brand-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                                            >
-                                                <Banknote size={16} />
-                                                Cash
-                                            </button>
-                                            <button
-                                                onClick={handleCheckout}
-                                                title="Card, staff meal, discount, split payment..."
-                                                className="border border-line text-fg py-3 rounded-lg font-[500] hover:bg-subtle transition-colors flex items-center justify-center gap-2"
-                                            >
-                                                <MoreHorizontal size={16} />
-                                                Others
-                                            </button>
-                                        </div>
+                                        cartPayButtons
                                     )}
                                 </div>
                             )}

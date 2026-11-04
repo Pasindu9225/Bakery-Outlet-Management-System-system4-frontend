@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import EBillBox from "../component/EBillBox";
+import { posBill } from "../utils/eBill";
 import { DeliveryAppLogo, deliveryAppOf } from "../component/AppLogos";
 import { defaultPaymentMethodName } from "../utils/paymentDefaults";
 import { friendlyError } from "../utils/friendlyError";
@@ -1659,6 +1661,8 @@ export default function POSTableBilling() {
                                     </div>
                                 </div>
                             </div>
+
+                            {printPayloadToUse && <EBillBox bill={posBill(printPayloadToUse, outlet)} />}
 
                             <div className="flex flex-col sm:flex-row gap-3">
                                 <button
