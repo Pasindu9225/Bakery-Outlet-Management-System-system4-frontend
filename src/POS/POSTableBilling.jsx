@@ -414,6 +414,14 @@ export default function POSTableBilling() {
         setTimeout(() => setHighlightedCartId(null), 1000);
     };
 
+    // a product tile's "Enter quantity..." box (product id being typed for, and the amount)
+    const [qtyEntry, setQtyEntry] = useState({ id: null, value: '' });
+    const addTypedQty = (product) => {
+        const n = parseInt(qtyEntry.value, 10);
+        if (n > 0) addToCart(product, n);
+        setQtyEntry({ id: null, value: '' });
+    };
+
     const updateCartQuantity = (productId, newQuantity) => {
         if (newQuantity <= 0) {
             setCart(prev => prev.filter(i => i.id !== productId));
@@ -1030,27 +1038,68 @@ export default function POSTableBilling() {
                                             </div>
 
                                             {(showProductGrid || searchTerm) && (
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
-                                                    {filteredProducts.map(product => (
-                                                        <div key={product.id} className="border border-line rounded-lg p-3 hover:border-brand-fg/30 transition-colors">
-                                                            <div className="flex justify-between items-start mb-2">
-                                                                <div className="flex-1">
-                                                                    <p className="text-[14px] font-[500] text-fg">{product.name}</p>
-                                                                    <p className="text-[12px] text-fg-secondary">{product.code} | {product.category}</p>
-                                                                    <p className="text-[12px] text-fg-secondary mt-1">{product.description}</p>
-                                                                    <p className="text-[12px] font-[600] text-success mt-1">Available Qty: {product.currentQty}</p>
-                                                                </div>
-                                                                <p className="text-[14px] font-[600] text-brand-fg">Rs. {product.price}</p>
-                                                            </div>
-                                                            <button
-                                                                onClick={() => addToCart(product)}
-                                                                className="w-full px-3 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors text-[12px] font-[500] flex items-center justify-center gap-2"
+                                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[30rem] overflow-y-auto pb-1">
+                                                    {filteredProducts.map((product, index) => {
+                                                        const badge = product.currentQty <= 0 ? { label: 'Out of stock', className: 'bg-error/10 text-error' } : { label: `${product.currentQty} in stock`, className: 'bg-success/10 text-success' };
+                                                        const outOfStock = product.currentQty <= 0;
+                                                        const colour = tileColor(index);
+                                                        const inCart = cart.find(i => i.id === product.id)?.qty || 0;
+                                                        return (
+                                                            <div
+                                                                key={product.id}
+                                                                role="button" tabIndex={0}
+                                                                onKeyDown={(e) => { if (e.key === 'Enter' && e.target === e.currentTarget && !outOfStock) addToCart(product); }}
+                                                                onClick={() => !outOfStock && addToCart(product)}
+                                                                className={`relative text-left p-3 rounded-xl border-2 transition-all select-none ${outOfStock
+                                                                    ? 'border-transparent bg-subtle opacity-50 cursor-not-allowed'
+                                                                    : `cursor-pointer active:scale-[0.97] ${inCart > 0 ? 'border-brand-fg bg-brand/5' : `border-transparent ${colour.tint} hover:border-brand-fg/30 hover:shadow-sm`}`
+                                                                    }`}
                                                             >
-                                                                <Plus size={14} />
-                                                                Add to Cart
-                                                            </button>
-                                                        </div>
-                                                    ))}
+                                                                {!outOfStock && <span aria-hidden="true" className={`absolute left-0 top-3 bottom-3 w-1.5 rounded-r ${colour.stripe}`} />}
+                                                                <div className="flex items-start justify-between gap-2 mb-1.5">
+                                                                    <p className="text-[14px] font-[600] text-fg leading-tight line-clamp-2">{product.name}</p>
+                                                                    
+                                                                </div>
+                                                                <p className="text-[16px] font-[700] text-brand-fg mb-1.5">Rs. {product.price}</p>
+                                                                <div className="flex items-center justify-between gap-2">
+                                                                    <span className="text-[12px] text-fg-muted truncate">{product.code}</span>
+                                                                    <span className={`text-[12px] font-[600] px-1.5 py-0.5 rounded-full whitespace-nowrap ${badge.className}`}>
+                                                                        {badge.label}
+                                                                    </span>
+                                                                </div>
+                                                                {/* one row: -/qty/+ once in the cart, otherwise an exact quantity */}
+                                                                {!outOfStock && (inCart > 0 ? (
+                                                                    <div className="mt-2 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                                                        <button type="button" onClick={() => updateCartQuantity(product.id, inCart - 1)} aria-label={`One less ${product.name}`}
+                                                                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-lg bg-brand text-on-brand hover:bg-brand-hover">
+                                                                            <Minus size={15} />
+                                                                        </button>
+                                                                        <input type="number" min="0" value={inCart} aria-label={`${product.name} quantity`}
+                                                                            onChange={(e) => updateCartQuantity(product.id, parseInt(e.target.value, 10) || 0)}
+                                                                            className="flex-1 min-w-0 h-9 rounded-lg border border-brand-fg/40 text-center text-[15px] font-[700] text-brand-fg bg-surface focus:outline-none focus:border-brand-fg" />
+                                                                        <button type="button" onClick={() => addToCart(product)} aria-label={`One more ${product.name}`}
+                                                                            className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-lg bg-brand text-on-brand hover:bg-brand-hover">
+                                                                            <Plus size={15} />
+                                                                        </button>
+                                                                    </div>
+                                                                ) : qtyEntry.id === product.id ? (
+                                                                    <div className="mt-2 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                                                        <input type="number" min="1" autoFocus value={qtyEntry.value} placeholder="Qty"
+                                                                            onChange={(e) => setQtyEntry({ id: product.id, value: e.target.value })}
+                                                                            onKeyDown={(e) => { if (e.key === 'Enter') addTypedQty(product); if (e.key === 'Escape') setQtyEntry({ id: null, value: '' }); }}
+                                                                            className="flex-1 min-w-0 h-9 px-2 rounded-lg border border-line text-[14px] bg-surface focus:outline-none focus:border-brand-fg" />
+                                                                        <button type="button" onClick={() => addTypedQty(product)}
+                                                                            className="h-9 px-3 rounded-lg bg-brand text-on-brand text-[13px] font-[500]">Add</button>
+                                                                    </div>
+                                                                ) : (
+                                                                    <button type="button" onClick={(e) => { e.stopPropagation(); setQtyEntry({ id: product.id, value: '' }); }}
+                                                                        className="mt-2 w-full h-9 text-[12px] text-fg-secondary hover:text-brand-fg hover:bg-surface border border-dashed border-line rounded-lg transition-colors">
+                                                                        Enter quantity...
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        );
+                                                    })}
                                                     {filteredProducts.length === 0 && (
                                                         <div className="col-span-full text-center py-8">
                                                             <Package size={32} className="text-fg-muted mx-auto mb-2" />
