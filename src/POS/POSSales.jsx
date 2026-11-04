@@ -407,7 +407,7 @@ export default function POSSales() {
                 const data = [...loaded].sort((x, y) => rank(x) - rank(y));
                 setAvailablePaymentMethods(data);
 
-                // Card is selected by default (cash sales use the one-click Checkout)
+                // Card is selected by default (cash sales use the cart's Cash button)
                 if (data && data.length > 0) {
                     const cardMethod = data.find(m => getPaymentConfig(m.name).key === 'card') || data[0];
                     setPaymentMethod(getPaymentConfig(cardMethod.name).key);
@@ -799,8 +799,11 @@ export default function POSSales() {
         setShowPayment(true);
     };
 
-    // Checkout: one click, cash for the exact amount, receipt printed; anything else goes through Others (the popup)
+    // Cash (cart button): pays cash with the amount typed in the cart (empty = exact), receipt printed;
+    // anything else goes through Others (the popup). quickCheckout holds the cash amount being paid.
     const [quickCheckout, setQuickCheckout] = useState(false);
+    const [cartCash, setCartCash] = useState('');
+    useEffect(() => { if (cart.length === 0) setCartCash(''); }, [cart.length]);
     const [noteOpen, setNoteOpen] = useState({});
     const handleQuickCheckout = () => {
         if (cart.length === 0 || quickCheckout) return;
@@ -810,15 +813,20 @@ export default function POSSales() {
             toast.error('No Cash payment method is set up. Use Others to choose how to pay.');
             return;
         }
+        const amount = cartCash === '' ? total : parseFloat(cartCash);
+        if (!(amount >= total)) {
+            toast.error(`Cash received must be at least Rs. ${total.toLocaleString()}`);
+            return;
+        }
         setSplitMode(false);
         setPaymentMethod('cash');
         setPaymentMethodId(cashMethod.paymentMethodId);
-        setCashReceived(String(total));
-        setQuickCheckout(true);
+        setCashReceived(String(amount));
+        setQuickCheckout(String(amount));
     };
     useEffect(() => {
         // runs once the cash method and amount above are in place
-        if (!quickCheckout || paymentMethod !== 'cash' || !paymentMethodId || cashReceived !== String(total)) return;
+        if (!quickCheckout || paymentMethod !== 'cash' || !paymentMethodId || cashReceived !== quickCheckout) return;
         setQuickCheckout(false);
         processPayment(true);
         // eslint-disable-next-line
@@ -1857,6 +1865,25 @@ export default function POSSales() {
                                         </span>
                                     </div>
 
+                                    <div className="mb-3">
+                                        <label className="block text-[14px] font-[500] text-fg mb-2">Cash Received</label>
+                                        <CashQuickButtons total={total} selected={cartCash} onPick={setCartCash} />
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            placeholder={`Exact: Rs. ${total.toLocaleString()}`}
+                                            value={cartCash}
+                                            onChange={(e) => setCartCash(e.target.value)}
+                                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleQuickCheckout(); } }}
+                                            className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
+                                        />
+                                        {cartCash !== '' && parseFloat(cartCash) >= total && (
+                                            <div className="mt-2 p-2 bg-hover rounded-lg">
+                                                <p className="text-[14px] text-error font-[700]">Change: Rs. {(parseFloat(cartCash) - total).toLocaleString()}</p>
+                                            </div>
+                                        )}
+                                    </div>
+
 
 
                                     {selectedWaiter ? (
@@ -1872,10 +1899,10 @@ export default function POSSales() {
                                                 <button
                                                     onClick={handleQuickCheckout}
                                                     disabled={quickCheckout}
-                                                    title="Cash, exact amount, prints the receipt"
+                                                    title="Cash: the amount received above (empty = exact), prints the receipt"
                                                     className="col-span-2 border border-brand-fg text-brand-fg py-2 rounded-lg text-sm font-[500] hover:bg-brand/5 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                                                 >
-                                                    Checkout
+                                                    Cash
                                                 </button>
                                                 <button
                                                     onClick={handleCheckout}
@@ -1891,11 +1918,11 @@ export default function POSSales() {
                                             <button
                                                 onClick={handleQuickCheckout}
                                                 disabled={quickCheckout}
-                                                title="Cash, exact amount, prints the receipt"
+                                                title="Cash: the amount received above (empty = exact), prints the receipt"
                                                 className="col-span-2 bg-brand text-on-brand py-3 rounded-lg font-[500] hover:bg-brand-hover transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                                             >
-                                                <Calculator size={16} />
-                                                Checkout
+                                                <Banknote size={16} />
+                                                Cash
                                             </button>
                                             <button
                                                 onClick={handleCheckout}
