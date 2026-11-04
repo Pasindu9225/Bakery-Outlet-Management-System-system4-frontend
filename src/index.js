@@ -7,6 +7,10 @@ import { applySidebarPref } from "./utils/sidebarPref";
 applySidebarPref(); // collapsed/expanded side menu, remembered per device
 import "./index.css";
 import axios from 'axios';
+import { keepLoginWhileActive } from "./utils/session";
+
+// Admin, Manager, Finance, Storekeeper: logged out after an hour without activity; others stay logged in
+keepLoginWhileActive();
 
 // Global fetch interceptor to inject JWT token
 const { fetch: originalFetch } = window;
