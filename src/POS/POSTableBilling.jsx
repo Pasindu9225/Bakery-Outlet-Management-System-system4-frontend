@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { tileColor } from "../utils/tileColors";
 import { DirectDiscountBox, LoyaltyBox, EMPTY_DIRECT, EMPTY_LOYALTY, directAmount, loyaltyRedemption, loyaltyRequest } from "../component/BillExtras";
 import EBillPayButton from "../component/EBillPayButton";
 import { sendEBill } from "../utils/eBill";
@@ -79,6 +80,8 @@ export default function POSTableBilling() {
 
     const [productionCenters, setProductionCenters] = useState([]);
     const [targetTableId, setTargetTableId] = useState('');
+    const [showTableOptions, setShowTableOptions] = useState(false);   // transfer / status / remark popup
+    const [remarkDraft, setRemarkDraft] = useState('');
     const [showCancelVerification, setShowCancelVerification] = useState(false);
     const [verificationCode, setVerificationCode] = useState('');
     const [itemToCancel, setItemToCancel] = useState(null);
@@ -192,7 +195,8 @@ export default function POSTableBilling() {
                 id: item.id,
                 name: item.tableName,
                 seats: item.seatCount,
-                status: item.status.toLowerCase()
+                status: item.status.toLowerCase(),
+                remark: item.remark || ''
             }));
             setTables(mappedData);
         } catch (error) {
@@ -717,6 +721,18 @@ export default function POSTableBilling() {
     };
 
 
+    // the table's remark: kept with the bill when the table is settled (Finance > Table Bills)
+    const saveTableRemark = async () => {
+        try {
+            await axios.put(`/api/pos/v1/table-billing/tables/${selectedTable}/remark`, { remark: remarkDraft });
+            toast.success(remarkDraft.trim() ? "Remark saved" : "Remark cleared");
+            fetchTables();
+            setShowTableOptions(false);
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to save the remark");
+        }
+    };
+
     const handleTransferTable = async () => {
         if (!selectedTable || !targetTableId) return;
         try {
@@ -850,6 +866,16 @@ export default function POSTableBilling() {
                                                 <TableProperties size={18} />
                                                 Table Selection
                                             </h3>
+                                            <div className="flex items-center gap-2">
+                                            {selectedTable && (
+                                                <button
+                                                    onClick={() => { setRemarkDraft(tables.find(t => t.id === selectedTable)?.remark || ''); setShowTableOptions(true); }}
+                                                    className="px-3 py-1.5 border border-brand-fg text-brand-fg rounded-lg hover:bg-brand/5 transition-colors text-[13px] font-[500] flex items-center gap-2"
+                                                >
+                                                    <TableProperties size={16} />
+                                                    Table Options
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() => setShowNewTableModal(true)}
                                                 className="px-3 py-1.5 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors text-[13px] font-[500] flex items-center gap-2"
@@ -857,6 +883,7 @@ export default function POSTableBilling() {
                                                 <Plus size={16} />
                                                 Add Table
                                             </button>
+                                            </div>
                                         </div>
 
                                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -888,10 +915,17 @@ export default function POSTableBilling() {
                                         </div>
                                     </div>
 
-                                    {/* Table Actions - Transfer Table */}
-                                    {selectedTable && (
-                                        <div className="bg-surface rounded-lg shadow-sm border border-line p-4">
-                                            <div className="flex flex-col sm:flex-row items-center gap-4">
+                                    {/* Table Options popup: transfer, status and the table's remark */}
+                                    {selectedTable && showTableOptions && (
+                                        <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+                                        <div className="bg-elevated rounded-lg shadow-xl w-full max-w-lg p-5">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <h3 className="text-[16px] font-[600] text-fg">Table Options - {tables.find(t => t.id === selectedTable)?.name}</h3>
+                                                <button aria-label="Close" onClick={() => setShowTableOptions(false)} className="p-1 text-fg-secondary hover:bg-subtle rounded">
+                                                    <X size={18} />
+                                                </button>
+                                            </div>
+                                            <div className="flex flex-col gap-4">
                                                 <div className="flex-1 w-full">
                                                     <label className="block text-[12px] text-fg-secondary mb-1">Transfer to Table</label>
                                                     <div className="flex gap-2">
@@ -929,7 +963,26 @@ export default function POSTableBilling() {
                                                         <option value="reserved">Reserved</option>
                                                     </select>
                                                 </div>
+                                                <div className="w-full">
+                                                    <label className="block text-[12px] text-fg-secondary mb-1">Remark</label>
+                                                    <textarea
+                                                        value={remarkDraft}
+                                                        onChange={(e) => setRemarkDraft(e.target.value)}
+                                                        maxLength={500}
+                                                        rows={3}
+                                                        placeholder="e.g. birthday party, VIP guest, bill to company..."
+                                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none resize-none"
+                                                    />
+                                                    <p className="mt-1 text-[12px] text-fg-secondary">Kept with the bill when the table is settled (Finance &gt; Table Bills).</p>
+                                                    <button
+                                                        onClick={saveTableRemark}
+                                                        className="mt-2 w-full px-4 py-2 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors text-[14px] font-[500]"
+                                                    >
+                                                        Save Remark
+                                                    </button>
+                                                </div>
                                             </div>
+                                        </div>
                                         </div>
                                     )}
 
@@ -1114,6 +1167,9 @@ export default function POSTableBilling() {
                                                         <Utensils size={18} />
                                                         Current Order - {tables.find(t => t.id === selectedTable)?.name}
                                                     </h3>
+                                                    {tables.find(t => t.id === selectedTable)?.remark && (
+                                                        <p className="text-[13px] text-fg-secondary italic break-words">Remark: {tables.find(t => t.id === selectedTable).remark}</p>
+                                                    )}
 
                                                     {currentOrder.length > 0 && (
                                                         <button
@@ -1129,9 +1185,9 @@ export default function POSTableBilling() {
 
                                                 <div className="px-2">
                                                     {currentOrder.length > 0 ? (
-                                                        <ul className="divide-y divide-line">
-                                                            {currentOrder.map((item) => (
-                                                                <li key={item.id} className={`px-2 py-3 transition-all ${highlightedItemId === item.id ? 'pulse-item bg-brand/5' : ''}`}>
+                                                        <ul className="space-y-2 p-2">
+                                                            {currentOrder.map((item, gi) => (
+                                                                <li key={item.id} className={`px-3 py-3 rounded-lg border-l-4 transition-all ${tileColor(gi).edge} ${highlightedItemId === item.id ? 'pulse-item bg-brand/5' : tileColor(gi).tint}`}>
                                                                     <div className="flex items-start justify-between gap-3">
                                                                         <div className="min-w-0">
                                                                             <p className="text-[14px] font-[500] text-fg break-words">{item.name}</p>

@@ -195,6 +195,16 @@ const REPORT_CATEGORIES = [
             { label: "Balances by Customer",   type: "byCustomer" },
         ],
     },
+    {
+        id: "tables",
+        label: "Table Bills",
+        icon: <Layers size={16} />,
+        color: "bg-brand",
+        endpoint: "sales",
+        reports: [
+            { label: "Table Bills", type: "tableBills" },
+        ],
+    },
 ];
 
 const PERIOD_OPTIONS = ["Daily", "Monthly", "Yearly", "Custom Range"];
@@ -622,6 +632,9 @@ Object.assign(DETAIL_COLUMNS, {
     returns: [["date", "Date"], ["ref", "Return"], ["supplier", "Bill"], ["employee", "Customer (phone)"], ["outlet", "Outlet"],
         ["product", "Items"], ["reason", "Reason"], ["category", "Type"], ["standard", "Returned (Rs.)", "rs"],
         ["actual", "Exchanged (Rs.)", "rs"], ["outstanding", "Paid back (Rs.)", "rs"], ["note", "Cashier"]],
+    tables: [["date", "Date"], ["ref", "Bill"], ["product", "Table"], ["outlet", "Outlet"], ["employee", "Cashier"],
+        ["sales", "Bill total (Rs.)", "rs"], ["discounts", "Discount (Rs.)", "rs"], ["net", "Paid (Rs.)", "rs"], ["reason", "Payment"],
+        ["note", "Remark"]],
     "staff:costReport": [["employee", "Staff"], ["qty", "Meals", "num"], ["sales", "Selling value (Rs.)", "rs"],
         ["totalCost", "Recipe cost (Rs.)", "rs"]],
     "profitability:byProduct": [["product", "Product"], ["category", "Category"], ...PROFIT_COLS, ["reason", "Note"]],
@@ -654,6 +667,7 @@ Object.assign(EMPTY_TEXT, {
     "credit:open": "No credit orders are waiting for payment or closing",
     "credit:creditSales": "No pay-later bills in this period",
     "credit:byCustomer": "No credit orders or pay-later bills in this period",
+    tables: "No table bills in this period",
 });
 const detailColumns = (categoryId, type) =>
     DETAIL_COLUMNS[`${categoryId}:${type}`] || DETAIL_COLUMNS[categoryId] || DETAIL_COLUMNS.production;
@@ -887,7 +901,7 @@ export default function FinanceReports() {
         setPage(1);
     };
 
-    const outletServerSide = selectedCategory.id === "sales" || selectedCategory.id === "goods" || selectedCategory.id === "returns"
+    const outletServerSide = selectedCategory.id === "sales" || selectedCategory.id === "tables" || selectedCategory.id === "goods" || selectedCategory.id === "returns"
         || (selectedCategory.id === "production" && selectedReport.type !== "rawMaterialCosts");
     const outletApplies = outletServerSide
         || (selectedCategory.id === "profitability" && selectedReport.type === "byOutlet");
@@ -1049,7 +1063,7 @@ export default function FinanceReports() {
     const isGoodsReport = selectedCategory.id === "goods";
     const isReturnsReport = selectedCategory.id === "returns";
     const useWastageShape = isWastageReport || isStaffReport || isStockReport || isPurchaseReport || isProfitReport || isVarianceReport
-        || isIouReport || isCreditReport || isGoodsReport || isReturnsReport;
+        || isIouReport || isCreditReport || isGoodsReport || isReturnsReport || selectedCategory.id === "tables";
 
     const summaryCards = useMemo(() => {
         if (isPaymentReport) {
@@ -1141,6 +1155,17 @@ export default function FinanceReports() {
                     : { label: "Over / Under", value: money(sum("variance")) },
                 { label: items ? "Items" : "IOUs", value: filtered.length },
             ].map((c, i) => ({ ...c, icon: [<Wallet size={20} />, <Banknote size={20} />, <Repeat size={20} />, <Layers size={20} />][i],
+                color: i === 0 ? "bg-brand" : i === 1 ? "bg-plum-solid" : "bg-info-solid",
+                hoverColor: i === 0 ? "hover:bg-brand-hover" : i === 1 ? "hover:bg-plum-solid" : "hover:bg-info-solid",
+                iconBg: i === 0 ? "bg-brand/30" : i === 1 ? "bg-plum/30" : "bg-info/30" }));
+        }
+        if (selectedCategory.id === "tables") {
+            return [
+                { label: "Table Bills", value: filtered.length },
+                { label: "Paid", value: money(sum("net")) },
+                { label: "Discounts", value: money(sum("discounts")) },
+                { label: "With a Remark", value: filtered.filter((r) => r.note && r.note !== "—").length },
+            ].map((c, i) => ({ ...c, icon: [<Layers size={20} />, <Banknote size={20} />, <TrendingDown size={20} />, <FileText size={20} />][i],
                 color: i === 0 ? "bg-brand" : i === 1 ? "bg-plum-solid" : "bg-info-solid",
                 hoverColor: i === 0 ? "hover:bg-brand-hover" : i === 1 ? "hover:bg-plum-solid" : "hover:bg-info-solid",
                 iconBg: i === 0 ? "bg-brand/30" : i === 1 ? "bg-plum/30" : "bg-info/30" }));
