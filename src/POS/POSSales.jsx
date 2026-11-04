@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import EBillPayButton from "../component/EBillPayButton";
 import { tileColor } from "../utils/tileColors";
 import MealDetails, { EMPTY_MEAL, mealReason } from "../component/MealDetails";
 import { isMobile, posBill, sendEBill } from "../utils/eBill";
@@ -294,6 +295,42 @@ export default function POSSales() {
         setWaiterDiscountAmount('0');
         setWaiterDiscountReason('');
         setWaiterDiscountManagerCode('');
+    };
+
+    // Waiter settlement paid and the bill sent to the customer's phone as an SMS (instead of printed)
+    const settleWaiterWithEBill = async (phone) => {
+        const discountVal = parseFloat(waiterDiscountAmount) || 0;
+        try {
+            const selectedItems = waiterDetails.unpaidItems.filter(item => selectedWaiterItemIds.includes(item.id));
+            const finished = await axios.post(`/api/pos/v1/waiter-billing/finish-billing`, {
+                waiterId: selectedWaiter.userId,
+                itemIdsToPay: selectedWaiterItemIds,
+                finalTotal: selectedSubTotal - discountVal,
+                paymentType: waiterPaymentType,
+                discountAmount: discountVal,
+                discountReason: (waiterPaymentType === 'FREE_MEAL' || waiterPaymentType === 'STAFF_MEAL') ? waiterMealReason : waiterDiscountReason,
+                manualDiscount: discountVal > 0,
+                managerCode: discountVal > 0 ? waiterDiscountManagerCode : null,
+                outletId: parseInt(localStorage.getItem("outletId") || "1"),
+                invoicePrinted: false
+            });
+            toast.success("Payment successful! Sale completed.");
+            sendEBill(phone, posBill({
+                transactionId: finished.data?.data?.billNumber,
+                items: selectedItems.map(item => ({ productName: item.productName, qty: item.quantity || item.qty, unitPrice: item.unitPrice })),
+                subTotal: selectedSubTotal,
+                discount: discountVal,
+                finalTotal: selectedSubTotal - discountVal,
+                paymentMethod: waiterPaymentType
+            }, outlet)).then((m) => toast.success(m)).catch((e) => toast.error(e.message));
+            setWaiterDiscountAmount('0');
+            setWaiterDiscountReason('');
+            setWaiterFreeMealReason('');
+            fetchWaiterDetails(selectedWaiter.userId);
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to process payment");
+        }
     };
 
     const handleTransferWaiter = async () => {
@@ -1800,6 +1837,12 @@ export default function POSSales() {
                                                                 </button>
 
                                                             </div>
+                                                            <div className="mt-3">
+                                                                <EBillPayButton
+                                                                    disabled={selectedWaiterItemIds.length === 0 || waiterFreeMealMissing}
+                                                                    onPay={settleWaiterWithEBill}
+                                                                />
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </>
@@ -2530,6 +2573,12 @@ export default function POSSales() {
                                             <Printer size={18} />
                                             Pay &amp; Print Receipt
                                         </button>
+                                    </div>
+                                    <div className="mt-3">
+                                        <EBillPayButton
+                                            disabled={!paymentMethod || ((isFreeMeal || isStaffMeal) && !mealReason(isStaffMeal ? 'staff' : 'free', meal))}
+                                            onPay={(phone) => { eBillPhoneRef.current = phone; processPayment(false); }}
+                                        />
                                     </div>
                                     <ButtonHint show={isFreeMeal && !mealReason('free', meal)}>
                                         Enter who requested the free meal and the reason to finish.

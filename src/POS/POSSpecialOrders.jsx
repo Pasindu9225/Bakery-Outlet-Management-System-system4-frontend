@@ -1532,7 +1532,7 @@ export default function POSSpecialOrders() {
                                             Manager Approval
                                         </button>
 
-                                        {Number(selectedOrder.balanceAmount) === 0 && (
+                                        {(
                                             <div className="w-full">
                                                 <EBillBox defaultPhone={selectedOrder.contactNumber || selectedOrder.customerContact} bill={orderEBill(selectedOrder, false)} />
                                             </div>

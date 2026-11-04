@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import EBillPayButton from "../component/EBillPayButton";
+import { sendEBill } from "../utils/eBill";
 import MealDetails, { EMPTY_MEAL, mealReason } from "../component/MealDetails";
 import EBillBox from "../component/EBillBox";
 import { posBill } from "../utils/eBill";
@@ -463,6 +465,7 @@ export default function POSWaiterBilling() {
     };
 
     // Process payment
+    const eBillPhoneRef = useRef(null);   // set by Pay & Send E-Bill: the bill goes to this phone once paid
     const processPayment = async () => {
         const receivedAmount = parseFloat(amountReceived) || 0;
 
@@ -541,6 +544,11 @@ export default function POSWaiterBilling() {
                 isUberOrPickMe: isUberOrPickMe
             };
             setPrintPayloadToUse(printPayload);
+            if (eBillPhoneRef.current) {
+                const phone = eBillPhoneRef.current;
+                eBillPhoneRef.current = null;
+                sendEBill(phone, posBill(printPayload, outlet)).then((m) => toast.success(m)).catch((e) => toast.error(e.message));
+            }
             setLastSaleId(saleData.saleId);
 
             // Clear dummy table orders
@@ -1377,7 +1385,7 @@ export default function POSWaiterBilling() {
                                 </button>
 
                                 <button
-                                    onClick={processPayment}
+                                    onClick={() => { eBillPhoneRef.current = null; processPayment(); }}
                                     disabled={(() => {
                                         const selectedMethodObj = paymentMethods.find(m => m.name === paymentMethod) || {};
                                         if (selectedMethodObj.category === 'STAFF_MEAL') return !mealReason('staff', meal);
@@ -1389,6 +1397,9 @@ export default function POSWaiterBilling() {
                                     <CreditCard size={16} />
                                     Process Payment
                                 </button>
+                            </div>
+                            <div className="mt-3">
+                                <EBillPayButton onPay={(phone) => { eBillPhoneRef.current = phone; processPayment(); }} />
                             </div>
 
                         </div>
