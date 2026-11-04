@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { LoyaltyBox, EMPTY_LOYALTY, loyaltyRedemption, loyaltyRequest } from "../component/BillExtras";
 import EBillPayButton from "../component/EBillPayButton";
 import { tileColor } from "../utils/tileColors";
 import MealDetails, { EMPTY_MEAL, mealReason } from "../component/MealDetails";
@@ -151,12 +152,18 @@ export default function POSSales() {
     const [selectedWaiterItemIds, setSelectedWaiterItemIds] = useState([]);
     const [targetWaiterId, setTargetWaiterId] = useState('');
     const [waiterPaymentType, setWaiterPaymentType] = useState('CASH');
-    // a free meal is recorded with its reason (staff ID / why), like every other free-meal checkout
-    const [waiterFreeMealReason, setWaiterFreeMealReason] = useState('');
-    const waiterFreeMealMissing = (waiterPaymentType === 'FREE_MEAL' && waiterFreeMealReason.trim().length < 10)
-        || (waiterPaymentType === 'STAFF_MEAL' && !waiterFreeMealReason.trim());
-    // what the bill records: a staff meal's box holds the staff ID
-    const waiterMealReason = waiterPaymentType === 'STAFF_MEAL' ? `Staff ID: ${waiterFreeMealReason.trim()}` : waiterFreeMealReason.trim();
+    // a free meal is recorded with who asked and why, a staff meal with a checked Staff ID (as at the payment popup)
+    const [waiterFreeMealReason, setWaiterFreeMealReason] = useState('');   // kept for the resets below
+    const [waiterMeal, setWaiterMeal] = useState(EMPTY_MEAL);
+    const waiterMealKind = waiterPaymentType === 'STAFF_MEAL' ? 'staff' : waiterPaymentType === 'FREE_MEAL' ? 'free' : null;
+    const waiterMealReason = waiterMealKind ? mealReason(waiterMealKind, waiterMeal) : '';
+    const waiterFreeMealMissing = !!waiterMealKind && !waiterMealReason;
+    // cash received (empty = exact), card / transfer reference, customer loyalty; More shows the other ways to pay
+    const [waiterCash, setWaiterCash] = useState('');
+    const [waiterRef, setWaiterRef] = useState('');
+    const [waiterLoyalty, setWaiterLoyalty] = useState(EMPTY_LOYALTY);
+    const [waiterMore, setWaiterMore] = useState(false);
+    const resetWaiterPay = () => { setWaiterMeal(EMPTY_MEAL); setWaiterCash(''); setWaiterRef(''); setWaiterLoyalty(EMPTY_LOYALTY); };
     const [printData, setPrintData] = useState(null);
     const [showWaiterDiscountModal, setShowWaiterDiscountModal] = useState(false);
     const [waiterDiscountAmount, setWaiterDiscountAmount] = useState('0');
@@ -181,6 +188,12 @@ export default function POSSales() {
             .filter(item => selectedWaiterItemIds.includes(item.id))
             .reduce((sum, item) => sum + (parseFloat(item.totalPrice) || 0), 0)
         : 0;
+    const waiterBillTotal = selectedSubTotal - (parseFloat(waiterDiscountAmount) || 0);
+    const waiterRedemption = loyaltyRedemption(waiterBillTotal, waiterLoyalty);   // taken off by the server
+    const waiterToPay = waiterBillTotal - waiterRedemption;
+    const waiterPayBlocked = waiterFreeMealMissing
+        || ((waiterPaymentType === 'CARD') && !waiterRef.trim())
+        || (waiterPaymentType === 'CASH' && waiterCash !== '' && !(parseFloat(waiterCash) >= waiterToPay));
 
     // Focus search input on page load
     useEffect(() => {
@@ -312,6 +325,8 @@ export default function POSSales() {
                 manualDiscount: discountVal > 0,
                 managerCode: discountVal > 0 ? waiterDiscountManagerCode : null,
                 outletId: parseInt(localStorage.getItem("outletId") || "1"),
+                paymentReference: ['CARD', 'BANK_TRANSFER'].includes(waiterPaymentType) ? waiterRef.trim() : null,
+                ...loyaltyRequest(waiterLoyalty),
                 invoicePrinted: false
             });
             toast.success("Payment successful! Sale completed.");
@@ -319,13 +334,13 @@ export default function POSSales() {
                 transactionId: finished.data?.data?.billNumber,
                 items: selectedItems.map(item => ({ productName: item.productName, qty: item.quantity || item.qty, unitPrice: item.unitPrice })),
                 subTotal: selectedSubTotal,
-                discount: discountVal,
-                finalTotal: selectedSubTotal - discountVal,
+                discount: discountVal + waiterRedemption,
+                finalTotal: selectedSubTotal - discountVal - waiterRedemption,
                 paymentMethod: waiterPaymentType
             }, outlet)).then((m) => toast.success(m)).catch((e) => toast.error(e.message));
             setWaiterDiscountAmount('0');
             setWaiterDiscountReason('');
-            setWaiterFreeMealReason('');
+            setWaiterFreeMealReason(''); resetWaiterPay();
             fetchWaiterDetails(selectedWaiter.userId);
         } catch (e) {
             console.error(e);
@@ -1629,9 +1644,9 @@ export default function POSSales() {
                                                                             : billKey === "UNGROUPED" ? "Separate Items" : billKey;
 
                                                                         return (
-                                                                            <div key={billKey} className="border border-line rounded-xl bg-surface shadow-sm overflow-hidden">
-                                                                                {/* Bill Header */}
-                                                                                <div className="flex items-center justify-between border-b border-line p-3 bg-subtle">
+                                                                            <div key={billKey} className={`border border-line border-l-4 ${tileColor(index).edge} rounded-xl bg-surface shadow-sm overflow-hidden`}>
+                                                                                {/* Bill Header: its own colour, so each bill stands apart */}
+                                                                                <div className={`flex items-center justify-between border-b border-line p-3 ${tileColor(index).tint}`}>
                                                                                     <label className="flex items-center gap-2 cursor-pointer font-[600] text-fg text-[14px]">
                                                                                         <input
                                                                                             type="checkbox"
@@ -1651,15 +1666,15 @@ export default function POSSales() {
                                                                                     <span className="text-[14px] font-[700] text-brand-fg">Rs. {billSubTotal.toLocaleString()}</span>
                                                                                 </div>
 
-                                                                                {/* Bill Items */}
-                                                                                <div className="space-y-1.5 p-2 bg-surface">
+                                                                                {/* Bill Items: indented under their bill */}
+                                                                                <div className="space-y-1.5 py-2 pr-2 pl-6 bg-surface">
                                                                                     {items.map(item => {
                                                                                         const isChecked = selectedWaiterItemIds.includes(item.id);
                                                                                         return (
                                                                                             <div
                                                                                                 key={item.id}
                                                                                                 role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => toggleWaiterItemSelection(item.id)}
-                                                                                                className={`flex justify-between p-2.5 rounded-lg items-center cursor-pointer transition-colors border ${isChecked ? 'bg-brand/5 border-brand-fg' : 'bg-subtle border-transparent hover:border-line'
+                                                                                                className={`flex justify-between p-2.5 rounded-lg items-center cursor-pointer transition-colors border ${isChecked ? 'bg-brand/5 border-brand-fg' : 'bg-surface border-line hover:border-brand-fg/30'
                                                                                                     }`}
                                                                                             >
                                                                                                 <div className="flex items-center gap-2.5">
@@ -1700,51 +1715,80 @@ export default function POSSales() {
                                                                         <span>- Rs. {parseFloat(waiterDiscountAmount).toLocaleString()}</span>
                                                                     </div>
                                                                 )}
+                                                                {waiterRedemption > 0 && (
+                                                                    <div className="flex justify-between text-[14px] text-success font-[500]">
+                                                                        <span>Loyalty points:</span>
+                                                                        <span>- Rs. {waiterRedemption.toLocaleString()}</span>
+                                                                    </div>
+                                                                )}
                                                                 <div className="flex justify-between text-[18px] font-[600] text-fg border-t border-dashed pt-1">
                                                                     <span>Total Selected:</span>
-                                                                    <span className="text-error">Rs. {(selectedSubTotal - (parseFloat(waiterDiscountAmount) || 0)).toLocaleString()}</span>
+                                                                    <span className="text-error">Rs. {waiterToPay.toLocaleString()}</span>
                                                                 </div>
                                                             </div>
-                                                            <div className="flex items-center justify-between gap-3 mb-4">
-                                                                <div className="flex items-center gap-3">
-                                                                    <span className="text-sm font-[500] text-fg">Pay Type:</span>
-                                                                    <select
-                                                                        value={waiterPaymentType}
-                                                                        onChange={(e) => setWaiterPaymentType(e.target.value)}
-                                                                        className="px-3 py-1.5 border border-line rounded-lg text-sm bg-surface"
-                                                                    >
-                                                                        <option value="CASH">Cash</option>
-                                                                        <option value="CARD">Card</option>
-                                                                        <option value="BANK_TRANSFER">Bank Transfer</option>
-                                                                        <option value="FREE_MEAL">Free Meal</option>
-                                                                        <option value="STAFF_MEAL">Staff Meal</option>
-                                                                    </select>
-                                                                </div>
-                                                                <button
-                                                                    onClick={() => setShowWaiterDiscountModal(true)}
-                                                                    className="px-3 py-1.5 bg-hover text-brand-fg hover:bg-line border border-brand/20 rounded-lg text-sm font-[500] transition-colors"
-                                                                >
-                                                                    Discount
+                                                            {/* how the bill is paid: Cash / Card, the rest under More */}
+                                                            <div className="grid grid-cols-3 gap-2 mb-3">
+                                                                <button type="button" onClick={() => setWaiterPaymentType('CASH')}
+                                                                        className={`px-3 py-2 rounded-lg border text-[13px] font-[500] flex items-center justify-center gap-1.5 ${waiterPaymentType === 'CASH' ? 'border-brand-fg bg-brand/10 text-brand-fg' : 'border-line hover:bg-subtle'}`}><Banknote size={14} /> Cash</button>
+                                                                <button type="button" onClick={() => setWaiterPaymentType('CARD')}
+                                                                        className={`px-3 py-2 rounded-lg border text-[13px] font-[500] flex items-center justify-center gap-1.5 ${waiterPaymentType === 'CARD' ? 'border-brand-fg bg-brand/10 text-brand-fg' : 'border-line hover:bg-subtle'}`}><CreditCard size={14} /> Card</button>
+                                                                <button type="button" onClick={() => setWaiterMore(m => !m)}
+                                                                    className={`px-3 py-2 rounded-lg border text-[13px] font-[500] flex items-center justify-center gap-1.5 ${waiterMore ? 'border-brand-fg text-brand-fg' : 'border-line hover:bg-subtle'}`}>
+                                                                    <MoreHorizontal size={14} /> More
                                                                 </button>
                                                             </div>
-                                                            {(waiterPaymentType === 'FREE_MEAL' || waiterPaymentType === 'STAFF_MEAL') && (
+                                                            {(waiterMore || !['CASH', 'CARD'].includes(waiterPaymentType)) && (
+                                                                <div className="mb-3 space-y-3 p-3 border border-dashed border-line rounded-lg">
+                                                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                                        <button type="button" onClick={() => setWaiterPaymentType('BANK_TRANSFER')}
+                                                                        className={`px-3 py-2 rounded-lg border text-[13px] font-[500] flex items-center justify-center gap-1.5 ${waiterPaymentType === 'BANK_TRANSFER' ? 'border-brand-fg bg-brand/10 text-brand-fg' : 'border-line hover:bg-subtle'}`}>Bank Transfer</button>
+                                                                        <button type="button" onClick={() => setWaiterPaymentType('PICKME')}
+                                                                        className={`px-3 py-2 rounded-lg border text-[13px] font-[500] flex items-center justify-center gap-1.5 ${waiterPaymentType === 'PICKME' ? 'border-brand-fg bg-brand/10 text-brand-fg' : 'border-line hover:bg-subtle'}`}><DeliveryAppLogo app="PICKME" /> PickMe</button>
+                                                                        <button type="button" onClick={() => setWaiterPaymentType('UBER')}
+                                                                        className={`px-3 py-2 rounded-lg border text-[13px] font-[500] flex items-center justify-center gap-1.5 ${waiterPaymentType === 'UBER' ? 'border-brand-fg bg-brand/10 text-brand-fg' : 'border-line hover:bg-subtle'}`}><DeliveryAppLogo app="UBER" /> Uber</button>
+                                                                        <button type="button" onClick={() => setWaiterPaymentType('STAFF_MEAL')}
+                                                                        className={`px-3 py-2 rounded-lg border text-[13px] font-[500] flex items-center justify-center gap-1.5 ${waiterPaymentType === 'STAFF_MEAL' ? 'border-brand-fg bg-brand/10 text-brand-fg' : 'border-line hover:bg-subtle'}`}>Staff Meal</button>
+                                                                        <button type="button" onClick={() => setWaiterPaymentType('FREE_MEAL')}
+                                                                        className={`px-3 py-2 rounded-lg border text-[13px] font-[500] flex items-center justify-center gap-1.5 ${waiterPaymentType === 'FREE_MEAL' ? 'border-brand-fg bg-brand/10 text-brand-fg' : 'border-line hover:bg-subtle'}`}>Free Meal</button>
+                                                                        <button type="button" onClick={() => setShowWaiterDiscountModal(true)}
+                                                                            className="px-3 py-2 rounded-lg border border-brand/20 bg-hover text-brand-fg text-[13px] font-[500]">Discount</button>
+                                                                    </div>
+                                                                    <LoyaltyBox payable={waiterBillTotal} value={waiterLoyalty} onChange={setWaiterLoyalty} />
+                                                                </div>
+                                                            )}
+                                                            {waiterPaymentType === 'CASH' && (
                                                                 <div className="mb-3">
-                                                                    <label className="block text-[13px] font-[500] text-fg mb-1">{waiterPaymentType === 'STAFF_MEAL' ? 'Staff ID *' : 'Reason for Free Meal *'}</label>
-                                                                    <input
-                                                                        type="text"
-                                                                        value={waiterFreeMealReason}
-                                                                        onChange={(e) => setWaiterFreeMealReason(e.target.value)}
-                                                                        placeholder={waiterPaymentType === 'STAFF_MEAL' ? 'Enter staff ID' : 'Reason (minimum 10 characters)'}
-                                                                        className={`w-full px-3 py-2 border rounded-lg text-[14px] focus:border-brand-fg focus:outline-none ${waiterFreeMealMissing ? 'border-warning' : 'border-line'}`}
-                                                                    />
-                                                                    {waiterFreeMealMissing && (
-                                                                        <p className="text-[12px] text-warning mt-1">{waiterPaymentType === 'STAFF_MEAL' ? 'Enter the staff ID to finish.' : 'Enter the reason (at least 10 characters) to finish.'}</p>
+                                                                    <label className="block text-[13px] font-[500] text-fg mb-1">Cash Received</label>
+                                                                    <CashQuickButtons total={waiterToPay} selected={waiterCash} onPick={setWaiterCash} />
+                                                                    <input type="number" min="0" value={waiterCash} onChange={(e) => setWaiterCash(e.target.value)}
+                                                                        placeholder={`Exact: Rs. ${waiterToPay.toLocaleString()}`}
+                                                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none" />
+                                                                    {waiterCash !== '' && parseFloat(waiterCash) >= waiterToPay && (
+                                                                        <div className="mt-2 p-2 bg-hover rounded-lg">
+                                                                            <p className="text-[14px] text-error font-[700]">Change: Rs. {(parseFloat(waiterCash) - waiterToPay).toLocaleString()}</p>
+                                                                        </div>
                                                                     )}
+                                                                    {waiterCash !== '' && !(parseFloat(waiterCash) >= waiterToPay) && (
+                                                                        <p className="text-[12px] text-warning mt-1">Cash received is less than the total.</p>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                            {['CARD', 'BANK_TRANSFER'].includes(waiterPaymentType) && (
+                                                                <div className="mb-3">
+                                                                    <label className="block text-[13px] font-[500] text-fg mb-1">{waiterPaymentType === 'CARD' ? 'Card transaction reference *' : 'Bank transfer reference'}</label>
+                                                                    <input type="text" value={waiterRef} onChange={(e) => setWaiterRef(e.target.value)}
+                                                                        placeholder={waiterPaymentType === 'CARD' ? 'Enter card transaction reference' : 'Reference (optional)'}
+                                                                        className={`w-full px-3 py-2 border rounded-lg text-[14px] focus:border-brand-fg focus:outline-none ${waiterPaymentType === 'CARD' && !waiterRef.trim() ? 'border-warning' : 'border-line'}`} />
+                                                                </div>
+                                                            )}
+                                                            {waiterMealKind && (
+                                                                <div className="mb-3">
+                                                                    <MealDetails kind={waiterMealKind} value={waiterMeal} onChange={setWaiterMeal} />
                                                                 </div>
                                                             )}
                                                             <div className="grid grid-cols-2 gap-3 mt-3">
                                                                 <button
-                                                                    disabled={selectedWaiterItemIds.length === 0 || waiterFreeMealMissing}
+                                                                    disabled={selectedWaiterItemIds.length === 0 || waiterPayBlocked}
                                                                     onClick={async () => {
                                                                         const discountVal = parseFloat(waiterDiscountAmount) || 0;
                                                                         if (await confirmDialog(`Process payment and complete sale (without printing) for the ${selectedWaiterItemIds.length} selected items?`, { confirmText: "Process payment" })) {
@@ -1759,6 +1803,8 @@ export default function POSSales() {
                                                                                     manualDiscount: discountVal > 0,
                                                                                     managerCode: discountVal > 0 ? waiterDiscountManagerCode : null,
                                                                                     outletId: parseInt(localStorage.getItem("outletId") || "1"),
+                paymentReference: ['CARD', 'BANK_TRANSFER'].includes(waiterPaymentType) ? waiterRef.trim() : null,
+                ...loyaltyRequest(waiterLoyalty),
                                                                                     invoicePrinted: false
                                                                                 };
                                                                                 await axios.post(`/api/pos/v1/waiter-billing/finish-billing`, payload);
@@ -1766,7 +1812,7 @@ export default function POSSales() {
                                                                                 toast.success("Payment successful! Sale completed.");
                                                                                 setWaiterDiscountAmount('0');
                                                                                 setWaiterDiscountReason('');
-                                                                                setWaiterFreeMealReason('');
+                                                                                setWaiterFreeMealReason(''); resetWaiterPay();
                                                                                 fetchWaiterDetails(selectedWaiter.userId);
                                                                             } catch (e) {
                                                                                 console.error(e);
@@ -1779,7 +1825,7 @@ export default function POSSales() {
                                                                     Pay without Receipt
                                                                 </button>
                                                                 <button
-                                                                    disabled={selectedWaiterItemIds.length === 0 || waiterFreeMealMissing}
+                                                                    disabled={selectedWaiterItemIds.length === 0 || waiterPayBlocked}
                                                                     onClick={async () => {
                                                                         const discountVal = parseFloat(waiterDiscountAmount) || 0;
                                                                         if (await confirmDialog(`Process payment and print invoice for the ${selectedWaiterItemIds.length} selected items?`, { confirmText: "Process payment" })) {
@@ -1795,6 +1841,8 @@ export default function POSSales() {
                                                                                     manualDiscount: discountVal > 0,
                                                                                     managerCode: discountVal > 0 ? waiterDiscountManagerCode : null,
                                                                                     outletId: parseInt(localStorage.getItem("outletId") || "1"),
+                paymentReference: ['CARD', 'BANK_TRANSFER'].includes(waiterPaymentType) ? waiterRef.trim() : null,
+                ...loyaltyRequest(waiterLoyalty),
                                                                                     invoicePrinted: true
                                                                                 };
                                                                                 const finished = await axios.post(`/api/pos/v1/waiter-billing/finish-billing`, payload);
@@ -1810,8 +1858,8 @@ export default function POSSales() {
                                                                                         unitPrice: item.unitPrice
                                                                                     })),
                                                                                     subTotal: selectedSubTotal,
-                                                                                    discount: discountVal,
-                                                                                    finalTotal: selectedSubTotal - discountVal,
+                                                                                    discount: discountVal + waiterRedemption,
+                                                                                    finalTotal: selectedSubTotal - discountVal - waiterRedemption,
                                                                                     paymentMethod: waiterPaymentType
                                                                                 };
                                                                                 setPrintData(printPayload);
@@ -1823,7 +1871,7 @@ export default function POSSales() {
                                                                                 toast.success("Payment successful! Actual invoice printed.");
                                                                                 setWaiterDiscountAmount('0');
                                                                                 setWaiterDiscountReason('');
-                                                                                setWaiterFreeMealReason('');
+                                                                                setWaiterFreeMealReason(''); resetWaiterPay();
                                                                                 fetchWaiterDetails(selectedWaiter.userId);
                                                                             } catch (e) {
                                                                                 console.error(e);
@@ -1839,7 +1887,7 @@ export default function POSSales() {
                                                             </div>
                                                             <div className="mt-3">
                                                                 <EBillPayButton
-                                                                    disabled={selectedWaiterItemIds.length === 0 || waiterFreeMealMissing}
+                                                                    disabled={selectedWaiterItemIds.length === 0 || waiterPayBlocked}
                                                                     onPay={settleWaiterWithEBill}
                                                                 />
                                                             </div>
