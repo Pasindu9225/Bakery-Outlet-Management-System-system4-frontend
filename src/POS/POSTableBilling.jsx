@@ -220,7 +220,6 @@ export default function POSTableBilling() {
     // Payment States
     const [showBillModal, setShowBillModal] = useState(false);
     const [amountReceived, setAmountReceived] = useState('');
-    // tax % the cashier types on the bill; the server charges and records it
     // split payment: one bill over several methods (e.g. cash + card)
     const [splitMode, setSplitMode] = useState(false);
     const [splitParts, setSplitParts] = useState([]);
