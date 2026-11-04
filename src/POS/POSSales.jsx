@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { DeliveryAppLogo, deliveryAppOf } from "../component/AppLogos";
 import { onEnterClick } from "../utils/a11y";
 import { friendlyError } from "../utils/friendlyError";
 import ButtonHint from "../component/ButtonHint.jsx";
@@ -2028,7 +2029,9 @@ export default function POSSales() {
                                                                             : 'border-line hover:border-brand-fg/30'
                                                                             }`}
                                                                     >
-                                                                        <Icon size={16} className={config.color} />
+                                                                        {deliveryAppOf(method.name)
+                                                                            ? <DeliveryAppLogo app={deliveryAppOf(method.name)} />
+                                                                            : <Icon size={16} className={config.color} />}
                                                                         <span className="text-[14px]">{method.name}</span>
                                                                     </button>
                                                                 );

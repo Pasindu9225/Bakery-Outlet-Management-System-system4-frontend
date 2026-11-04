@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { DeliveryAppLogo, deliveryAppOf } from "../component/AppLogos";
 import { friendlyError } from "../utils/friendlyError";
 import toast from "react-hot-toast";
 import {
@@ -1299,18 +1300,24 @@ export default function POSWaiterBilling() {
                             <div className="space-y-4 mb-6">
                                 <div>
                                     <label className="block text-[14px] font-[500] text-fg mb-2">Payment Method</label>
-                                    <select
-                                        value={paymentMethod}
-                                        onChange={(e) => setPaymentMethod(e.target.value)}
-                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
-                                    >
-                                        {paymentMethods.map(method => (
-                                            <option key={method.paymentMethodId} value={method.name}>
-                                                {method.name}
-                                            </option>
-                                        ))}
-
-                                    </select>
+                                    <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Payment Method">
+                                        {paymentMethods.map(method => {
+                                            const selected = (paymentMethod || '').toUpperCase() === method.name.toUpperCase();
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    role="radio"
+                                                    aria-checked={selected}
+                                                    key={method.paymentMethodId}
+                                                    onClick={() => setPaymentMethod(method.name)}
+                                                    className={`px-3 py-2 border rounded-lg text-[14px] text-left flex items-center gap-2 transition-colors ${selected ? 'border-brand-fg bg-brand/5 font-[500]' : 'border-line hover:border-brand-fg/30'}`}
+                                                >
+                                                    {deliveryAppOf(method.name) && <DeliveryAppLogo app={deliveryAppOf(method.name)} />}
+                                                    <span className="truncate">{method.name}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
 
                                 {(() => {

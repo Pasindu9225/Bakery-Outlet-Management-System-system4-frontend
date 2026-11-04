@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { DeliveryAppLogo } from "../component/AppLogos";
 import { friendlyError } from "../utils/friendlyError";
 import ButtonHint from "../component/ButtonHint.jsx";
 import {
@@ -9,7 +10,7 @@ import {
     AlertCircle,
     CheckCircle,
     Package,
-    TrendingUp,
+    
     Clock,
     FileText,
     Printer,
@@ -826,7 +827,7 @@ export default function POSDayEnd() {
                         <div className="p-4 bg-subtle rounded-lg border border-line">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                    <TrendingUp className="text-plum" size={24} />
+                                    <span className="flex items-center gap-1"><DeliveryAppLogo app="PICKME" size={18} /><DeliveryAppLogo app="UBER" size={18} /></span>
                                     <h4 className="text-[16px] font-[600] text-fg">PickMe / Uber Total</h4>
                                 </div>
                                 <span className="text-[12px] font-[600] text-plum bg-plum/10 px-2.5 py-1 rounded border border-plum/30">
@@ -1225,7 +1226,7 @@ export default function POSDayEnd() {
                                 </tr>
                                 {/* PickMe/Uber */}
                                 <tr>
-                                    <td className="py-3 px-4 text-[14px] text-fg font-[500]">PickMe / Uber</td>
+                                    <td className="py-3 px-4 text-[14px] text-fg font-[500]"><span className="inline-flex items-center gap-1.5"><DeliveryAppLogo app="PICKME" size={14} /><DeliveryAppLogo app="UBER" size={14} /> PickMe / Uber</span></td>
                                     <td className="py-3 px-4 text-[14px] text-fg-secondary text-right">
                                         Rs. {((dayEndSummary?.expectedUber || 0) + (dayEndSummary?.expectedPickme || 0)).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </td>
