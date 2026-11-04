@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import MealDetails, { EMPTY_MEAL, mealReason } from "../component/MealDetails";
 import EBillBox from "../component/EBillBox";
 import { posBill } from "../utils/eBill";
 import { DeliveryAppLogo, deliveryAppOf } from "../component/AppLogos";
@@ -225,6 +226,7 @@ export default function POSTableBilling() {
     const [freeMealReason, setFreeMealReason] = useState('');
     const [staffId, setStaffId] = useState('');
     const [staffReason, setStaffReason] = useState('');
+    const [meal, setMeal] = useState(EMPTY_MEAL);   // staff meal: checked Staff ID; free meal: requested by + reason
     const [paymentMethod, setPaymentMethod] = useState('');
     const [showKOTModal, setShowKOTModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -555,14 +557,14 @@ export default function POSTableBilling() {
             return;
         }
 
-        const effectiveReason = isStaffMeal ? (freeMealReason.trim() ? `Staff ID: ${freeMealReason.trim()}` : '') : freeMealReason.trim() || (staffId.trim() ? `Staff ID: ${staffId.trim()}${staffReason.trim() ? ` - ${staffReason.trim()}` : ''}` : '');
+        const effectiveReason = mealReason(isStaffMeal ? 'staff' : isFreeMeal ? 'free' : null, meal);
 
         if (isStaffMeal && !effectiveReason) {
-            toast.error('Enter the staff ID');
+            toast.error('Enter a valid Staff ID and press Check');
             return;
         }
-        if (isFreeMeal && effectiveReason.length < 10) {
-            toast.error('Please enter a valid staff ID or reason (minimum 10 characters)');
+        if (isFreeMeal && !effectiveReason) {
+            toast.error('Enter who requested the free meal and the reason');
             return;
         }
         try {
@@ -646,7 +648,7 @@ export default function POSTableBilling() {
             setSplitCashGiven('');
             setFreeMealReason('');
             setStaffId('');
-            setStaffReason('');
+            setStaffReason(''); setMeal(EMPTY_MEAL);
             setPaymentMethod(defaultPaymentMethodName(paymentMethods));
             setShowBillModal(false);
             setShowSuccessModal(true);
@@ -1536,19 +1538,7 @@ export default function POSTableBilling() {
                                     return (
                                         <>
                                             {isFreeMeal ? (
-                                                <div>
-                                                    <label className="block text-[14px] font-[500] text-fg mb-2">{isStaffMeal ? 'Staff ID *' : 'Reason for Free Meal *'}</label>
-                                                    <textarea
-                                                        placeholder={isStaffMeal ? 'Enter staff ID' : 'Please specify the reason (minimum 10 characters)'}
-                                                        value={freeMealReason}
-                                                        onChange={(e) => setFreeMealReason(e.target.value)}
-                                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none resize-none"
-                                                        rows="3"
-                                                    />
-                                                    <div className="mt-2 p-2 bg-subtle border border-brand-fg rounded-lg text-[13px] text-brand-fg">
-                                                        {isStaffMeal ? 'Staff Meal' : 'Free Meal'}: No charge for this transaction.
-                                                    </div>
-                                                </div>
+                                                <MealDetails kind={isStaffMeal ? 'staff' : 'free'} value={meal} onChange={setMeal} />
                                             ) : (
                                                 <>
                                                     <div>
@@ -1599,9 +1589,9 @@ export default function POSTableBilling() {
                                     disabled={(() => {
                                         if (splitMode) return false;   // checked when pressed
                                         const selectedMethodObj = paymentMethods.find(m => m.name === paymentMethod) || {};
-                                        if (selectedMethodObj.category === 'STAFF_MEAL') return !freeMealReason.trim();
+                                        if (selectedMethodObj.category === 'STAFF_MEAL') return !mealReason('staff', meal);
                                         const isFreeMeal = selectedMethodObj.category === 'FREE_MEAL';
-                                        return isFreeMeal ? freeMealReason.trim().length < 10 : (!amountReceived || parseFloat(amountReceived) < totalPayable);
+                                        return isFreeMeal ? !mealReason('free', meal) : (!amountReceived || parseFloat(amountReceived) < totalPayable);
                                     })()}
                                     className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 w-full"
                                 >

@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { tileColor } from "../utils/tileColors";
+import MealDetails, { EMPTY_MEAL, mealReason } from "../component/MealDetails";
 import { isMobile, posBill, sendEBill } from "../utils/eBill";
 import { DeliveryAppLogo, deliveryAppOf } from "../component/AppLogos";
 import { onEnterClick } from "../utils/a11y";
@@ -82,6 +84,7 @@ export default function POSSales() {
     const [freeMealReason, setFreeMealReason] = useState('');
     const [staffId, setStaffId] = useState('');
     const [staffReason, setStaffReason] = useState('');
+    const [meal, setMeal] = useState(EMPTY_MEAL);   // staff meal: checked Staff ID; free meal: requested by + reason
     const [deliveryOption, setDeliveryOption] = useState(null);
 
     // Customer Loyalty States
@@ -945,16 +948,15 @@ export default function POSSales() {
             return;
         }
 
-        const staffMealReason = staffId.trim() ? `Staff ID: ${staffId.trim()}${staffReason.trim() ? ` - ${staffReason.trim()}` : ''}` : '';
-        const effectiveReason = isStaffMeal ? staffMealReason : freeMealReason.trim() || (staffId.trim() ? `Staff ID: ${staffId.trim()}${staffReason.trim() ? ` - ${staffReason.trim()}` : ''}` : '');
+        const effectiveReason = mealReason(isStaffMeal ? 'staff' : isFreeMeal ? 'free' : null, meal);
 
-        if (isFreeMeal && effectiveReason.length < 10) {
-            toast.error('Please enter a valid staff ID or reason (minimum 10 characters)');
+        if (isFreeMeal && !effectiveReason) {
+            toast.error('Enter who requested the free meal and the reason');
             return;
         }
 
-        if (isStaffMeal && !staffId.trim()) {
-            toast.error('Please enter valid staff ID');
+        if (isStaffMeal && !effectiveReason) {
+            toast.error('Enter a valid Staff ID and press Check');
             return;
         }
 
@@ -1104,7 +1106,7 @@ export default function POSSales() {
         setBankRef('');
         setFreeMealReason('');
         setStaffId('');
-        setStaffReason('');
+        setStaffReason(''); setMeal(EMPTY_MEAL);
         setDeliveryOption(null);
         setDirectValue('');
         setDirectManagerCode('');
@@ -1287,15 +1289,32 @@ export default function POSSales() {
                             <div className="mb-4">
                                 <div className="flex items-center justify-between gap-3 mb-3">
                                     <h2 className="text-[20px] font-[600] text-fg">Product Selection</h2>
-                                    <div className="flex items-center gap-1">
-                                    <button
-                                        onClick={() => setShowWaiterPanel(true)}
-                                        className="flex items-center gap-2 px-3 py-2 bg-subtle border border-line rounded-lg text-[13px] font-[500] text-fg hover:bg-line"
-                                    >
-                                        <Users size={16} className="text-brand-fg" />
-                                        Waiter Billing
-                                        {selectedWaiter && <span className="text-brand-fg">({selectedWaiter.name})</span>}
-                                    </button>
+                                    <div className="flex flex-wrap items-center justify-end gap-1">
+                                    {/* every waiter is a button: tap one to select them and open their settlement */}
+                                    {waiters.length > 0 ? waiters.map(w => (
+                                        <button
+                                            key={w.userId}
+                                            onClick={() => {
+                                                if (selectedWaiter?.userId !== w.userId) handleWaiterClick(w);
+                                                setShowWaiterPanel(true);
+                                            }}
+                                            title={`Settle ${w.name}'s bill`}
+                                            className={`flex items-center gap-1.5 px-3 py-2 border rounded-lg text-[13px] font-[500] ${selectedWaiter?.userId === w.userId
+                                                ? 'border-brand-fg bg-brand/10 text-brand-fg'
+                                                : 'bg-subtle border-line text-fg hover:bg-line'}`}
+                                        >
+                                            <Users size={14} className="text-brand-fg" />
+                                            {w.name}
+                                        </button>
+                                    )) : (
+                                        <button
+                                            onClick={() => setShowWaiterPanel(true)}
+                                            className="flex items-center gap-2 px-3 py-2 bg-subtle border border-line rounded-lg text-[13px] font-[500] text-fg hover:bg-line"
+                                        >
+                                            <Users size={16} className="text-brand-fg" />
+                                            Waiter Billing
+                                        </button>
+                                    )}
                                     {selectedWaiter && (
                                         <button aria-label="Unselect waiter" title="Unselect waiter" onClick={clearWaiter}
                                             className="p-2 border border-line rounded-lg text-fg-secondary hover:bg-line">
@@ -1389,13 +1408,13 @@ export default function POSSales() {
                                         Search Results ({searchResults.length})
                                     </h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                        {searchResults.map((product) => (
+                                        {searchResults.map((product, index) => (
                                             <div
                                                 key={product.id}
                                                 role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => openQtyModal(product)}
-                                                className={`p-3 rounded-lg cursor-pointer transition-colors border-l-4 border-brand-fg ${searchResults.indexOf(product) === highlightedSearchIndex
+                                                className={`p-3 rounded-lg cursor-pointer transition-colors border-l-4 ${tileColor(index).edge} ${searchResults.indexOf(product) === highlightedSearchIndex
                                                     ? 'bg-brand/10 ring-1 ring-brand-fg'
-                                                    : 'bg-subtle hover:bg-line'
+                                                    : `${tileColor(index).tint} hover:bg-line`
                                                     }`}
                                             >
                                                 <div className="flex justify-between items-start">
@@ -1433,11 +1452,11 @@ export default function POSSales() {
                                     {selectedCategory === 'all' ? 'All Items' : 'Fast Moving Products'}
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                    {defaultViewProducts.map((product) => (
+                                    {defaultViewProducts.map((product, index) => (
                                         <div
                                             key={product.id}
                                             role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => openQtyModal(product)}
-                                            className="p-4 bg-subtle rounded-lg cursor-pointer hover:bg-line transition-all hover:shadow-sm border"
+                                            className={`p-4 ${tileColor(index).tint} rounded-lg cursor-pointer hover:bg-line transition-all hover:shadow-sm border border-l-4 ${tileColor(index).edge}`}
                                         >
                                             <div className="flex justify-between items-start mb-2">
                                                 <h4 className="text-[14px] font-[500] text-fg leading-tight">{product.name}</h4>
@@ -2096,7 +2115,7 @@ export default function POSSales() {
                                                                             setDeliveryOption(channelFromMethod(method.name));
                                                                             setFreeMealReason('');
                                                                             setStaffId('');
-                                                                            setStaffReason('');
+                                                                            setStaffReason(''); setMeal(EMPTY_MEAL);
                                                                         }}
                                                                         className={`p-3 border rounded-lg text-left transition-colors flex items-center gap-3 ${paymentMethodId === method.paymentMethodId
                                                                             ? 'border-brand-fg bg-brand/5'
@@ -2182,44 +2201,9 @@ export default function POSSales() {
                                                     </div>
                                                 )}
 
-                                                {isFreeMeal && (
+                                                {(isFreeMeal || isStaffMeal) && (
                                                     <div className="mb-6">
-                                                        <label className="block text-[14px] font-[500] text-fg mb-2">Reason for Free Meal *</label>
-                                                        <textarea
-                                                            placeholder="Please specify the reason (minimum 10 characters)"
-                                                            value={freeMealReason}
-                                                            onChange={(e) => setFreeMealReason(e.target.value)}
-                                                            className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none resize-none"
-                                                            rows="3"
-                                                        />
-                                                        <div className="mt-2 p-2 bg-subtle border border-brand-fg rounded-lg text-[13px] text-brand-fg">
-                                                            Free Meal: No charge for this transaction.
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {isStaffMeal && (
-                                                    <div className="mb-6 space-y-3">
-                                                        <div>
-                                                            <label className="block text-[14px] font-[500] text-fg mb-2">Staff ID *</label>
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Enter staff ID"
-                                                                value={staffId}
-                                                                onChange={(e) => setStaffId(e.target.value)}
-                                                                className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-[14px] font-[500] text-fg mb-2">Reason (Optional)</label>
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Optional reason"
-                                                                value={staffReason}
-                                                                onChange={(e) => setStaffReason(e.target.value)}
-                                                                className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
-                                                            />
-                                                        </div>
+                                                        <MealDetails kind={isStaffMeal ? 'staff' : 'free'} value={meal} onChange={setMeal} />
                                                     </div>
                                                 )}
 
@@ -2532,7 +2516,7 @@ export default function POSSales() {
                                         </button>
                                         <button
                                             onClick={() => processPayment(false)}
-                                            disabled={!paymentMethod || (isFreeMeal && freeMealReason.trim().length < 10) || (isStaffMeal && !staffId.trim())}
+                                            disabled={!paymentMethod || ((isFreeMeal || isStaffMeal) && !mealReason(isStaffMeal ? 'staff' : 'free', meal))}
                                             className="flex-1 px-4 py-3 border border-line-strong bg-surface text-fg rounded-lg hover:bg-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-[500]"
                                         >
                                             <Receipt size={16} />
@@ -2540,18 +2524,18 @@ export default function POSSales() {
                                         </button>
                                         <button
                                             onClick={() => processPayment(true)}
-                                            disabled={!paymentMethod || (isFreeMeal && freeMealReason.trim().length < 10) || (isStaffMeal && !staffId.trim())}
+                                            disabled={!paymentMethod || ((isFreeMeal || isStaffMeal) && !mealReason(isStaffMeal ? 'staff' : 'free', meal))}
                                             className="flex-1 px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:bg-line disabled:text-fg-secondary flex items-center justify-center gap-2 font-[600] text-[16px]"
                                         >
                                             <Printer size={18} />
                                             Pay &amp; Print Receipt
                                         </button>
                                     </div>
-                                    <ButtonHint show={isFreeMeal && freeMealReason.trim().length < 10}>
-                                        Enter the free-meal reason (at least 10 characters) to finish.
+                                    <ButtonHint show={isFreeMeal && !mealReason('free', meal)}>
+                                        Enter who requested the free meal and the reason to finish.
                                     </ButtonHint>
-                                    <ButtonHint show={isStaffMeal && !staffId.trim()}>
-                                        Enter the staff ID to finish.
+                                    <ButtonHint show={isStaffMeal && !mealReason('staff', meal)}>
+                                        Enter a valid Staff ID and press Check to finish.
                                     </ButtonHint>
 
                                 </div>
