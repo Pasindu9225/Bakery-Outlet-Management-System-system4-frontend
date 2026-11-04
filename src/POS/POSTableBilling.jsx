@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { DirectDiscountBox, LoyaltyBox, EMPTY_DIRECT, EMPTY_LOYALTY, directAmount, loyaltyRedemption, loyaltyRequest } from "../component/BillExtras";
 import EBillPayButton from "../component/EBillPayButton";
 import { sendEBill } from "../utils/eBill";
 import MealDetails, { EMPTY_MEAL, mealReason } from "../component/MealDetails";
@@ -220,7 +221,6 @@ export default function POSTableBilling() {
     const [showBillModal, setShowBillModal] = useState(false);
     const [amountReceived, setAmountReceived] = useState('');
     // tax % the cashier types on the bill; the server charges and records it
-    const [taxRate, setTaxRate] = useState('0');
     // split payment: one bill over several methods (e.g. cash + card)
     const [splitMode, setSplitMode] = useState(false);
     const [splitParts, setSplitParts] = useState([]);
@@ -228,7 +228,9 @@ export default function POSTableBilling() {
     const [freeMealReason, setFreeMealReason] = useState('');
     const [staffId, setStaffId] = useState('');
     const [staffReason, setStaffReason] = useState('');
-    const [meal, setMeal] = useState(EMPTY_MEAL);   // staff meal: checked Staff ID; free meal: requested by + reason
+    const [meal, setMeal] = useState(EMPTY_MEAL);
+    const [direct, setDirect] = useState(EMPTY_DIRECT);     // direct discount, needs a Manager's code
+    const [loyalty, setLoyalty] = useState(EMPTY_LOYALTY);  // customer loyalty: earn / redeem points   // staff meal: checked Staff ID; free meal: requested by + reason
     const [paymentMethod, setPaymentMethod] = useState('');
     const [showKOTModal, setShowKOTModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -484,10 +486,11 @@ export default function POSTableBilling() {
 
     // Calculate totals
     const subtotal = currentOrder.reduce((sum, item) => sum + item.total, 0);
-    const totalDiscount = Object.values(appliedDiscounts).reduce((sum, val) => sum + val, 0);
-    const taxPercent = Math.min(100, Math.max(0, parseFloat(taxRate) || 0));
-    const tax = Math.round((subtotal - totalDiscount) * taxPercent) / 100; // typed tax %, on the discounted amount
-    const totalPayable = subtotal - totalDiscount + tax;
+    const promoDiscount = Object.values(appliedDiscounts).reduce((sum, val) => sum + val, 0);
+    const directDiscount = directAmount(subtotal - promoDiscount, direct);
+    const redemption = loyaltyRedemption(subtotal - promoDiscount - directDiscount, loyalty);
+    const totalDiscount = promoDiscount + directDiscount + redemption;
+    const totalPayable = subtotal - totalDiscount;   // no tax on table bills
 
     // Promo verification
     const verifyPromo = async () => {
@@ -570,6 +573,17 @@ export default function POSTableBilling() {
             toast.error('Enter who requested the free meal and the reason');
             return;
         }
+        if (directDiscount > 0 && !direct.managerCode.trim()) {
+            toast.error("A direct discount needs a Manager's code");
+            return;
+        }
+        // the direct discount, spread over the lines by their value (in cents, so it adds up exactly)
+        let directLeft = Math.round(directDiscount * 100);
+        const directShares = currentOrder.map((item, i) => {
+            const share = i === currentOrder.length - 1 ? directLeft : Math.round(directDiscount * 100 * item.total / (subtotal || 1));
+            directLeft -= share;
+            return share / 100;
+        });
         try {
             const cashierId = localStorage.getItem("userId") || "";
 
@@ -578,18 +592,19 @@ export default function POSTableBilling() {
                 cashierId: cashierId,
                 amountReceived: receivedAmount,
                 totalAmount: totalPayable,
-                taxRate: taxPercent,
+                managerCode: directDiscount > 0 ? direct.managerCode.trim() : null,
+                ...loyaltyRequest(loyalty),
                 payments: splitMode ? splitPayload(splitParts) : null,
                 paymentMethodId: splitMode ? Number(splitParts[0].methodId) : selectedMethod.paymentMethodId,
                 globalPromotionId: promoScope === 'TOTAL' ? appliedPromo?.id : null,
-                items: currentOrder.map(item => ({
+                items: currentOrder.map((item, i) => ({
                     dayProductionItemId: item.dayProductionItemId,
                     qty: item.qty,
                     unitPrice: item.unitPrice,
                     freeMealReason: isFreeMeal ? effectiveReason : null,
                     bankTransferCode: null,
                     discountId: null,
-                    manualDiscount: 0,
+                    manualDiscount: directShares[i],   // this line's share, like POS Sales
                     promotionId: (promoScope === 'EVERY' || (promoScope === 'SELECTED' && selectedPromoItems.includes(item.id))) ? appliedPromo?.id : null,
                     paymentMethodId: splitMode ? Number(splitParts[0].methodId) : selectedMethod.paymentMethodId
                 }))
@@ -632,6 +647,8 @@ export default function POSTableBilling() {
                 isUberOrPickMe: isUberOrPickMe
             };
             setPrintPayloadToUse(printPayload);
+            setDirect(EMPTY_DIRECT);
+            setLoyalty(EMPTY_LOYALTY);
             if (eBillPhoneRef.current) {
                 const phone = eBillPhoneRef.current;
                 eBillPhoneRef.current = null;
@@ -1195,10 +1212,6 @@ export default function POSTableBilling() {
                                                         <span className="text-fg-secondary">Subtotal:</span>
                                                         <span className="font-[500] text-fg">Rs. {subtotal}</span>
                                                     </div>
-                                                    <div className="flex justify-between text-[14px]">
-                                                        <span className="text-fg-secondary">Tax ({taxPercent}%):</span>
-                                                        <span className="font-[500] text-fg">Rs. {tax.toFixed(2)}</span>
-                                                    </div>
                                                     <div className="border-t border-line pt-3">
                                                         <div className="flex justify-between text-[16px]">
                                                             <span className="text-fg font-[600]">Total Payable:</span>
@@ -1397,14 +1410,10 @@ export default function POSTableBilling() {
                                     </div>
                                     {totalDiscount > 0 && (
                                         <div className="flex justify-between text-[14px] text-error">
-                                            <span>Promotion Discount:</span>
+                                            <span>Discount:</span>
                                             <span className="font-[500]">-Rs. {totalDiscount.toFixed(2)}</span>
                                         </div>
                                     )}
-                                    <div className="flex justify-between text-[14px]">
-                                        <span className="text-fg-secondary">Tax ({taxPercent}%):</span>
-                                        <span className="font-[500]">Rs. {tax.toFixed(2)}</span>
-                                    </div>
                                     <div className="flex justify-between text-[16px] font-[600] border-t border-line pt-2">
                                         <span className="text-fg">Total:</span>
                                         <span className="text-brand-fg">Rs. {totalPayable.toFixed(2)}</span>
@@ -1412,8 +1421,13 @@ export default function POSTableBilling() {
                                 </div>
                             </div>
 
-                            {/* Promo Section */}
-                            <div className="mb-6">
+                            {/* Direct discount and customer loyalty, as at POS Sales (the promo code is hidden) */}
+                            <div className="mb-6 space-y-4">
+                                <DirectDiscountBox base={subtotal - promoDiscount} value={direct} onChange={setDirect} />
+                                <LoyaltyBox payable={subtotal - promoDiscount - directDiscount} value={loyalty} onChange={setLoyalty} />
+                            </div>
+                            {/* Promo Section (hidden) */}
+                            <div className="mb-6" hidden>
                                 <label className="block text-[14px] font-[500] text-fg mb-2">Discount / Promo</label>
                                 <div className="flex gap-2">
                                     <div className="relative flex-1">
@@ -1475,20 +1489,6 @@ export default function POSTableBilling() {
                             </div>
                             {/* Payment Section */}
                             <div className="space-y-4 mb-6">
-                                <div>
-                                    <label className="block text-[14px] font-[500] text-fg mb-2">Tax %</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        step="0.01"
-                                        value={taxRate}
-                                        onChange={(e) => setTaxRate(e.target.value)}
-                                        className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
-                                        placeholder="0"
-                                    />
-                                    <p className="mt-1 text-[12px] text-fg-secondary">Charged on the total after discounts: Rs. {tax.toFixed(2)}</p>
-                                </div>
 
                                 {splitMethods(paymentMethods).length > 1 && (
                                     <button

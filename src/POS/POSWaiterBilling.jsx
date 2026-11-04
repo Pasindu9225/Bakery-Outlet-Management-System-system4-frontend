@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { DirectDiscountBox, LoyaltyBox, EMPTY_DIRECT, EMPTY_LOYALTY, directAmount, loyaltyRedemption, loyaltyRequest } from "../component/BillExtras";
 import EBillPayButton from "../component/EBillPayButton";
 import { sendEBill } from "../utils/eBill";
 import MealDetails, { EMPTY_MEAL, mealReason } from "../component/MealDetails";
@@ -212,7 +213,9 @@ export default function POSWaiterBilling() {
     const [freeMealReason, setFreeMealReason] = useState('');
     const [staffId, setStaffId] = useState('');
     const [staffReason, setStaffReason] = useState('');
-    const [meal, setMeal] = useState(EMPTY_MEAL);   // staff meal: checked Staff ID; free meal: requested by + reason
+    const [meal, setMeal] = useState(EMPTY_MEAL);
+    const [direct, setDirect] = useState(EMPTY_DIRECT);     // direct discount, needs a Manager's code
+    const [loyalty, setLoyalty] = useState(EMPTY_LOYALTY);  // customer loyalty: earn / redeem points   // staff meal: checked Staff ID; free meal: requested by + reason
     const [paymentMethod, setPaymentMethod] = useState('');
     const [showKOTModal, setShowKOTModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -414,9 +417,11 @@ export default function POSWaiterBilling() {
 
     // Calculate totals
     const subtotal = currentOrder.reduce((sum, item) => sum + item.total, 0);
-    const totalDiscount = Object.values(appliedDiscounts).reduce((sum, val) => sum + val, 0);
-    const tax = (subtotal - totalDiscount) * 0.1; // 10% tax on discounted amount
-    const totalPayable = subtotal - totalDiscount + tax;
+    const promoDiscount = Object.values(appliedDiscounts).reduce((sum, val) => sum + val, 0);
+    const directDiscount = directAmount(subtotal - promoDiscount, direct);
+    const redemption = loyaltyRedemption(subtotal - promoDiscount - directDiscount, loyalty);   // taken off by the server
+    const totalDiscount = promoDiscount + directDiscount + redemption;
+    const totalPayable = subtotal - totalDiscount;   // no tax on waiter bills
 
     // Promo verification
     const verifyPromo = async () => {
@@ -494,15 +499,23 @@ export default function POSWaiterBilling() {
             toast.error('Enter who requested the free meal and the reason');
             return;
         }
+        if (directDiscount > 0 && !direct.managerCode.trim()) {
+            toast.error("A direct discount needs a Manager's code");
+            return;
+        }
         try {
             // the waiter's open items, paid in one bill (same request as the POS Sale waiter panel)
             const requestBody = {
                 waiterId: String(selectedWaiter),
                 itemIdsToPay: currentOrder.map(item => item.id),
-                finalTotal: totalPayable,
+                finalTotal: subtotal - promoDiscount - directDiscount,   // loyalty points are taken off by the server
                 paymentType: paymentCategory,
-                discountAmount: totalDiscount,
-                discountReason: isFreeMeal ? effectiveReason : (appliedPromo ? `Promo ${appliedPromo.code || ''}`.trim() : null),
+                discountAmount: promoDiscount + directDiscount,
+                discountReason: isFreeMeal ? effectiveReason
+                    : [appliedPromo ? `Promo ${appliedPromo.code || ''}`.trim() : null, directDiscount > 0 ? 'Manual Discount' : null].filter(Boolean).join(', ') || null,
+                manualDiscount: directDiscount > 0,
+                managerCode: directDiscount > 0 ? direct.managerCode.trim() : null,
+                ...loyaltyRequest(loyalty),
                 outletId: Number(localStorage.getItem("outletId")) || null,
                 invoicePrinted: true
             };
@@ -544,6 +557,8 @@ export default function POSWaiterBilling() {
                 isUberOrPickMe: isUberOrPickMe
             };
             setPrintPayloadToUse(printPayload);
+            setDirect(EMPTY_DIRECT);
+            setLoyalty(EMPTY_LOYALTY);
             if (eBillPhoneRef.current) {
                 const phone = eBillPhoneRef.current;
                 eBillPhoneRef.current = null;
@@ -1036,10 +1051,6 @@ export default function POSWaiterBilling() {
                                                         <span className="text-fg-secondary">Subtotal:</span>
                                                         <span className="font-[500] text-fg">Rs. {subtotal}</span>
                                                     </div>
-                                                    <div className="flex justify-between text-[14px]">
-                                                        <span className="text-fg-secondary">Tax (10%):</span>
-                                                        <span className="font-[500] text-fg">Rs. {tax.toFixed(2)}</span>
-                                                    </div>
                                                     <div className="border-t border-line pt-3">
                                                         <div className="flex justify-between text-[16px]">
                                                             <span className="text-fg font-[600]">Total Payable:</span>
@@ -1232,14 +1243,10 @@ export default function POSWaiterBilling() {
                                     </div>
                                     {totalDiscount > 0 && (
                                         <div className="flex justify-between text-[14px] text-error">
-                                            <span>Promotion Discount:</span>
+                                            <span>Discount:</span>
                                             <span className="font-[500]">-Rs. {totalDiscount.toFixed(2)}</span>
                                         </div>
                                     )}
-                                    <div className="flex justify-between text-[14px]">
-                                        <span className="text-fg-secondary">Tax (10%):</span>
-                                        <span className="font-[500]">Rs. {tax.toFixed(2)}</span>
-                                    </div>
                                     <div className="flex justify-between text-[16px] font-[600] border-t border-line pt-2">
                                         <span className="text-fg">Total:</span>
                                         <span className="text-brand-fg">Rs. {totalPayable.toFixed(2)}</span>
@@ -1247,8 +1254,13 @@ export default function POSWaiterBilling() {
                                 </div>
                             </div>
 
-                            {/* Promo Section */}
-                            <div className="mb-6">
+                            {/* Direct discount and customer loyalty, as at POS Sales (the promo code is hidden) */}
+                            <div className="mb-6 space-y-4">
+                                <DirectDiscountBox base={subtotal - promoDiscount} value={direct} onChange={setDirect} />
+                                <LoyaltyBox payable={subtotal - promoDiscount - directDiscount} value={loyalty} onChange={setLoyalty} />
+                            </div>
+                            {/* Promo Section (hidden) */}
+                            <div className="mb-6" hidden>
                                 <label className="block text-[14px] font-[500] text-fg mb-2">Discount / Promo</label>
                                 <div className="flex gap-2">
                                     <div className="relative flex-1">
