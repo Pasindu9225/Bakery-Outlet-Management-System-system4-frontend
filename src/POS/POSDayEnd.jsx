@@ -1349,7 +1349,7 @@ export default function POSDayEnd() {
                     <div className="mb-6 max-w-xs mx-auto">
                         <label className="block text-[14px] font-[500] text-fg mb-2">Enter Your Verification Code</label>
                         <input
-                            type="password"
+                            type="text" autoComplete="off" data-lpignore="true" style={{ WebkitTextSecurity: "disc" }}
                             value={cashierPin}
                             onChange={(e) => setCashierPin(e.target.value)}
                             className="w-full px-3 py-3 border border-line rounded-md focus:ring-2 focus:ring-brand-fg focus:border-transparent text-center text-[16px] font-[600]"

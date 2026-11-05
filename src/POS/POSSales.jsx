@@ -2411,8 +2411,7 @@ export default function POSSales() {
                                         <>
                                             <p className="mt-1 text-[12px] text-success">Rs. {directDiscount.toLocaleString()} off the bill</p>
                                             <input
-                                                type="password"
-                                                autoComplete="off"
+                                                type="text" autoComplete="off" data-lpignore="true" style={{ WebkitTextSecurity: "disc" }}
                                                 aria-label="Manager's code"
                                                 value={directManagerCode}
                                                 onChange={(e) => setDirectManagerCode(e.target.value)}
@@ -2751,8 +2750,7 @@ export default function POSSales() {
                                 <div className="mb-6">
                                     <label className="block text-[14px] font-[500] text-fg mb-1">Manager's code *</label>
                                     <input
-                                        type="password"
-                                        autoComplete="off"
+                                        type="text" autoComplete="off" data-lpignore="true" style={{ WebkitTextSecurity: "disc" }}
                                         value={waiterDiscountManagerCode}
                                         onChange={(e) => setWaiterDiscountManagerCode(e.target.value)}
                                         placeholder="A Manager enters their code to approve"

@@ -97,12 +97,12 @@ export default function CashOutModal({ onClose }) {
                         </div>
                         <div>
                             <label className="block text-[13px] font-[500] text-fg mb-1">Note (optional)</label>
-                            <input type="text" value={note} onChange={(e) => setNote(e.target.value)} maxLength={255}
+                            <input type="text" value={note} onChange={(e) => setNote(e.target.value)} maxLength={255} autoComplete="off"
                                 className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none" />
                         </div>
                         <div>
                             <label className="block text-[13px] font-[500] text-fg mb-1">Manager's code *</label>
-                            <input type="password" value={managerCode} onChange={(e) => setManagerCode(e.target.value)} autoComplete="off"
+                            <input type="text" autoComplete="off" data-lpignore="true" style={{ WebkitTextSecurity: "disc" }} value={managerCode} onChange={(e) => setManagerCode(e.target.value)}
                                 onKeyDown={(e) => { if (e.key === "Enter") save(); }}
                                 className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none" />
                         </div>

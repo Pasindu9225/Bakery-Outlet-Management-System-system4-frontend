@@ -985,7 +985,7 @@ export default function POSSpecialOrders() {
                                                             <label className="block text-[12px] text-fg-secondary mb-1">Manager Code</label>
                                                             <div className="flex gap-2">
                                                                 <input
-                                                                    type="password"
+                                                                    type="text" autoComplete="off" data-lpignore="true" style={{ WebkitTextSecurity: "disc" }}
                                                                     placeholder="Enter code"
                                                                     value={managerVerificationCode}
                                                                     onChange={(e) => setManagerVerificationCode(e.target.value)}

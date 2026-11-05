@@ -1925,7 +1925,7 @@ export default function POSTableBilling() {
                                         Verification Code
                                     </label>
                                     <input
-                                        type="password"
+                                        type="text" autoComplete="off" data-lpignore="true" style={{ WebkitTextSecurity: "disc" }}
                                         value={verificationCode}
                                         onChange={(e) => setVerificationCode(e.target.value)}
                                         placeholder="Enter code"

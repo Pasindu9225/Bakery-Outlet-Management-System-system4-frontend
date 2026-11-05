@@ -40,8 +40,8 @@ export function DirectDiscountBox({ base, value, onChange }) {
             {amount > 0 && (
                 <>
                     <p className="mt-1 text-[12px] text-success">Rs. {amount.toLocaleString()} off the bill</p>
-                    <input type="password" value={value.managerCode} onChange={(e) => set({ managerCode: e.target.value })}
-                        placeholder="Manager's code (needed for a discount)" className={`${field} mt-2`} autoComplete="off" />
+                    <input type="text" autoComplete="off" data-lpignore="true" style={{ WebkitTextSecurity: "disc" }} value={value.managerCode} onChange={(e) => set({ managerCode: e.target.value })}
+                        placeholder="Manager's code (needed for a discount)" className={`${field} mt-2`} />
                 </>
             )}
         </div>
