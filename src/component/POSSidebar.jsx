@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import CashOutModal from "./CashOutModal";
 import SidebarCollapseButton from "./SidebarCollapseButton";
 import {
   ClipboardList,
@@ -16,14 +17,14 @@ import {
   Calendar,
   DollarSign,
   LogOut,
-  LayoutDashboard
-} from "lucide-react";
+  LayoutDashboard, Wallet } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { performLogout, getRoleName } from "../utils/auth";
 import RoleAvatar from "./RoleAvatar";
 
 
 export default function POSSidebar({ sidebarOpen }) {
+  const [showCashOut, setShowCashOut] = useState(false);   // POS Cash Out window
   const navigate = useNavigate();
 
   const onLogout = async () => {
@@ -88,7 +89,16 @@ export default function POSSidebar({ sidebarOpen }) {
               <Package size={14} className="text-success" />
               <span>Stock In</span>
             </NavLink>
+            <button
+              type="button"
+              onClick={() => setShowCashOut(true)}
+              className="col-span-2 flex items-center justify-center gap-2 p-2 text-[12px] bg-surface rounded border hover:bg-warning/10 hover:border-warning/30 transition-colors"
+            >
+              <Wallet size={14} className="text-warning" />
+              <span>Cash Out</span>
+            </button>
           </div>
+          {showCashOut && <CashOutModal onClose={() => setShowCashOut(false)} />}
         </div>
 
         {/* Navigation */}

@@ -205,6 +205,16 @@ const REPORT_CATEGORIES = [
             { label: "Table Bills", type: "tableBills" },
         ],
     },
+    {
+        id: "cashouts",
+        label: "Cash Outs",
+        icon: <Wallet size={16} />,
+        color: "bg-brand",
+        endpoint: "sales",
+        reports: [
+            { label: "All Cash Outs", type: "cashOuts" },
+        ],
+    },
 ];
 
 const PERIOD_OPTIONS = ["Daily", "Monthly", "Yearly", "Custom Range"];
@@ -632,6 +642,8 @@ Object.assign(DETAIL_COLUMNS, {
     returns: [["date", "Date"], ["ref", "Return"], ["supplier", "Bill"], ["employee", "Customer (phone)"], ["outlet", "Outlet"],
         ["product", "Items"], ["reason", "Reason"], ["category", "Type"], ["standard", "Returned (Rs.)", "rs"],
         ["actual", "Exchanged (Rs.)", "rs"], ["outstanding", "Paid back (Rs.)", "rs"], ["note", "Cashier"]],
+    cashouts: [["date", "Date / time"], ["ref", "Cash out"], ["outlet", "Outlet"], ["employee", "Cashier"],
+        ["net", "Amount (Rs.)", "rs"], ["supplier", "Approved by"], ["reason", "Notes counted"], ["note", "Note"]],
     tables: [["date", "Date"], ["ref", "Bill"], ["product", "Table"], ["outlet", "Outlet"], ["employee", "Cashier"],
         ["sales", "Bill total (Rs.)", "rs"], ["discounts", "Discount (Rs.)", "rs"], ["net", "Paid (Rs.)", "rs"], ["reason", "Payment"],
         ["note", "Remark"]],
@@ -668,6 +680,7 @@ Object.assign(EMPTY_TEXT, {
     "credit:creditSales": "No pay-later bills in this period",
     "credit:byCustomer": "No credit orders or pay-later bills in this period",
     tables: "No table bills in this period",
+    cashouts: "No cash outs in this period",
 });
 const detailColumns = (categoryId, type) =>
     DETAIL_COLUMNS[`${categoryId}:${type}`] || DETAIL_COLUMNS[categoryId] || DETAIL_COLUMNS.production;
@@ -901,7 +914,7 @@ export default function FinanceReports() {
         setPage(1);
     };
 
-    const outletServerSide = selectedCategory.id === "sales" || selectedCategory.id === "tables" || selectedCategory.id === "goods" || selectedCategory.id === "returns"
+    const outletServerSide = selectedCategory.id === "sales" || selectedCategory.id === "tables" || selectedCategory.id === "cashouts" || selectedCategory.id === "goods" || selectedCategory.id === "returns"
         || (selectedCategory.id === "production" && selectedReport.type !== "rawMaterialCosts");
     const outletApplies = outletServerSide
         || (selectedCategory.id === "profitability" && selectedReport.type === "byOutlet");
@@ -1063,7 +1076,7 @@ export default function FinanceReports() {
     const isGoodsReport = selectedCategory.id === "goods";
     const isReturnsReport = selectedCategory.id === "returns";
     const useWastageShape = isWastageReport || isStaffReport || isStockReport || isPurchaseReport || isProfitReport || isVarianceReport
-        || isIouReport || isCreditReport || isGoodsReport || isReturnsReport || selectedCategory.id === "tables";
+        || isIouReport || isCreditReport || isGoodsReport || isReturnsReport || selectedCategory.id === "tables" || selectedCategory.id === "cashouts";
 
     const summaryCards = useMemo(() => {
         if (isPaymentReport) {
@@ -1155,6 +1168,17 @@ export default function FinanceReports() {
                     : { label: "Over / Under", value: money(sum("variance")) },
                 { label: items ? "Items" : "IOUs", value: filtered.length },
             ].map((c, i) => ({ ...c, icon: [<Wallet size={20} />, <Banknote size={20} />, <Repeat size={20} />, <Layers size={20} />][i],
+                color: i === 0 ? "bg-brand" : i === 1 ? "bg-plum-solid" : "bg-info-solid",
+                hoverColor: i === 0 ? "hover:bg-brand-hover" : i === 1 ? "hover:bg-plum-solid" : "hover:bg-info-solid",
+                iconBg: i === 0 ? "bg-brand/30" : i === 1 ? "bg-plum/30" : "bg-info/30" }));
+        }
+        if (selectedCategory.id === "cashouts") {
+            return [
+                { label: "Cash Outs", value: filtered.length },
+                { label: "Total Taken Out", value: money(sum("net")) },
+                { label: "Cashiers", value: new Set(filtered.map((r) => r.employee)).size },
+                { label: "Outlets", value: new Set(filtered.map((r) => r.outlet)).size },
+            ].map((c, i) => ({ ...c, icon: [<Wallet size={20} />, <Banknote size={20} />, <Users size={20} />, <Layers size={20} />][i],
                 color: i === 0 ? "bg-brand" : i === 1 ? "bg-plum-solid" : "bg-info-solid",
                 hoverColor: i === 0 ? "hover:bg-brand-hover" : i === 1 ? "hover:bg-plum-solid" : "hover:bg-info-solid",
                 iconBg: i === 0 ? "bg-brand/30" : i === 1 ? "bg-plum/30" : "bg-info/30" }));

@@ -276,7 +276,8 @@ export default function POSDayEnd() {
             case 1:
                 return dayEndData.shiftConfirmed && dayEndData.transactionsValidated;
             case 2:
-                const openingFloat = dayEndSummary?.openingFloat || 0;
+                // the float stays in the drawer, unless a cash out already took it
+                const openingFloat = Math.max(0, (dayEndSummary?.openingFloat || 0) - (dayEndSummary?.totalCashOuts || 0));
                 const countedCash = parseFloat(dayEndData.cashCounted) || 0;
                 return dayEndData.cashCounted && dayEndData.cardCounted && dayEndData.uberPickmeCounted && countedCash >= openingFloat;
             case 3:
@@ -303,10 +304,10 @@ export default function POSDayEnd() {
                 if (!dayEndData.shiftConfirmed) return 'Tick the confirmation box first.';
                 return 'Press "Validate Open Transactions" first.';
             case 2: {
-                const openingFloat = dayEndSummary?.openingFloat || 0;
+                const openingFloat = Math.max(0, (dayEndSummary?.openingFloat || 0) - (dayEndSummary?.totalCashOuts || 0));
                 if (!dayEndData.cashCounted || !dayEndData.cardCounted || !dayEndData.uberPickmeCounted)
                     return 'Enter the counted cash, card and Uber/PickMe totals.';
-                return `Counted cash must be at least the opening float (Rs. ${Number(openingFloat).toLocaleString()}).`;
+                return `Counted cash must be at least Rs. ${Number(openingFloat).toLocaleString()} (the opening float less today's cash outs).`;
             }
             case 3:
                 if (isLoadingProducts) return 'Wait for the stock list to load.';
@@ -691,6 +692,9 @@ export default function POSDayEnd() {
                                 </div>
                                 <span className="text-[12px] font-[600] text-fg bg-surface px-2.5 py-1 rounded border border-line">
                                     System total: Rs. {expectedCashTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    {(dayEndSummary?.totalCashOuts || 0) > 0 && (
+                                        <span className="ml-2 text-warning">(after cash outs of Rs. {Number(dayEndSummary.totalCashOuts).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})</span>
+                                    )}
                                 </span>
                             </div>
 
@@ -778,10 +782,10 @@ export default function POSDayEnd() {
                                                 placeholder="0.00"
                                             />
                                         </div>
-                                        {dayEndData.cashCounted && parseFloat(dayEndData.cashCounted) < (dayEndSummary?.openingFloat || 0) && (
+                                        {dayEndData.cashCounted && parseFloat(dayEndData.cashCounted) < Math.max(0, (dayEndSummary?.openingFloat || 0) - (dayEndSummary?.totalCashOuts || 0)) && (
                                             <div className="mt-2 flex items-center gap-2 text-error text-[12px] bg-error/10 p-2 rounded">
                                                 <AlertTriangle size={14} />
-                                                <span>Counted cash cannot be less than opening float (Rs. {dayEndSummary?.openingFloat?.toLocaleString()})</span>
+                                                <span>Counted cash cannot be less than Rs. {Math.max(0, (dayEndSummary?.openingFloat || 0) - (dayEndSummary?.totalCashOuts || 0)).toLocaleString()} (opening float less today's cash outs)</span>
                                             </div>
                                         )}
                                     </div>
