@@ -95,6 +95,8 @@ export default function POSSales() {
     const [lookupLoading, setLookupLoading] = useState(false);
     const [showRegModal, setShowRegModal] = useState(false);
     const [regName, setRegName] = useState('');
+    const [regOtp, setRegOtp] = useState('');   // code sent to the customer's phone: needed to register
+    const [regOtpSent, setRegOtpSent] = useState(false);
     const [regNIC, setRegNIC] = useState('');
     const [regError, setRegError] = useState('');
     const [redeemPoints, setRedeemPoints] = useState(false);
@@ -1245,12 +1247,20 @@ export default function POSSales() {
             }
         }
 
+        if (!regOtp.trim()) {
+            setRegError("Send the code to the customer's phone and enter it.");
+            return;
+        }
+
         try {
             const response = await axios.post("/api/pos/v1/customers/register", {
                 name: regName.trim(),
                 contactNumber: phoneClean,
-                idCardNumber: nicClean || null
+                idCardNumber: nicClean || null,
+                otp: regOtp.trim()
             });
+            setRegOtp('');
+            setRegOtpSent(false);
             toast.success("Customer registered successfully!");
             setCustomer(response.data);
             setShowRegModal(false);
@@ -2876,6 +2886,37 @@ export default function POSSales() {
                                         onChange={(e) => setRegNIC(e.target.value)}
                                         className="w-full px-3 py-2 border border-line rounded-lg text-[13px] outline-none focus:border-brand-fg bg-surface"
                                     />
+                                </div>
+                                <div>
+                                    <label className="block text-[12px] font-[500] text-fg mb-1">Code sent to the phone *</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            inputMode="numeric"
+                                            autoComplete="one-time-code"
+                                            maxLength={6}
+                                            placeholder="6-digit code"
+                                            value={regOtp}
+                                            onChange={(e) => setRegOtp(e.target.value.replace(/[^0-9]/g, ''))}
+                                            className="flex-1 px-3 py-2 border border-line rounded-lg text-[13px] outline-none focus:border-brand-fg bg-surface"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                setRegError('');
+                                                try {
+                                                    await axios.post("/api/pos/v1/customers/send-otp", { phone: customerPhone.trim() });
+                                                    setRegOtpSent(true);
+                                                    toast.success(`Code sent to ${customerPhone.trim()}`);
+                                                } catch (error) {
+                                                    setRegError(friendlyError(error, { fallback: "The code could not be sent." }));
+                                                }
+                                            }}
+                                            className="px-3 py-2 border border-brand-fg text-brand-fg hover:bg-brand/10 rounded-lg text-[12px] font-[500] whitespace-nowrap"
+                                        >
+                                            {regOtpSent ? "Send again" : "Send code"}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <div className="p-4 bg-subtle border-t border-line flex justify-end gap-2">
