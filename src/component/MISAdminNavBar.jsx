@@ -1,3 +1,4 @@
+import FinanceNavBar from "./FinanceNavBar";
 import React, { useState, useEffect } from "react";
 import { onEnterClick } from "../utils/a11y";
 import {
@@ -14,7 +15,7 @@ import notificationService from "../services/notificationService";
 import ThemeToggle from "./ThemeToggle";
 import { pollWhileVisible } from "../utils/poll";
 
-export default function MISAdminNavBar({
+function MISAdminNavBarInner({
   sidebarOpen,
   setSidebarOpen,
   activeSection,
@@ -261,4 +262,9 @@ export default function MISAdminNavBar({
       </header>
     </>
   );
+}
+
+// MIS is hidden: a Finance user sees Finance's top bar on the Purchasing Trends / Wastage Analysis pages
+export default function MISAdminNavBar(props) {
+  return ["15", "FINANCE"].includes(String(localStorage.getItem("userRole") || "").toUpperCase()) ? <FinanceNavBar {...props} /> : <MISAdminNavBarInner {...props} />;
 }

@@ -11,8 +11,9 @@ import {
 import { NavLink, useNavigate } from "react-router-dom";
 import { performLogout, getRoleName } from "../utils/auth";
 import RoleAvatar from "./RoleAvatar";
+import FinanceSideBar from "./FinanceSideBar";
 
-export default function MISAdminSideBar({ sidebarOpen }) {
+function MISAdminSideBarInner({ sidebarOpen }) {
   const navigate = useNavigate();
 
   const onLogout = async () => {
@@ -156,4 +157,9 @@ export default function MISAdminSideBar({ sidebarOpen }) {
       </div>
     </div>
   );
+}
+
+// MIS is hidden: Finance opens these pages (Purchasing Trends, Wastage Analysis) and keeps its own menu there
+export default function MISAdminSideBar(props) {
+  return ["15", "FINANCE"].includes(String(localStorage.getItem("userRole") || "").toUpperCase()) ? <FinanceSideBar {...props} /> : <MISAdminSideBarInner {...props} />;
 }

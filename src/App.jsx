@@ -234,8 +234,9 @@ function App() {
           <Route path="/MPC" element={<SignIn targetModule="MPC" />} />
           <Route path="/finance" element={<SignIn targetModule="FINANCE" />} />
           <Route path="/FINANCE" element={<SignIn targetModule="FINANCE" />} />
-          <Route path="/mis" element={<SignIn targetModule="MIS" />} />
-          <Route path="/MIS" element={<SignIn targetModule="MIS" />} />
+          {/* MIS is hidden (its pages moved into Finance); the MIS sign-in sends to Finance's */}
+          <Route path="/mis" element={<Navigate to="/finance" replace />} />
+          <Route path="/MIS" element={<Navigate to="/finance" replace />} />
           
           {/* POS Routes (role '8') */}
           <Route
@@ -795,6 +796,12 @@ function App() {
         } />
         <Route path="/financeSettlePayments" element={
           <ProtectedRoute allowedRoles={["15", "FINANCE"]} exclusive><FinanceSettlePayments /></ProtectedRoute>
+        } />
+        <Route path="/financePurchasingTrends" element={
+          <ProtectedRoute allowedRoles={["15", "FINANCE"]} exclusive><MISPurchasingTrends /></ProtectedRoute>
+        } />
+        <Route path="/financeWastageAnalysis" element={
+          <ProtectedRoute allowedRoles={["15", "FINANCE"]} exclusive><MISWastageDashboard /></ProtectedRoute>
         } />
         <Route path="/financeReports" element={
           <ProtectedRoute allowedRoles={["15", "FINANCE"]} exclusive><FinanceReports /></ProtectedRoute>

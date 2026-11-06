@@ -8,6 +8,8 @@ import {
   ArrowLeft,
   LogOut,
   FileCheck,
+  TrendingUp,
+  Trash2,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { performLogout, getRoleName } from "../utils/auth";
@@ -49,6 +51,18 @@ export default function FinanceSideBar({ sidebarOpen }) {
       name: "Financial Reports",
       icon: FileText,
       path: "/financeReports",
+      color: "text-plum",
+    },
+    {
+      name: "Purchasing Trends",
+      icon: TrendingUp,
+      path: "/financePurchasingTrends",
+      color: "text-plum",
+    },
+    {
+      name: "Wastage Analysis",
+      icon: Trash2,
+      path: "/financeWastageAnalysis",
       color: "text-plum",
     },
   ];

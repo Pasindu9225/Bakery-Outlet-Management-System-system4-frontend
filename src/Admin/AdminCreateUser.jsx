@@ -76,10 +76,9 @@ export default function AdminCreateUser() {
     "POS Cashier",
     "MPC Worker",
     "Admin",
-    "MIS Admin",
     "Finance",
     "Waiter",
-  ];
+  ];   // "MIS Admin" hidden: MIS moved into Finance
 
   // Role ID to Role Name mapping
   const roleIdToRoleName = (roleId) => {
