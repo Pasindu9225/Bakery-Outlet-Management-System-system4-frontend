@@ -477,8 +477,8 @@ export default function POSSpecialOrders() {
         setIsLoading(true);
         try {
             // the code identifies the manager; the order is closed in that manager's name
-            const manager = await posService.verifyManagerCode(managerOtp);
-            await posService.approveAndCloseOrder(selectedOrder.id, manager.id);
+            await posService.verifyManagerCode(managerOtp);   // a clear "wrong code" before anything is closed
+            await posService.approveAndCloseOrder(selectedOrder.id, managerOtp);
             toast.success('Order approved and closed successfully!');
             
             // Print Final Bill

@@ -63,8 +63,7 @@ export default function ManagerCreditOrders() {
   const handleApproveOrder = async (orderId) => {
     try {
       setIsSubmitting(true);
-      const managerId = localStorage.getItem("userId") || "1";
-      await posService.approveAndCloseOrder(orderId, managerId);
+      await posService.approveAndCloseOrder(orderId);
       toast.success(`Order #${orderId} approved and completed successfully!`);
       setShowDetailModal(false);
       fetchCreditOrders();

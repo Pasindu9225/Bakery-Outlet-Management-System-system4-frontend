@@ -22,8 +22,10 @@ const posService = {
     },
 
     // Manager Approval & Final Closure
-    approveAndCloseOrder: async (orderId, managerId) => {
-        const response = await axiosInstance.patch(`/api/pos/v1/special-orders/${orderId}/approve?managerId=${managerId}`);
+    // at the POS the Manager's code is sent (checked by the server); a logged-in Manager needs none
+    approveAndCloseOrder: async (orderId, managerCode) => {
+        const query = managerCode ? `?managerCode=${encodeURIComponent(managerCode)}` : "";
+        const response = await axiosInstance.patch(`/api/pos/v1/special-orders/${orderId}/approve${query}`);
         return response.data;
     },
 
