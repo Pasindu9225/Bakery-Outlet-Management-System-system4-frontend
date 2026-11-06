@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { confirmDialog } from "../component/ConfirmDialog";
 import { onEnterClick } from "../utils/a11y";
 import { friendlyError } from "../utils/friendlyError";
 import {
@@ -451,6 +452,16 @@ export default function StorekeeperGRN() {
 
     if (receivedItems.every((i) => i.receivedQuantity === 0)) {
       toast.error("Please enter received quantities for at least one item");
+      return;
+    }
+
+    // more than the PO still owes is allowed, but only after the storekeeper says yes
+    const over = grnItems.filter((item) => item.accepted && item.remainingQty != null
+      && parseFloat(item.receivedQty || 0) > parseFloat(item.remainingQty) + 0.0005);
+    if (over.length > 0 && !await confirmDialog(
+      over.map((item) => `${item.materialName}: receiving ${parseFloat(item.receivedQty)} ${item.unit || ""}, only ${parseFloat(item.remainingQty)} still on the order.`).join("\n")
+        + "\n\nReceive more than ordered?",
+      { title: "More than ordered", confirmText: "Receive anyway" })) {
       return;
     }
 
