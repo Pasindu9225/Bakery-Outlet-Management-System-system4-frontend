@@ -562,7 +562,18 @@ export default function POSTableBilling() {
 
     // Process payment
     const eBillPhoneRef = useRef(null);   // set by Pay & Send E-Bill: the bill goes to this phone once paid
+    // one payment at a time: a double click or a second Enter must not make a second bill
+    const payingRef = useRef(false);
     const processPayment = async () => {
+        if (payingRef.current) return;
+        payingRef.current = true;
+        try {
+            return await processPaymentNow();
+        } finally {
+            payingRef.current = false;
+        }
+    };
+    const processPaymentNow = async () => {
         if (splitMode) {
             const problem = splitProblem(splitParts, paymentMethods, totalPayable, splitCashGiven);
             if (problem) {

@@ -963,7 +963,18 @@ export default function POSSales() {
     );
 
     // Process payment
+    // one payment at a time: a double click or a second Enter must not make a second bill
+    const payingRef = useRef(false);
     const processPayment = async (shouldPrint = false) => {
+        if (payingRef.current) return;
+        payingRef.current = true;
+        try {
+            return await processPaymentNow(shouldPrint);
+        } finally {
+            payingRef.current = false;
+        }
+    };
+    const processPaymentNow = async (shouldPrint = false) => {
         if (splitMode) {
             const problem = splitProblem(splitParts, availablePaymentMethods, total, splitCashGiven);
             if (problem) {
