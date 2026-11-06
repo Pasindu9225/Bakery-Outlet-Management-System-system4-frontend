@@ -200,7 +200,7 @@ export default function KitchenTransferNote() {
 
   // Load outlets
   useEffect(() => {
-    fetch(`${API_BASE}/api/v1/admin/outlet/all`, { headers: authHeaders() })
+    fetch(`${API_BASE}/api/v1/worker/kitchen-flow/outlets`, { headers: authHeaders() })
       .then((r) => r.ok ? r.json() : [])
       .then((data) => setOutlets(Array.isArray(data) ? data : []))
       .catch(() => setOutlets([]));

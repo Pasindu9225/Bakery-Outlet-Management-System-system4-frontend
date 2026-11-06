@@ -100,7 +100,7 @@ export default function POSTableBilling() {
             const newTable = {
                 id: response.data.id,
                 name: response.data.tableName,
-                status: response.data.status.toLowerCase(),
+                status: (response.data.status || "available").toLowerCase(),
                 seats: response.data.seatCount
             };
 
@@ -195,7 +195,7 @@ export default function POSTableBilling() {
                 id: item.id,
                 name: item.tableName,
                 seats: item.seatCount,
-                status: item.status.toLowerCase(),
+                status: (item.status || "available").toLowerCase(),   // an old table may have no status
                 remark: item.remark || ''
             }));
             setTables(mappedData);
