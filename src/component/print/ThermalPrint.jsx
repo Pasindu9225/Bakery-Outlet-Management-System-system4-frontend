@@ -85,7 +85,7 @@ function ItemTable({ items, amountLabel }) {
  *  totals:   [{ label, value, bold?, rule? }]
  *  footer:   lines at the bottom
  */
-export function BillSlip({ outlet, title, info = [], sections = [], amountLabel = "Price", totals = [], footer = [] }) {
+export function BillSlip({ outlet, title, info = [], sections = [], amountLabel = "Price", totals = [], footer = [], credit = true }) {
   return (
     <div style={S.slip}>
       <SlipHeader outlet={outlet} />
@@ -107,7 +107,7 @@ export function BillSlip({ outlet, title, info = [], sections = [], amountLabel 
       ))}
       <Rule />
       {footer.map((line) => <div key={line} style={S.footer}>{line}</div>)}
-      <div style={S.credit}>{DEVELOPER_CREDIT}</div>
+      {credit && <div style={S.credit}>{DEVELOPER_CREDIT}</div>}
     </div>
   );
 }
@@ -116,8 +116,8 @@ export function BillSlip({ outlet, title, info = [], sections = [], amountLabel 
 export function KotSlip({ outlet = {}, index = 0, count = 1, info = [], item, items = item ? [item] : [] }) {
   return (
     <div style={S.slip}>
-      <div style={{ ...S.title, fontSize: 13 }}>KITCHEN ORDER TICKET (KOT)</div>
-      <div style={{ ...S.small, fontWeight: 700 }}>SLIP #{index + 1} OF {count}</div>
+      <div style={{ ...S.title, fontSize: 18 }}>KOT</div>
+      <div style={{ ...S.center, fontWeight: 700, fontSize: 14 }}>SLIP #{index + 1} OF {count}</div>
       {outlet.name && <div style={S.small}>{outlet.name.toUpperCase()}</div>}
       <Rule />
       <InfoLines info={info} />
@@ -127,12 +127,15 @@ export function KotSlip({ outlet = {}, index = 0, count = 1, info = [], item, it
           <div key={i} style={i ? { marginTop: 6, paddingTop: 6, borderTop: "1px dashed #000" } : undefined}>
             <div>KOT ITEM: {it.name}</div>
             <div style={{ marginTop: 2 }}>QTY: {it.qty}</div>
-            {it.note && <div style={{ fontSize: 11, fontWeight: 400, fontStyle: "italic", marginTop: 2 }}>Note: {it.note}</div>}
           </div>
         ))}
       </div>
-      <Rule />
-      <div style={{ ...S.footer, fontWeight: 700 }}>* PLEASE PREPARE KOT ITEM IMMEDIATELY *</div>
+      {items.some((it) => it.note) && (
+        <div style={{ border: "1px solid #000", borderRadius: 4, padding: "6px 8px", margin: "6px 0", fontSize: 12 }}>
+          <div style={{ fontWeight: 700 }}>Comment:</div>
+          {items.filter((it) => it.note).map((it, i) => <div key={i}>{items.length > 1 ? `${it.name}: ` : ""}{it.note}</div>)}
+        </div>
+      )}
     </div>
   );
 }
@@ -179,12 +182,12 @@ const lineItems = (items = []) => items.map((item) => ({
 export function posTotals({ subTotal = 0, discount = 0, finalTotal = 0 }) {
   const tax = finalTotal - (subTotal - (discount || 0));
   const taxed = subTotal - (discount || 0);
-  return [
-    { label: "Subtotal:", value: subTotal, bold: true },
+  const extras = [
     ...(discount > 0 ? [{ label: "Discount:", value: `- ${money(discount)}` }] : []),
     ...(tax > 0.005 ? [{ label: `Tax (${taxed > 0 ? Math.round((tax / taxed) * 100) : 0}%):`, value: tax }] : []),
-    { label: "Total:", value: finalTotal, bold: true, rule: true },
   ];
+  if (!extras.length) return [{ label: "Total:", value: finalTotal, bold: true }];
+  return [{ label: "Subtotal:", value: subTotal, bold: true }, ...extras, { label: "Total:", value: finalTotal, bold: true, rule: true }];
 }
 
 /**
@@ -205,9 +208,9 @@ export function PosPrintout({ printData, outlet = {}, id = "print-receipt" }) {
     ...copies.map((copy) => (
       <BillSlip
         outlet={outlet}
-        title={proforma ? "PROFORMA INVOICE (UNPAID)" : copy ? `TAX INVOICE (${copy})` : "TAX INVOICE"}
+        title={proforma ? "PROFORMA INVOICE (UNPAID)" : copy ? `INVOICE (${copy})` : "INVOICE"}
         info={[
-          ["Date", when],
+          ["Date", proforma ? new Date().toLocaleDateString() : when],
           ["Bill ID", printData.transactionId],
           ["Table", printData.tableName],
           ["Waiter", printData.waiterName],
@@ -217,7 +220,8 @@ export function PosPrintout({ printData, outlet = {}, id = "print-receipt" }) {
         ]}
         sections={[{ items: lineItems(printData.items) }]}
         totals={posTotals(printData)}
-        footer={proforma ? ["THIS IS A PROFORMA INVOICE.", "PLEASE SETTLE AT CASHIER TO GET THE TAX INVOICE."] : ["THANK YOU! COME AGAIN."]}
+        footer={proforma ? ["THIS IS A PROFORMA INVOICE.", "PLEASE SETTLE AT CASHIER TO GET THE INVOICE."] : ["THANK YOU! COME AGAIN."]}
+        credit={!proforma}
       />
     )),
     ...kotGroups.map((group, i) => (
@@ -226,12 +230,12 @@ export function PosPrintout({ printData, outlet = {}, id = "print-receipt" }) {
         index={i}
         count={kotGroups.length}
         info={[
+          ["Date", when],
           ["KOT No", [...new Set(group.map((item) => item.kotNumber).filter(Boolean))].join(", ")],
           ["Kitchen", group[0].mpcName],
           ["Table", printData.tableName],
           ["Waiter", printData.waiterName],
           ["Bill", printData.transactionId],
-          ["Date", when],
           ["Cashier", printData.cashierName],
         ]}
         items={group.map((item) => ({ name: item.productName || item.name, qty: item.qty ?? item.quantity, note: item.specialInstructions }))}

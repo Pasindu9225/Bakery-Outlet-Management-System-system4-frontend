@@ -7,7 +7,7 @@ test("amounts are shown as Rs. with thousand separators and 2 decimals", () => {
 });
 
 test("a bill shows a tax line only when the total includes tax, and a discount only when given", () => {
-  expect(posTotals({ subTotal: 310, discount: 0, finalTotal: 310 }).map((t) => t.label)).toEqual(["Subtotal:", "Total:"]);
+  expect(posTotals({ subTotal: 310, discount: 0, finalTotal: 310 }).map((t) => t.label)).toEqual(["Total:"])   // no discount or tax: Total only;
   const taxed = posTotals({ subTotal: 140, discount: 0, finalTotal: 154 });
   expect(taxed.map((t) => t.label)).toEqual(["Subtotal:", "Tax (10%):", "Total:"]);
   expect(taxed[1].value).toBeCloseTo(14);
@@ -34,10 +34,23 @@ test("kitchen items print one KOT slip per kitchen, listing all of that kitchen'
     { productName: "Egg Kottu", qty: 2, kotNumber: "KOT-2", mpcName: "Rice Corner", specialInstructions: "No chilli" },
     { productName: "Fresh Juice", qty: 1, kotNumber: "KOT-3", mpcName: "Juice Bar" },
   ] }} />);
-  expect(html.match(/KITCHEN ORDER TICKET/g)).toHaveLength(2);
+  expect(html.match(/>KOT</g)).toHaveLength(2);
   expect(html).toContain("SLIP #1 OF 2");
   expect(html).toContain("KOT No: KOT-1, KOT-2");
   expect(html).toContain("KOT ITEM: Egg Kottu");
-  expect(html).toContain("Note: No chilli");
+  expect(html).toContain("Comment:");
+  expect(html).toContain("Egg Kottu: No chilli");
+  expect(html).not.toContain("PLEASE PREPARE");
   expect(html).toContain("Kitchen: Juice Bar");
+});
+
+test("a proforma has no time, no developer line and asks to settle for the invoice", () => {
+  const html = renderToStaticMarkup(<PosPrintout printData={{ type: "PROFORMA", items: [{ productName: "Tea", qty: 1, unitPrice: 100 }], subTotal: 100, finalTotal: 100 }} />);
+  expect(html).toContain("PROFORMA INVOICE (UNPAID)");
+  expect(html).not.toContain("Time:");
+  expect(html).not.toContain("plover.lk");
+  expect(html).toContain("GET THE INVOICE.");
+  const bill = renderToStaticMarkup(<PosPrintout printData={{ transactionId: "BILL-1", items: [], subTotal: 0, finalTotal: 0 }} />);
+  expect(bill).toContain(">INVOICE<");
+  expect(bill).not.toContain("TAX INVOICE");
 });
