@@ -150,6 +150,8 @@ function IssueIngredientsModal({ request, onClose, onIssue, loading }) {
                         <div className="flex flex-col items-center justify-center gap-1">
                            <input
                             type="number"
+                            readOnly   // exactly what was requested: the owner's rule
+                            title="Issued exactly as requested"
                             max={item.availableQty}
                             className={`w-24 px-2 py-1 border rounded text-center text-[13px] ${
                               (issuedQtys[item.id] > item.availableQty) ? 'border-error bg-error/10' : 'border-line'

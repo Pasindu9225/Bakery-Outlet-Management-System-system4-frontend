@@ -1337,6 +1337,8 @@ export default function StorekeeperManagerRequests() {
                           type="number"
                           min="0"
                           max={material.currentStock ?? 0}
+                          readOnly   // exactly what was requested (less what the centre store holds free): the owner's rule
+                          title="Issued exactly as requested"
                           value={issuedQtyByMaterial[material.childItemId] ?? ""}
                           onChange={(e) =>
                             setIssuedQtyByMaterial((prev) => ({

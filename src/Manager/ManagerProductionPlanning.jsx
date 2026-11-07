@@ -1955,6 +1955,8 @@ export default function ManagerProductionPlanning() {
   // Material Stock Comparison Modal before final approval
   const ComparisonModal = () => {
     const requirements = comparisonData?.rawMaterialRequirements || [];
+    // a plan with any material short (red) is not sent: change the quantities or get the materials first
+    const shortItems = requirements.filter((m) => Number(m.stockDeficit) > 0);
 
     return (
       <div className="fixed inset-0 bg-backdrop bg-opacity-60 z-[9999] flex items-center justify-center p-4 backdrop-blur-sm">
@@ -2052,6 +2054,11 @@ export default function ManagerProductionPlanning() {
 
           {/* Footer Actions */}
           <div className="p-6 border-t border-line bg-subtle flex items-center justify-end gap-3">
+            {shortItems.length > 0 && (
+              <p className="mr-auto text-[13px] font-[500] text-error">
+                {shortItems.length} material{shortItems.length === 1 ? " is" : "s are"} short. Change the quantities or get the materials before sending.
+              </p>
+            )}
             <button
               onClick={() => setShowComparisonModal(false)}
               className="px-6 py-2.5 border border-line text-fg font-[600] rounded-xl hover:bg-surface transition-colors"
@@ -2060,7 +2067,9 @@ export default function ManagerProductionPlanning() {
             </button>
             <button
               onClick={approvePlan}
-              className="px-8 py-2.5 bg-brand text-on-brand font-[600] rounded-xl hover:bg-brand-hover shadow-md shadow-brand-fg transition-colors flex items-center gap-2"
+              disabled={shortItems.length > 0}
+              title={shortItems.length > 0 ? "Some materials are short" : undefined}
+              className="px-8 py-2.5 bg-brand text-on-brand font-[600] rounded-xl hover:bg-brand-hover shadow-md shadow-brand-fg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <CheckCircle size={18} />
               Approve & Send
