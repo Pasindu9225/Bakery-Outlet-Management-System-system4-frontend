@@ -76,7 +76,7 @@ export default function AdminCreateUser() {
     "POS Cashier",
     "MPC Worker",
     "Admin",
-    "Finance",
+    // "Finance" hidden: individual POS - the Admin has the reports (Admin > Reports)
     "Waiter",
   ];   // "MIS Admin" hidden: MIS moved into Finance
 

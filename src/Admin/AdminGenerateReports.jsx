@@ -444,11 +444,12 @@ export default function AdminGenerateReports() {
                                     >
                                         <option value="Sales">Sales Report</option>
                                         <option value="Stock">Stock Report</option>
-                                        <option value="Production">Production Report</option>
+                                        {/* individual POS (System 4): Production, Purchases and Outlet Distribution are hidden (no production / purchasing) */}
+                                        {/* <option value="Production">Production Report</option> */}
                                         <option value="POS Wastage">POS Wastage Report</option>
-                                        <option value="Store Wastage">Store &amp; Production Wastage Report</option>
-                                        <option value="Purchases">Purchases Report</option>
-                                        <option value="Outlet Distribution">Outlet Distribution</option>
+                                        <option value="Store Wastage">Store &amp; MPC Wastage Report</option>
+                                        {/* <option value="Purchases">Purchases Report</option> */}
+                                        {/* <option value="Outlet Distribution">Outlet Distribution</option> */}
                                     </select>
                                     <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-fg-secondary pointer-events-none" />
                                 </div>

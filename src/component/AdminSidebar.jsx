@@ -12,7 +12,7 @@ import {
   Truck,
   ArrowLeft,
   LogOut,
-  Factory,
+  // Factory (Production Center hidden),
   Store,
   Tag,
   Percent,
@@ -52,6 +52,12 @@ export default function AdminSidebar({ sidebarOpen }) {
       color: "text-warning",
     },
     {
+      name: "Reports",
+      icon: TrendingUp,
+      path: "/adminReports",
+      color: "text-brand-fg",
+    },
+    {
       name: "Wastage",
       icon: Trash2,
       path: "/adminWastage",
@@ -81,7 +87,8 @@ export default function AdminSidebar({ sidebarOpen }) {
       path: "/adminCreateBOM",
       color: "text-fg-secondary",
     },
-     { name: 'Production Center', icon: Factory, path: '/adminProductionCenter', color: 'text-fg-secondary' },
+    // individual POS (System 4) has no production: Production Center is hidden from the menu (page and route kept)
+    // { name: 'Production Center', icon: Factory, path: '/adminProductionCenter', color: 'text-fg-secondary' },
     {
       name: "Customer Ledgers",
       icon: CreditCard,

@@ -39,6 +39,8 @@ import { generatePDF, generateExcel } from "../utils/exportUtils";
 
 
 import FinanceNavBar from "../component/FinanceNavBar.jsx";
+import AdminNavBar from "../component/AdminNavBar.jsx";
+import AdminSidebar from "../component/AdminSidebar.jsx";
 import FinanceSideBar from "../component/FinanceSideBar.jsx";
 
 // ── Report catalog ──────────────────────────────────────────────────────
@@ -51,6 +53,7 @@ import FinanceSideBar from "../component/FinanceSideBar.jsx";
 const REPORT_CATEGORIES = [
     {
         id: "payments",
+        hidden: true,   // individual POS (System 4): no supplier purchasing / production
         label: "Payment & Outstanding",
         icon: <Banknote size={16} />,
         color: "bg-brand",
@@ -75,13 +78,54 @@ const REPORT_CATEGORIES = [
         ],
     },
     {
+        id: "paytype",
+        label: "Sales by Payment",
+        icon: <CreditCard size={16} />,
+        color: "bg-brand",
+        endpoint: "sales",
+        reports: [
+            { label: "Sales by Payment Type", type: "byPayment" },
+        ],
+    },
+    {
+        id: "cashiers",
+        label: "Sales by Cashier",
+        icon: <Users size={16} />,
+        color: "bg-plum-solid",
+        endpoint: "sales",
+        reports: [
+            { label: "Sales by Cashier", type: "byCashier" },
+        ],
+    },
+    {
+        id: "dayend",
+        label: "Day End & Shifts",
+        icon: <Clock size={16} />,
+        color: "bg-success-solid",
+        endpoint: "sales",
+        reports: [
+            { label: "Day End & Shift Closes", type: "shifts" },
+        ],
+    },
+    {
+        id: "mpc",
+        label: "MPC Reports",
+        icon: <Activity size={16} />,
+        color: "bg-info-solid",
+        endpoint: "sales",
+        reports: [
+            { label: "MPC Dish Sales", type: "mpcDishes" },
+            { label: "MPC Material Use", type: "mpcMaterials" },
+        ],
+    },
+    {
         id: "production",
         label: "Production Cost & Wastage",
         icon: <Package size={16} />,
         color: "bg-info-solid",
         endpoint: "wastage",
         reports: [
-            { label: "Raw Material Costs",  type: "rawMaterialCosts" },
+            // { label: "Raw Material Costs",  type: "rawMaterialCosts" },   // hidden: individual POS buys no raw materials
             // "Production Overheads" is hidden: overheads (labour, power, rent) are not recorded anywhere yet,
             // and it only repeated Wastage by Product. Add it back once overhead costs are captured.
             { label: "Wastage by Product",  type: "byProduct" },
@@ -137,6 +181,7 @@ const REPORT_CATEGORIES = [
     },
     {
         id: "goods",
+        hidden: true,   // individual POS (System 4): no supplier purchasing / production
         label: "Goods Sent to POS",
         icon: <Truck size={16} />,
         color: "bg-info-solid",
@@ -148,6 +193,7 @@ const REPORT_CATEGORIES = [
     },
     {
         id: "purchase",
+        hidden: true,   // individual POS (System 4): no supplier purchasing / production
         label: "Purchase Price Analysis",
         icon: <Truck size={16} />,
         color: "bg-brand",
@@ -160,6 +206,7 @@ const REPORT_CATEGORIES = [
     },
     {
         id: "variance",
+        hidden: true,   // individual POS (System 4): no supplier purchasing / production
         label: "Standard vs Actual Production",
         icon: <Repeat size={16} />,
         color: "bg-plum-solid",
@@ -172,6 +219,7 @@ const REPORT_CATEGORIES = [
     },
     {
         id: "iou",
+        hidden: true,   // individual POS (System 4): no supplier purchasing / production
         label: "IOU / Cash Advances",
         icon: <Wallet size={16} />,
         color: "bg-success-solid",
@@ -216,6 +264,10 @@ const REPORT_CATEGORIES = [
         ],
     },
 ];
+
+// individual-POS reports (sales endpoint, outlet filter on the server, shared detail table)
+const POS_IDS = ["paytype", "cashiers", "dayend", "mpc"];
+const VISIBLE_CATEGORIES = REPORT_CATEGORIES.filter((c) => !c.hidden);
 
 const PERIOD_OPTIONS = ["Daily", "Monthly", "Yearly", "Custom Range"];
 // Outlet list is loaded inside the component from /api/v1/admin/outlet/all.
@@ -642,6 +694,15 @@ Object.assign(DETAIL_COLUMNS, {
     returns: [["date", "Date"], ["ref", "Return"], ["supplier", "Bill"], ["employee", "Customer (phone)"], ["outlet", "Outlet"],
         ["product", "Items"], ["reason", "Reason"], ["category", "Type"], ["standard", "Returned (Rs.)", "rs"],
         ["actual", "Exchanged (Rs.)", "rs"], ["outstanding", "Paid back (Rs.)", "rs"], ["note", "Cashier"]],
+    paytype: [["reason", "Payment"], ["qty", "Bills"], ["net", "Amount (Rs.)", "rs"]],
+    cashiers: [["employee", "Cashier"], ["qty", "Bills"], ["sales", "Gross (Rs.)", "rs"], ["discounts", "Discounts (Rs.)", "rs"],
+        ["returns", "Refunds (Rs.)", "rs"], ["net", "Net (Rs.)", "rs"]],
+    dayend: [["date", "Date"], ["employee", "Cashier"], ["outlet", "Outlet"], ["outstanding", "Opening float (Rs.)", "rs"],
+        ["standard", "Expected cash (Rs.)", "rs"], ["actual", "Counted cash (Rs.)", "rs"], ["totalInvoiced", "Expected card (Rs.)", "rs"],
+        ["paid", "Counted card (Rs.)", "rs"], ["variance", "Difference (Rs.)", "rs"], ["reason", "Close"]],
+    "mpc:mpcDishes": [["outlet", "MPC"], ["product", "Dish"], ["qty", "Sold"], ["sales", "Sales (Rs.)", "rs"],
+        ["totalCost", "Recipe cost (Rs.)", "rs"], ["profit", "Profit (Rs.)", "rs"]],
+    "mpc:mpcMaterials": [["outlet", "MPC"], ["product", "Material"], ["qty", "Used"], ["totalCost", "Cost (Rs.)", "rs"]],
     cashouts: [["date", "Date / time"], ["ref", "Cash out"], ["outlet", "Outlet"], ["employee", "Cashier"],
         ["net", "Amount (Rs.)", "rs"], ["supplier", "Approved by"], ["reason", "Notes counted"], ["note", "Note"]],
     tables: [["date", "Date"], ["ref", "Bill"], ["product", "Table"], ["outlet", "Outlet"], ["employee", "Cashier"],
@@ -681,6 +742,10 @@ Object.assign(EMPTY_TEXT, {
     "credit:byCustomer": "No credit orders or pay-later bills in this period",
     tables: "No table bills in this period",
     cashouts: "No cash outs in this period",
+    paytype: "No bills in this period",
+    cashiers: "No bills in this period",
+    dayend: "No shift closes or day ends in this period",
+    mpc: "No MPC dishes sold in this period",
 });
 const detailColumns = (categoryId, type) =>
     DETAIL_COLUMNS[`${categoryId}:${type}`] || DETAIL_COLUMNS[categoryId] || DETAIL_COLUMNS.production;
@@ -826,13 +891,14 @@ function UnavailableState({ reason, reportType }) {
     );
 }
 
-export default function FinanceReports() {
+export default function FinanceReports({ asAdmin = false }) {
+    const NavBar = asAdmin ? AdminNavBar : FinanceNavBar;
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const activeSection = "Financial Reports";
+    const activeSection = asAdmin ? "Reports" : "Financial Reports";
 
     // Report selection
-    const [selectedCategory, setSelectedCategory] = useState(REPORT_CATEGORIES[0]);
-    const [selectedReport, setSelectedReport] = useState(REPORT_CATEGORIES[0].reports[0]);
+    const [selectedCategory, setSelectedCategory] = useState(VISIBLE_CATEGORIES[0]);
+    const [selectedReport, setSelectedReport] = useState(VISIBLE_CATEGORIES[0].reports[0]);
     const [categoryOpen, setCategoryOpen] = useState(false);
     const [reportOpen, setReportOpen] = useState(false);
 
@@ -914,7 +980,7 @@ export default function FinanceReports() {
         setPage(1);
     };
 
-    const outletServerSide = selectedCategory.id === "sales" || selectedCategory.id === "tables" || selectedCategory.id === "cashouts" || selectedCategory.id === "goods" || selectedCategory.id === "returns"
+    const outletServerSide = selectedCategory.id === "sales" || selectedCategory.id === "tables" || selectedCategory.id === "cashouts" || POS_IDS.includes(selectedCategory.id) || selectedCategory.id === "goods" || selectedCategory.id === "returns"
         || (selectedCategory.id === "production" && selectedReport.type !== "rawMaterialCosts");
     const outletApplies = outletServerSide
         || (selectedCategory.id === "profitability" && selectedReport.type === "byOutlet");
@@ -1076,7 +1142,7 @@ export default function FinanceReports() {
     const isGoodsReport = selectedCategory.id === "goods";
     const isReturnsReport = selectedCategory.id === "returns";
     const useWastageShape = isWastageReport || isStaffReport || isStockReport || isPurchaseReport || isProfitReport || isVarianceReport
-        || isIouReport || isCreditReport || isGoodsReport || isReturnsReport || selectedCategory.id === "tables" || selectedCategory.id === "cashouts";
+        || isIouReport || isCreditReport || isGoodsReport || isReturnsReport || selectedCategory.id === "tables" || selectedCategory.id === "cashouts" || POS_IDS.includes(selectedCategory.id);
 
     const summaryCards = useMemo(() => {
         if (isPaymentReport) {
@@ -1172,6 +1238,29 @@ export default function FinanceReports() {
                 hoverColor: i === 0 ? "hover:bg-brand-hover" : i === 1 ? "hover:bg-plum-solid" : "hover:bg-info-solid",
                 iconBg: i === 0 ? "bg-brand/30" : i === 1 ? "bg-plum/30" : "bg-info/30" }));
         }
+        if (POS_IDS.includes(selectedCategory.id)) {
+            const id = selectedCategory.id;
+            const cards = id === "dayend" ? [
+                { label: "Closes", value: filtered.length },
+                { label: "Expected Cash", value: money(sum("standard")) },
+                { label: "Counted Cash", value: money(sum("actual")) },
+                { label: "Difference", value: money(sum("variance")) },
+            ] : id === "mpc" ? [
+                { label: selectedReport.type === "mpcMaterials" ? "Materials" : "Dishes", value: filtered.length },
+                { label: selectedReport.type === "mpcMaterials" ? "Material Cost" : "Sales", value: money(sum(selectedReport.type === "mpcMaterials" ? "totalCost" : "sales")) },
+                { label: "Recipe Cost", value: money(sum("totalCost")) },
+                { label: "MPCs", value: new Set(filtered.map((r) => r.outlet)).size },
+            ] : [
+                { label: "Bills", value: sum("qty") },
+                { label: "Net", value: money(sum("net")) },
+                { label: id === "cashiers" ? "Discounts" : "Payment Types", value: id === "cashiers" ? money(sum("discounts")) : filtered.length },
+                { label: id === "cashiers" ? "Cashiers" : "Top", value: id === "cashiers" ? filtered.length : ([...filtered].sort((a, b) => b.net - a.net)[0]?.reason || "—") },
+            ];
+            return cards.map((c, i) => ({ ...c, icon: [<Layers size={20} />, <Banknote size={20} />, <Wallet size={20} />, <Users size={20} />][i],
+                color: i === 0 ? "bg-brand" : i === 1 ? "bg-plum-solid" : "bg-info-solid",
+                hoverColor: i === 0 ? "hover:bg-brand-hover" : i === 1 ? "hover:bg-plum-solid" : "hover:bg-info-solid",
+                iconBg: i === 0 ? "bg-brand/30" : i === 1 ? "bg-plum/30" : "bg-info/30" }));
+        }
         if (selectedCategory.id === "cashouts") {
             return [
                 { label: "Cash Outs", value: filtered.length },
@@ -1235,10 +1324,10 @@ export default function FinanceReports() {
 
     return (
         <div className="flex bg-app h-screen overflow-hidden">
-            <FinanceSideBar sidebarOpen={sidebarOpen} />
+            {asAdmin ? <AdminSidebar sidebarOpen={sidebarOpen} /> : <FinanceSideBar sidebarOpen={sidebarOpen} />}
 
             <div className="flex-1 flex flex-col h-screen overflow-hidden">
-                <FinanceNavBar
+                <NavBar
                     sidebarOpen={sidebarOpen}
                     setSidebarOpen={setSidebarOpen}
                     activeSection={activeSection}
@@ -1278,7 +1367,7 @@ export default function FinanceReports() {
 
                     {/* ── Report Category Cards ── */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 gap-3 mb-6">
-                        {REPORT_CATEGORIES.map((cat) => (
+                        {VISIBLE_CATEGORIES.map((cat) => (
                             <button
                                 key={cat.id}
                                 onClick={() => {
