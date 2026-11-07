@@ -120,7 +120,7 @@ const REPORT_CATEGORIES = [
     },
     {
         id: "production",
-        label: "Production Cost & Wastage",
+        label: "Wastage",   // individual POS: only the wastage reports are left here (was "Production Cost & Wastage")
         icon: <Package size={16} />,
         color: "bg-info-solid",
         endpoint: "wastage",

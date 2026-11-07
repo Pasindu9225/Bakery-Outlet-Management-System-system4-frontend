@@ -95,7 +95,7 @@ export default function AdminDashboard() {
                         { label: "Raw materials", value: num(cat.rawMaterials), to: "/adminRawMaterials" },
                         { label: "Suppliers", value: num(cat.suppliers), to: "/adminManageSuppliers" },
                         { label: "Outlets", value: num(cat.outlets), to: "/adminOutletManagement" },
-                        { label: "Production centres", value: num(cat.productionCentres), to: "/adminProductionCenter" },
+                        // { label: "Production centres", value: num(cat.productionCentres), to: "/adminProductionCenter" },   // hidden: the individual POS has no production
                         { label: "MPCs", value: num(cat.mpcs) },
                       ]} />
                     </Panel>
