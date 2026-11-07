@@ -1,0 +1,68 @@
+name: Deploy System 4 Frontend
+
+# Every push to main / master builds the site on GitHub and puts it on the server.
+# Secrets (repo Settings > Secrets): SERVER_HOST, SERVER_USERNAME, SERVER_SSH_KEY (deploy key), SERVER_KNOWN_HOSTS.
+# Variable (repo Settings > Variables): REACT_APP_BASE_URL - the backend this site talks to.
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+# one deploy at a time; a newer push waits for the running one
+concurrency:
+  group: deploy-system4-frontend
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SITE_DIR: /root/system4/frontend
+      PORT: "3003"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        env:
+          REACT_APP_BASE_URL: ${{ vars.REACT_APP_BASE_URL }}
+          CI: "false"   # warnings must not fail the build (same as the manual builds)
+        run: |
+          test -n "$REACT_APP_BASE_URL" || { echo "REACT_APP_BASE_URL variable is not set"; exit 1; }
+          npm run build
+          test -s build/index.html
+
+      - name: SSH setup
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.SERVER_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Upload and switch
+        run: |
+          SSH="ssh -i $HOME/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}"
+          # new build into build.new, then swap: the site is never half-updated; the last build stays as build.prev
+          tar -C build -czf - . | $SSH "set -e; cd $SITE_DIR; rm -rf build.new; mkdir build.new; tar --no-same-owner -xzf - -C build.new; test -s build.new/index.html; rm -rf build.prev; if [ -d build ]; then mv build build.prev; fi; mv build.new build"
+
+      - name: Check the site
+        run: |
+          SSH="ssh -i $HOME/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}"
+          WANT=$(grep -o 'static/js/main\.[a-z0-9]*\.js' build/index.html)
+          for i in 1 2 3 4 5; do
+            GOT=$($SSH "curl -s -m 10 http://localhost:$PORT/" | grep -o 'static/js/main\.[a-z0-9]*\.js' || true)
+            [ "$GOT" = "$WANT" ] && { echo "Live: $WANT"; exit 0; }
+            sleep 3
+          done
+          echo "The site does not serve the new build (want $WANT, got '$GOT')"; exit 1
+
+      - name: Remove key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
