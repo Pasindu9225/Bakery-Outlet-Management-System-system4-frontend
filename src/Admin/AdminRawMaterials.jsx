@@ -867,7 +867,7 @@ export default function AdminRawMaterials() {
                 "Status": m.status,
             };
         });
-        exportToExcel(rows, `Raw_Materials_${new Date().toISOString().slice(0, 10)}`, "Raw Materials");
+        exportToExcel(rows, `Raw_Materials_${new Date().toLocaleDateString("en-CA")}`, "Raw Materials");
     };
 
     const uniqueCategories = [...new Set(materials.map(m => m.category))];

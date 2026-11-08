@@ -890,7 +890,7 @@ export default function AdminManageProducts() {
             "KOT Required": p.isKotEnabled ? "Yes" : "No",
             "Status": p.active ? "Active" : "Inactive",
         }));
-        exportToExcel(rows, `Products_${new Date().toISOString().slice(0, 10)}`, "Products");
+        exportToExcel(rows, `Products_${new Date().toLocaleDateString("en-CA")}`, "Products");
     };
 
     // Get unique categories from products

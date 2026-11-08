@@ -196,7 +196,7 @@ export default function AdminGenerateReports() {
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement('a');
         link.setAttribute('href', encodedUri);
-        link.setAttribute('download', `${reportType}_Report_${new Date().toISOString().split('T')[0]}.csv`);
+        link.setAttribute('download', `${reportType}_Report_${new Date().toLocaleDateString("en-CA")}.csv`);
         logExport("ADMIN", `Exported ${reportType} report as CSV`);
         document.body.appendChild(link);
         link.click();
@@ -214,7 +214,7 @@ export default function AdminGenerateReports() {
             notes: [`Generated: ${new Date().toLocaleString()}`, dateFrom && dateTo ? `Period: ${dateFrom} to ${dateTo}` : ""],
             headers: headers.map(columnLabel),
             rows: data.map((item) => headers.map((h) => item[h])),
-            filename: `${reportType}_Report_${new Date().toISOString().split('T')[0]}`,
+            filename: `${reportType}_Report_${new Date().toLocaleDateString("en-CA")}`,
             sheetName: `${reportType} Report`,
         });
     };
@@ -329,7 +329,7 @@ export default function AdminGenerateReports() {
         }
 
         // === SAVE FILE ===
-        doc.save(`${reportType}_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+        doc.save(`${reportType}_Report_${new Date().toLocaleDateString("en-CA")}.pdf`);
         logExport("ADMIN", `Exported ${reportType} report as PDF`);
     };
 

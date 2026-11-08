@@ -219,7 +219,7 @@ export default function AdminWastage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `wastage-${historyStatus.toLowerCase()}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `wastage-${historyStatus.toLowerCase()}-${new Date().toLocaleDateString("en-CA")}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     logExport("WASTAGE", `Exported ${rows.length} ${historyStatus.toLowerCase()} wastage entries as CSV`);

@@ -236,7 +236,7 @@ export default function StorekeeperStockAdjustments() {
 
   // Form state for new adjustment
   const [newAdjustment, setNewAdjustment] = useState({
-    date: new Date().toISOString().split("T")[0],
+    date: new Date().toLocaleDateString("en-CA"),
     productId: "",
     batchNo: "",
     physicalQty: "",
@@ -411,7 +411,7 @@ export default function StorekeeperStockAdjustments() {
       }
       setShowCreateModal(false);
       setNewAdjustment({
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toLocaleDateString("en-CA"),
         productId: "",
         batchNo: "",
         physicalQty: "",

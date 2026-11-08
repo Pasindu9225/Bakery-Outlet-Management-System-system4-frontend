@@ -147,7 +147,7 @@ export const generatePDF = ({
     addFooter();
 
     // ── SAVE ────────────────────────────────────────────────────────────
-    doc.save(`${fileName || "Report"}_${new Date().toISOString().split("T")[0]}.pdf`);
+    doc.save(`${fileName || "Report"}_${new Date().toLocaleDateString("en-CA")}.pdf`);
     logExport(null, `Exported ${title || fileName || "report"}${subtitle ? ` (${subtitle})` : ""} as PDF, ${data?.length ?? 0} rows`);
 };
 
@@ -158,6 +158,6 @@ export const generateExcel = ({ headers, data, fileName }) => {
     const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-    XLSX.writeFile(workbook, `${fileName || "Report"}_${new Date().toISOString().split("T")[0]}.xlsx`);
+    XLSX.writeFile(workbook, `${fileName || "Report"}_${new Date().toLocaleDateString("en-CA")}.xlsx`);
     logExport(null, `Exported ${fileName || "report"} as Excel, ${data?.length ?? 0} rows`);
 };

@@ -47,7 +47,7 @@ export default function StorekeeperReturnMaterials() {
   // State for return note creation
   const [returnNote, setReturnNote] = useState({
     returnNoteId: "RN" + Date.now(),
-    returnDate: new Date().toISOString().split("T")[0],
+    returnDate: new Date().toLocaleDateString("en-CA"),
     supplier: "",
     items: [],
   });
@@ -500,7 +500,7 @@ export default function StorekeeperReturnMaterials() {
       // Reset form
       setReturnNote({
         returnNoteId: "RN" + Date.now(),
-        returnDate: new Date().toISOString().split("T")[0],
+        returnDate: new Date().toLocaleDateString("en-CA"),
         supplier: "",
         items: [],
       });
@@ -604,7 +604,7 @@ export default function StorekeeperReturnMaterials() {
             ? {
                 ...n,
                 status: "Returned",
-                processedDate: new Date().toISOString().split("T")[0],
+                processedDate: new Date().toLocaleDateString("en-CA"),
               }
             : n
         )
@@ -1269,7 +1269,7 @@ export default function StorekeeperReturnMaterials() {
                 onClick={() =>
                   setReturnNote({
                     returnNoteId: "RN" + Date.now(),
-                    returnDate: new Date().toISOString().split("T")[0],
+                    returnDate: new Date().toLocaleDateString("en-CA"),
                     supplier: "",
                     items: [],
                   })

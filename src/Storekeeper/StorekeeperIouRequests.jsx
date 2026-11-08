@@ -46,7 +46,7 @@ export default function StorekeeperIouRequests() {
   // Create Form State
   const [createForm, setCreateForm] = useState({
     userId: localStorage.getItem("userId") || "00000000-0000-0000-0000-000000000000", // Storekeeper user ID
-    requestDate: new Date().toISOString().split("T")[0],
+    requestDate: new Date().toLocaleDateString("en-CA"),
     justification: "",
     receiverName: "",
     items: [
@@ -182,7 +182,7 @@ export default function StorekeeperIouRequests() {
       fetchIous();
       setCreateForm({
         userId: localStorage.getItem("userId") || "00000000-0000-0000-0000-000000000000",
-        requestDate: new Date().toISOString().split("T")[0],
+        requestDate: new Date().toLocaleDateString("en-CA"),
         justification: "",
         receiverName: "",
         items: [

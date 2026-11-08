@@ -163,7 +163,7 @@ function PaymentModal({ supplier, invoices, onClose, onSubmit, submitting, submi
     const [selectedInvoices, setSelectedInvoices] = useState({});
     const [paymentMethod, setPaymentMethod] = useState("");
     const [methodOpen, setMethodOpen] = useState(false);
-    const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split("T")[0]);
+    const [paymentDate, setPaymentDate] = useState(new Date().toLocaleDateString("en-CA"));
     const [remarks, setRemarks] = useState("");
     const [errors, setErrors] = useState({});
 

@@ -513,7 +513,7 @@ export default function ManagerProductionPlanning() {
   const [planName, setPlanName] = useState("");
   const [planNameError, setPlanNameError] = useState("");
   const [planDate, setPlanDate] = useState(
-    new Date().toISOString().split("T")[0]
+    new Date().toLocaleDateString("en-CA")
   );
   const [notes, setNotes] = useState("");
   const [isExecutionMode, setIsExecutionMode] = useState(false);
@@ -565,14 +565,14 @@ export default function ManagerProductionPlanning() {
     setCurrentPlan({
       id: null,
       planName: "",
-      planDate: new Date().toISOString().split("T")[0],
+      planDate: new Date().toLocaleDateString("en-CA"),
       status: "draft",
       productionItems: [],
       rawMaterials: [],
     });
     setPlanName("");
     setPlanNameError("");
-    setPlanDate(new Date().toISOString().split("T")[0]);
+    setPlanDate(new Date().toLocaleDateString("en-CA"));
     setNotes("");
     setIsExecutionMode(false);
     setIsTemplate(false);
@@ -860,7 +860,7 @@ export default function ManagerProductionPlanning() {
       name: `${plan.planName || "Unknown Plan"} - ${outlet.name || "Unknown Outlet"
         }`,
       outletId: outlet.outletId,
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toLocaleDateString("en-CA"),
       isActive: true,
       items: plan.productionItems
         .filter((product) => distributionQty[product.id] > 0)
@@ -898,7 +898,7 @@ export default function ManagerProductionPlanning() {
         outletId: selectedOutlet,
         outletName: outlet.name,
         outletLocation: outlet.address,
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toLocaleDateString("en-CA"),
         products: plan.productionItems
           .filter((product) => distributionQty[product.id] > 0)
           .map((product) => ({
@@ -968,7 +968,7 @@ export default function ManagerProductionPlanning() {
   const [currentPlan, setCurrentPlan] = useState({
     id: null,
     planName: "",
-    planDate: new Date().toISOString().split("T")[0],
+    planDate: new Date().toLocaleDateString("en-CA"),
     productionItems: [],
     status: "draft",
   });
@@ -1471,7 +1471,7 @@ export default function ManagerProductionPlanning() {
       productionItems: loadedItems,
     });
     setPlanName(plan.planName || "");
-    setPlanDate(plan.planDate ? plan.planDate.split('T')[0] : new Date().toISOString().split('T')[0]);
+    setPlanDate(plan.planDate ? plan.planDate.split('T')[0] : new Date().toLocaleDateString("en-CA"));
     setNotes(plan.notes || "");
     setViewMode("execution");
   };
@@ -1556,13 +1556,13 @@ export default function ManagerProductionPlanning() {
       setCurrentPlan({
         id: null,
         planName: clonedName,
-        planDate: new Date().toISOString().split("T")[0],
+        planDate: new Date().toLocaleDateString("en-CA"),
         status: "draft",
         productionItems: loadedItems,
       });
       setPlanName(clonedName);
       setPlanNameError("");
-      setPlanDate(new Date().toISOString().split("T")[0]);
+      setPlanDate(new Date().toLocaleDateString("en-CA"));
       setNotes(fullPlan.notes || "");
       setIsExecutionMode(false);
       setDraftPlanId(null);
@@ -2612,7 +2612,7 @@ export default function ManagerProductionPlanning() {
         }))
       });
       setPlanName(fullPlan.planName);
-      setPlanDate(new Date().toISOString().split("T")[0]);
+      setPlanDate(new Date().toLocaleDateString("en-CA"));
       setNotes(fullPlan.notes || "");
       setIsExecutionMode(true);
       setViewMode("execution");

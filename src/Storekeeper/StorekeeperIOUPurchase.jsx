@@ -38,7 +38,7 @@ export default function StorekeeperIOUPurchase() {
   // IOU Request Creation State
   const [iouRequest, setIouRequest] = useState({
     id: "",
-    date: new Date().toISOString().split("T")[0],
+    date: new Date().toLocaleDateString("en-CA"),
     justification: "",
     supplierName: "",
     supplierContact: "",
@@ -59,7 +59,7 @@ export default function StorekeeperIOUPurchase() {
   // GRN Entry State (for approved IOUs)
   const [grnEntry, setGrnEntry] = useState({
     iouId: "",
-    grnDate: new Date().toISOString().split("T")[0],
+    grnDate: new Date().toLocaleDateString("en-CA"),
     vendorName: "",
     vendorContact: "",
     vendorAddress: "",
@@ -451,7 +451,7 @@ export default function StorekeeperIOUPurchase() {
       // Reset form
       setIouRequest({
         id: "",
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toLocaleDateString("en-CA"),
         justification: "",
         supplierName: "",
         supplierContact: "",
@@ -500,7 +500,7 @@ export default function StorekeeperIOUPurchase() {
 
     setGrnEntry({
       iouId: iou.id,
-      grnDate: new Date().toISOString().split("T")[0],
+      grnDate: new Date().toLocaleDateString("en-CA"),
       vendorName: iou.supplierName || "",
       vendorContact: iou.supplierContact || "",
       vendorAddress: "",
@@ -1042,7 +1042,7 @@ export default function StorekeeperIOUPurchase() {
                     onClick={() => {
                       setIouRequest({
                         id: "",
-                        date: new Date().toISOString().split("T")[0],
+                        date: new Date().toLocaleDateString("en-CA"),
                         justification: "",
                         supplierName: "",
                         supplierContact: "",

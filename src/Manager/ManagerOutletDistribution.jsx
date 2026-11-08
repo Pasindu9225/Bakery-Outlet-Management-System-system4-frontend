@@ -417,7 +417,7 @@ export default function ManagerOutletDistribution() {
         outlet.name || "Unknown Outlet"
       }`,
       outletId: outlet.outletId,
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toLocaleDateString("en-CA"),
       isActive: true,
       items: plan.productionItems
         .filter((product) => distributionQty[product.id] > 0)
@@ -455,7 +455,7 @@ export default function ManagerOutletDistribution() {
         outletId: selectedOutlet,
         outletName: outlet.name,
         outletLocation: outlet.address,
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toLocaleDateString("en-CA"),
         products: plan.productionItems
           .filter((product) => distributionQty[product.id] > 0)
           .map((product) => ({

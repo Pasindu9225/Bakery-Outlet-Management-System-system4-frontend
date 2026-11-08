@@ -43,7 +43,7 @@ export default function ManagerStockAdjustments() {
   const [activeSection] = useState("Stock Adjustments");
   const [selectedOutlet, setSelectedOutlet] = useState("");
   const [adjustmentDate, setAdjustmentDate] = useState(
-    new Date().toISOString().split("T")[0]
+    new Date().toLocaleDateString("en-CA")
   );
   const [stockData, setStockData] = useState([]);
   const [adjustments, setAdjustments] = useState({});

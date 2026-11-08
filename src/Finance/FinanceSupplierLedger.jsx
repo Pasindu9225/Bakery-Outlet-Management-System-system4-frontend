@@ -841,7 +841,7 @@ function ManualAdjustmentModal({ suppliers, preSelectedId, onClose, onSuccess })
   
   const [formData, setFormData] = useState({
     supplierId: preSelectedId || "",
-    adjustmentDate: new Date().toISOString().split("T")[0],
+    adjustmentDate: new Date().toLocaleDateString("en-CA"),
     amount: "",
     description: "",
     remarks: "",

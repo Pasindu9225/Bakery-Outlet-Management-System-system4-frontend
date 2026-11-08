@@ -129,7 +129,7 @@ export default function ManagerActualProduction() {
         productId: selectedProduct.productId,
         outletId: parseInt(selectedOutlet),
         quantity: parseInt(distributeQty),
-        distributionDate: new Date().toISOString().split("T")[0]
+        distributionDate: new Date().toLocaleDateString("en-CA")
       };
 
       const response = await fetch(`${process.env.REACT_APP_BASE_URL}/api/v1/manager/actual-production/distribute`, {

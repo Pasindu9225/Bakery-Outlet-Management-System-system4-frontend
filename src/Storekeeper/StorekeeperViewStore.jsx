@@ -106,7 +106,7 @@ export default function StorekeeperViewStore() {
         console.log(data);
         // Map backend materials to existing UI structure
         const today = new Date();
-        const todayISO = today.toISOString().slice(0, 10);
+        const todayISO = today.toLocaleDateString("en-CA");   // local date, not UTC (UTC is still yesterday until 05:30)
 
         const mapped = (Array.isArray(data) ? data : []).map((item) => ({
           id: item.id,

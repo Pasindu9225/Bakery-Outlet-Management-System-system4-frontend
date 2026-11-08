@@ -460,7 +460,7 @@ export default function MISSupplierOverview() {
 
   const fetchList = useCallback(async () => {
     // Validation
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toLocaleDateString("en-CA");
     if (startDate && startDate > today) { setPageError("Start date cannot be in the future."); return; }
     if (endDate && endDate > today) { setPageError("End date cannot be in the future."); return; }
     if (startDate && endDate && startDate > endDate) { setPageError("Start date cannot be after end date."); return; }

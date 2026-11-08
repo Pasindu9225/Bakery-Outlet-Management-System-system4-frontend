@@ -491,7 +491,7 @@ export default function MISPurchasingTrends() {
 
   const fetchDashboard = useCallback(async () => {
     // Validation
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toLocaleDateString("en-CA");
     if (startDate && startDate > today) { setPageError("Start date cannot be in the future."); return; }
     if (endDate && endDate > today) { setPageError("End date cannot be in the future."); return; }
     if (startDate && endDate && startDate > endDate) { setPageError("Start date cannot be after end date."); return; }
@@ -764,7 +764,7 @@ export default function MISPurchasingTrends() {
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                   <input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
-                    max={new Date().toISOString().slice(0, 10)}
+                    max={new Date().toLocaleDateString("en-CA")}
                     className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg" />
                 </div>
               </div>
@@ -774,7 +774,7 @@ export default function MISPurchasingTrends() {
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-secondary" size={13} />
                   <input type="date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
-                    max={new Date().toISOString().slice(0, 10)}
+                    max={new Date().toLocaleDateString("en-CA")}
                     className="w-full pl-9 pr-3 py-2.5 border border-line rounded-lg text-[13px] text-fg focus:outline-none focus:ring-2 focus:ring-brand-fg" />
                 </div>
               </div>
