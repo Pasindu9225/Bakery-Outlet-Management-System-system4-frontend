@@ -221,6 +221,7 @@ export default function POSSales() {
                 category: item.categoryName,
                 fastMoving: item.isFastMoving,
                 kotBased: item.isKotEnabled || false,
+                pcId: item.productionCenterId || null, // the dish's own kitchen / MPC (Admin MPC menu)
                 expiryDate: item.expiryDate || null
             }));
             setProducts(mappedData);
@@ -381,7 +382,7 @@ export default function POSSales() {
                     qty: item.quantity,
                     unitPrice: item.price,
                     instructions: item.specialInstructions || null,
-                    productionCenterId: (selectedPcs[item.id] || productionCenters[0]?.id) ? Number(selectedPcs[item.id] || productionCenters[0]?.id) : null,
+                    productionCenterId: (item.pcId || selectedPcs[item.id] || productionCenters[0]?.id) ? Number(item.pcId || selectedPcs[item.id] || productionCenters[0]?.id) : null,
                     billId: billId
                 };
                 await axios.post(`/api/pos/v1/waiter-billing/add-item`, requestBody);
@@ -744,7 +745,7 @@ export default function POSSales() {
 
     // Send standalone KOT for a single cart item
     const sendKotForItem = async (item) => {
-        const pcId = selectedPcs[item.id] || (productionCenters[0]?.id);
+        const pcId = item.pcId || selectedPcs[item.id] || (productionCenters[0]?.id);
         if (!pcId) {
             toast.error("No production center available. Please configure outlet MPCs first.");
             return;
@@ -2013,6 +2014,12 @@ export default function POSSales() {
                                                 {item.kotBased && productionCenters.length > 0 && (
                                                     <div className="mt-2 flex items-center gap-2 p-2 bg-warning/10 border border-warning/30 rounded">
                                                         <ChefHat size={14} className="text-warning shrink-0" />
+                                                        {item.pcId ? (
+                                                            // the dish belongs to one kitchen / MPC: its KOT goes there (as S1-S3)
+                                                            <span className="flex-1 text-[12px] text-fg">
+                                                                {productionCenters.find(pc => String(pc.id) === String(item.pcId))?.centerName || "Kitchen"}
+                                                            </span>
+                                                        ) : (
                                                         <select
                                                             value={selectedPcs[item.id] || productionCenters[0]?.id || ""}
                                                             onChange={(e) => setSelectedPcs(prev => ({ ...prev, [item.id]: e.target.value }))}
@@ -2023,6 +2030,7 @@ export default function POSSales() {
                                                                 <option key={pc.id} value={pc.id}>{pc.centerName}</option>
                                                             ))}
                                                         </select>
+                                                        )}
                                                         <button
                                                             onClick={() => sendKotForItem(item)}
                                                             disabled={kotSentMap[item.id]}
