@@ -1105,6 +1105,8 @@ export default function POSSales() {
                 discount: totalDiscount,
                 finalTotal: data.data?.totalAmount ?? total,
                 paymentMethod: splitMode ? splitText(splitParts, availablePaymentMethods) : selectedMethodObj.name,
+                cashGiven: !splitMode && paymentMethod === 'cash' ? (parseFloat(cashReceived) || 0) : 0,
+                change: !splitMode && paymentMethod === 'cash' ? calculateChange() : 0,
                 kotItems: kotItems,
                 printBill: shouldPrint,
                 isUberOrPickMe: isUberOrPickMe

@@ -109,8 +109,11 @@ export default function POSDayEnd() {
     const [productsError, setProductsError] = useState(null);
     const [stockReload, setStockReload] = useState(0);
     // The outlet's action centres (rice corner, juice corner, ...): every ingredient they hold is counted at day end
+    // S4 (individual POS, owner 10 Nov): the corners are not counted at day end, so this stays empty
     const [centres, setCentres] = useState([]);
-    const [centresError, setCentresError] = useState(null);
+    // KOT dishes are made to order: not counted, their stock is carried to tomorrow as it is
+    const [kotProducts, setKotProducts] = useState([]);
+    const [centresError] = useState(null);
     // goods sent to this outlet not fully accepted: each is accepted or marked not received before the day end
     const [pendingGoods, setPendingGoods] = useState([]);
     const [pendingGoodsError, setPendingGoodsError] = useState(null);
@@ -132,7 +135,7 @@ export default function POSDayEnd() {
                         { headers: { Authorization: `Bearer ${token}` } }
                     );
                     
-                    const mappedProducts = response.data.map(item => ({
+                    const mappedProducts = response.data.filter(item => !item.isKotEnabled).map(item => ({
                         productId: item.productId,
                         productName: item.productName,
                         systemQty: item.currentQty,
@@ -146,6 +149,8 @@ export default function POSDayEnd() {
                     }));
                     
                     setProductData(mappedProducts);
+                    setKotProducts(response.data.filter(item => item.isKotEnabled)
+                        .map(item => ({ productId: item.productId, systemQty: Math.max(0, item.currentQty || 0) })));
 
                     setPendingGoodsError(null);
                     try {
@@ -156,21 +161,6 @@ export default function POSDayEnd() {
                         setPendingGoodsError(friendlyError(goodsErr, { fallback: 'Could not load the goods waiting to be accepted.' }));
                     }
 
-                    // never-expiring ingredients start as carried forward, expired / expiring today as wastage
-                    setCentresError(null);
-                    const centresRes = await axios.get(
-                        `${baseUrl}/api/pos/day-end/action-centres`,
-                        { headers: { Authorization: `Bearer ${token}` } }
-                    );
-                    setCentres((centresRes.data || []).map(c => ({
-                        ...c,
-                        items: (c.items || []).map(i => ({
-                            ...i,
-                            physicalQty: String(i.systemQty),
-                            wastageQty: i.suggestWastage ? String(i.systemQty) : '0',
-                            wastageReason: 'EXPIRED',
-                        })),
-                    })));
                 } catch (error) {
                     console.error("Failed to fetch closing inventory", error);
                     setProductsError(friendlyError(error, { fallback: "Could not load today's stock." }));
@@ -369,7 +359,10 @@ export default function POSDayEnd() {
                         carryForwardQty: item.carryForwardQty || 0,
                         wastageQty: parseInt(item.wastageQty) || 0,
                         wastageReason: item.wastageReason || 'UNSOLD'
-                    })),
+                    })).concat(kotProducts.map(k => ({
+                        productId: k.productId, systemQty: k.systemQty, physicalQty: k.systemQty,
+                        carryForwardQty: k.systemQty, wastageQty: 0, wastageReason: 'UNSOLD',
+                    }))),
                     actionCentreItems: centres.flatMap(c => c.items.map(i => ({
                         mpcStoreItemId: i.mpcStoreItemId,
                         physicalQty: parseFloat(i.physicalQty) || 0,
