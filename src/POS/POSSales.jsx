@@ -1078,6 +1078,8 @@ export default function POSSales() {
 
             // Filter KOT-enabled items from cart
             const kotItems = cart.filter(item => item.kotBased || item.isKotEnabled).map(item => ({
+                // one KOT slip per kitchen / MPC, with its name on it
+                mpcName: productionCenters.find(pc => String(pc.id) === String(item.pcId))?.centerName || "",
                 productName: item.name,
                 qty: item.quantity,
                 specialInstructions: item.specialInstructions || ""
