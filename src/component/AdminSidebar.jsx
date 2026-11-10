@@ -120,6 +120,8 @@ export default function AdminSidebar({ sidebarOpen }) {
       color: "text-brand-fg",
     },
      { name: 'Admin Approval', icon: UserCheck, path: '/adminApprovalRequests', color: 'text-fg-secondary' },
+     // no Manager in the individual POS: the Admin's code approves discounts, refunds, cash outs (as S1)
+     { name: 'Verification Code', icon: ShieldCheck, path: '/adminVerificationCodes', color: 'text-fg-secondary' },
   ];
 
   return (
