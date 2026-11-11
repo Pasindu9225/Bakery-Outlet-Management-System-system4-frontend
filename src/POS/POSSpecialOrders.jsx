@@ -374,13 +374,14 @@ export default function POSSpecialOrders() {
         try {
             const response = await axios.get(`/api/pos/v1/customers/lookup?phone=${phone}`);
             const customer = response.data;
-            setCustomerDetails({
-                name: customer.name || '',
+            // keep what the cashier typed when the registered customer has no name / email / address
+            setCustomerDetails(prev => ({
+                name: customer.name || prev.name,
                 contactNumber: customer.contactNumber || phone,
-                email: customer.email || '',
-                address: customer.address || '',
+                email: customer.email || prev.email,
+                address: customer.address || prev.address,
                 type: customer.isCreditAllowed ? 'Credit' : 'New'
-            });
+            }));
             setCustomerLookupStatus('found');
             toast.success(`Customer found: ${customer.name}`);
         } catch (error) {
@@ -390,7 +391,7 @@ export default function POSSpecialOrders() {
                     ...prev,
                     type: 'New'
                 }));
-                toast.info("Customer not found. Set as New Customer.");
+                toast("Customer not found. Set as New Customer.");   // react-hot-toast has no toast.info
             } else {
                 toast.error("Error looking up customer");
             }
@@ -1039,7 +1040,7 @@ export default function POSSpecialOrders() {
                                             <div className="space-y-3">
                                                 <button
                                                     onClick={submitSpecialOrder}
-                                                    disabled={!isFormValid() || isLoading}
+                                                    disabled={isLoading}   // pressed with something missing: says what (submitSpecialOrder)
                                                     title={!isFormValid() ? "Please fill Name, Contact, Products and a valid Advance Amount (<= Total)" : ""}
                                                     className="w-full px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500] flex items-center justify-center gap-2"
                                                 >
