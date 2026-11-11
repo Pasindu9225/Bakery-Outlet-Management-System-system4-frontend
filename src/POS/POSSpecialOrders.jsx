@@ -1040,7 +1040,7 @@ export default function POSSpecialOrders() {
                                             <div className="space-y-3">
                                                 <button
                                                     onClick={submitSpecialOrder}
-                                                    disabled={isLoading}   // pressed with something missing: says what (submitSpecialOrder)
+                                                    disabled={isLoading || !customerDetails.name.trim()}   // no name: cannot be pressed (owner 12 Nov); anything else missing: pressing says what
                                                     title={!isFormValid() ? "Please fill Name, Contact, Products and a valid Advance Amount (<= Total)" : ""}
                                                     className="w-full px-4 py-3 bg-brand text-on-brand rounded-lg hover:bg-brand-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-[14px] font-[500] flex items-center justify-center gap-2"
                                                 >
