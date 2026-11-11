@@ -321,6 +321,7 @@ export default function POSTableBilling() {
 
 
     const fetchTableDetails = async () => {
+        fetchTables();   // a table's status (occupied / available) follows its items, so reload it with them
         if (!selectedTable) {
             setCurrentOrder([]);
             return;
