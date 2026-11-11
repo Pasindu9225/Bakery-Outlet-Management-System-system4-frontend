@@ -1482,13 +1482,8 @@ export default function POSSales() {
                                                 }`}>
                                             <div className="flex items-center gap-1">
                                                 <Grid3X3 size={12} />
+                                                {/* name only (client 11 Nov); the shortcut number still works when typed in the search box */}
                                                 {category.name}
-                                                {/* the category's shortcut number: typing it in the search box opens this category (not an item count) */}
-                                                {category.code && (
-                                                    <span title={`Shortcut: type ${category.code} in the search box`} className="ml-1 px-1 rounded border border-current text-[10px] opacity-70">
-                                                        #{category.code}
-                                                    </span>
-                                                )}
                                             </div>
                                         </button>
                                     ))}
