@@ -764,6 +764,21 @@ export default function POSTableBilling() {
         }
     };
 
+    // delete the selected table (hidden; its sales stay). Not while it has an unpaid order (the server refuses).
+    const deleteSelectedTable = async () => {
+        const name = tables.find(t => t.id === selectedTable)?.name || '';
+        if (!(await confirmDialog(`Delete table ${name}? It will no longer be shown at this outlet.`, { confirmText: "Delete", danger: true }))) return;
+        try {
+            await axios.delete(`/api/pos/v1/table-billing/tables/${selectedTable}`);
+            toast.success(`Table ${name} deleted`);
+            setShowTableOptions(false);
+            setSelectedTable('');
+            fetchTables();
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to delete the table");
+        }
+    };
+
     const handleTransferTable = async () => {
         if (!selectedTable || !targetTableId) return;
         try {
@@ -1012,6 +1027,12 @@ export default function POSTableBilling() {
                                                         Save Remark
                                                     </button>
                                                 </div>
+                                                <button
+                                                    onClick={deleteSelectedTable}
+                                                    className="w-full px-4 py-2 border border-error text-error rounded-lg hover:bg-error/10 transition-colors text-[14px] font-[500]"
+                                                >
+                                                    Delete Table
+                                                </button>
                                             </div>
                                         </div>
                                         </div>
