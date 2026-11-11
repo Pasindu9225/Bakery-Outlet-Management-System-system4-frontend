@@ -39,7 +39,8 @@ export default function POSSidebar({ sidebarOpen }) {
     { name: 'Waiter Billing', icon: ClipboardList, path: '/posWaiterBilling', color: 'text-fg-secondary' },
     { name: 'Goods Entry', icon: Package, path: '/posGoodsEntry', color: 'text-success' },
     { name: 'Returns', icon: RotateCcw, path: '/posReturns', color: 'text-warning' },
-    { name: 'Return to Store', icon: RefreshCw, path: '/posReturnToStore', color: 'text-plum' },
+    // hidden (owner 11 Nov): the individual POS has no store to return to
+    // { name: 'Return to Store', icon: RefreshCw, path: '/posReturnToStore', color: 'text-plum' },
     { name: 'Credit Orders', icon: Calendar, path: '/posSpecialOrders', color: 'text-error' },
     { name: 'Day End & Finish Shift', icon: Clock, path: '/posDayEnd', color: 'text-warning' },
     { name: 'Customers', icon: Users, path: '/posCustomers', color: 'text-plum' },

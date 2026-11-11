@@ -25,7 +25,7 @@ const POSGoodsEntry = lazy(() => import("./POS/POSGoodsEntry"));
 const POSSales = lazy(() => import("./POS/POSSales"));
 const POSReturns = lazy(() => import("./POS/POSReturns"));
 const POSDayEnd = lazy(() => import("./POS/POSDayEnd"));
-const POSReturnToStore = lazy(() => import("./POS/POSReturnToStore"));
+// const POSReturnToStore = lazy(() => import("./POS/POSReturnToStore"));
 const POSSpecialOrders = lazy(() => import("./POS/POSSpecialOrders"));
 const POSTableBilling = lazy(() => import("./POS/POSTableBilling"));
 const POSWaiterBilling = lazy(() => import("./POS/POSWaiterBilling"));
@@ -314,7 +314,7 @@ function App() {
           path="/posReturnToStore"
           element={
             <ProtectedRoute allowedRoles={["8"]}>
-              <POSReturnToStore />
+              <Navigate to="/posSales" replace />{/* hidden (owner 11 Nov): no store in the individual POS */}
             </ProtectedRoute>
           }
         />
