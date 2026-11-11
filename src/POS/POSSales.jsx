@@ -206,6 +206,14 @@ export default function POSSales() {
     }, []);
 
     // Fetch items from backend
+    // other POS logins at this outlet sell and add items too: reload every 10 s (not while the bill is being paid)
+    const liveRefresh = useRef(null);
+    liveRefresh.current = () => { fetchTodayItems(); };
+    useEffect(() => {
+        const id = setInterval(() => { if (!document.hidden) liveRefresh.current(); }, 10000);
+        return () => clearInterval(id);
+    }, []);
+
     const fetchTodayItems = async () => {
         try {
             const outletId = localStorage.getItem("outletId");

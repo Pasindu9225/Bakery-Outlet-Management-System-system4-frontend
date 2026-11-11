@@ -144,6 +144,14 @@ export default function POSTableBilling() {
     const [categories, setCategories] = useState(['All']);
     const [highlightedItemId, setHighlightedItemId] = useState(null);
 
+    // other POS logins at this outlet sell and add items too: reload every 10 s (not while the bill is being paid)
+    const liveRefresh = useRef(null);
+    liveRefresh.current = () => { fetchTodayItems(); if (!showBillModal) fetchTableDetails(); };
+    useEffect(() => {
+        const id = setInterval(() => { if (!document.hidden) liveRefresh.current(); }, 10000);
+        return () => clearInterval(id);
+    }, []);
+
      const fetchTodayItems = async () => {
          try {
              const outletId = localStorage.getItem("outletId");
