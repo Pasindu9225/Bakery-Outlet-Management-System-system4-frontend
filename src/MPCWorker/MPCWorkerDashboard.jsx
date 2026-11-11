@@ -545,33 +545,22 @@ export default function MPCWorkerDashboard() {
                 <div className="space-y-4">
                   {kots.map((kot) => (
                     <div key={kot.id} className="border border-line rounded-lg p-5 hover:bg-subtle transition-colors">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <span className="font-mono text-sm font-semibold text-brand-fg">{kot.orderNumber}</span>
-                          <span className="ml-3">{statusBadge(kot.status)}</span>
-                        </div>
-                        <span className="text-xs text-fg-secondary">{new Date(kot.orderDate || Date.now()).toLocaleString()}</span>
+                      {/* what to make first, large: quantity and item */}
+                      <div className="space-y-2 mb-3">
+                        {(kot.items || []).map((item, idx) => (
+                          <div key={idx} className="flex items-center gap-4 p-3 rounded-lg bg-brand/10 border-l-4 border-brand-fg">
+                            <span className="min-w-[56px] text-center text-[28px] font-[800] leading-none text-brand-fg">{item.plannedQuantity}<span className="text-[16px] font-[600]"> ×</span></span>
+                            <div className="min-w-0">
+                              <p className="text-[22px] font-[700] leading-tight text-fg">{item.productName}</p>
+                              {item.instructions && <p className="text-[15px] font-[600] text-warning mt-1">Note: {item.instructions}</p>}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-
-                      <table className="w-full text-sm mb-4">
-                        <thead>
-                          <tr className="text-left text-xs text-fg-secondary border-b">
-                            <th className="pb-1">Item</th>
-                            <th className="pb-1 text-right">Qty</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {(kot.items || []).map((item, idx) => (
-                            <tr key={idx} className="border-b last:border-0">
-                              <td className="py-1.5 font-medium text-fg">
-                                {item.productName}
-                                {item.instructions && <p className="text-[12px] font-[500] text-warning mt-0.5">Note: {item.instructions}</p>}
-                              </td>
-                              <td className="py-1.5 text-right text-fg">{item.plannedQuantity}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                      <div className="flex items-center justify-between text-xs text-fg-secondary">
+                        <span><span className="font-mono">{kot.orderNumber}</span><span className="ml-3">{statusBadge(kot.status)}</span></span>
+                        <span>{new Date(kot.orderDate || Date.now()).toLocaleString()}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
