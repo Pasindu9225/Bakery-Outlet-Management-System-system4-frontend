@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { appChannel, appPrice } from "../utils/appPrice";
 import { LoyaltyBox, EMPTY_LOYALTY, loyaltyRedemption, loyaltyRequest } from "../component/BillExtras";
 import EBillPayButton from "../component/EBillPayButton";
 import { tileColor } from "../utils/tileColors";
@@ -186,8 +187,14 @@ export default function POSSales() {
         ? products.filter(p => p.stock > 0)
         : fastMovingProducts;
 
-    const selectedSubTotal = waiterDetails?.unpaidItems
-        ? waiterDetails.unpaidItems
+    // Uber / PickMe waiter bill: each item at the product's Uber / PickMe price (owner 12 Nov), as the server bills it
+    const waiterCh = appChannel(waiterPaymentType);
+    const waiterUnpaid = (waiterDetails?.unpaidItems || []).map(it => {
+        const p = waiterCh ? appPrice(products.find(x => x.id === it.productId), waiterCh, null) : null;
+        return p == null ? it : { ...it, unitPrice: p, totalPrice: p * (it.qty ?? it.quantity ?? 0) };
+    });
+    const selectedSubTotal = waiterUnpaid
+        ? waiterUnpaid
             .filter(item => selectedWaiterItemIds.includes(item.id))
             .reduce((sum, item) => sum + (parseFloat(item.totalPrice) || 0), 0)
         : 0;
@@ -224,6 +231,8 @@ export default function POSSales() {
                 name: item.productName,
                 code: item.productCode,
                 price: item.unitPrice,
+                uberPrice: item.uberPrice,     // empty = the normal price
+                pickmePrice: item.pickmePrice,
                 receivedQty: item.receivedQty,
                 currentQty: item.currentQty,
                 stock: item.currentQty,
@@ -326,7 +335,7 @@ export default function POSSales() {
     const settleWaiterWithEBill = async (phone) => {
         const discountVal = parseFloat(waiterDiscountAmount) || 0;
         try {
-            const selectedItems = waiterDetails.unpaidItems.filter(item => selectedWaiterItemIds.includes(item.id));
+            const selectedItems = waiterUnpaid.filter(item => selectedWaiterItemIds.includes(item.id));
             const finished = await axios.post(`/api/pos/v1/waiter-billing/finish-billing`, {
                 waiterId: selectedWaiter.userId,
                 itemIdsToPay: selectedWaiterItemIds,
@@ -389,7 +398,7 @@ export default function POSSales() {
                     waiterId: selectedWaiter.userId,
                     productId: item.id,
                     qty: item.quantity,
-                    unitPrice: item.price,
+                    unitPrice: linePrice(item),
                     instructions: item.specialInstructions || null,
                     productionCenterId: (item.pcId || selectedPcs[item.id] || productionCenters[0]?.id) ? Number(item.pcId || selectedPcs[item.id] || productionCenters[0]?.id) : null,
                     billId: billId
@@ -405,7 +414,7 @@ export default function POSSales() {
                 items: cart.map(item => ({
                     productName: item.name,
                     qty: item.quantity,
-                    unitPrice: item.price
+                    unitPrice: linePrice(item)
                 })),
                 subTotal: subtotal,
                 discount: totalDiscount,
@@ -827,7 +836,10 @@ export default function POSSales() {
 
 
     // Calculate totals
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // Uber / PickMe bill: each line at the product's Uber / PickMe price (owner 12 Nov), as the server bills it
+    const saleChannel = appChannel((availablePaymentMethods.find(m => m.paymentMethodId === paymentMethodId) || {}).name, deliveryOption);
+    const linePrice = (item) => appPrice(item, saleChannel, item.price);
+    const subtotal = cart.reduce((sum, item) => sum + (linePrice(item) * item.quantity), 0);
     // Raw discount before any cap
     const rawDiscount = cart.reduce((sum, item) => sum + ((appliedDiscounts[item.id] || 0) * item.quantity), 0);
     // Apply Max Discount Cap from promo (if set)
@@ -1046,7 +1058,7 @@ export default function POSSales() {
             toast.error("A direct discount needs a Manager's code");
             return;
         }
-        const lineLeft = cart.map(item => Math.max(0, item.price * item.quantity - (appliedDiscounts[item.id] || 0) * item.quantity));
+        const lineLeft = cart.map(item => Math.max(0, linePrice(item) * item.quantity - (appliedDiscounts[item.id] || 0) * item.quantity));
         const leftTotal = lineLeft.reduce((x, y) => x + y, 0);
         let directLeft = Math.round(directDiscount * 100);
         const directShares = lineLeft.map((left, i) => {
@@ -1073,7 +1085,7 @@ export default function POSSales() {
             items: cart.map((item, i) => ({
                 dayProductionItemId: item.dayProductionItemId,
                 qty: item.quantity,
-                unitPrice: item.price,
+                unitPrice: linePrice(item),
                 paymentMethodId: splitMode ? Number(splitParts[0].methodId) : paymentMethodId, // split: the parts are in payments
                 promotionId: appliedPromo?.id || null,
                 discountId: appliedDiscountsMeta[item.id]?.discountId || null,
@@ -1115,7 +1127,7 @@ export default function POSSales() {
                 items: cart.map(item => ({
                     productName: item.name,
                     qty: item.quantity,
-                    unitPrice: item.price
+                    unitPrice: linePrice(item)
                 })),
                 subTotal: subtotal,
                 discount: totalDiscount,
@@ -1644,22 +1656,22 @@ export default function POSSales() {
                                                         </div>
                                                     </div>
 
-                                                    {waiterDetails && waiterDetails.unpaidItems.length > 0 && (
+                                                    {waiterDetails && waiterUnpaid.length > 0 && (
                                                         <div className="flex items-center justify-between mb-3 px-1">
                                                             <label className="flex items-center gap-2 cursor-pointer text-[14px] text-fg font-[500]">
                                                                 <input
                                                                     type="checkbox"
-                                                                    checked={selectedWaiterItemIds.length === waiterDetails.unpaidItems.length}
+                                                                    checked={selectedWaiterItemIds.length === waiterUnpaid.length}
                                                                     onChange={(e) => {
                                                                         if (e.target.checked) {
-                                                                            setSelectedWaiterItemIds(waiterDetails.unpaidItems.map(item => item.id));
+                                                                            setSelectedWaiterItemIds(waiterUnpaid.map(item => item.id));
                                                                         } else {
                                                                             setSelectedWaiterItemIds([]);
                                                                         }
                                                                     }}
                                                                     className="w-4 h-4 text-brand-fg border-line rounded focus:ring-brand-fg cursor-pointer"
                                                                 />
-                                                                Select All ({waiterDetails.unpaidItems.length})
+                                                                Select All ({waiterUnpaid.length})
                                                             </label>
                                                             <span className="text-[12px] text-fg-secondary">
                                                                 {selectedWaiterItemIds.length} selected
@@ -1668,11 +1680,11 @@ export default function POSSales() {
                                                     )}
 
                                                     <div className="mb-4">
-                                                        {!waiterDetails || waiterDetails.unpaidItems.length === 0 ? (
+                                                        {!waiterDetails || waiterUnpaid.length === 0 ? (
                                                             <p className="text-fg-secondary text-[14px] text-center py-4">No active items.</p>
                                                         ) : (() => {
                                                             const groupedBills = {};
-                                                            waiterDetails.unpaidItems.forEach(item => {
+                                                            waiterUnpaid.forEach(item => {
                                                                 const key = item.billId || "UNGROUPED";
                                                                 if (!groupedBills[key]) {
                                                                     groupedBills[key] = [];
@@ -1748,7 +1760,7 @@ export default function POSSales() {
                                                         })()}
                                                     </div>
 
-                                                    {waiterDetails && waiterDetails.unpaidItems.length > 0 && (
+                                                    {waiterDetails && waiterUnpaid.length > 0 && (
                                                         <div className="border-t border-line pt-4 mt-auto">
                                                             <div className="space-y-1.5 mb-4">
                                                                 <div className="flex justify-between text-[14px] text-fg-secondary">
@@ -1876,7 +1888,7 @@ export default function POSSales() {
                                                                         const discountVal = parseFloat(waiterDiscountAmount) || 0;
                                                                         if (await confirmDialog(`Process payment and print invoice for the ${selectedWaiterItemIds.length} selected items?`, { confirmText: "Process payment" })) {
                                                                             try {
-                                                                                const selectedItems = waiterDetails.unpaidItems.filter(item => selectedWaiterItemIds.includes(item.id));
+                                                                                const selectedItems = waiterUnpaid.filter(item => selectedWaiterItemIds.includes(item.id));
                                                                                 const payload = {
                                                                                     waiterId: selectedWaiter.userId,
                                                                                     itemIdsToPay: selectedWaiterItemIds,
@@ -2002,7 +2014,7 @@ export default function POSSales() {
                                                             <Plus size={14} />
                                                         </button>
                                                     </div>
-                                                    <p className="min-w-[60px] text-right text-[14px] font-[600] text-fg whitespace-nowrap">Rs. {(item.price * item.quantity).toLocaleString()}</p>
+                                                    <p className="min-w-[60px] text-right text-[14px] font-[600] text-fg whitespace-nowrap">Rs. {(linePrice(item) * item.quantity).toLocaleString()}</p>
                                                     <button
                                                         onClick={() => removeFromCart(item.id)}
                                                         aria-label={`Remove ${item.name}`}
@@ -2540,7 +2552,7 @@ export default function POSSales() {
                                                         />
                                                     )}
                                                     <span className="flex-1 text-fg-secondary">{item.quantity}x {item.name}</span>
-                                                    <span className="text-fg">Rs. {(item.price * item.quantity).toLocaleString()}</span>
+                                                    <span className="text-fg">Rs. {(linePrice(item) * item.quantity).toLocaleString()}</span>
                                                 </div>
                                             ))}
                                         </div>

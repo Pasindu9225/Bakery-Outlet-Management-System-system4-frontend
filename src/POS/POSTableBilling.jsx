@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { appChannel, appPrice } from "../utils/appPrice";
 import { tileColor } from "../utils/tileColors";
 import { DirectDiscountBox, LoyaltyBox, EMPTY_DIRECT, EMPTY_LOYALTY, directAmount, loyaltyRedemption, loyaltyRequest } from "../component/BillExtras";
 import EBillPayButton from "../component/EBillPayButton";
@@ -163,6 +164,8 @@ export default function POSTableBilling() {
                  name: item.productName,
                  code: item.productCode,
                  price: item.unitPrice,
+                 uberPrice: item.uberPrice,     // empty = the normal price
+                 pickmePrice: item.pickmePrice,
                  category: item.categoryName,
                  available: true,
                  fastMoving: item.isFastMoving,
@@ -516,7 +519,13 @@ export default function POSTableBilling() {
     };
 
     // Calculate totals
-    const subtotal = currentOrder.reduce((sum, item) => sum + item.total, 0);
+    // Uber / PickMe bill: each item at the product's Uber / PickMe price (owner 12 Nov), as the server bills it
+    const billChannel = appChannel(paymentMethod);
+    const pricedOrder = currentOrder.map(item => {
+        const p = billChannel ? appPrice(products.find(x => x.id === item.productId), billChannel, null) : null;
+        return p == null ? item : { ...item, unitPrice: p, total: p * item.qty };
+    });
+    const subtotal = pricedOrder.reduce((sum, item) => sum + item.total, 0);
     const promoDiscount = Object.values(appliedDiscounts).reduce((sum, val) => sum + val, 0);
     const directDiscount = directAmount(subtotal - promoDiscount, direct);
     const redemption = loyaltyRedemption(subtotal - promoDiscount - directDiscount, loyalty);
@@ -627,7 +636,7 @@ export default function POSTableBilling() {
         }
         // the direct discount, spread over the lines by their value (in cents, so it adds up exactly)
         let directLeft = Math.round(directDiscount * 100);
-        const directShares = currentOrder.map((item, i) => {
+        const directShares = pricedOrder.map((item, i) => {
             const share = i === currentOrder.length - 1 ? directLeft : Math.round(directDiscount * 100 * item.total / (subtotal || 1));
             directLeft -= share;
             return share / 100;
@@ -645,7 +654,7 @@ export default function POSTableBilling() {
                 payments: splitMode ? splitPayload(splitParts) : null,
                 paymentMethodId: splitMode ? Number(splitParts[0].methodId) : selectedMethod.paymentMethodId,
                 globalPromotionId: promoScope === 'TOTAL' ? appliedPromo?.id : null,
-                items: currentOrder.map((item, i) => ({
+                items: pricedOrder.map((item, i) => ({
                     dayProductionItemId: item.dayProductionItemId,
                     qty: item.qty,
                     unitPrice: item.unitPrice,
@@ -683,7 +692,7 @@ export default function POSTableBilling() {
                 cashierName: cashierInfo.name,
                 paymentMethod: splitMode ? splitText(splitParts, paymentMethods) : paymentMethod,
                 deliveryOption: 'Dine-In',
-                items: currentOrder.map(item => ({
+                items: pricedOrder.map(item => ({
                     productName: item.name,
                     qty: item.qty,
                     unitPrice: item.unitPrice

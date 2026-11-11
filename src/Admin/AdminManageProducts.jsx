@@ -94,6 +94,8 @@ export default function AdminManageProducts() {
                         description: item.description,
                         unitPrice: item.unitPrice || 0,
                         sellingPrice: item.salePrice || 0,
+                        uberPrice: item.uberPrice || 0,
+                        pickmePrice: item.pickmePrice || 0,
                         actualGP: item.actualGP || 0,
                         maxStockLevel: item.maxOrderQty || 0,
                         minStockLevel: item.minOrderQty || 0,
@@ -190,6 +192,8 @@ export default function AdminManageProducts() {
         description: '',
         unitPrice: '',
         sellingPrice: '',
+        uberPrice: '',
+        pickmePrice: '',
         minStockLevel: '',
         maxStockLevel: '',
         unitOfMeasure: '',
@@ -513,6 +517,8 @@ export default function AdminManageProducts() {
                         brand: formData.brand,
                         unitPrice: parseFloat(formData.unitPrice) || 0.0,
                         salePrice: parseFloat(formData.sellingPrice) || 0.0,
+                        uberPrice: parseFloat(formData.uberPrice) || 0.0,     // 0 = the normal price
+                        pickmePrice: parseFloat(formData.pickmePrice) || 0.0,
                         gbMargin: parseFloat(formData.GBmargin) || 0.0,
                         actualGP: 0.0,
                         vatStatus: formData.vatIncluded,
@@ -550,6 +556,8 @@ export default function AdminManageProducts() {
                                     description: updatedProduct.description,
                                     unitPrice: updatedProduct.unitPrice,
                                     sellingPrice: updatedProduct.salePrice,
+                                    uberPrice: updatedProduct.uberPrice || 0,
+                                    pickmePrice: updatedProduct.pickmePrice || 0,
                                     maxStockLevel: updatedProduct.maxOrderQty,
                                     minStockLevel: updatedProduct.minOrderQty,
                                     unitOfMeasure: updatedProduct.unitOfMeasure,
@@ -588,6 +596,8 @@ export default function AdminManageProducts() {
                         brand: formData.brand,
                         unitPrice: parseFloat(formData.unitPrice) || 0.0,
                         salePrice: parseFloat(formData.sellingPrice) || 0.0,
+                        uberPrice: parseFloat(formData.uberPrice) || 0.0,     // 0 = the normal price
+                        pickmePrice: parseFloat(formData.pickmePrice) || 0.0,
                         gbMargin: parseFloat(formData.GBmargin) || 0.0,
                         actualGP: 0.0,
                         vatStatus: formData.vatIncluded,
@@ -623,6 +633,8 @@ export default function AdminManageProducts() {
                             description: savedProduct.description,
                             unitPrice: savedProduct.unitPrice,
                             sellingPrice: savedProduct.salePrice,
+                            uberPrice: savedProduct.uberPrice || 0,
+                            pickmePrice: savedProduct.pickmePrice || 0,
                             maxStockLevel: savedProduct.maxOrderQty,
                             minStockLevel: savedProduct.minOrderQty,
                             unitOfMeasure: savedProduct.unitOfMeasure,
@@ -692,6 +704,8 @@ export default function AdminManageProducts() {
             description: product.description,
             unitPrice: product.unitPrice.toString(),
             sellingPrice: product.sellingPrice ? product.sellingPrice.toString() : '0.00',
+            uberPrice: product.uberPrice > 0 ? product.uberPrice.toString() : '',
+            pickmePrice: product.pickmePrice > 0 ? product.pickmePrice.toString() : '',
             maxStockLevel: product.maxStockLevel ? product.maxStockLevel.toString() : '0',
             minStockLevel: product.minStockLevel ? product.minStockLevel.toString() : '0',
             unitOfMeasure: product.unitOfMeasure || '',
@@ -722,6 +736,8 @@ export default function AdminManageProducts() {
             description: '',
             unitPrice: '',
             sellingPrice: '',
+            uberPrice: '',
+            pickmePrice: '',
             minStockLevel: '',
             maxStockLevel: '',
             unitOfMeasure: '',
@@ -879,6 +895,8 @@ export default function AdminManageProducts() {
             "Brand": p.brand,
             "Unit Price (Rs.)": p.unitPrice,
             "Selling Price (Rs.)": p.sellingPrice,
+            "Uber Price (Rs.)": p.uberPrice || "",
+            "PickMe Price (Rs.)": p.pickmePrice || "",
             "Expected GP (%)": p.GBmargin,
             "Actual GP (%)": p.actualGP,
             "Unit of Measure": p.unitOfMeasure,
@@ -1678,6 +1696,48 @@ export default function AdminManageProducts() {
                                             <option value="Pack">Pack</option>
                                             <option value="Pieces">Pieces</option>
                                         </select>
+                                    </div>
+
+                                    {/* Uber Price (owner 12 Nov): empty = the normal selling price */}
+                                    <div>
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                                            Uber Price (Rs.)
+                                        </label>
+                                        <div className="relative">
+                                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[14px] font-[500] text-fg-secondary select-none">Rs.</span>
+                                            <input
+                                                type="number"
+                                                name="uberPrice"
+                                                value={formData.uberPrice}
+                                                onChange={handleChange}
+                                                onKeyDown={(e) => { if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') e.preventDefault(); }}
+                                                placeholder="Same as selling price"
+                                                step="0.01"
+                                                min="0"
+                                                className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* PickMe Price (owner 12 Nov): empty = the normal selling price */}
+                                    <div>
+                                        <label className="block text-[14px] font-[500] text-fg mb-1">
+                                            PickMe Price (Rs.)
+                                        </label>
+                                        <div className="relative">
+                                            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[14px] font-[500] text-fg-secondary select-none">Rs.</span>
+                                            <input
+                                                type="number"
+                                                name="pickmePrice"
+                                                value={formData.pickmePrice}
+                                                onChange={handleChange}
+                                                onKeyDown={(e) => { if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') e.preventDefault(); }}
+                                                placeholder="Same as selling price"
+                                                step="0.01"
+                                                min="0"
+                                                className="w-full pl-10 pr-4 py-2.5 border border-line rounded-md text-[14px] focus:outline-none focus:ring-2 focus:ring-brand-fg"
+                                            />
+                                        </div>
                                     </div>
 
                                     {/* Minimum Stock Level */}
