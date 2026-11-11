@@ -32,7 +32,7 @@ export default function POSSidebar({ sidebarOpen }) {
   };
 
   const posNavigationItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, path: '/posDashboard', color: 'text-brand-fg' },
+    // hidden (owner 11 Nov): no POS Dashboard - { name: 'Dashboard', icon: LayoutDashboard, path: '/posDashboard', color: 'text-brand-fg' },
     { name: 'Sales/Billing', icon: ShoppingCart, path: '/posSales', color: 'text-brand-fg' },
     { name: 'Table Management', icon: Users, path: '/posTableBilling', color: 'text-info' },
     { name: 'Waiter Billing', icon: ClipboardList, path: '/posWaiterBilling', color: 'text-fg-secondary' },

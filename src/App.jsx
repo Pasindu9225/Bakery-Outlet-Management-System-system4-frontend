@@ -19,7 +19,8 @@ import { toastOptions } from "./utils/toastTheme";
 
 // Pages load on first visit, so each role downloads only its own screens.
 const MainDashboard = lazy(() => import("./MainDashboard"));
-const POSDashboard = lazy(() => import("./POS/POSDashboard"));
+// POS Dashboard hidden (owner 11 Nov): /posDashboard opens New Sale
+// const POSDashboard = lazy(() => import("./POS/POSDashboard"));
 const POSGoodsEntry = lazy(() => import("./POS/POSGoodsEntry"));
 const POSSales = lazy(() => import("./POS/POSSales"));
 const POSReturns = lazy(() => import("./POS/POSReturns"));
@@ -243,7 +244,7 @@ function App() {
             path="/posDashboard"
             element={
               <ProtectedRoute allowedRoles={["8"]}>
-                <POSDashboard />
+                <Navigate to="/posSales" replace />
               </ProtectedRoute>
             }
           />
@@ -273,7 +274,7 @@ function App() {
           path="/posDashboard"
           element={
             <ProtectedRoute allowedRoles={["8"]}>
-              <POSDashboard />
+              <Navigate to="/posSales" replace />
             </ProtectedRoute>
           }
         />
