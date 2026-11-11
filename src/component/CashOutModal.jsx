@@ -111,8 +111,8 @@ export default function CashOutModal({ onClose }) {
                             {saving ? "Saving..." : "Confirm Cash Out"}
                         </button>
                     </div>
-                    {/* today's cash outs */}
-                    <div className="md:col-span-2">
+                    {/* today's cash outs - hidden (owner 11 Nov: not needed on the cash out screen) */}
+                    <div className="md:col-span-2" hidden>
                         <h4 className="text-[14px] font-[600] text-fg mb-2">Today's cash outs</h4>
                         {(drawer?.cashOuts || []).length === 0 ? (
                             <p className="text-[13px] text-fg-secondary">None yet.</p>
