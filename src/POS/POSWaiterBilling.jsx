@@ -914,7 +914,7 @@ export default function POSWaiterBilling() {
                                                                     <p className="text-[12px] text-fg-secondary mt-1">{product.description}</p>
                                                                     <p className="text-[12px] font-[600] text-success mt-1">Available Qty: {product.currentQty}</p>
                                                                 </div>
-                                                                <p className="text-[14px] font-[600] text-brand-fg">Rs. {product.price}</p>
+                                                                <p className="text-[14px] font-[600] text-brand-fg">{product.price > 0 ? `Rs. ${product.price}` : `Uber/PickMe Rs. ${product.uberPrice || product.pickmePrice || 0}`}</p>
                                                             </div>
                                                             <button
                                                                 onClick={() => addToOrder(product)}

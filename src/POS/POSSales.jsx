@@ -1002,6 +1002,12 @@ export default function POSSales() {
         }
     };
     const processPaymentNow = async (shouldPrint = false) => {
+        // an Uber / PickMe-only dish (no normal price) is sold only on an Uber / PickMe bill (owner 12 Nov)
+        const appOnly = !saleChannel && cart.find(item => !(item.price > 0) && (item.uberPrice > 0 || item.pickmePrice > 0));
+        if (appOnly) {
+            toast.error(`${appOnly.name} is sold only on Uber / PickMe: choose Uber or PickMe in More.`);
+            return;
+        }
         if (splitMode) {
             const problem = splitProblem(splitParts, availablePaymentMethods, total, splitCashGiven);
             if (problem) {
@@ -1534,7 +1540,7 @@ export default function POSSales() {
                                                         {["EXPIRED", "EXPIRING"].includes(expiryStatus(product.expiryDate, 1)) && (
                                                             <ExpiryTag expiryDate={product.expiryDate} warnDays={1} />
                                                         )}
-                                                        <p className="text-[14px] font-[600] text-brand-fg">Rs. {product.price}</p>
+                                                        <p className="text-[14px] font-[600] text-brand-fg">{product.price > 0 ? `Rs. ${product.price}` : `Uber/PickMe Rs. ${product.uberPrice || product.pickmePrice || 0}`}</p>
                                                     </div>
                                                     <div className="text-right">
                                                         <p className="text-[12px] text-fg-secondary">Received QTY: {product.receivedQty}</p>
@@ -1579,7 +1585,7 @@ export default function POSSales() {
                                                 <div className="mb-1"><ExpiryTag expiryDate={product.expiryDate} warnDays={1} /></div>
                                             )}
                                             <div className="flex border-t border-line mt-2 pt-2 justify-between items-center">
-                                                <p className="text-[16px] font-[600] text-brand-fg">Rs. {product.price}</p>
+                                                <p className="text-[16px] font-[600] text-brand-fg">{product.price > 0 ? `Rs. ${product.price}` : `Uber/PickMe Rs. ${product.uberPrice || product.pickmePrice || 0}`}</p>
                                                 <div className="text-right">
                                                     <p className="text-[12px] text-fg-secondary">Received QTY: {product.receivedQty}</p>
                                                     <p className="text-[12px] text-fg-secondary">Current QTY: {product.currentQty}</p>
