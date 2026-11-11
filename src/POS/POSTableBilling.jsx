@@ -609,7 +609,7 @@ export default function POSTableBilling() {
             return;
         }
         if (isFreeMeal && !effectiveReason) {
-            toast.error('Enter who requested the free meal and the reason');
+            toast.error('Enter who requested the free meal, the reason and the approval code');
             return;
         }
         if (directDiscount > 0 && !direct.managerCode.trim()) {
@@ -631,7 +631,7 @@ export default function POSTableBilling() {
                 cashierId: cashierId,
                 amountReceived: receivedAmount,
                 totalAmount: totalPayable,
-                managerCode: directDiscount > 0 ? direct.managerCode.trim() : null,
+                managerCode: isFreeMeal ? (meal.approvalCode || '').trim() : (directDiscount > 0 ? direct.managerCode.trim() : null),
                 ...loyaltyRequest(loyalty),
                 payments: splitMode ? splitPayload(splitParts) : null,
                 paymentMethodId: splitMode ? Number(splitParts[0].methodId) : selectedMethod.paymentMethodId,

@@ -6,7 +6,8 @@ import { CheckCircle, AlertTriangle } from "lucide-react";
 // Staff meal: a Staff ID of an active user (Admin > Users shows each user's), checked with the server.
 // Free meal: who requested it and why.
 
-export const EMPTY_MEAL = { staffId: "", staffName: null, requestedBy: "", reason: "" };
+// approvalCode: the Admin's / a Manager's verification code; a free meal is refused without it (sent as managerCode)
+export const EMPTY_MEAL = { staffId: "", staffName: null, requestedBy: "", reason: "", approvalCode: "" };
 
 /** The reason saved with the sale, or "" while the details are incomplete. kind: "staff" | "free". */
 export function mealReason(kind, m) {
@@ -14,7 +15,7 @@ export function mealReason(kind, m) {
         return m.staffName ? `Staff ID: ${m.staffId.trim().toUpperCase()} (${m.staffName})${m.reason.trim() ? ` - ${m.reason.trim()}` : ""}` : "";
     }
     if (kind === "free") {
-        return m.requestedBy.trim() && m.reason.trim() ? `Requested by: ${m.requestedBy.trim()} - Reason: ${m.reason.trim()}` : "";
+        return m.requestedBy.trim() && m.reason.trim() && (m.approvalCode || "").trim() ? `Requested by: ${m.requestedBy.trim()} - Reason: ${m.reason.trim()}` : "";
     }
     return "";
 }
@@ -91,6 +92,17 @@ export default function MealDetails({ kind, value, onChange }) {
             <div>
                 <label className="block text-[14px] font-[500] text-fg mb-2">Reason *</label>
                 <textarea placeholder="Why the meal is free" value={value.reason} onChange={(e) => set({ reason: e.target.value })} className={`${field} resize-none`} rows="3" />
+            </div>
+            <div>
+                <label className="block text-[14px] font-[500] text-fg mb-2">Approval code *</label>
+                <input
+                    type="text" autoComplete="off" data-lpignore="true" style={{ WebkitTextSecurity: "disc" }}
+                    aria-label="Approval code"
+                    placeholder="Admin's or Manager's code"
+                    value={value.approvalCode || ""}
+                    onChange={(e) => set({ approvalCode: e.target.value })}
+                    className={field}
+                />
             </div>
             <div className="p-2 bg-subtle border border-brand-fg rounded-lg text-[13px] text-brand-fg">Free Meal: No charge for this transaction.</div>
         </div>

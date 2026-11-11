@@ -11,14 +11,13 @@ export const isMobile = (phone) => /^(\+?94|0)?7\d{8}$/.test(String(phone || "")
  * The SMS text of a bill. bill = { outletName, title, id, lines: [{ name, qty, amount }], totals: [[label, value]],
  * info: [[label, text]] }; value lines are money, info lines are printed as they are.
  */
-// System 4 is the Cake Republic individual POS: its SMS bills carry the brand above the outlet name
-const BRAND = "Cake Republic";
+// the business name on every SMS bill (client review 11 Nov: "Garden Club Kandy")
+const BRAND = "Garden Club Kandy";
 
 export function eBillText({ outletName, title = "Bill", id, lines = [], totals = [], info = [] }) {
     const d = new Date();
     return [
         BRAND,
-        outletName && outletName !== BRAND ? outletName : null,
         `${title}${id ? ` ${id}` : ""}`,
         `${d.toLocaleDateString("en-GB")} ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`,
         ...lines.map((l) => `${l.name} x${l.qty} ${amount(l.amount)}`),

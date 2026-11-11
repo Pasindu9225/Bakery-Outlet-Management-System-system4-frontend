@@ -514,7 +514,7 @@ export default function POSWaiterBilling() {
             return;
         }
         if (isFreeMeal && !effectiveReason) {
-            toast.error('Enter who requested the free meal and the reason');
+            toast.error('Enter who requested the free meal, the reason and the approval code');
             return;
         }
         if (directDiscount > 0 && !direct.managerCode.trim()) {
@@ -532,7 +532,7 @@ export default function POSWaiterBilling() {
                 discountReason: isFreeMeal ? effectiveReason
                     : [appliedPromo ? `Promo ${appliedPromo.code || ''}`.trim() : null, directDiscount > 0 ? 'Manual Discount' : null].filter(Boolean).join(', ') || null,
                 manualDiscount: directDiscount > 0,
-                managerCode: directDiscount > 0 ? direct.managerCode.trim() : null,
+                managerCode: isFreeMeal ? (meal.approvalCode || '').trim() : (directDiscount > 0 ? direct.managerCode.trim() : null),
                 ...loyaltyRequest(loyalty),
                 paymentReference: ['CARD', 'BANK_TRANSFER'].includes(paymentCategory) ? (payRef.trim() || null) : null,
                 outletId: Number(localStorage.getItem("outletId")) || null,

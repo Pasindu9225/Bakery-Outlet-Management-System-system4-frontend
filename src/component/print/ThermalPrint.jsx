@@ -179,15 +179,17 @@ const lineItems = (items = []) => items.map((item) => ({
 }));
 
 /** Totals block of a POS bill; a tax line appears when the total includes tax. */
-export function posTotals({ subTotal = 0, discount = 0, finalTotal = 0 }) {
+export function posTotals({ subTotal = 0, discount = 0, finalTotal = 0, cashGiven = 0, change = 0 }) {
+  // cash bills: what the customer gave and the balance handed back (client review 11 Nov)
+  const cash = cashGiven > 0 ? [{ label: "Cash:", value: cashGiven }, { label: "Balance:", value: change || 0 }] : [];
   const tax = finalTotal - (subTotal - (discount || 0));
   const taxed = subTotal - (discount || 0);
   const extras = [
     ...(discount > 0 ? [{ label: "Discount:", value: `- ${money(discount)}` }] : []),
     ...(tax > 0.005 ? [{ label: `Tax (${taxed > 0 ? Math.round((tax / taxed) * 100) : 0}%):`, value: tax }] : []),
   ];
-  if (!extras.length) return [{ label: "Total:", value: finalTotal, bold: true }];
-  return [{ label: "Subtotal:", value: subTotal, bold: true }, ...extras, { label: "Total:", value: finalTotal, bold: true, rule: true }];
+  if (!extras.length) return [{ label: "Total:", value: finalTotal, bold: true }, ...cash];
+  return [{ label: "Subtotal:", value: subTotal, bold: true }, ...extras, { label: "Total:", value: finalTotal, bold: true, rule: true }, ...cash];
 }
 
 /**
@@ -216,6 +218,8 @@ export function PosPrintout({ printData, outlet = {}, id = "print-receipt" }) {
           ["Waiter", printData.waiterName],
           ["Cashier", printData.cashierName],
           ["Payment", printData.paymentMethod],
+          ["Card", printData.cardLast4 ? `**** **** **** ${printData.cardLast4}` : null],
+          ["Card Ref", printData.cardRef],
           ["Channel", printData.deliveryOption],
         ]}
         sections={[{ items: lineItems(printData.items) }]}

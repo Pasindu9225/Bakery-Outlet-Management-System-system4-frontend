@@ -81,6 +81,7 @@ export default function POSSales() {
     // a discount typed by the cashier needs a Manager's code
     const [waiterDiscountManagerCode, setWaiterDiscountManagerCode] = useState('');
     const [cardRef, setCardRef] = useState('');
+    const [cardLast4, setCardLast4] = useState(''); // printed on the invoice as **** 1234
     const [bankName, setBankName] = useState('');
     const [bankRef, setBankRef] = useState('');
     const [freeMealReason, setFreeMealReason] = useState('');
@@ -326,7 +327,7 @@ export default function POSSales() {
                 discountAmount: discountVal,
                 discountReason: (waiterPaymentType === 'FREE_MEAL' || waiterPaymentType === 'STAFF_MEAL') ? waiterMealReason : waiterDiscountReason,
                 manualDiscount: discountVal > 0,
-                managerCode: discountVal > 0 ? waiterDiscountManagerCode : null,
+                managerCode: waiterPaymentType === 'FREE_MEAL' ? (waiterMeal.approvalCode || '').trim() : (discountVal > 0 ? waiterDiscountManagerCode : null),
                 outletId: parseInt(localStorage.getItem("outletId") || "1"),
                 paymentReference: ['CARD', 'BANK_TRANSFER'].includes(waiterPaymentType) ? waiterRef.trim() : null,
                 ...loyaltyRequest(waiterLoyalty),
@@ -868,6 +869,8 @@ export default function POSSales() {
     const [eBillOpen, setEBillOpen] = useState(false);
     const [eBillPhone, setEBillPhone] = useState('');
     const eBillPhoneRef = useRef(null);
+    // a loyalty customer on the bill: the e-bill goes to their registered number without asking again
+    const loyaltyPhone = customer && isMobile(customer.contactNumber) ? customer.contactNumber : null;
     useEffect(() => { if (cart.length === 0) { setCartCash(''); setEBillOpen(false); setEBillPhone(''); } }, [cart.length]);
     const [noteOpen, setNoteOpen] = useState({});
     const handleEBill = () => {
@@ -946,12 +949,13 @@ export default function POSSales() {
                 </div>
             ) : (
                 <button
-                    onClick={() => setEBillOpen(true)}
+                    onClick={() => (loyaltyPhone ? handleQuickCheckout(loyaltyPhone) : setEBillOpen(true))}
+                    disabled={!!quickCheckout}
                     title="Cash, and the bill is sent to the customer's phone as an SMS (no printed bill)"
                     className="w-full border border-plum text-plum py-3 rounded-lg font-[500] hover:bg-plum/10 transition-colors flex items-center justify-center gap-2"
                 >
                     <MessageSquare size={16} />
-                    E-Bill
+                    {loyaltyPhone ? `E-Bill to ${loyaltyPhone}` : 'E-Bill'}
                 </button>
             )}
             <button
@@ -1008,6 +1012,10 @@ export default function POSSales() {
             toast.error('Please enter card transaction reference');
             return;
         }
+        if (!splitMode && paymentMethod === 'card' && !/^d{4}$/.test(cardLast4)) {
+            toast.error('Enter the last 4 digits of the card');
+            return;
+        }
 
         if (!splitMode && paymentMethod === 'bank' && (!bankName.trim() || !bankRef.trim())) {
             toast.error('Please enter bank details');
@@ -1017,7 +1025,7 @@ export default function POSSales() {
         const effectiveReason = mealReason(isStaffMeal ? 'staff' : isFreeMeal ? 'free' : null, meal);
 
         if (isFreeMeal && !effectiveReason) {
-            toast.error('Enter who requested the free meal and the reason');
+            toast.error('Enter who requested the free meal, the reason and the approval code');
             return;
         }
 
@@ -1053,7 +1061,7 @@ export default function POSSales() {
             otp: otpVerified ? otp : null,
             invoicePrinted: shouldPrint,
             payments: splitMode ? splitPayload(splitParts) : null,
-            managerCode: directDiscount > 0 ? directManagerCode.trim() : null,
+            managerCode: isFreeMeal ? (meal.approvalCode || '').trim() : (directDiscount > 0 ? directManagerCode.trim() : null),
             items: cart.map((item, i) => ({
                 dayProductionItemId: item.dayProductionItemId,
                 qty: item.quantity,
@@ -1063,7 +1071,7 @@ export default function POSSales() {
                 discountId: appliedDiscountsMeta[item.id]?.discountId || null,
                 manualDiscount: directShares[i],
                 freeMealReason: (isFreeMeal || isStaffMeal) ? effectiveReason : null,
-                bankTransferCode: splitMode ? null : ((paymentMethod === 'bank' || paymentMethod === 'bank transfer') ? bankRef : (paymentMethod === 'card' ? cardRef : null)),
+                bankTransferCode: splitMode ? null : ((paymentMethod === 'bank' || paymentMethod === 'bank transfer') ? bankRef : (paymentMethod === 'card' ? `${cardRef.trim()} (card **** ${cardLast4})` : null)),
                 specialInstructions: item.specialInstructions || ""
             }))
         };
@@ -1105,6 +1113,8 @@ export default function POSSales() {
                 discount: totalDiscount,
                 finalTotal: data.data?.totalAmount ?? total,
                 paymentMethod: splitMode ? splitText(splitParts, availablePaymentMethods) : selectedMethodObj.name,
+                cardLast4: !splitMode && paymentMethod === 'card' ? cardLast4 : null,
+                cardRef: !splitMode && paymentMethod === 'card' ? cardRef.trim() : null,
                 cashGiven: !splitMode && paymentMethod === 'cash' ? (parseFloat(cashReceived) || 0) : 0,
                 change: !splitMode && paymentMethod === 'cash' ? calculateChange() : 0,
                 kotItems: kotItems,
@@ -1172,6 +1182,7 @@ export default function POSSales() {
         setPaymentMethodId(null);
         setCashReceived('');
         setCardRef('');
+        setCardLast4('');
         setBankName('');
         setBankRef('');
         setFreeMealReason('');
@@ -1471,7 +1482,13 @@ export default function POSSales() {
                                                 }`}>
                                             <div className="flex items-center gap-1">
                                                 <Grid3X3 size={12} />
-                                                {category.name} {category.code && `(${category.code})`}
+                                                {category.name}
+                                                {/* the category's shortcut number: typing it in the search box opens this category (not an item count) */}
+                                                {category.code && (
+                                                    <span title={`Shortcut: type ${category.code} in the search box`} className="ml-1 px-1 rounded border border-current text-[10px] opacity-70">
+                                                        #{category.code}
+                                                    </span>
+                                                )}
                                             </div>
                                         </button>
                                     ))}
@@ -1827,7 +1844,7 @@ export default function POSSales() {
                                                                                     discountAmount: discountVal,
                                                                                     discountReason: (waiterPaymentType === 'FREE_MEAL' || waiterPaymentType === 'STAFF_MEAL') ? waiterMealReason : waiterDiscountReason,
                                                                                     manualDiscount: discountVal > 0,
-                                                                                    managerCode: discountVal > 0 ? waiterDiscountManagerCode : null,
+                                                                                    managerCode: waiterPaymentType === 'FREE_MEAL' ? (waiterMeal.approvalCode || '').trim() : (discountVal > 0 ? waiterDiscountManagerCode : null),
                                                                                     outletId: parseInt(localStorage.getItem("outletId") || "1"),
                 paymentReference: ['CARD', 'BANK_TRANSFER'].includes(waiterPaymentType) ? waiterRef.trim() : null,
                 ...loyaltyRequest(waiterLoyalty),
@@ -1865,7 +1882,7 @@ export default function POSSales() {
                                                                                     discountAmount: discountVal,
                                                                                     discountReason: (waiterPaymentType === 'FREE_MEAL' || waiterPaymentType === 'STAFF_MEAL') ? waiterMealReason : waiterDiscountReason,
                                                                                     manualDiscount: discountVal > 0,
-                                                                                    managerCode: discountVal > 0 ? waiterDiscountManagerCode : null,
+                                                                                    managerCode: waiterPaymentType === 'FREE_MEAL' ? (waiterMeal.approvalCode || '').trim() : (discountVal > 0 ? waiterDiscountManagerCode : null),
                                                                                     outletId: parseInt(localStorage.getItem("outletId") || "1"),
                 paymentReference: ['CARD', 'BANK_TRANSFER'].includes(waiterPaymentType) ? waiterRef.trim() : null,
                 ...loyaltyRequest(waiterLoyalty),
@@ -2297,6 +2314,16 @@ export default function POSSales() {
                                                             onChange={(e) => setCardRef(e.target.value)}
                                                             className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                                         />
+                                                        <label className="block text-[14px] font-[500] text-fg mt-3 mb-2">Card last 4 digits *</label>
+                                                        <input
+                                                            type="text"
+                                                            inputMode="numeric"
+                                                            maxLength={4}
+                                                            placeholder="e.g. 1234"
+                                                            value={cardLast4}
+                                                            onChange={(e) => setCardLast4(e.target.value.replace(/D/g, '').slice(0, 4))}
+                                                            className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
+                                                        />
                                                     </div>
                                                 )}
 
@@ -2656,12 +2683,13 @@ export default function POSSales() {
                                     </div>
                                     <div className="mt-3">
                                         <EBillPayButton
+                                            defaultPhone={loyaltyPhone || ""}
                                             disabled={!paymentMethod || ((isFreeMeal || isStaffMeal) && !mealReason(isStaffMeal ? 'staff' : 'free', meal))}
                                             onPay={(phone) => { eBillPhoneRef.current = phone; processPayment(false); }}
                                         />
                                     </div>
                                     <ButtonHint show={isFreeMeal && !mealReason('free', meal)}>
-                                        Enter who requested the free meal and the reason to finish.
+                                        Enter who requested the free meal, the reason and the approval code to finish.
                                     </ButtonHint>
                                     <ButtonHint show={isStaffMeal && !mealReason('staff', meal)}>
                                         Enter a valid Staff ID and press Check to finish.

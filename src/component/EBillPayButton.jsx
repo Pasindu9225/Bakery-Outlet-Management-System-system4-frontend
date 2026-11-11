@@ -19,17 +19,20 @@ export default function EBillPayButton({ onPay, disabled = false, defaultPhone =
         onPay(phone.trim());
     };
 
+    // a known customer number (loyalty customer): pay and send straight away, no need to ask again
+    const known = isMobile(defaultPhone) ? String(defaultPhone).trim() : null;
+
     if (!open) {
         return (
             <button
                 type="button"
                 disabled={disabled}
-                onClick={() => setOpen(true)}
+                onClick={() => (known ? onPay(known) : setOpen(true))}
                 title="Pay, and send the bill to the customer's phone as an SMS instead of printing it"
                 className="w-full py-3 border border-plum text-plum rounded-lg hover:bg-plum/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-[500] flex items-center justify-center gap-2"
             >
                 <MessageSquare size={16} />
-                {label}
+                {known ? `${label} (${known})` : label}
             </button>
         );
     }
