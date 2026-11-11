@@ -1012,7 +1012,7 @@ export default function POSSales() {
             toast.error('Please enter card transaction reference');
             return;
         }
-        if (!splitMode && paymentMethod === 'card' && !/^d{4}$/.test(cardLast4)) {
+        if (!splitMode && paymentMethod === 'card' && !/^\d{4}$/.test(cardLast4)) {
             toast.error('Enter the last 4 digits of the card');
             return;
         }
@@ -2316,7 +2316,7 @@ export default function POSSales() {
                                                             maxLength={4}
                                                             placeholder="e.g. 1234"
                                                             value={cardLast4}
-                                                            onChange={(e) => setCardLast4(e.target.value.replace(/D/g, '').slice(0, 4))}
+                                                            onChange={(e) => setCardLast4(e.target.value.replace(/\D/g, '').slice(0, 4))}
                                                             className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                                         />
                                                     </div>
