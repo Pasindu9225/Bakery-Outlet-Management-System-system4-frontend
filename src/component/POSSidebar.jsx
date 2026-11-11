@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import CashOutModal from "./CashOutModal";
+import OpeningFloatGate from "../POS/OpeningFloatGate";
 import SidebarCollapseButton from "./SidebarCollapseButton";
 import {
   ClipboardList,
@@ -47,6 +48,8 @@ export default function POSSidebar({ sidebarOpen }) {
   return (
     <div className={`fixed md:static z-[9999] top-0 left-0 h-screen transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
       <div className="app-sidebar w-64 bg-surface shadow-lg h-screen flex flex-col">
+        {/* opening cash float: asked on whichever POS page the cashier lands (it was on the hidden POS Dashboard) */}
+        <OpeningFloatGate />
         {/* Logo & Back Button */}
         <div className="sb-pad p-4 border-b border-line flex items-center justify-between">
           <div className="flex items-center">
