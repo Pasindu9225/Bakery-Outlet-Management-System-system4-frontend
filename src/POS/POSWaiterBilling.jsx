@@ -572,6 +572,9 @@ export default function POSWaiterBilling() {
                 subTotal: subtotal,
                 discount: totalDiscount,
                 finalTotal: totalPayable,
+                // cash bills: what the customer gave and the balance handed back
+                cashGiven: paymentCategory === 'CASH' ? receivedAmount : 0,
+                change: paymentCategory === 'CASH' ? Math.max(0, receivedAmount - totalPayable) : 0,
                 kotItems: kotItems,
                 isUberOrPickMe: isUberOrPickMe
             };

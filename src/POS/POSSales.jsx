@@ -2101,6 +2101,39 @@ export default function POSSales() {
                                         </span>
                                     </div>
 
+                                    {/* loyalty number at the end of the bill (same customer as in More; redeeming points is in More) */}
+                                    <div className="mb-3">
+                                        <label className="block text-[14px] font-[500] text-fg mb-2">Loyalty Number</label>
+                                        {customer ? (
+                                            <div className="flex items-center justify-between p-2 bg-subtle border border-line rounded-lg text-[13px]">
+                                                <span><span className="font-[600] text-fg">{customer.name}</span> <span className="text-fg-secondary">{customer.contactNumber}</span></span>
+                                                <span className="flex items-center gap-2">
+                                                    <span className="flex items-center gap-0.5 text-warning font-[600]"><Coins size={12} /> {Number(customer.loyaltyPoints || 0).toFixed(2)}</span>
+                                                    <button type="button" onClick={handleRemoveCustomer} aria-label="Remove loyalty customer" className="p-0.5 text-fg-secondary hover:text-error"><X size={14} /></button>
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="tel"
+                                                    placeholder="Customer mobile (optional)"
+                                                    value={customerPhone}
+                                                    onChange={(e) => setCustomerPhone(e.target.value)}
+                                                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCustomerLookup(); } }}
+                                                    className="flex-1 min-w-0 px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={handleCustomerLookup}
+                                                    disabled={lookupLoading || !customerPhone.trim()}
+                                                    className="px-4 bg-hover text-fg rounded-lg text-[14px] font-[500] disabled:opacity-50"
+                                                >
+                                                    {lookupLoading ? "..." : "Verify"}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     <div className="mb-3">
                                         <label className="block text-[14px] font-[500] text-fg mb-2">Cash Received</label>
                                         <CashQuickButtons total={total} selected={cartCash} onPick={setCartCash} />

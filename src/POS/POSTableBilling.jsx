@@ -682,6 +682,9 @@ export default function POSTableBilling() {
                 subTotal: subtotal,
                 discount: totalDiscount,
                 finalTotal: saleData.totalAmount || totalPayable,
+                // cash bills: what the customer gave and the balance handed back
+                cashGiven: !splitMode && selectedMethod.category === 'CASH' ? receivedAmount : 0,
+                change: !splitMode && selectedMethod.category === 'CASH' ? Math.max(0, receivedAmount - totalPayable) : 0,
                 kotItems: kotItems,
                 isUberOrPickMe: isUberOrPickMe
             };
