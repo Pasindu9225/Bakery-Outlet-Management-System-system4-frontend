@@ -54,27 +54,12 @@ export default function AdminStockEntry() {
   const fetchProducts = async () => {
     try {
       setLoadingProducts(true);
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/api/products`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/api/v1/admin/product/all`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
       });
-
-      if (!response.ok) {
-        // Fallback to manager product endpoint if /api/products is not public
-        const altResponse = await fetch(`${process.env.REACT_APP_BASE_URL}/api/manager/products`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (altResponse.ok) {
-          const altData = await altResponse.json();
-          setProducts(Array.isArray(altData) ? altData : altData.content || []);
-          return;
-        }
-        throw new Error("Failed to fetch products");
-      }
+      if (!response.ok) throw new Error("Failed to fetch products");
       const data = await response.json();
-      setProducts(Array.isArray(data) ? data : data.content || []);
+      setProducts((Array.isArray(data) ? data : data.content || []).filter((p) => p.isActive !== false));
     } catch (err) {
       console.error("Error fetching products:", err);
     } finally {
@@ -95,6 +80,15 @@ export default function AdminStockEntry() {
       .catch((err) => console.error("Error fetching outlets:", err));
   }, []);
 
+  const entryUnit = (uom) => {
+    const u = String(uom || "").trim().toLowerCase();
+    if (/^(kg|kgs|kilo|kilos|kilograms?)$/.test(u)) return "kg";
+    if (/^(l|ltr|ltrs|liters?|litres?)$/.test(u)) return "liters";
+    if (/^(pack|pkt)/.test(u)) return "packets";
+    if (/^box/.test(u)) return "boxes";
+    return "pieces";
+  };
+
   const handleProductSelect = (productId) => {
     const selected = products.find((p) => String(p.id) === String(productId));
     if (selected) {
@@ -103,7 +97,7 @@ export default function AdminStockEntry() {
         productId: selected.id,
         productName: selected.productName || selected.name || "",
         productCode: selected.productCode || `PRD-${selected.id}`,
-        unit: selected.unit || "pieces",
+        unit: entryUnit(selected.unitOfMeasure),
       }));
     } else {
       setForm((prev) => ({ ...prev, productId: "", productName: "", productCode: "" }));
@@ -137,8 +131,8 @@ export default function AdminStockEntry() {
         productId: parseInt(form.productId),
         quantity: parseFloat(form.quantity),
         unit: (form.unit || "pieces").toUpperCase(),
-        remarks: form.remarks || "Direct Stock Entry by Admin",
-        source: (form.source || "Store").toUpperCase(),
+        remarks: "Goods Entry by Admin",
+        source: "STORE",
         userId: userId,
         outletId: parseInt(form.outletId),
       };
@@ -305,58 +299,12 @@ export default function AdminStockEntry() {
                   </div>
                   <div>
                     <label className="block text-[13px] font-[500] text-fg mb-1">
-                      Unit *
+                      Unit
                     </label>
-                    <select
-                      value={form.unit}
-                      onChange={(e) => handleFormChange("unit", e.target.value)}
-                      className="w-full px-3 py-2.5 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg text-[14px]"
-                    >
-                      {units.map((u) => (
-                        <option key={u} value={u}>
-                          {u}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="w-full px-3 py-2.5 border border-line rounded-lg bg-subtle text-[14px] text-fg">
+                      {form.productId ? form.unit : "Comes from the product"}
+                    </div>
                   </div>
-                </div>
-
-                {/* Source Selection */}
-                <div>
-                  <label className="block text-[13px] font-[500] text-fg mb-1">
-                    Source / Origin *
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {sources.map((s) => (
-                      <button
-                        type="button"
-                        key={s.value}
-                        onClick={() => handleFormChange("source", s.value)}
-                        className={`flex items-center gap-2 p-3 rounded-lg border text-[13px] font-[500] transition-colors ${
-                          form.source === s.value
-                            ? "border-brand-fg bg-brand/10 text-brand-fg"
-                            : "border-line bg-surface text-fg-secondary hover:bg-subtle"
-                        }`}
-                      >
-                        {s.icon}
-                        <span>{s.value}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Remarks */}
-                <div>
-                  <label className="block text-[13px] font-[500] text-fg mb-1">
-                    Remarks / Notes
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={form.remarks}
-                    onChange={(e) => handleFormChange("remarks", e.target.value)}
-                    placeholder="Add optional notes (e.g. Direct dispatch for morning shift)..."
-                    className="w-full px-3 py-2.5 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg text-[14px]"
-                  />
                 </div>
 
                 {/* Action Buttons */}
@@ -402,7 +350,7 @@ export default function AdminStockEntry() {
                           {item.productName}
                         </p>
                         <p className="text-[12px] text-fg-secondary mt-0.5">
-                          {item.quantity} {item.unit} &bull; {item.source}
+                          {item.quantity} {item.unit}
                           {item.outletName ? <> &bull; {item.outletName}</> : null}
                         </p>
                         <span className="text-[12px] text-fg-muted">{item.timestamp}</span>
