@@ -52,7 +52,7 @@ export default function AdminDashboard() {
                 { name: "Admin Approval", path: "/adminApprovalRequests", icon: CheckSquare, description: "Approve requests" },
                 { name: "Generate Reports", path: "/adminGenerateReports", icon: FileText, description: "PDF, Excel, CSV" },
                 { name: "Wastage", path: "/adminWastage", icon: AlertTriangle, description: "Review wastage" },
-                { name: "Direct Stock Entry", path: "/adminStockEntry", icon: Package, description: "Add items directly to POS" },
+                { name: "Goods Entry", path: "/adminStockEntry", icon: Package, description: "Add items to an outlet's POS stock" },
               ]} />
 
               {!summary.loading && (

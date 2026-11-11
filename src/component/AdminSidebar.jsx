@@ -108,7 +108,7 @@ export default function AdminSidebar({ sidebarOpen }) {
       color: "text-plum",
     },
     {
-      name: "Stock & Item Entry",
+      name: "Goods Entry",
       icon: Package,
       path: "/adminStockEntry",
       color: "text-success",

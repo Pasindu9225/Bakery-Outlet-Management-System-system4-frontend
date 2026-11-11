@@ -19,7 +19,7 @@ import Loader from "../component/Loader";
 
 export default function AdminStockEntry() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeSection] = useState("Stock & Item Entry");
+  const [activeSection] = useState("Goods Entry");
 
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
@@ -213,7 +213,7 @@ export default function AdminStockEntry() {
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-[24px] font-[600] text-fg">
-              Direct Stock & Item Entry
+              Goods Entry
             </h1>
             <p className="text-[14px] text-fg-secondary mt-1">
               Add products directly into POS stock without requiring storekeeper or production plan approval.
