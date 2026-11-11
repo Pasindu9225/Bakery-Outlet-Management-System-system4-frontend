@@ -27,11 +27,9 @@ export default function CashOutModal({ onClose }) {
     useEffect(() => { load(); }, []);
 
     const total = NOTES.reduce((sum, n) => sum + n * (parseInt(counts[n], 10) || 0), 0);
-    const inDrawer = Number(drawer?.drawerCash || 0);
 
     const save = async () => {
         if (total <= 0) return toast.error("Count the notes and coins taken out.");
-        if (total > inDrawer) return toast.error(`Only ${rs(inDrawer)} should be in the drawer.`);
         if (!managerCode.trim()) return toast.error("A cash out needs the Manager's code.");
         setSaving(true);
         try {
@@ -89,11 +87,10 @@ export default function CashOutModal({ onClose }) {
                             <div className="flex justify-between"><span className="text-fg-secondary">Date</span><span className="text-fg">{new Date().toLocaleDateString()}</span></div>
                             <div className="flex justify-between"><span className="text-fg-secondary">Opening float</span><span className="text-fg">{rs(drawer?.openingFloat)}</span></div>
                             <div className="flex justify-between"><span className="text-fg-secondary">Cash outs today</span><span className="text-fg">{rs(drawer?.cashOutsTotal)}</span></div>
-                            <div className="flex justify-between font-[600]"><span className="text-fg">Cash in drawer now</span><span className="text-brand-fg">{rs(inDrawer)}</span></div>
                         </div>
                         <div className="p-3 border border-brand-fg rounded-lg flex justify-between items-center">
                             <span className="text-[14px] font-[600] text-fg">Cash Out</span>
-                            <span className={`text-[20px] font-[700] ${total > inDrawer ? "text-error" : "text-brand-fg"}`}>{rs(total)}</span>
+                            <span className={`text-[20px] font-[700] text-brand-fg`}>{rs(total)}</span>
                         </div>
                         <div>
                             <label className="block text-[13px] font-[500] text-fg mb-1">Note (optional)</label>
