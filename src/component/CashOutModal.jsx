@@ -119,7 +119,7 @@ export default function CashOutModal({ onClose }) {
                         </div>
                         <p className="text-[13px] text-fg-secondary">Count all the notes and coins in the drawer: all of it is taken out.</p>
                         <div className="p-3 border border-brand-fg rounded-lg flex justify-between items-center">
-                            <span className="text-[14px] font-[600] text-fg">Cash Out</span>
+                            <span className="text-[14px] font-[600] text-fg">Cash in hand</span>
                             <span className={`text-[20px] font-[700] text-brand-fg`}>{rs(total)}</span>
                         </div>
                         <div>
