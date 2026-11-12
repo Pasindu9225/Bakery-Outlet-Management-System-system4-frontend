@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { appChannel, appPrice } from "../utils/appPrice";
 import { DirectDiscountBox, LoyaltyBox, EMPTY_DIRECT, EMPTY_LOYALTY, directAmount, loyaltyRedemption, loyaltyRequest } from "../component/BillExtras";
 import EBillPayButton from "../component/EBillPayButton";
@@ -49,6 +50,7 @@ import { PosPrintout } from "../component/print/ThermalPrint";
 
 
 export default function POSWaiterBilling() {
+    const navigate = useNavigate();
     const outlet = useOutletInfo(); // outlet name/address printed on bills
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeSection] = useState('Waiter Management');
@@ -488,8 +490,8 @@ export default function POSWaiterBilling() {
             toast.error('No items in the order');
             return;
         }
-        setSkipIds([]);
-        setShowBillModal(true);
+        // the same Waiter Billing popup as New Sale, opened for this waiter (owner 12 Nov); this page's own bill popup is kept, unused
+        navigate('/posSales', { state: { openWaiter: selectedWaiter } });
     };
 
     // Process payment

@@ -38,7 +38,7 @@ import {
     Banknote,
     MessageSquare
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "../services/api";
 import { extractNicDetails } from "../utils/nicParser";
 import POSNavBar from "../component/POSNavBar.jsx";
@@ -59,6 +59,7 @@ import SplitPayment, { splitMethods, startSplit, splitProblem, splitPayload, spl
 export default function POSSales() {
     const outlet = useOutletInfo(); // outlet name/address printed on bills
     const navigate = useNavigate();
+    const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('New Sale');
     const searchInputRef = useRef(null);
@@ -165,9 +166,10 @@ export default function POSSales() {
     // cash received (empty = exact), card / transfer reference, customer loyalty; More shows the other ways to pay
     const [waiterCash, setWaiterCash] = useState('');
     const [waiterRef, setWaiterRef] = useState('');
+    const [waiterLast4, setWaiterLast4] = useState('');   // card: last 4 digits, printed as **** 1234 (owner 12 Nov)
     const [waiterLoyalty, setWaiterLoyalty] = useState(EMPTY_LOYALTY);
     const [waiterMore, setWaiterMore] = useState(false);
-    const resetWaiterPay = () => { setWaiterMeal(EMPTY_MEAL); setWaiterCash(''); setWaiterRef(''); setWaiterLoyalty(EMPTY_LOYALTY); };
+    const resetWaiterPay = () => { setWaiterMeal(EMPTY_MEAL); setWaiterCash(''); setWaiterRef(''); setWaiterLast4(''); setWaiterLoyalty(EMPTY_LOYALTY); };
     const [printData, setPrintData] = useState(null);
     const [showWaiterDiscountModal, setShowWaiterDiscountModal] = useState(false);
     const [waiterDiscountAmount, setWaiterDiscountAmount] = useState('0');
@@ -202,7 +204,7 @@ export default function POSSales() {
     const waiterRedemption = loyaltyRedemption(waiterBillTotal, waiterLoyalty);   // taken off by the server
     const waiterToPay = waiterBillTotal - waiterRedemption;
     const waiterPayBlocked = waiterFreeMealMissing
-        || ((waiterPaymentType === 'CARD') && !waiterRef.trim())
+        || ((waiterPaymentType === 'CARD') && (!waiterRef.trim() || !/^\d{4}$/.test(waiterLast4)))
         || (waiterPaymentType === 'CASH' && waiterCash !== '' && !(parseFloat(waiterCash) >= waiterToPay));
 
     // Focus search input on page load
@@ -322,6 +324,18 @@ export default function POSSales() {
         setSelectedWaiterItemIds([]);
     };
 
+    const openWaiterRef = useRef(location.state?.openWaiter || null);
+    useEffect(() => {
+        const id = openWaiterRef.current;
+        const waiter = id && waiters.find(w => String(w.userId) === String(id));
+        if (!waiter) return;
+        openWaiterRef.current = null;
+        navigate(location.pathname, { replace: true, state: null });
+        setSelectedWaiter(waiter);
+        fetchWaiterDetails(waiter.userId);
+        setShowWaiterPanel(true);
+    }, [waiters]);
+
     const handleWaiterClick = (waiter) => {
         if (selectedWaiter?.userId === waiter.userId) { clearWaiter(); return; } // tap again to unselect
         setSelectedWaiter(waiter);
@@ -346,7 +360,7 @@ export default function POSSales() {
                 manualDiscount: discountVal > 0,
                 managerCode: waiterPaymentType === 'FREE_MEAL' ? (waiterMeal.approvalCode || '').trim() : (discountVal > 0 ? waiterDiscountManagerCode : null),
                 outletId: parseInt(localStorage.getItem("outletId") || "1"),
-                paymentReference: ['CARD', 'BANK_TRANSFER'].includes(waiterPaymentType) ? waiterRef.trim() : null,
+                paymentReference: waiterPaymentType === 'CARD' ? `${waiterRef.trim()} (card **** ${waiterLast4})` : waiterPaymentType === 'BANK_TRANSFER' ? waiterRef.trim() : null,
                 ...loyaltyRequest(waiterLoyalty),
                 invoicePrinted: false
             });
@@ -1843,6 +1857,14 @@ export default function POSSales() {
                                                                     <input type="text" value={waiterRef} onChange={(e) => setWaiterRef(e.target.value)}
                                                                         placeholder={waiterPaymentType === 'CARD' ? 'Enter card transaction reference' : 'Reference (optional)'}
                                                                         className={`w-full px-3 py-2 border rounded-lg text-[14px] focus:border-brand-fg focus:outline-none ${waiterPaymentType === 'CARD' && !waiterRef.trim() ? 'border-warning' : 'border-line'}`} />
+                                                                    {waiterPaymentType === 'CARD' && (
+                                                                        <>
+                                                                            <label className="block text-[13px] font-[500] text-fg mt-2 mb-1">Card last 4 digits *</label>
+                                                                            <input type="text" inputMode="numeric" maxLength={4} placeholder="e.g. 1234" value={waiterLast4}
+                                                                                onChange={(e) => setWaiterLast4(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                                                                                className={`w-full px-3 py-2 border rounded-lg text-[14px] focus:border-brand-fg focus:outline-none ${!/^\d{4}$/.test(waiterLast4) ? 'border-warning' : 'border-line'}`} />
+                                                                        </>
+                                                                    )}
                                                                 </div>
                                                             )}
                                                             {waiterMealKind && (
@@ -1867,7 +1889,7 @@ export default function POSSales() {
                                                                                     manualDiscount: discountVal > 0,
                                                                                     managerCode: waiterPaymentType === 'FREE_MEAL' ? (waiterMeal.approvalCode || '').trim() : (discountVal > 0 ? waiterDiscountManagerCode : null),
                                                                                     outletId: parseInt(localStorage.getItem("outletId") || "1"),
-                paymentReference: ['CARD', 'BANK_TRANSFER'].includes(waiterPaymentType) ? waiterRef.trim() : null,
+                paymentReference: waiterPaymentType === 'CARD' ? `${waiterRef.trim()} (card **** ${waiterLast4})` : waiterPaymentType === 'BANK_TRANSFER' ? waiterRef.trim() : null,
                 ...loyaltyRequest(waiterLoyalty),
                                                                                     invoicePrinted: false
                                                                                 };
@@ -1905,7 +1927,7 @@ export default function POSSales() {
                                                                                     manualDiscount: discountVal > 0,
                                                                                     managerCode: waiterPaymentType === 'FREE_MEAL' ? (waiterMeal.approvalCode || '').trim() : (discountVal > 0 ? waiterDiscountManagerCode : null),
                                                                                     outletId: parseInt(localStorage.getItem("outletId") || "1"),
-                paymentReference: ['CARD', 'BANK_TRANSFER'].includes(waiterPaymentType) ? waiterRef.trim() : null,
+                paymentReference: waiterPaymentType === 'CARD' ? `${waiterRef.trim()} (card **** ${waiterLast4})` : waiterPaymentType === 'BANK_TRANSFER' ? waiterRef.trim() : null,
                 ...loyaltyRequest(waiterLoyalty),
                                                                                     invoicePrinted: true
                                                                                 };
@@ -1924,7 +1946,10 @@ export default function POSSales() {
                                                                                     subTotal: selectedSubTotal,
                                                                                     discount: discountVal + waiterRedemption,
                                                                                     finalTotal: selectedSubTotal - discountVal - waiterRedemption,
-                                                                                    paymentMethod: waiterPaymentType
+                                                                                    paymentMethod: waiterPaymentType,
+                                                                                    cardLast4: waiterPaymentType === 'CARD' ? waiterLast4 : null,
+                                                                                    cashGiven: waiterPaymentType === 'CASH' ? (parseFloat(waiterCash) || waiterToPay) : 0,
+                                                                                    change: waiterPaymentType === 'CASH' ? Math.max(0, (parseFloat(waiterCash) || waiterToPay) - waiterToPay) : 0
                                                                                 };
                                                                                 setPrintData(printPayload);
                                                                                 setTimeout(() => {
