@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import WaiterBillingPopup from "./WaiterBillingPopup";
 import { appChannel, appPrice } from "../utils/appPrice";
 import { DirectDiscountBox, LoyaltyBox, EMPTY_DIRECT, EMPTY_LOYALTY, directAmount, loyaltyRedemption, loyaltyRequest } from "../component/BillExtras";
 import EBillPayButton from "../component/EBillPayButton";
@@ -50,7 +50,7 @@ import { PosPrintout } from "../component/print/ThermalPrint";
 
 
 export default function POSWaiterBilling() {
-    const navigate = useNavigate();
+    const [showWaiterPopup, setShowWaiterPopup] = useState(false);
     const outlet = useOutletInfo(); // outlet name/address printed on bills
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeSection] = useState('Waiter Management');
@@ -490,8 +490,8 @@ export default function POSWaiterBilling() {
             toast.error('No items in the order');
             return;
         }
-        // the same Waiter Billing popup as New Sale, opened for this waiter (owner 12 Nov); this page's own bill popup is kept, unused
-        navigate('/posSales', { state: { openWaiter: selectedWaiter } });
+        // the same waiter bill popup as New Sale, on this page (owner 12 Nov); this page's own bill popup is kept, unused
+        setShowWaiterPopup(true);
     };
 
     // Process payment
@@ -1258,6 +1258,13 @@ export default function POSWaiterBilling() {
             )}
 
             {/* Bill Modal */}
+            {showWaiterPopup && (
+                <WaiterBillingPopup products={products}
+                    waiter={waiters.find(x => x.id === selectedWaiter) ? { ...waiters.find(x => x.id === selectedWaiter), userId: selectedWaiter } : null}
+                    onSelect={(x) => setSelectedWaiter(x ? x.userId : '')}
+                    onClose={() => setShowWaiterPopup(false)}
+                    onChanged={() => { fetchWaiters(); fetchWaiterDetails(); fetchTodayItems(); }} />
+            )}
             {showBillModal && (
                 <div className="fixed inset-0 bg-backdrop bg-opacity-50 z-[9999] flex items-center justify-center p-4">
                     <div className="bg-elevated rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
