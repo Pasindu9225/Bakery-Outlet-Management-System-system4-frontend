@@ -245,7 +245,8 @@ export default function POSTableBilling() {
     const [meal, setMeal] = useState(EMPTY_MEAL);
     const [direct, setDirect] = useState(EMPTY_DIRECT);     // direct discount, needs a Manager's code
     const [loyalty, setLoyalty] = useState(EMPTY_LOYALTY);  // customer loyalty: earn / redeem points
-    const [payRef, setPayRef] = useState('');               // card / bank transfer reference   // staff meal: checked Staff ID; free meal: requested by + reason
+    const [payRef, setPayRef] = useState('');               // card / bank transfer reference
+    const [cardLast4, setCardLast4] = useState('');         // card payments: last 4 digits, printed as **** 1234 (owner 12 Nov)   // staff meal: checked Staff ID; free meal: requested by + reason
     const [paymentMethod, setPaymentMethod] = useState('');
     const [showKOTModal, setShowKOTModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -614,6 +615,10 @@ export default function POSTableBilling() {
             toast.error('Enter the card transaction reference');
             return;
         }
+        if (!splitMode && selectedMethod.category === 'CARD' && !/^\d{4}$/.test(cardLast4)) {
+            toast.error('Enter the last 4 digits of the card');
+            return;
+        }
 
         if (!isFreeMeal && receivedAmount < totalPayable) {
             toast.error('Insufficient payment amount');
@@ -659,7 +664,8 @@ export default function POSTableBilling() {
                     qty: item.qty,
                     unitPrice: item.unitPrice,
                     freeMealReason: isFreeMeal ? effectiveReason : null,
-                    bankTransferCode: !splitMode && ['CARD', 'BANK_TRANSFER'].includes(selectedMethod.category) ? (payRef.trim() || null) : null,
+                    bankTransferCode: !splitMode && selectedMethod.category === 'CARD' ? `${payRef.trim()} (card **** ${cardLast4})`
+                        : !splitMode && selectedMethod.category === 'BANK_TRANSFER' ? (payRef.trim() || null) : null,
                     discountId: null,
                     manualDiscount: directShares[i],   // this line's share, like POS Sales
                     promotionId: (promoScope === 'EVERY' || (promoScope === 'SELECTED' && selectedPromoItems.includes(item.id))) ? appliedPromo?.id : null,
@@ -701,6 +707,7 @@ export default function POSTableBilling() {
                 discount: totalDiscount,
                 finalTotal: saleData.totalAmount || totalPayable,
                 // cash bills: what the customer gave and the balance handed back
+                cardLast4: !splitMode && selectedMethod.category === 'CARD' ? cardLast4 : null,
                 cashGiven: !splitMode && selectedMethod.category === 'CASH' ? receivedAmount : 0,
                 change: !splitMode && selectedMethod.category === 'CASH' ? Math.max(0, receivedAmount - totalPayable) : 0,
                 kotItems: kotItems,
@@ -710,6 +717,7 @@ export default function POSTableBilling() {
             setDirect(EMPTY_DIRECT);
             setLoyalty(EMPTY_LOYALTY);
             setPayRef('');
+            setCardLast4('');
             if (eBillPhoneRef.current) {
                 const phone = eBillPhoneRef.current;
                 eBillPhoneRef.current = null;
@@ -1733,6 +1741,20 @@ export default function POSTableBilling() {
                                                             placeholder={selectedMethodObj.category === 'CARD' ? 'Enter card transaction reference' : 'Reference (optional)'}
                                                             className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                                         />
+                                                        {selectedMethodObj.category === 'CARD' && (
+                                                            <>
+                                                                <label className="block text-[14px] font-[500] text-fg mt-3 mb-2">Card last 4 digits *</label>
+                                                                <input
+                                                                    type="text"
+                                                                    inputMode="numeric"
+                                                                    maxLength={4}
+                                                                    placeholder="e.g. 1234"
+                                                                    value={cardLast4}
+                                                                    onChange={(e) => setCardLast4(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                                                                    className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
+                                                                />
+                                                            </>
+                                                        )}
                                                     </div>
                                                 )
                                             ) : (
@@ -1788,7 +1810,7 @@ export default function POSTableBilling() {
                                         if (selectedMethodObj.category === 'STAFF_MEAL') return !mealReason('staff', meal);
                                         const isFreeMeal = selectedMethodObj.category === 'FREE_MEAL';
                                         if (isFreeMeal) return !mealReason('free', meal);
-                                        if (selectedMethodObj.category === 'CARD') return !payRef.trim();
+                                        if (selectedMethodObj.category === 'CARD') return !payRef.trim() || !/^\d{4}$/.test(cardLast4);
                                         if (selectedMethodObj.category !== 'CASH') return false;   // transfer, PickMe, Uber
                                         return !amountReceived || parseFloat(amountReceived) < totalPayable;
                                     })()}

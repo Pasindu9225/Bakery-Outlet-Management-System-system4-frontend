@@ -227,7 +227,9 @@ export default function POSWaiterBilling() {
     const [meal, setMeal] = useState(EMPTY_MEAL);
     const [direct, setDirect] = useState(EMPTY_DIRECT);     // direct discount, needs a Manager's code
     const [loyalty, setLoyalty] = useState(EMPTY_LOYALTY);  // customer loyalty: earn / redeem points
-    const [payRef, setPayRef] = useState('');               // card / bank transfer reference   // staff meal: checked Staff ID; free meal: requested by + reason
+    const [payRef, setPayRef] = useState('');               // card / bank transfer reference
+    const [cardLast4, setCardLast4] = useState('');         // card payments: last 4 digits, printed as **** 1234 (owner 12 Nov)
+    const [skipIds, setSkipIds] = useState([]);             // partial bill: items not paid now (stay on the waiter's order)   // staff meal: checked Staff ID; free meal: requested by + reason
     const [paymentMethod, setPaymentMethod] = useState('');
     const [showKOTModal, setShowKOTModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -434,8 +436,10 @@ export default function POSWaiterBilling() {
         const p = billChannel ? appPrice(products.find(x => x.id === item.productId), billChannel, null) : null;
         return p == null ? item : { ...item, unitPrice: p, total: p * item.qty };
     });
-    const subtotal = pricedOrder.reduce((sum, item) => sum + item.total, 0);
-    const promoDiscount = Object.values(appliedDiscounts).reduce((sum, val) => sum + val, 0);
+    // partial bill (owner 12 Nov): the items left unticked stay on the waiter's open order
+    const billed = pricedOrder.filter(item => !skipIds.includes(item.id));
+    const subtotal = billed.reduce((sum, item) => sum + item.total, 0);
+    const promoDiscount = billed.reduce((sum, item) => sum + (appliedDiscounts[item.id] || 0), 0);
     const directDiscount = directAmount(subtotal - promoDiscount, direct);
     const redemption = loyaltyRedemption(subtotal - promoDiscount - directDiscount, loyalty);   // taken off by the server
     const totalDiscount = promoDiscount + directDiscount + redemption;
@@ -484,6 +488,7 @@ export default function POSWaiterBilling() {
             toast.error('No items in the order');
             return;
         }
+        setSkipIds([]);
         setShowBillModal(true);
     };
 
@@ -518,6 +523,14 @@ export default function POSWaiterBilling() {
             toast.error('Enter the card transaction reference');
             return;
         }
+        if (paymentCategory === 'CARD' && !/^\d{4}$/.test(cardLast4)) {
+            toast.error('Enter the last 4 digits of the card');
+            return;
+        }
+        if (billed.length === 0) {
+            toast.error('Tick the items the customer is paying for');
+            return;
+        }
 
         if (!isFreeMeal && receivedAmount < totalPayable) {
             toast.error('Insufficient payment amount');
@@ -542,7 +555,7 @@ export default function POSWaiterBilling() {
             // the waiter's open items, paid in one bill (same request as the POS Sale waiter panel)
             const requestBody = {
                 waiterId: String(selectedWaiter),
-                itemIdsToPay: currentOrder.map(item => item.id),
+                itemIdsToPay: billed.map(item => item.id),   // partial bill: only the ticked items
                 finalTotal: subtotal - promoDiscount - directDiscount,   // loyalty points are taken off by the server
                 paymentType: paymentCategory,
                 discountAmount: promoDiscount + directDiscount,
@@ -551,7 +564,8 @@ export default function POSWaiterBilling() {
                 manualDiscount: directDiscount > 0,
                 managerCode: isFreeMeal ? (meal.approvalCode || '').trim() : (directDiscount > 0 ? direct.managerCode.trim() : null),
                 ...loyaltyRequest(loyalty),
-                paymentReference: ['CARD', 'BANK_TRANSFER'].includes(paymentCategory) ? (payRef.trim() || null) : null,
+                paymentReference: paymentCategory === 'CARD' ? `${payRef.trim()} (card **** ${cardLast4})`
+                    : paymentCategory === 'BANK_TRANSFER' ? (payRef.trim() || null) : null,
                 outletId: Number(localStorage.getItem("outletId")) || null,
                 invoicePrinted: true
             };
@@ -565,7 +579,7 @@ export default function POSWaiterBilling() {
                 totalAmount: saleData.totalAmount || totalPayable
             });
 
-            const kotItems = currentOrder.filter(item => item.isKotEnabled || item.kotBased).map(item => ({
+            const kotItems = billed.filter(item => item.isKotEnabled || item.kotBased).map(item => ({
                 productName: item.name,
                 qty: item.qty,
                 specialInstructions: item.instructions || item.specialInstructions || ""
@@ -581,7 +595,7 @@ export default function POSWaiterBilling() {
                 cashierName: cashierInfo.name,
                 paymentMethod: paymentMethod,
                 deliveryOption: 'Dine-In',
-                items: pricedOrder.map(item => ({
+                items: billed.map(item => ({
                     productName: item.name,
                     qty: item.qty,
                     unitPrice: item.unitPrice
@@ -590,6 +604,7 @@ export default function POSWaiterBilling() {
                 discount: totalDiscount,
                 finalTotal: totalPayable,
                 // cash bills: what the customer gave and the balance handed back
+                cardLast4: paymentCategory === 'CARD' ? cardLast4 : null,
                 cashGiven: paymentCategory === 'CASH' ? receivedAmount : 0,
                 change: paymentCategory === 'CASH' ? Math.max(0, receivedAmount - totalPayable) : 0,
                 kotItems: kotItems,
@@ -599,6 +614,7 @@ export default function POSWaiterBilling() {
             setDirect(EMPTY_DIRECT);
             setLoyalty(EMPTY_LOYALTY);
             setPayRef('');
+            setCardLast4('');
             if (eBillPhoneRef.current) {
                 const phone = eBillPhoneRef.current;
                 eBillPhoneRef.current = null;
@@ -614,9 +630,14 @@ export default function POSWaiterBilling() {
             });
 
             fetchWaiters(); // Refresh waiters status
-            setCurrentOrder([]);
             fetchTodayItems(); // Refresh stock in product grid
-            setSelectedWaiter('');
+            if (billed.length < currentOrder.length) {
+                fetchWaiterDetails();   // partial bill: the rest stays open for this waiter
+            } else {
+                setCurrentOrder([]);
+                setSelectedWaiter('');
+            }
+            setSkipIds([]);
             setAmountReceived('');
             setFreeMealReason('');
             setStaffId('');
@@ -1254,8 +1275,18 @@ export default function POSWaiterBilling() {
                                 <h4 className="text-[14px] font-[500] text-fg mb-3">Bill Summary</h4>
 
                                 <div className="space-y-2 mb-4">
-                                    {currentOrder.map(item => (
-                                        <div key={item.id} className="flex items-center gap-2 text-[12px]">
+                                    {currentOrder.length > 1 && (
+                                        <p className="text-[11px] text-fg-secondary">Untick items not paid now: they stay on the waiter's order.</p>
+                                    )}
+                                    {pricedOrder.map(item => (
+                                        <div key={item.id} className={`flex items-center gap-2 text-[12px] ${skipIds.includes(item.id) ? 'opacity-50 line-through' : ''}`}>
+                                            <input
+                                                type="checkbox"
+                                                aria-label={`Pay ${item.name} now`}
+                                                checked={!skipIds.includes(item.id)}
+                                                onChange={() => setSkipIds(prev => prev.includes(item.id) ? prev.filter(id => id !== item.id) : [...prev, item.id])}
+                                                className="w-4 h-4 accent-brand"
+                                            />
                                             {promoScope === 'SELECTED' && (
                                                 <input
                                                     type="checkbox"
@@ -1404,6 +1435,20 @@ export default function POSWaiterBilling() {
                                                             placeholder={selectedMethodObj.category === 'CARD' ? 'Enter card transaction reference' : 'Reference (optional)'}
                                                             className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
                                                         />
+                                                        {selectedMethodObj.category === 'CARD' && (
+                                                            <>
+                                                                <label className="block text-[14px] font-[500] text-fg mt-3 mb-2">Card last 4 digits *</label>
+                                                                <input
+                                                                    type="text"
+                                                                    inputMode="numeric"
+                                                                    maxLength={4}
+                                                                    placeholder="e.g. 1234"
+                                                                    value={cardLast4}
+                                                                    onChange={(e) => setCardLast4(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                                                                    className="w-full px-3 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none"
+                                                                />
+                                                            </>
+                                                        )}
                                                     </div>
                                                 )
                                             ) : (
@@ -1456,7 +1501,7 @@ export default function POSWaiterBilling() {
                                         if (selectedMethodObj.category === 'STAFF_MEAL') return !mealReason('staff', meal);
                                         const isFreeMeal = selectedMethodObj.category === 'FREE_MEAL';
                                         if (isFreeMeal) return !mealReason('free', meal);
-                                        if (selectedMethodObj.category === 'CARD') return !payRef.trim();
+                                        if (selectedMethodObj.category === 'CARD') return !payRef.trim() || !/^\d{4}$/.test(cardLast4);
                                         if (selectedMethodObj.category !== 'CASH') return false;   // transfer, PickMe, Uber
                                         return !amountReceived || parseFloat(amountReceived) < totalPayable;
                                     })()}
