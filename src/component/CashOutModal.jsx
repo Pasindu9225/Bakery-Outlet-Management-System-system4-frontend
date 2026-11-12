@@ -3,12 +3,39 @@ import { createPortal } from "react-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { X, Wallet } from "lucide-react";
+import { BillSlip, printInWindow, printedAt } from "./print/ThermalPrint";
+import useOutletInfo from "../utils/useOutletInfo";
 
-// POS Cash Out: the cashier takes cash out of the drawer for safety (any number of times a day). The notes are counted,
-// a Manager's code approves it, and day end expects that much less cash in the drawer.
+// POS Cash Out, any number of times a day: the cashier counts the WHOLE drawer and takes it all out (owner 12 Nov); a
+// Manager's code approves it. The server compares it with what should be there (Admin: Cash Outs report) and the slip prints.
 const NOTES = [5000, 1000, 500, 100, 50, 20, 10, 5, 2, 1];
 const API = () => `${process.env.REACT_APP_BASE_URL}/api/pos/v1/cash-outs`;
 const rs = (n) => `Rs. ${Number(n || 0).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+// The cash out slip (owner 12 Nov: the old system's "CASH OUT REPORT" layout), printed once the cash out is saved.
+const cashier = () => [localStorage.getItem("firstName"), localStorage.getItem("lastName")].filter(Boolean).join(" ") || localStorage.getItem("userName") || "Cashier";
+export function CashOutSlip({ cashOut: c, outlet }) {
+    const counted = Number(c.amount || 0), float = Number(c.floatAmount || 0), expected = Number(c.expectedCash || 0);
+    const diff = counted - expected;
+    const counts = Object.fromEntries(String(c.denominations || "").split(",").filter(Boolean).map((p) => p.split("x").map(Number)));
+    return (
+        <BillSlip outlet={outlet} title="CASH OUT REPORT" amountLabel="Amount" credit={false}
+            info={[["Date", printedAt(c.createdAt ? new Date(c.createdAt) : new Date())], ["Cashier", cashier()],
+                ["Cash out no.", c.number], ["Approved by", c.approvedBy]]}
+            sections={[{ items: NOTES.slice().reverse().map((n) => ({ name: n.toLocaleString(), qty: counts[n] || 0, amount: n * (counts[n] || 0) })) }]}
+            totals={[
+                { label: "Counted Cash", value: counted, bold: true },
+                { label: "Cash in hand", value: counted },
+                { label: "Float", value: float, rule: true },
+                { label: "Sales cash", value: expected - float },
+                { label: "Total cash", value: expected, bold: true, rule: true },
+                { label: diff < 0 ? "Short" : "Excess", value: Math.abs(diff), bold: true, rule: true },
+                { label: "Card (Visa)", value: Number(c.cardSales || 0), rule: true },
+                { label: "No. of cash outs", value: String(c.number || "") },
+            ]}
+            footer={["***End of Report***"]} />
+    );
+}
 
 export default function CashOutModal({ onClose }) {
     const [drawer, setDrawer] = useState(null);
@@ -16,6 +43,7 @@ export default function CashOutModal({ onClose }) {
     const [managerCode, setManagerCode] = useState("");
     const [note, setNote] = useState("");
     const [saving, setSaving] = useState(false);
+    const outlet = useOutletInfo();
 
     const load = async () => {
         try {
@@ -29,13 +57,14 @@ export default function CashOutModal({ onClose }) {
     const total = NOTES.reduce((sum, n) => sum + n * (parseInt(counts[n], 10) || 0), 0);
 
     const save = async () => {
-        if (total <= 0) return toast.error("Count the notes and coins taken out.");
+        if (total <= 0) return toast.error("Count all the cash in the drawer.");
         if (!managerCode.trim()) return toast.error("A cash out needs the Manager's code.");
         setSaving(true);
         try {
             const denominations = Object.fromEntries(NOTES.filter((n) => parseInt(counts[n], 10) > 0).map((n) => [n, parseInt(counts[n], 10)]));
-            await axios.post(API(), { denominations, managerCode: managerCode.trim(), note: note.trim() || null });
+            const saved = (await axios.post(API(), { denominations, managerCode: managerCode.trim(), note: note.trim() || null })).data;
             toast.success(`Cash out of ${rs(total)} recorded`);
+            if (!printInWindow(<CashOutSlip cashOut={saved} outlet={outlet} />, "Cash Out")) toast.error("Allow pop-ups to print the cash out slip.");
             setCounts({});
             setManagerCode("");
             setNote("");
@@ -88,6 +117,7 @@ export default function CashOutModal({ onClose }) {
                             <div className="flex justify-between"><span className="text-fg-secondary">Opening float</span><span className="text-fg">{rs(drawer?.openingFloat)}</span></div>
                             <div className="flex justify-between"><span className="text-fg-secondary">Cash outs today</span><span className="text-fg">{rs(drawer?.cashOutsTotal)}</span></div>
                         </div>
+                        <p className="text-[13px] text-fg-secondary">Count all the notes and coins in the drawer: all of it is taken out.</p>
                         <div className="p-3 border border-brand-fg rounded-lg flex justify-between items-center">
                             <span className="text-[14px] font-[600] text-fg">Cash Out</span>
                             <span className={`text-[20px] font-[700] text-brand-fg`}>{rs(total)}</span>

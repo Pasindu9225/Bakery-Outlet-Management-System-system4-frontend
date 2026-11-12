@@ -703,8 +703,11 @@ Object.assign(DETAIL_COLUMNS, {
     "mpc:mpcDishes": [["outlet", "MPC"], ["product", "Dish"], ["qty", "Sold"], ["sales", "Sales (Rs.)", "rs"],
         ["totalCost", "Recipe cost (Rs.)", "rs"], ["profit", "Profit (Rs.)", "rs"]],
     "mpc:mpcMaterials": [["outlet", "MPC"], ["product", "Material"], ["qty", "Used"], ["totalCost", "Cost (Rs.)", "rs"]],
+    // whole drawer counted (owner 12 Nov): float + cash sales since the last cash out = total cash, vs counted
     cashouts: [["date", "Date / time"], ["ref", "Cash out"], ["outlet", "Outlet"], ["employee", "Cashier"],
-        ["net", "Amount (Rs.)", "rs"], ["supplier", "Approved by"], ["reason", "Notes counted"], ["note", "Note"]],
+        ["outstanding", "Float (Rs.)", "rs"], ["totalInvoiced", "Sales cash (Rs.)", "rs"], ["standard", "Total cash (Rs.)", "rs"],
+        ["actual", "Counted (Rs.)", "rs"], ["variance", "Excess / Short (Rs.)", "rs"], ["paid", "Card (Rs.)", "rs"],
+        ["supplier", "Approved by"], ["reason", "Notes counted"], ["note", "Note"]],
     tables: [["date", "Date"], ["ref", "Bill"], ["product", "Table"], ["outlet", "Outlet"], ["employee", "Cashier"],
         ["sales", "Bill total (Rs.)", "rs"], ["discounts", "Discount (Rs.)", "rs"], ["net", "Paid (Rs.)", "rs"], ["reason", "Payment"],
         ["note", "Remark"]],
@@ -1264,9 +1267,9 @@ export default function FinanceReports({ asAdmin = false }) {
         if (selectedCategory.id === "cashouts") {
             return [
                 { label: "Cash Outs", value: filtered.length },
-                { label: "Total Taken Out", value: money(sum("net")) },
+                { label: "Counted Cash", value: money(sum("actual")) },
+                { label: "Excess / Short", value: money(sum("variance")) },
                 { label: "Cashiers", value: new Set(filtered.map((r) => r.employee)).size },
-                { label: "Outlets", value: new Set(filtered.map((r) => r.outlet)).size },
             ].map((c, i) => ({ ...c, icon: [<Wallet size={20} />, <Banknote size={20} />, <Users size={20} />, <Layers size={20} />][i],
                 color: i === 0 ? "bg-brand" : i === 1 ? "bg-plum-solid" : "bg-info-solid",
                 hoverColor: i === 0 ? "hover:bg-brand-hover" : i === 1 ? "hover:bg-plum-solid" : "hover:bg-info-solid",
