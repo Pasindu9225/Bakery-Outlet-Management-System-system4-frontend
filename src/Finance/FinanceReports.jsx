@@ -267,7 +267,7 @@ const REPORT_CATEGORIES = [
 
 // individual-POS reports (sales endpoint, outlet filter on the server, shared detail table)
 const POS_IDS = ["paytype", "cashiers", "dayend", "mpc"];
-const VISIBLE_CATEGORIES = REPORT_CATEGORIES.filter((c) => !c.hidden);
+const ALL_CATEGORIES = REPORT_CATEGORIES.filter((c) => !c.hidden);
 
 const PERIOD_OPTIONS = ["Daily", "Monthly", "Yearly", "Custom Range"];
 // Outlet list is loaded inside the component from /api/v1/admin/outlet/all.
@@ -894,10 +894,12 @@ function UnavailableState({ reason, reportType }) {
     );
 }
 
-export default function FinanceReports({ asAdmin = false }) {
+// only: one report category (Admin > Cash Out Report, owner 13 Nov)
+export default function FinanceReports({ asAdmin = false, only }) {
     const NavBar = asAdmin ? AdminNavBar : FinanceNavBar;
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const activeSection = asAdmin ? "Reports" : "Financial Reports";
+    const activeSection = only ? "Cash Out Report" : asAdmin ? "Reports" : "Financial Reports";
+    const VISIBLE_CATEGORIES = only ? REPORT_CATEGORIES.filter((c) => c.id === only) : ALL_CATEGORIES;
 
     // Report selection
     const [selectedCategory, setSelectedCategory] = useState(VISIBLE_CATEGORIES[0]);

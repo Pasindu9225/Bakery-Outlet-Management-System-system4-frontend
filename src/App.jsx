@@ -804,6 +804,9 @@ function App() {
         <Route path="/financeWastageAnalysis" element={
           <ProtectedRoute allowedRoles={["15", "FINANCE"]} exclusive><MISWastageDashboard /></ProtectedRoute>
         } />
+        <Route path="/adminCashOutReport" element={
+          <ProtectedRoute allowedRoles={["1"]}><FinanceReports asAdmin only="cashouts" /></ProtectedRoute>
+        } />
         <Route path="/adminReports" element={
           <ProtectedRoute allowedRoles={["1"]}><FinanceReports asAdmin /></ProtectedRoute>
         } />

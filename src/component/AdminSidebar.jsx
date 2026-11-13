@@ -21,6 +21,7 @@ import {
   Trash2,
   UserCircle2,
   Layers,
+  Wallet,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { performLogout, getRoleName } from "../utils/auth";
@@ -122,6 +123,7 @@ export default function AdminSidebar({ sidebarOpen }) {
      { name: 'Admin Approval', icon: UserCheck, path: '/adminApprovalRequests', color: 'text-fg-secondary' },
      // no Manager in the individual POS: the Admin's code approves discounts, refunds, cash outs (as S1)
      { name: 'Verification Code', icon: ShieldCheck, path: '/adminVerificationCodes', color: 'text-fg-secondary' },
+     { name: 'Cash Out Report', icon: Wallet, path: '/adminCashOutReport', color: 'text-fg-secondary' },
   ];
 
   return (
