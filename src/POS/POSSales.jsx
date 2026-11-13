@@ -1407,28 +1407,20 @@ export default function POSSales() {
                                                     : `${tileColor(index).tint} hover:bg-line`
                                                     }`}
                                             >
-                                                <div className="flex justify-between items-start">
-                                                    <div className="flex-1">
-                                                        <p className="text-[14px] font-[500] text-fg">{product.name}</p>
-                                                        <p className="text-[12px] text-fg-secondary">{product.code}</p>
+                                                {/* compact tile (owner 13 Nov): price by the name, qty by the code; Report wastage is in the quantity popup */}
+                                                <div className="flex justify-between items-start gap-2">
+                                                    <p className="text-[14px] font-[500] text-fg leading-tight">{product.name}</p>
+                                                    <p className="text-[14px] font-[600] text-brand-fg whitespace-nowrap">{product.price > 0 ? `Rs. ${product.price}` : `Uber/PickMe Rs. ${product.uberPrice || product.pickmePrice || 0}`}</p>
+                                                </div>
+                                                <div className="flex justify-between items-center gap-2 mt-1">
+                                                    <div className="flex items-center gap-1 flex-wrap">
+                                                        <span className="text-[12px] text-fg-secondary">{product.code}</span>
                                                         {["EXPIRED", "EXPIRING"].includes(expiryStatus(product.expiryDate, 1)) && (
                                                             <ExpiryTag expiryDate={product.expiryDate} warnDays={1} />
                                                         )}
-                                                        <p className="text-[14px] font-[600] text-brand-fg">{product.price > 0 ? `Rs. ${product.price}` : `Uber/PickMe Rs. ${product.uberPrice || product.pickmePrice || 0}`}</p>
                                                     </div>
-                                                    <div className="text-right">
-                                                        <p className="text-[12px] text-fg-secondary">Received QTY: {product.receivedQty}</p>
-                                                        <p className="text-[12px] text-fg-secondary">Current QTY: {product.currentQty}</p>
-                                                    </div>
+                                                    <span className="text-[12px] text-fg-secondary whitespace-nowrap">Qty: {product.currentQty}</span>
                                                 </div>
-                                                {product.dayProductionItemId && product.stock > 0 && !product.isMpcDish && (
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); openWastageReport(product); }}
-                                                        className="mt-1 w-full text-[12px] text-error hover:underline"
-                                                    >
-                                                        Report wastage
-                                                    </button>
-                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -1446,33 +1438,25 @@ export default function POSSales() {
                                         <div
                                             key={product.id}
                                             role="button" tabIndex={0} onKeyDown={onEnterClick} onClick={() => openQtyModal(product)}
-                                            className={`p-4 ${tileColor(index).tint} rounded-lg cursor-pointer hover:bg-line transition-all hover:shadow-sm border border-l-4 ${tileColor(index).edge}`}
+                                            className={`p-3 ${tileColor(index).tint} rounded-lg cursor-pointer hover:bg-line transition-all hover:shadow-sm border border-l-4 ${tileColor(index).edge}`}
                                         >
-                                            <div className="flex justify-between items-start mb-2">
+                                            {/* compact tile (owner 13 Nov): price by the name, qty by the code; Report wastage is in the quantity popup */}
+                                            <div className="flex justify-between items-start gap-2">
                                                 <h4 className="text-[14px] font-[500] text-fg leading-tight">{product.name}</h4>
-                                                {product.fastMoving && (
-                                                    <span className="text-[12px] bg-warning-solid text-on-brand px-2 py-1 rounded-full">FAST</span>
-                                                )}
+                                                <p className="text-[15px] font-[600] text-brand-fg whitespace-nowrap">{product.price > 0 ? `Rs. ${product.price}` : `Uber/PickMe Rs. ${product.uberPrice || product.pickmePrice || 0}`}</p>
                                             </div>
-                                            <p className="text-[12px] text-fg-secondary mb-1">{product.code}</p>
-                                            {["EXPIRED", "EXPIRING"].includes(expiryStatus(product.expiryDate, 1)) && (
-                                                <div className="mb-1"><ExpiryTag expiryDate={product.expiryDate} warnDays={1} /></div>
-                                            )}
-                                            <div className="flex border-t border-line mt-2 pt-2 justify-between items-center">
-                                                <p className="text-[16px] font-[600] text-brand-fg">{product.price > 0 ? `Rs. ${product.price}` : `Uber/PickMe Rs. ${product.uberPrice || product.pickmePrice || 0}`}</p>
-                                                <div className="text-right">
-                                                    <p className="text-[12px] text-fg-secondary">Received QTY: {product.receivedQty}</p>
-                                                    <p className="text-[12px] text-fg-secondary">Current QTY: {product.currentQty}</p>
+                                            <div className="flex justify-between items-center gap-2 mt-1">
+                                                <div className="flex items-center gap-1 flex-wrap">
+                                                    <span className="text-[12px] text-fg-secondary">{product.code}</span>
+                                                    {product.fastMoving && (
+                                                        <span className="text-[11px] bg-warning-solid text-on-brand px-2 rounded-full">FAST</span>
+                                                    )}
+                                                    {["EXPIRED", "EXPIRING"].includes(expiryStatus(product.expiryDate, 1)) && (
+                                                        <ExpiryTag expiryDate={product.expiryDate} warnDays={1} />
+                                                    )}
                                                 </div>
+                                                <span className="text-[12px] text-fg-secondary whitespace-nowrap">Qty: {product.currentQty}</span>
                                             </div>
-                                            {product.dayProductionItemId && product.stock > 0 && !product.isMpcDish && (
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); openWastageReport(product); }}
-                                                    className="mt-1 w-full text-[12px] text-error hover:underline"
-                                                >
-                                                    Report wastage
-                                                </button>
-                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -2287,6 +2271,12 @@ export default function POSSales() {
                             <p className="text-[13px] text-fg-secondary mb-1">{pendingProduct.code}</p>
                             <p className="text-[14px] font-[600] text-brand-fg mb-4">Rs. {pendingProduct.price} each</p>
                             <p className="text-[12px] text-fg-secondary mb-4">Stock available: {pendingProduct.stock}</p>
+                            {pendingProduct.dayProductionItemId && pendingProduct.stock > 0 && !pendingProduct.isMpcDish && (
+                                <button type="button" onClick={() => { setShowQtyModal(false); openWastageReport(pendingProduct); }}
+                                    className="-mt-3 mb-4 text-[12px] text-error hover:underline">
+                                    Report wastage
+                                </button>
+                            )}
 
                             <label className="block text-[14px] font-[500] text-fg mb-2">Quantity</label>
                             <input
