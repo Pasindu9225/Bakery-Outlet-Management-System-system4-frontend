@@ -16,6 +16,7 @@ const rs = (n) => `Rs. ${Number(n || 0).toLocaleString("en-LK", { minimumFractio
 const cashier = () => [localStorage.getItem("firstName"), localStorage.getItem("lastName")].filter(Boolean).join(" ") || localStorage.getItem("userName") || "Cashier";
 export function CashOutSlip({ cashOut: c, outlet }) {
     const counted = Number(c.amount || 0), float = Number(c.floatAmount || 0), expected = Number(c.expectedCash || 0);
+    const advances = Number(c.advancePayments || 0);   // credit order advances: in the drawer, not sales (client 13 Nov)
     const diff = counted - expected;
     const counts = Object.fromEntries(String(c.denominations || "").split(",").filter(Boolean).map((p) => p.split("x").map(Number)));
     return (
@@ -27,7 +28,8 @@ export function CashOutSlip({ cashOut: c, outlet }) {
                 { label: "Counted Cash", value: counted, bold: true },
                 { label: "Cash in hand", value: counted },
                 { label: "Float", value: float, rule: true },
-                { label: "Sales cash", value: expected - float },
+                { label: "Sales cash", value: expected - float - advances },
+                { label: "Advance payments", value: advances },
                 { label: "Total cash", value: expected, bold: true, rule: true },
                 { label: diff < 0 ? "Short" : "Excess", value: Math.abs(diff), bold: true, rule: true },
                 { label: "Card (Visa)", value: Number(c.cardSales || 0), rule: true },

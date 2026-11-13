@@ -241,6 +241,7 @@ const REPORT_CATEGORIES = [
             { label: "Open Credit Orders",     type: "open" },
             { label: "Pay-Later Bills",        type: "creditSales" },
             { label: "Balances by Customer",   type: "byCustomer" },
+            { label: "Advance Payments Received", type: "advances" },   // client 13 Nov: each advance on the day it was taken
         ],
     },
     {
@@ -678,6 +679,8 @@ const CREDIT_ORDER_COLS = [["date", "Ordered"], ["ref", "Order"], ["supplier", "
 Object.assign(DETAIL_COLUMNS, {
     "credit:orders": CREDIT_ORDER_COLS,
     "credit:open": CREDIT_ORDER_COLS,
+    "credit:advances": [["date", "Received"], ["ref", "Order"], ["supplier", "Customer"], ["outlet", "Outlet"], ["employee", "Taken by"],
+        ["paid", "Advance (Rs.)", "rs"], ["sales", "Order total (Rs.)", "rs"], ["net", "Still owed (Rs.)", "rs"], ["dueDate", "Delivery"], ["reason", "Status"]],
     "credit:creditSales": [["date", "Date"], ["ref", "Bill"], ["supplier", "Customer"], ["outlet", "Outlet"], ["employee", "Cashier"],
         ["totalInvoiced", "Bill total (Rs.)", "rs"], ["outstanding", "Unpaid (Rs.)", "rs"], ["reason", "Payment"]],
     "credit:byCustomer": [["supplier", "Customer"], ["ref", "Activity"], ["totalInvoiced", "Orders + bills (Rs.)", "rs"],
@@ -705,7 +708,7 @@ Object.assign(DETAIL_COLUMNS, {
     "mpc:mpcMaterials": [["outlet", "MPC"], ["product", "Material"], ["qty", "Used"], ["totalCost", "Cost (Rs.)", "rs"]],
     // whole drawer counted (owner 12 Nov): float + cash sales since the last cash out = total cash, vs counted
     cashouts: [["date", "Date / time"], ["ref", "Cash out"], ["outlet", "Outlet"], ["employee", "Cashier"],
-        ["outstanding", "Float (Rs.)", "rs"], ["totalInvoiced", "Sales cash (Rs.)", "rs"], ["standard", "Total cash (Rs.)", "rs"],
+        ["outstanding", "Float (Rs.)", "rs"], ["totalInvoiced", "Cash sales (Rs.)", "rs"], ["change", "Advances (Rs.)", "rs"], ["standard", "Total cash (Rs.)", "rs"],
         ["actual", "Counted (Rs.)", "rs"], ["variance", "Excess / Short (Rs.)", "rs"], ["paid", "Card (Rs.)", "rs"],
         ["supplier", "Approved by"], ["reason", "Notes counted"], ["note", "Note"]],
     tables: [["date", "Date"], ["ref", "Bill"], ["product", "Table"], ["outlet", "Outlet"], ["employee", "Cashier"],
@@ -742,6 +745,7 @@ Object.assign(EMPTY_TEXT, {
     "goods:short": "Every item sent in this period was fully accepted",
     "credit:open": "No credit orders are waiting for payment or closing",
     "credit:creditSales": "No pay-later bills in this period",
+    "credit:advances": "No advance payments were taken in this period",
     "credit:byCustomer": "No credit orders or pay-later bills in this period",
     tables: "No table bills in this period",
     cashouts: "No cash outs in this period",
@@ -1192,6 +1196,12 @@ export default function FinanceReports({ asAdmin = false, only }) {
                 { label: "Lines", value: filtered.length, icon: <Layers size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
                 { label: type === "productionComparison" ? "Over plan" : "Above standard", value: over, icon: <TrendingUp size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
                 { label: type === "productionComparison" ? "Under plan" : "Below standard", value: under, icon: <TrendingDown size={20} />, color: "bg-info-solid", hoverColor: "hover:bg-info-solid", iconBg: "bg-info/30" },
+            ];
+        }
+        if (isCreditReport && selectedReport.type === "advances") {
+            return [
+                { label: "Advances Received", value: money(sum("paid")), icon: <CheckCircle size={20} />, color: "bg-brand", hoverColor: "hover:bg-brand-hover", iconBg: "bg-brand/30" },
+                { label: "Payments", value: filtered.length, icon: <Layers size={20} />, color: "bg-plum-solid", hoverColor: "hover:bg-plum-solid", iconBg: "bg-plum/30" },
             ];
         }
         if (isCreditReport) {
