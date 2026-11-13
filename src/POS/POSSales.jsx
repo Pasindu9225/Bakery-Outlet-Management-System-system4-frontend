@@ -1275,44 +1275,10 @@ export default function POSSales() {
 
                             {/* Search Header */}
                             <div className="mb-4">
-                                <div className="flex items-center justify-between gap-3 mb-3">
-                                    <h2 className="text-[20px] font-[600] text-fg">Product Selection</h2>
-                                    <div className="flex flex-wrap items-center justify-end gap-1">
-                                    {/* every waiter is a button: tap one to select them and open their settlement */}
-                                    {waiters.length > 0 ? waiters.map(w => (
-                                        <button
-                                            key={w.userId}
-                                            onClick={() => {
-                                                if (selectedWaiter?.userId !== w.userId) handleWaiterClick(w);
-                                                setShowWaiterPanel(true);
-                                            }}
-                                            title={`Settle ${w.name}'s bill`}
-                                            className={`flex items-center gap-1.5 px-3 py-2 border rounded-lg text-[13px] font-[500] ${selectedWaiter?.userId === w.userId
-                                                ? 'border-brand-fg bg-brand/10 text-brand-fg'
-                                                : 'bg-subtle border-line text-fg hover:bg-line'}`}
-                                        >
-                                            <Users size={14} className="text-brand-fg" />
-                                            {w.name}
-                                        </button>
-                                    )) : (
-                                        <button
-                                            onClick={() => setShowWaiterPanel(true)}
-                                            className="flex items-center gap-2 px-3 py-2 bg-subtle border border-line rounded-lg text-[13px] font-[500] text-fg hover:bg-line"
-                                        >
-                                            <Users size={16} className="text-brand-fg" />
-                                            Waiter Billing
-                                        </button>
-                                    )}
-                                    {selectedWaiter && (
-                                        <button aria-label="Unselect waiter" title="Unselect waiter" onClick={clearWaiter}
-                                            className="p-2 border border-line rounded-lg text-fg-secondary hover:bg-line">
-                                            <X size={16} />
-                                        </button>
-                                    )}
-                                    </div>
-                                </div>
-                                {/* Search Input */}
-                                <div className="relative mb-3">
+                                <div className="flex flex-wrap items-center gap-3 mb-3">
+                                    <h2 className="text-[20px] font-[600] text-fg shrink-0">Product Selection</h2>
+                                {/* Search Input: next to the title, not full width (owner 13 Nov) */}
+                                <div className="relative flex-1 min-w-[200px] max-w-md">
                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fg-secondary" size={20} />
                                     <input
                                         ref={searchInputRef}
@@ -1323,7 +1289,7 @@ export default function POSSales() {
                                             setSearchQuery(e.target.value);
                                             setHighlightedSearchIndex(-1);
                                         }}
-                                        className="w-full pl-10 pr-4 py-3 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
+                                        className="w-full pl-10 pr-4 py-2 border border-line rounded-lg text-[14px] focus:border-brand-fg focus:outline-none focus:ring-2 focus:ring-brand-fg/10"
                                         autoComplete="off"
                                         onKeyDown={(e) => {
                                             if (e.key === 'ArrowDown') {
@@ -1358,6 +1324,40 @@ export default function POSSales() {
                                             <X size={16} />
                                         </button>
                                     )}
+                                </div>
+                                    <div className="ml-auto flex flex-wrap items-center justify-end gap-1">
+                                    {/* every waiter is a button: tap one to select them and open their settlement */}
+                                    {waiters.length > 0 ? waiters.map(w => (
+                                        <button
+                                            key={w.userId}
+                                            onClick={() => {
+                                                if (selectedWaiter?.userId !== w.userId) handleWaiterClick(w);
+                                                setShowWaiterPanel(true);
+                                            }}
+                                            title={`Settle ${w.name}'s bill`}
+                                            className={`flex items-center gap-1.5 px-3 py-2 border rounded-lg text-[13px] font-[500] ${selectedWaiter?.userId === w.userId
+                                                ? 'border-brand-fg bg-brand/10 text-brand-fg'
+                                                : 'bg-subtle border-line text-fg hover:bg-line'}`}
+                                        >
+                                            <Users size={14} className="text-brand-fg" />
+                                            {w.name}
+                                        </button>
+                                    )) : (
+                                        <button
+                                            onClick={() => setShowWaiterPanel(true)}
+                                            className="flex items-center gap-2 px-3 py-2 bg-subtle border border-line rounded-lg text-[13px] font-[500] text-fg hover:bg-line"
+                                        >
+                                            <Users size={16} className="text-brand-fg" />
+                                            Waiter Billing
+                                        </button>
+                                    )}
+                                    {selectedWaiter && (
+                                        <button aria-label="Unselect waiter" title="Unselect waiter" onClick={clearWaiter}
+                                            className="p-2 border border-line rounded-lg text-fg-secondary hover:bg-line">
+                                            <X size={16} />
+                                        </button>
+                                    )}
+                                    </div>
                                 </div>
 
                                 {/* Category Quick Access: wraps to the next line (owner 13 Nov; the categories are merged into ~13 groups) */}
