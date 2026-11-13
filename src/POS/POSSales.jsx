@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ChevronLeft as CatLeft, ChevronRight as CatRight } from "lucide-react";
 import { appChannel, appPrice } from "../utils/appPrice";
 import { LoyaltyBox, EMPTY_LOYALTY, loyaltyRedemption, loyaltyRequest } from "../component/BillExtras";
 import EBillPayButton from "../component/EBillPayButton";
@@ -63,7 +62,6 @@ export default function POSSales() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('New Sale');
     const searchInputRef = useRef(null);
-    const catRowRef = useRef(null);   // the one-row category bar (owner 13 Nov)
 
     const cashInputRef = useRef(null);
 
@@ -1362,12 +1360,8 @@ export default function POSSales() {
                                     )}
                                 </div>
 
-                                {/* Category Quick Access: one row that scrolls (owner 13 Nov: 4 wrapped rows took the items' space) */}
-                                <div className="flex items-center gap-1">
-                                <button type="button" aria-label="Previous categories" onClick={() => catRowRef.current?.scrollBy({ left: -300, behavior: 'smooth' })}
-                                    className="shrink-0 p-1 rounded-full bg-subtle text-fg-secondary hover:bg-line"><CatLeft size={16} /></button>
-                                <div ref={catRowRef} onWheel={(e) => { if (e.deltaY) e.currentTarget.scrollLeft += e.deltaY; }}
-                                    className="flex gap-2 overflow-x-auto whitespace-nowrap flex-1 min-w-0 pb-1" style={{ scrollbarWidth: 'thin' }}>
+                                {/* Category Quick Access: wraps to the next line (owner 13 Nov; the categories are merged into ~13 groups) */}
+                                <div className="flex gap-2 flex-wrap">
                                     {categories.map((category) => (
                                         <button
                                             key={category.id}
@@ -1381,7 +1375,7 @@ export default function POSSales() {
                                                     setSearchQuery(category.code);
                                                 }
                                             }}
-                                            className={`shrink-0 px-3 py-1 text-[12px] rounded-full transition-colors ${selectedCategory === category.id
+                                            className={`px-3 py-1 text-[12px] rounded-full transition-colors ${selectedCategory === category.id
                                                 ? 'bg-brand text-on-brand'
                                                 : 'bg-subtle text-fg-secondary hover:bg-line'
                                                 }`}>
@@ -1389,9 +1383,6 @@ export default function POSSales() {
                                             {category.name}
                                         </button>
                                     ))}
-                                </div>
-                                <button type="button" aria-label="More categories" onClick={() => catRowRef.current?.scrollBy({ left: 300, behavior: 'smooth' })}
-                                    className="shrink-0 p-1 rounded-full bg-subtle text-fg-secondary hover:bg-line"><CatRight size={16} /></button>
                                 </div>
                             </div>
 
@@ -1438,7 +1429,7 @@ export default function POSSales() {
                                     <Zap size={16} className="text-warning" />
                                     {selectedCategory === 'all' ? 'All Items' : 'Fast Moving Products'}
                                 </h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                                     {defaultViewProducts.map((product, index) => (
                                         <div
                                             key={product.id}
