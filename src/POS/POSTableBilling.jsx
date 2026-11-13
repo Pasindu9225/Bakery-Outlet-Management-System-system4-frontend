@@ -59,11 +59,19 @@ export default function POSTableBilling() {
     const [activeSection] = useState('Table Management');
 
     // Header Information
-    const [cashierInfo] = useState({
-        name: localStorage.getItem("userPhone") || "Sarah Johnson",
-        id: localStorage.getItem("userId") || "CSH-005",
-        date: new Date().toLocaleDateString(),
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    // the logged-in cashier's name (was a sample name "Sarah Johnson", also printed on table bills; as S1-S3)
+    const [cashierInfo] = useState(() => {
+        const first = localStorage.getItem("firstName");
+        const last = localStorage.getItem("lastName");
+        const name = (first || last)
+            ? `${first || ''} ${last || ''}`.trim()
+            : (localStorage.getItem("userName") || localStorage.getItem("username") || "Cashier");
+        return {
+            name,
+            id: localStorage.getItem("userId") || "CSH-005",
+            date: new Date().toLocaleDateString(),
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
     });
 
     // Table Management
