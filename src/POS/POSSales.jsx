@@ -163,9 +163,21 @@ export default function POSSales() {
 
     const fastMovingProducts = products.filter(p => p.fastMoving && p.stock > 0);
 
+    const activeCategory = categories.find(c => c.id === selectedCategory);
+    // each category shows its own items (as S1-S3)
     const defaultViewProducts = selectedCategory === 'all'
         ? products.filter(p => p.stock > 0)
-        : fastMovingProducts;
+        : selectedCategory === 'fast'
+            ? fastMovingProducts
+            : products.filter(p => activeCategory && p.category === activeCategory.name && p.stock > 0);
+
+    // a category click (or its number typed in the search box) switches the grid and clears the search box (owner 13 Nov)
+    const switchToCategory = (categoryId) => {
+        setSelectedCategory(categoryId);
+        setSearchQuery('');
+        setSearchResults([]);
+        setHighlightedSearchIndex(-1);
+    };
 
 
     // Focus search input on page load
@@ -473,17 +485,7 @@ export default function POSSales() {
             const category = categories.find(cat => cat.code === categoryCode);
 
             if (category) {
-                setSelectedCategory(category.id);
-
-                if (category.id === 'fast') {
-                    setSearchResults(products.filter(p => p.fastMoving && p.stock > 0));
-                    return;
-                }
-                if (category.id === 'all') {
-                    setSearchResults(products.filter(p => p.stock > 0));
-                    return;
-                }
-                setSearchResults(products.filter(p => p.category === category.name && p.stock > 0));
+                switchToCategory(category.id);
                 return;
             }
 
@@ -495,7 +497,6 @@ export default function POSSales() {
             );
             setSearchResults(filtered);
         } else {
-            setSelectedCategory('all');
             setSearchResults([]);
         }
     }, [searchQuery, products, categories]);
@@ -1365,16 +1366,7 @@ export default function POSSales() {
                                     {categories.map((category) => (
                                         <button
                                             key={category.id}
-                                            onClick={() => {
-                                                if (category.id === 'fast' || category.id === 'all') {
-                                                    setSelectedCategory(category.id);
-                                                    setSearchQuery('');
-                                                    setSearchResults([]);
-                                                } else {
-                                                    setSelectedCategory(category.id);
-                                                    setSearchQuery(category.code);
-                                                }
-                                            }}
+                                            onClick={() => switchToCategory(category.id)}
                                             className={`px-3 py-1 text-[12px] rounded-full transition-colors ${selectedCategory === category.id
                                                 ? 'bg-brand text-on-brand'
                                                 : 'bg-subtle text-fg-secondary hover:bg-line'
@@ -1393,7 +1385,7 @@ export default function POSSales() {
                                         <Search size={16} />
                                         Search Results ({searchResults.length})
                                     </h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                                         {searchResults.map((product, index) => (
                                             <div
                                                 key={product.id}
@@ -1427,7 +1419,7 @@ export default function POSSales() {
                             <div className="flex-1 overflow-y-auto">
                                 <h3 className="text-[14px] font-[500] text-fg mb-3 flex items-center gap-2">
                                     <Zap size={16} className="text-warning" />
-                                    {selectedCategory === 'all' ? 'All Items' : 'Fast Moving Products'}
+                                    {selectedCategory === 'all' ? 'All Items' : selectedCategory === 'fast' ? 'Fast Moving Products' : (activeCategory?.name || 'Items')}
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                                     {defaultViewProducts.map((product, index) => (
