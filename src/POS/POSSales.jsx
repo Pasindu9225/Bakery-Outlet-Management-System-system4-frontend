@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { ChevronLeft as CatLeft, ChevronRight as CatRight } from "lucide-react";
 import { appChannel, appPrice } from "../utils/appPrice";
 import { LoyaltyBox, EMPTY_LOYALTY, loyaltyRedemption, loyaltyRequest } from "../component/BillExtras";
 import EBillPayButton from "../component/EBillPayButton";
@@ -29,7 +30,6 @@ import {
     X,
     AlertTriangle,
     Zap,
-    Grid3X3,
     ChefHat,
     Send,
     Loader2,
@@ -63,6 +63,7 @@ export default function POSSales() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('New Sale');
     const searchInputRef = useRef(null);
+    const catRowRef = useRef(null);   // the one-row category bar (owner 13 Nov)
 
     const cashInputRef = useRef(null);
 
@@ -1361,8 +1362,12 @@ export default function POSSales() {
                                     )}
                                 </div>
 
-                                {/* Category Quick Access */}
-                                <div className="flex gap-2 flex-wrap">
+                                {/* Category Quick Access: one row that scrolls (owner 13 Nov: 4 wrapped rows took the items' space) */}
+                                <div className="flex items-center gap-1">
+                                <button type="button" aria-label="Previous categories" onClick={() => catRowRef.current?.scrollBy({ left: -300, behavior: 'smooth' })}
+                                    className="shrink-0 p-1 rounded-full bg-subtle text-fg-secondary hover:bg-line"><CatLeft size={16} /></button>
+                                <div ref={catRowRef} onWheel={(e) => { if (e.deltaY) e.currentTarget.scrollLeft += e.deltaY; }}
+                                    className="flex gap-2 overflow-x-auto whitespace-nowrap flex-1 min-w-0 pb-1" style={{ scrollbarWidth: 'thin' }}>
                                     {categories.map((category) => (
                                         <button
                                             key={category.id}
@@ -1376,17 +1381,17 @@ export default function POSSales() {
                                                     setSearchQuery(category.code);
                                                 }
                                             }}
-                                            className={`px-3 py-1 text-[12px] rounded-full transition-colors ${selectedCategory === category.id
+                                            className={`shrink-0 px-3 py-1 text-[12px] rounded-full transition-colors ${selectedCategory === category.id
                                                 ? 'bg-brand text-on-brand'
                                                 : 'bg-subtle text-fg-secondary hover:bg-line'
                                                 }`}>
-                                            <div className="flex items-center gap-1">
-                                                <Grid3X3 size={12} />
-                                                {/* name only (client 11 Nov); the shortcut number still works when typed in the search box */}
-                                                {category.name}
-                                            </div>
+                                            {/* name only (client 11 Nov); the shortcut number still works when typed in the search box */}
+                                            {category.name}
                                         </button>
                                     ))}
+                                </div>
+                                <button type="button" aria-label="More categories" onClick={() => catRowRef.current?.scrollBy({ left: 300, behavior: 'smooth' })}
+                                    className="shrink-0 p-1 rounded-full bg-subtle text-fg-secondary hover:bg-line"><CatRight size={16} /></button>
                                 </div>
                             </div>
 
@@ -1410,7 +1415,7 @@ export default function POSSales() {
                                                 {/* compact tile (owner 13 Nov): price by the name, qty by the code; Report wastage is in the quantity popup */}
                                                 <div className="flex justify-between items-start gap-2">
                                                     <p className="text-[14px] font-[500] text-fg leading-tight">{product.name}</p>
-                                                    <p className="text-[14px] font-[600] text-brand-fg whitespace-nowrap">{product.price > 0 ? `Rs. ${product.price}` : `Uber/PickMe Rs. ${product.uberPrice || product.pickmePrice || 0}`}</p>
+                                                    <p className="text-[14px] font-[600] text-brand-fg whitespace-nowrap">{product.price > 0 ? `Rs. ${product.price}` : `U/P Rs. ${product.uberPrice || product.pickmePrice || 0}`}</p>
                                                 </div>
                                                 <div className="flex justify-between items-center gap-2 mt-1">
                                                     <div className="flex items-center gap-1 flex-wrap">
@@ -1443,7 +1448,7 @@ export default function POSSales() {
                                             {/* compact tile (owner 13 Nov): price by the name, qty by the code; Report wastage is in the quantity popup */}
                                             <div className="flex justify-between items-start gap-2">
                                                 <h4 className="text-[14px] font-[500] text-fg leading-tight">{product.name}</h4>
-                                                <p className="text-[15px] font-[600] text-brand-fg whitespace-nowrap">{product.price > 0 ? `Rs. ${product.price}` : `Uber/PickMe Rs. ${product.uberPrice || product.pickmePrice || 0}`}</p>
+                                                <p className="text-[15px] font-[600] text-brand-fg whitespace-nowrap">{product.price > 0 ? `Rs. ${product.price}` : `U/P Rs. ${product.uberPrice || product.pickmePrice || 0}`}</p>
                                             </div>
                                             <div className="flex justify-between items-center gap-2 mt-1">
                                                 <div className="flex items-center gap-1 flex-wrap">

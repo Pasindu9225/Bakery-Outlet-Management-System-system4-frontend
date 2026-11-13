@@ -1121,7 +1121,7 @@ export default function POSTableBilling() {
                                                                     <p className="text-[14px] font-[600] text-fg leading-tight line-clamp-2">{product.name}</p>
                                                                     
                                                                 </div>
-                                                                <p className="text-[16px] font-[700] text-brand-fg mb-1.5">{product.price > 0 ? `Rs. ${product.price}` : `Uber/PickMe Rs. ${product.uberPrice || product.pickmePrice || 0}`}</p>
+                                                                <p className="text-[16px] font-[700] text-brand-fg mb-1.5">{product.price > 0 ? `Rs. ${product.price}` : `U/P Rs. ${product.uberPrice || product.pickmePrice || 0}`}</p>
                                                                 <div className="flex items-center justify-between gap-2">
                                                                     <span className="text-[12px] text-fg-muted truncate">{product.code}</span>
                                                                     <span className={`text-[12px] font-[600] px-1.5 py-0.5 rounded-full whitespace-nowrap ${badge.className}`}>
