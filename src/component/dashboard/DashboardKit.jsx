@@ -285,11 +285,12 @@ export function BarChart({ labels, values, money = true, height = 240 }) {
   );
 }
 
-export function TrendChart({ labels, current, previous, currentLabel = "This period", previousLabel = "Previous period", height = 260 }) {
+export function TrendChart({ labels, current, previous, currentLabel = "This period", previousLabel = "Previous period", height = 260, bar = false, money = true }) {
   const { theme } = useTheme();
+  const Chart = bar ? Bar : Line;
   return (
     <div style={{ height }}>
-      <Line key={theme}
+      <Chart key={theme}
         data={{
           labels,
           datasets: [
@@ -299,7 +300,7 @@ export function TrendChart({ labels, current, previous, currentLabel = "This per
         }}
         options={{
           responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
-          plugins: { legend: { labels: { color: themeColor("fg-secondary"), boxWidth: 12 } }, tooltip: tooltip(true) }, scales: axes(),
+          plugins: { legend: { labels: { color: themeColor("fg-secondary"), boxWidth: 12 } }, tooltip: tooltip(money) }, scales: axes(),
         }} />
     </div>
   );

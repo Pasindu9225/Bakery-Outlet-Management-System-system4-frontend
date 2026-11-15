@@ -22,6 +22,7 @@ import {
   UserCircle2,
   Layers,
   Wallet,
+  BarChart3,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { performLogout, getRoleName } from "../utils/auth";
@@ -51,6 +52,12 @@ export default function AdminSidebar({ sidebarOpen }) {
       icon: FileBarChart,
       path: "/adminGenerateReports",
       color: "text-warning",
+    },
+    {
+      name: "Sales Dashboard",
+      icon: BarChart3,
+      path: "/adminSalesDashboard",
+      color: "text-success",
     },
     {
       name: "Reports",

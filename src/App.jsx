@@ -58,6 +58,7 @@ const AdminDashboard = lazy(() => import("./Admin/AdminDashboard"));
 const AdminCreateUser = lazy(() => import("./Admin/AdminCreateUser"));
 const AdminViewTrends = lazy(() => import("./Admin/AdminViewTrends"));
 const AdminGenerateReports = lazy(() => import("./Admin/AdminGenerateReports"));
+const AdminSalesDashboard = lazy(() => import("./Admin/AdminSalesDashboard"));
 const AdminManageSuppliers = lazy(() => import("./Admin/AdminManageSuppliers"));
 const AdminRawMaterials = lazy(() => import("./Admin/AdminRawMaterials"));
 const AdminManageProducts = lazy(() => import("./Admin/AdminManageProducts"));
@@ -806,6 +807,9 @@ function App() {
         } />
         <Route path="/adminCashOutReport" element={
           <ProtectedRoute allowedRoles={["1"]}><FinanceReports asAdmin only="cashouts" /></ProtectedRoute>
+        } />
+        <Route path="/adminSalesDashboard" element={
+          <ProtectedRoute allowedRoles={["1"]}><AdminSalesDashboard /></ProtectedRoute>
         } />
         <Route path="/adminReports" element={
           <ProtectedRoute allowedRoles={["1"]}><FinanceReports asAdmin /></ProtectedRoute>
