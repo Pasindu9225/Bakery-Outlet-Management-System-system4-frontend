@@ -165,7 +165,7 @@ export default function SalesDashboard() {
   const first = f.g === "product" ? "Product" : f.g === "category" ? "Category" : f.m === "avg" ? "Month" : "Date";
   const title = { daily: "Daily sales", avg: "Monthly average sales (per day)", weekly: `Weekly sales – every ${DAYS[+f.wd]}` }[f.m]
     + (CHANNELS[f.g] ? ` · ${CHANNELS[f.g]}` : "");
-  const prevLabel = f.m === "weekly" && f.g !== "product" && f.g !== "category" ? "4 weeks before" : "Previous month";
+  const prevLabel = f.m === "weekly" && f.g !== "product" && f.g !== "category" ? "4 weeks before" : "Previous Month";
   const groupRows = f.g === "product" || f.g === "category";
   const chartRows = groupRows ? rows.slice(0, 24) : rows;
 
@@ -261,14 +261,13 @@ export default function SalesDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {time.list.filter((r) => r.bills).map((r) => (
+                {time.list.map((r) => (
                   <tr key={r.l} className="border-b border-line text-fg">
                     <td className="py-1.5 px-2">{r.l}</td><td className="py-1.5 px-2 text-right">{r.bills}</td>
                     <td className="py-1.5 px-2 text-right">{fmt(r.q)}</td><td className="py-1.5 px-2 text-right">Rs. {fmt(r.v)}</td>
                   </tr>
                 ))}
-                {!time.bills && <tr><td colSpan={4} className="py-6 text-center text-fg-muted">No bills in this time range.</td></tr>}
-              </tbody>
+                              </tbody>
             </table>
           </div>
         </Card>
