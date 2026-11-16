@@ -10,19 +10,22 @@ import { companyInfo, companyDetailLines } from "../../utils/companyInfo";
 
 const FONT = "'Courier New', Courier, monospace";
 const S = {
-  slip: { fontFamily: FONT, fontSize: 11, lineHeight: 1.4, color: "#000", background: "#fff" },
+  slip: { fontFamily: FONT, fontSize: 12, fontWeight: 700, lineHeight: 1.35, color: "#000", background: "#fff", WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" },
   center: { textAlign: "center" },
-  company: { textAlign: "center", fontWeight: 700, fontSize: 14 },
-  small: { textAlign: "center", fontSize: 10 },
-  title: { textAlign: "center", fontWeight: 700, fontSize: 12, margin: "4px 0" },
-  rule: { borderTop: "1px dashed #000", margin: "6px 0" },
+  company: { textAlign: "center", fontWeight: 700, fontSize: 17, letterSpacing: 1, marginBottom: 2 },
+  small: { textAlign: "center", fontSize: 11 },
+  title: { textAlign: "center", fontWeight: 700, fontSize: 13, margin: "4px 0" },
+  big: { fontSize: 15, margin: "2px 0" },
+  rule: { borderTop: "1px dashed #000", margin: "5px 0" },
+  double: { borderTop: "3px double #000", margin: "6px 0" },
   row: { display: "flex", justifyContent: "space-between", gap: 8 },
-  table: { width: "100%", borderCollapse: "collapse", fontSize: 11 },
+  table: { width: "100%", borderCollapse: "collapse", fontSize: 12, fontWeight: 700 },
   th: { textAlign: "left", fontWeight: 700, paddingBottom: 2, borderBottom: "1px dashed #000" },
-  heading: { fontWeight: 700, fontSize: 10, margin: "4px 0 2px" },
-  footer: { textAlign: "center", fontSize: 10, fontStyle: "italic", marginTop: 4 },
+  heading: { fontWeight: 700, fontSize: 11, margin: "4px 0 2px" },
+  total: { display: "flex", justifyContent: "space-between", fontSize: 20, padding: "4px 6px" },
+  footer: { textAlign: "center", fontSize: 12, marginTop: 2 },
   kotItem: { border: "1px dashed #000", borderRadius: 4, padding: "6px 8px", margin: "6px 0", fontWeight: 700, fontSize: 13 },
-  credit: { textAlign: "center", fontSize: 9, marginTop: 6 },
+  credit: { textAlign: "center", fontSize: 10, marginTop: 6 },
   pageBreak: { pageBreakBefore: "always", breakBefore: "page", borderTop: "1px dashed #000", marginTop: 12, paddingTop: 12 },
 };
 
@@ -34,25 +37,38 @@ export const money = (n) =>
 
 export const printedAt = (d = new Date()) => `${d.toLocaleDateString()} Time: ${d.toLocaleTimeString()}`;
 
-/** Company name, then the outlet and its address, then address / phone / VAT / TIN from the settings. */
+/** Bill amounts as on the old bill: 1,250.00 (no "Rs."). */
+export const amt = (n) => Number(n || 0).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const pad = (n) => String(n).padStart(2, "0");
+
+/** Company name, the outlet's address (its name when it has none), then address / phone / e-mail / VAT / TIN from the settings. */
 export function SlipHeader({ outlet = {} }) {
+  const place = outlet.address || outlet.name;
   return (
     <div>
       <div style={S.company}>{companyInfo.name.toUpperCase()}</div>
-      {outlet.name && <div style={S.small}>{outlet.name.toUpperCase()}</div>}
-      {outlet.address && <div style={S.small}>{outlet.address}</div>}
+      {place && <div style={S.small}>{place}</div>}
       {companyDetailLines().map((line) => <div key={line} style={S.small}>{line}</div>)}
     </div>
   );
 }
 
 const Rule = () => <div style={S.rule} />;
+const Double = () => <div style={S.double} />;
 
-/** "Label: value" lines; entries without a value are left out. */
+/**
+ * Info lines: [label, value] prints "label : value" (left out when there is no value);
+ * { left, right, big } prints one row with text at both ends.
+ */
 function InfoLines({ info }) {
-  return info.filter(([, value]) => value !== undefined && value !== null && value !== "").map(([label, value]) => (
-    <div key={label}>{label}: {value}</div>
-  ));
+  return info.map((entry, i) => {
+    if (Array.isArray(entry)) {
+      const [label, value] = entry;
+      return value === undefined || value === null || value === "" ? null : <div key={i}>{label} : {value}</div>;
+    }
+    return <div key={i} style={{ ...S.row, ...(entry.big ? S.big : {}) }}><span>{entry.left}</span><span>{entry.right}</span></div>;
+  });
 }
 
 function ItemTable({ items, amountLabel }) {
@@ -60,8 +76,8 @@ function ItemTable({ items, amountLabel }) {
     <table style={S.table}>
       <thead>
         <tr>
-          <th style={S.th}>Item</th>
-          <th style={{ ...S.th, textAlign: "center", width: "12%" }}>Qty</th>
+          <th style={S.th}>Description</th>
+          <th style={{ ...S.th, textAlign: "center", width: "12%" }}>QTY</th>
           <th style={{ ...S.th, textAlign: "right", width: "36%" }}>{amountLabel}</th>
         </tr>
       </thead>
@@ -70,7 +86,7 @@ function ItemTable({ items, amountLabel }) {
           <tr key={i}>
             <td style={{ paddingTop: 2, wordBreak: "break-word" }}>{item.name}</td>
             <td style={{ paddingTop: 2, textAlign: "center" }}>{item.qty}</td>
-            <td style={{ paddingTop: 2, textAlign: "right", whiteSpace: "nowrap" }}>{money(item.amount)}</td>
+            <td style={{ paddingTop: 2, textAlign: "right", whiteSpace: "nowrap" }}>{amt(item.amount)}</td>
           </tr>
         ))}
       </tbody>
@@ -90,7 +106,7 @@ export function BillSlip({ outlet, title, info = [], sections = [], amountLabel 
     <div style={S.slip}>
       <SlipHeader outlet={outlet} />
       <Rule />
-      <div style={S.title}>{title}</div>
+      {title && <div style={S.title}>{title}</div>}
       <InfoLines info={info} />
       {sections.map((section, i) => (
         <div key={i}>
@@ -100,12 +116,24 @@ export function BillSlip({ outlet, title, info = [], sections = [], amountLabel 
         </div>
       ))}
       <Rule />
-      {totals.map((t) => (
-        <div key={t.label} style={{ ...S.row, fontWeight: t.bold ? 700 : 400, ...(t.rule ? { borderTop: "1px dashed #000", paddingTop: 3, marginTop: 3 } : {}) }}>
-          <span>{t.label}</span><span>{typeof t.value === "number" ? money(t.value) : t.value}</span>
-        </div>
-      ))}
-      <Rule />
+      {(() => {
+        const row = (t) => (
+          <div key={t.label} style={{ ...S.row, ...(t.rule ? { borderTop: "1px dashed #000", paddingTop: 3, marginTop: 3 } : {}) }}>
+            <span>{t.label}</span><span>{typeof t.value === "number" ? amt(t.value) : t.value}</span>
+          </div>
+        );
+        const at = totals.findIndex((t) => t.big);
+        if (at < 0) return <>{totals.map(row)}<Rule /></>;
+        return (
+          <>
+            {totals.slice(0, at).map(row)}
+            <Double />
+            <div style={S.total}><span>{totals[at].label}</span><span>{amt(totals[at].value)}</span></div>
+            {totals.slice(at + 1).map(row)}
+            <Double />
+          </>
+        );
+      })()}
       {footer.map((line) => <div key={line} style={S.footer}>{line}</div>)}
       {credit && <div style={S.credit}>{DEVELOPER_CREDIT}</div>}
     </div>
@@ -151,7 +179,8 @@ export function PrintArea({ id, children }) {
         @media print {
           body * { visibility: hidden !important; }
           #${id}, #${id} * { visibility: visible !important; }
-          #${id} { position: absolute !important; left: 0 !important; top: 0 !important; width: 80mm !important; padding: 3mm !important; }
+          #${id} { position: absolute !important; left: 0 !important; top: 0 !important; width: 72mm !important; padding: 0 1mm !important; }
+          @page { margin: 0; } /* no browser date / page title on the slip, no shrinking (owner 16 Nov) */
         }` }} />
       {children}
     </div>
@@ -164,7 +193,7 @@ export function printInWindow(element, title) {
   const win = window.open("", "_blank");
   if (!win) return false;
   win.document.write(`<html><head><title>${title}</title><style>
-    @page { size: 80mm auto; margin: 0; } body { margin: 0; padding: 3mm; width: 74mm; background: #fff; }
+    @page { margin: 0; } body { margin: 0; padding: 0 1mm; width: 72mm; background: #fff; }
     </style></head><body>${html}<script>window.onload = function () { window.print(); window.close(); }</script></body></html>`);
   win.document.close();
   return true;
@@ -178,18 +207,18 @@ const lineItems = (items = []) => items.map((item) => ({
   amount: (item.unitPrice ?? item.price ?? 0) * (item.qty ?? item.quantity ?? 0),
 }));
 
-/** Totals block of a POS bill; a tax line appears when the total includes tax. */
+/** Totals block of a POS bill (as the old bill): Sub Total, discount / tax when there are any, Total, then Cash and Change. */
 export function posTotals({ subTotal = 0, discount = 0, finalTotal = 0, cashGiven = 0, change = 0 }) {
-  // cash bills: what the customer gave and the balance handed back (client review 11 Nov)
-  const cash = cashGiven > 0 ? [{ label: "Cash:", value: cashGiven }, { label: "Balance:", value: change || 0 }] : [];
-  const tax = finalTotal - (subTotal - (discount || 0));
+  const cash = cashGiven > 0 ? [{ label: "Cash", value: cashGiven }, { label: "Change", value: change || 0 }] : [];
   const taxed = subTotal - (discount || 0);
-  const extras = [
-    ...(discount > 0 ? [{ label: "Discount:", value: `- ${money(discount)}` }] : []),
-    ...(tax > 0.005 ? [{ label: `Tax (${taxed > 0 ? Math.round((tax / taxed) * 100) : 0}%):`, value: tax }] : []),
+  const tax = finalTotal - taxed;
+  return [
+    { label: "Sub Total", value: subTotal },
+    ...(discount > 0 ? [{ label: "Discount", value: `-${amt(discount)}` }] : []),
+    ...(tax > 0.005 ? [{ label: `Tax (${taxed > 0 ? Math.round((tax / taxed) * 100) : 0}%)`, value: tax }] : []),
+    { label: "Total", value: finalTotal, big: true },
+    ...cash,
   ];
-  if (!extras.length) return [{ label: "Total:", value: finalTotal, bold: true }, ...cash];
-  return [{ label: "Subtotal:", value: subTotal, bold: true }, ...extras, { label: "Total:", value: finalTotal, bold: true, rule: true }, ...cash];
 }
 
 /**
@@ -198,6 +227,9 @@ export function posTotals({ subTotal = 0, discount = 0, finalTotal = 0, cashGive
  */
 export function PosPrintout({ printData, outlet = {}, id = "print-receipt" }) {
   const when = printedAt();
+  const now = new Date();
+  const date = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()}`;
+  const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
   const proforma = printData.type === "PROFORMA";
   const copies = printData.printBill === false ? [] : printData.isUberOrPickMe ? ["CUSTOMER COPY", "DELIVERY COPY"] : [null];
   // one slip per kitchen: two dishes for the same kitchen come out on one KOT
@@ -210,21 +242,22 @@ export function PosPrintout({ printData, outlet = {}, id = "print-receipt" }) {
     ...copies.map((copy) => (
       <BillSlip
         outlet={outlet}
-        title={proforma ? "PROFORMA INVOICE (UNPAID)" : copy ? `INVOICE (${copy})` : "INVOICE"}
+        title={proforma ? "PROFORMA INVOICE (UNPAID)" : copy}
         info={[
-          ["Date", proforma ? new Date().toLocaleDateString() : when],
-          ["Bill ID", printData.transactionId],
+          ["Order", printData.deliveryOption],
           ["Table", printData.tableName],
-          ["Waiter", printData.waiterName],
+          { left: `Bill# : ${printData.transactionId || ""}`, big: true },
+          { left: proforma ? "" : time, right: date },
           ["Cashier", printData.cashierName],
+          ["Served by", printData.waiterName || printData.cashierName],
           ["Payment", printData.paymentMethod],
-          ["Card", printData.cardLast4 ? `**** **** **** ${printData.cardLast4}` : null],
+          ["Card", printData.cardLast4 ? `**** ${printData.cardLast4}` : null],
           ["Card Ref", printData.cardRef],
-          ["Channel", printData.deliveryOption],
         ]}
         sections={[{ items: lineItems(printData.items) }]}
+        amountLabel="Amount"
         totals={posTotals(printData)}
-        footer={proforma ? ["THIS IS A PROFORMA INVOICE.", "PLEASE SETTLE AT CASHIER TO GET THE INVOICE."] : ["THANK YOU! COME AGAIN."]}
+        footer={proforma ? ["THIS IS A PROFORMA INVOICE.", "PLEASE SETTLE AT CASHIER TO GET THE INVOICE."] : ["Thank you", "Visit Again"]}
         credit={!proforma}
       />
     )),

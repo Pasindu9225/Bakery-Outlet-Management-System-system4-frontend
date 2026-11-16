@@ -7,23 +7,24 @@ test("amounts are shown as Rs. with thousand separators and 2 decimals", () => {
 });
 
 test("a bill shows a tax line only when the total includes tax, and a discount only when given", () => {
-  expect(posTotals({ subTotal: 310, discount: 0, finalTotal: 310 }).map((t) => t.label)).toEqual(["Total:"])   // no discount or tax: Total only;
+  expect(posTotals({ subTotal: 310, discount: 0, finalTotal: 310 }).map((t) => t.label)).toEqual(["Sub Total", "Total"]);
   const taxed = posTotals({ subTotal: 140, discount: 0, finalTotal: 154 });
-  expect(taxed.map((t) => t.label)).toEqual(["Subtotal:", "Tax (10%):", "Total:"]);
+  expect(taxed.map((t) => t.label)).toEqual(["Sub Total", "Tax (10%)", "Total"]);
   expect(taxed[1].value).toBeCloseTo(14);
-  expect(posTotals({ subTotal: 200, discount: 20, finalTotal: 180 }).map((t) => t.label)).toEqual(["Subtotal:", "Discount:", "Total:"]);
+  expect(posTotals({ subTotal: 200, discount: 20, finalTotal: 180 }).map((t) => t.label)).toEqual(["Sub Total", "Discount", "Total"]);
 });
 
 test("empty fields are left out of bills and KOT slips", () => {
   const bill = renderToStaticMarkup(<BillSlip title="TAX INVOICE" info={[["Bill ID", "BILL-000001"], ["Waiter", null]]}
     sections={[{ items: [{ name: "Tea Bun", qty: 2, amount: 180 }] }]} totals={[{ label: "Total:", value: 180 }]} />);
-  expect(bill).toContain("Bill ID: BILL-000001");
+  expect(bill).toContain("Bill ID : BILL-000001");
   expect(bill).not.toContain("Waiter");
-  expect(bill).toContain("Rs. 180.00");
+  expect(bill).toContain("180.00");
+  expect(bill).not.toContain("Rs.");
   expect(bill).toContain("Developed by - plover.lk | 077 990 98 96");
   const kot = renderToStaticMarkup(<KotSlip index={0} count={2} info={[["KOT No", "KOT-1"], ["Table", undefined]]} item={{ name: "Fish Bun", qty: 1 }} />);
   expect(kot).toContain("SLIP #1 OF 2");
-  expect(kot).toContain("KOT No: KOT-1");
+  expect(kot).toContain("KOT No : KOT-1");
   expect(kot).not.toContain("Table");
   expect(kot).not.toContain("plover.lk");   // KOT slips are for the kitchen, not the customer
 });
@@ -36,12 +37,12 @@ test("kitchen items print one KOT slip per kitchen, listing all of that kitchen'
   ] }} />);
   expect(html.match(/>KOT</g)).toHaveLength(2);
   expect(html).toContain("SLIP #1 OF 2");
-  expect(html).toContain("KOT No: KOT-1, KOT-2");
+  expect(html).toContain("KOT No : KOT-1, KOT-2");
   expect(html).toContain("KOT ITEM: Egg Kottu");
   expect(html).toContain("Comment:");
   expect(html).toContain("Egg Kottu: No chilli");
   expect(html).not.toContain("PLEASE PREPARE");
-  expect(html).toContain("Kitchen: Juice Bar");
+  expect(html).toContain("Kitchen : Juice Bar");
 });
 
 test("a proforma has no time, no developer line and asks to settle for the invoice", () => {
@@ -51,6 +52,16 @@ test("a proforma has no time, no developer line and asks to settle for the invoi
   expect(html).not.toContain("plover.lk");
   expect(html).toContain("GET THE INVOICE.");
   const bill = renderToStaticMarkup(<PosPrintout printData={{ transactionId: "BILL-1", items: [], subTotal: 0, finalTotal: 0 }} />);
-  expect(bill).toContain(">INVOICE<");
-  expect(bill).not.toContain("TAX INVOICE");
+  expect(bill).not.toContain("INVOICE");   // as the old bill: no title line
+  expect(bill).toContain("Bill# : BILL-1");
+  expect(bill).toContain("Visit Again");
+});
+
+test("a cash bill shows the big Total, then what the customer gave and the change", () => {
+  const html = renderToStaticMarkup(<PosPrintout printData={{ transactionId: "BILL-2", items: [{ productName: "Nescafe", qty: 1, unitPrice: 150 }],
+    subTotal: 150, finalTotal: 150, cashGiven: 500, change: 350 }} />);
+  expect(html.indexOf(">Total<")).toBeLessThan(html.indexOf(">Cash<"));
+  expect(html).toContain("500.00");
+  expect(html).toContain(">Change<");
+  expect(html).toContain("350.00");
 });
