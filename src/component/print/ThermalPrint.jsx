@@ -179,7 +179,8 @@ export function PrintArea({ id, children }) {
         @media print {
           body * { visibility: hidden !important; }
           #${id}, #${id} * { visibility: visible !important; }
-          #${id} { position: absolute !important; left: 0 !important; top: 0 !important; width: 72mm !important; padding: 0 1mm !important; }
+          #${id} { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; box-sizing: border-box !important; margin: 0 !important; padding: 0 1.5mm !important; }
+          html, body { margin: 0 !important; padding: 0 !important; } /* full paper width, nothing above the slip (owner 16 Nov) */
           @page { margin: 0; } /* no browser date / page title on the slip, no shrinking (owner 16 Nov) */
         }` }} />
       {children}
@@ -193,7 +194,7 @@ export function printInWindow(element, title) {
   const win = window.open("", "_blank");
   if (!win) return false;
   win.document.write(`<html><head><title>${title}</title><style>
-    @page { margin: 0; } body { margin: 0; padding: 0 1mm; width: 72mm; background: #fff; }
+    @page { margin: 0; } html, body { margin: 0; padding: 0; } body { padding: 0 1.5mm; background: #fff; }
     </style></head><body>${html}<script>window.onload = function () { window.print(); window.close(); }</script></body></html>`);
   win.document.close();
   return true;
