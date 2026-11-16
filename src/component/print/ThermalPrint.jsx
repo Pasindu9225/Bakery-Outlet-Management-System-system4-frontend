@@ -135,7 +135,8 @@ export function BillSlip({ outlet, title, info = [], sections = [], amountLabel 
         );
       })()}
       {footer.map((line) => <div key={line} style={S.footer}>{line}</div>)}
-      {credit && <div style={S.credit}>{DEVELOPER_CREDIT}</div>}
+      {/* the phone number on its own line (owner 16 Nov) */}
+      {credit && DEVELOPER_CREDIT.split(" | ").map((line, i) => <div key={line} style={i ? { ...S.credit, marginTop: 0 } : S.credit}>{line}</div>)}
     </div>
   );
 }

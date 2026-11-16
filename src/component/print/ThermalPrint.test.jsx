@@ -21,7 +21,8 @@ test("empty fields are left out of bills and KOT slips", () => {
   expect(bill).not.toContain("Waiter");
   expect(bill).toContain("180.00");
   expect(bill).not.toContain("Rs.");
-  expect(bill).toContain("Developed by - plover.lk | 077 990 98 96");
+  expect(bill).toContain("Developed by - plover.lk");
+  expect(bill).toContain(">077 990 98 96<");   // phone on its own line
   const kot = renderToStaticMarkup(<KotSlip index={0} count={2} info={[["KOT No", "KOT-1"], ["Table", undefined]]} item={{ name: "Fish Bun", qty: 1 }} />);
   expect(kot).toContain("SLIP #1 OF 2");
   expect(kot).toContain("KOT No : KOT-1");
