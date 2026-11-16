@@ -19,6 +19,7 @@ import {
   Target,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { filterProducts } from "../utils/productSearch";
 
 import POSNavBar from "../component/POSNavBar.jsx";
 import POSSidebar from "../component/POSSidebar.jsx";
@@ -27,7 +28,7 @@ import Loader from "../component/Loader.jsx";
 export default function POSGoodsEntry() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection] = useState("Goods Entry");
-  const [activeTab, setActiveTab] = useState("expected"); // 'expected' or 'manual'
+  const [activeTab, setActiveTab] = useState("manual"); // S4: only Manual Entry (owner 17 Nov) // 'expected' or 'manual'
   const [entries, setEntries] = useState([]);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -196,6 +197,8 @@ export default function POSGoodsEntry() {
 
   // Product catalog list for manual entry dropdown
   const [productList, setProductList] = useState([]);
+  const [productQuery, setProductQuery] = useState("");
+  const [showSuggest, setShowSuggest] = useState(false);
 
   const fetchProductList = async () => {
     try {
@@ -310,6 +313,7 @@ export default function POSGoodsEntry() {
     setEntries((prev) => [...prev, newEntry]);
 
     // Reset form
+    setProductQuery("");
     setManualEntry({
       productId: "",
       productName: "",
@@ -474,7 +478,8 @@ export default function POSGoodsEntry() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
             {/* Tabs */}
             <div className="flex border-b border-line">
-              <button
+              {/* S4 (owner 17 Nov): no production / manager sends goods here, so Incoming GTNs and Outgoing Transfers are hidden */}
+              <button hidden
                 onClick={() => setActiveTab("expected")}
                 className={`px-4 py-2 border-b-2 transition-colors ${activeTab === "expected"
                   ? "border-brand-fg text-brand-fg font-[500]"
@@ -483,7 +488,7 @@ export default function POSGoodsEntry() {
               >
                 Incoming GTNs
               </button>
-              <button
+              <button hidden
                 onClick={() => setActiveTab("transfers")}
                 className={`px-4 py-2 border-b-2 transition-colors ${activeTab === "transfers"
                   ? "border-brand-fg text-brand-fg font-[500]"
@@ -833,40 +838,52 @@ export default function POSGoodsEntry() {
                     <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
                       Select Product *
                     </label>
-                    <select
-                      value={manualEntry.productId}
-                      onChange={(e) => {
-                        const selectedId = e.target.value;
-                        const selectedProd = productList.find(
-                          (p) => String(p.id) === String(selectedId)
-                        );
-                        if (selectedProd) {
-                          setManualEntry((prev) => ({
-                            ...prev,
-                            productId: selectedProd.id,
-                            productName: selectedProd.productName || selectedProd.name || "",
-                            productCode: selectedProd.productCode || `PRD-${selectedProd.id}`,
-                            unit: selectedProd.unitOfMeasure || selectedProd.unit || "pieces",
-                          }));
-                        } else {
-                          setManualEntry((prev) => ({
-                            ...prev,
-                            productId: "",
-                            productName: "",
-                            productCode: "",
-                          }));
-                        }
-                      }}
-                      className="w-full px-3 py-2 border border-line rounded-lg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg"
-                      disabled={isConfirmed}
-                    >
-                      <option value="">-- Choose a Product --</option>
-                      {productList.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.productName || p.name} ({p.productCode || `ID:${p.id}`})
-                        </option>
-                      ))}
-                    </select>
+                    {/* type a name or code: suggestions from the first letter (owner 17 Nov) */}
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={productQuery}
+                        placeholder="Type a product name or code..."
+                        disabled={isConfirmed}
+                        onFocus={() => setShowSuggest(true)}
+                        onBlur={() => setTimeout(() => setShowSuggest(false), 150)}
+                        onChange={(e) => {
+                          setProductQuery(e.target.value);
+                          setShowSuggest(true);
+                          if (manualEntry.productId) setManualEntry((prev) => ({ ...prev, productId: "", productName: "", productCode: "" }));
+                        }}
+                        className="w-full px-3 py-2 border border-line rounded-lg bg-surface text-fg focus:ring-2 focus:ring-brand-fg focus:border-brand-fg"
+                      />
+                      {showSuggest && !isConfirmed && (
+                        <ul className="absolute z-20 mt-1 w-full max-h-72 overflow-auto bg-surface border border-line rounded-lg shadow-lg">
+                          {filterProducts(productList, productQuery, 20).map((p) => (
+                            <li key={p.id}>
+                              <button
+                                type="button"
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() => {
+                                  setManualEntry((prev) => ({
+                                    ...prev,
+                                    productId: p.id,
+                                    productName: p.productName || p.name || "",
+                                    productCode: p.productCode || `PRD-${p.id}`,
+                                    unit: p.unitOfMeasure || p.unit || "pieces",
+                                  }));
+                                  setProductQuery(`${p.productName || p.name} (${p.productCode || `ID:${p.id}`})`);
+                                  setShowSuggest(false);
+                                }}
+                                className="w-full text-left px-3 py-2 text-[14px] text-fg hover:bg-subtle"
+                              >
+                                {p.productName || p.name} <span className="text-fg-muted">({p.productCode || `ID:${p.id}`})</span>
+                              </button>
+                            </li>
+                          ))}
+                          {productQuery.trim() && filterProducts(productList, productQuery, 1).length === 0 && (
+                            <li className="px-3 py-2 text-[13px] text-fg-muted">No product matches "{productQuery}"</li>
+                          )}
+                        </ul>
+                      )}
+                    </div>
                   </div>
                   <div>
                     <label className="block text-[12px] font-[500] text-fg-secondary mb-1">
