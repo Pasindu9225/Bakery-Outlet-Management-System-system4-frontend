@@ -95,6 +95,8 @@ export default function AdminSidebar({ sidebarOpen }) {
       path: "/adminCreateBOM",
       color: "text-fg-secondary",
     },
+    // outlet name / address (printed on bills) - the page was only reachable from the dashboard tile (owner 16 Nov)
+    { name: "Outlets", icon: Store, path: "/adminOutletManagement", color: "text-brand-fg" },
     // individual POS (System 4) has no production: Production Center is hidden from the menu (page and route kept)
     // { name: 'Production Center', icon: Factory, path: '/adminProductionCenter', color: 'text-fg-secondary' },
     {
