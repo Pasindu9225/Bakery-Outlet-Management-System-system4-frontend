@@ -148,7 +148,15 @@ export default function POSDayEnd() {
                         action: null
                     }));
                     
-                    setProductData(mappedProducts);
+                    // keep what the cashier already entered when coming back to this step or after a reload (owner 16 Nov)
+                    setProductData(prev => mappedProducts.map(m => {
+                        const old = prev.find(p => p.productId === m.productId);
+                        if (!old) return m;
+                        const physical = old.physicalQty === '' ? 0 : Math.max(0, parseInt(old.physicalQty) || 0);
+                        const wastage = Math.max(0, parseInt(old.wastageQty) || 0);
+                        return { ...m, physicalQty: old.physicalQty, wastageQty: old.wastageQty, wastageReason: old.wastageReason,
+                            carryForwardQty: Math.max(0, physical - wastage) };
+                    }));
                     setKotProducts(response.data.filter(item => item.isKotEnabled)
                         .map(item => ({ productId: item.productId, systemQty: Math.max(0, item.currentQty || 0) })));
 
@@ -310,7 +318,12 @@ export default function POSDayEnd() {
                     if (busy) return `${busy.name} has ${busy.openKots} unfinished KOT(s). Mark them served or cancelled first.`;
                     if (!centresReady()) return 'Count every action centre ingredient and fix any row marked in red.';
                 }
-                return 'Enter the physical count for every product and fix any row marked in red.';
+                {
+                    // name the products not counted yet (owner 16 Nov)
+                    const notCounted = productData.filter(item => item.physicalQty === '').map(item => item.productName);
+                    if (notCounted.length > 0) return `Not counted yet (${notCounted.length}): ${notCounted.slice(0, 8).join(', ')}${notCounted.length > 8 ? ` and ${notCounted.length - 8} more` : ''}.`;
+                }
+                return 'Fix the rows marked in red.';
             case 5:
                 if (!dayEndData.finalConfirmation) return 'Tick the final confirmation box.';
                 return 'Enter your code to finish.';
@@ -976,9 +989,10 @@ export default function POSDayEnd() {
                                                 type="number"
                                                 value={item.physicalQty}
                                                 onChange={(e) => handleProductQtyChange(item.productId, e.target.value)}
-                                                className="w-20 px-2 py-1 border border-line rounded focus:ring-1 focus:ring-brand-fg text-[14px]"
+                                                className={`w-20 px-2 py-1 border rounded focus:ring-1 focus:ring-brand-fg text-[14px] ${item.physicalQty === '' ? 'border-warning bg-hover' : 'border-line'}`}
                                                 placeholder="0"
                                             />
+                                            {item.physicalQty === '' && <p className="text-[12px] text-warning mt-1">Not counted</p>}
                                         </td>
                                         <td className="py-3 px-4">
                                             <input
