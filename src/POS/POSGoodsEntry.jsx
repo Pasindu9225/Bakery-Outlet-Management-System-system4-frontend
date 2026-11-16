@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { friendlyError } from "../utils/friendlyError";
 import {
   Package,
@@ -31,6 +31,9 @@ export default function POSGoodsEntry() {
   const [activeTab, setActiveTab] = useState("manual"); // S4: only Manual Entry (owner 17 Nov) // 'expected' or 'manual'
   const [entries, setEntries] = useState([]);
   const [isConfirmed, setIsConfirmed] = useState(false);
+  // one save at a time: extra clicks while a long list was saving saved it again (stock x3, owner 16 Nov)
+  const savingRef = useRef(false);
+  const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSource, setFilterSource] = useState("all");
 
@@ -332,6 +335,18 @@ export default function POSGoodsEntry() {
 
   // Confirm morning entry
   const confirmMorningEntry = async () => {
+    if (savingRef.current) return;
+    savingRef.current = true;
+    setSaving(true);
+    try {
+      await saveMorningEntry();
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
+  };
+
+  const saveMorningEntry = async () => {
     const receivedExpectedItems = expectedDeliveries.filter(
       (item) => parseFloat(item.receivedQty) > 0
     );
@@ -1097,11 +1112,11 @@ export default function POSGoodsEntry() {
             <div className="flex justify-center pt-6">
               <button
                 onClick={confirmMorningEntry}
-                disabled={isConfirmed}
+                disabled={isConfirmed || saving}
                 className="px-8 py-3 bg-success-solid text-on-brand rounded-lg hover:bg-success-solid transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-[500]"
               >
                 <CheckCircle size={20} />
-                {isConfirmed ? "Entry Confirmed" : activeTab === "manual" ? "Confirm & Update Manual Stock" : "Confirm Entry"}
+                {saving ? "Saving..." : isConfirmed ? "Entry Confirmed" : activeTab === "manual" ? "Confirm & Update Manual Stock" : "Confirm Entry"}
               </button>
             </div>
           )}
