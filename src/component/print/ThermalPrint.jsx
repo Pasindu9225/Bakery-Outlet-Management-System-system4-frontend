@@ -176,10 +176,12 @@ export const PageBreak = ({ children }) => <div style={S.pageBreak}>{children}</
  * The printed page is made as long as the longest slip: with the printer's own paper length a long bill ran onto a
  * second page and the cutter cut it in two (owner 16 Nov). Each slip still starts on its own page.
  */
-const pageCss = (heightPx) => (heightPx > 0 ? `@page { size: 80mm ${Math.ceil((heightPx * 25.4) / 96) + 4}mm; margin: 0; }` : "");
+/** Paper roll width: the client prints on 100 mm rolls (owner 16 Nov). */
+export const PAPER_MM = 100;
+const pageCss = (heightPx) => (heightPx > 0 ? `@page { size: ${PAPER_MM}mm ${Math.ceil((heightPx * 25.4) / 96) + 4}mm; margin: 0; }` : "");
 const tallestSlip = (el) => Math.max(0, ...[...el.children].filter((c) => c.tagName !== "STYLE").map((c) => c.getBoundingClientRect().height));
 
-/** Hidden on screen; when the page is printed only this block is printed, 80 mm wide. */
+/** Hidden on screen; when the page is printed only this block is printed, across the whole roll (PAPER_MM). */
 export function PrintArea({ id, children }) {
   const ref = useRef(null);
   const pageRef = useRef(null);
@@ -188,7 +190,7 @@ export function PrintArea({ id, children }) {
       const el = ref.current;
       if (!el || !pageRef.current) return;
       const keep = el.style.cssText;   // hidden on screen: lay it out off screen for a moment to measure it
-      el.style.cssText = `${keep};display:block;position:absolute;visibility:hidden;left:-9999px;top:0;width:72mm`;
+      el.style.cssText = `${keep};display:block;position:absolute;visibility:hidden;left:-9999px;top:0;width:${PAPER_MM - 3}mm`;
       pageRef.current.textContent = `@media print { ${pageCss(tallestSlip(el))} }`;
       el.style.cssText = keep;
     };
@@ -218,7 +220,7 @@ export function printInWindow(element, title) {
   if (!win) return false;
   win.document.write(`<html><head><title>${title}</title><style>
     @page { margin: 0; } html, body { margin: 0; padding: 0; } body { padding: 0 1.5mm; background: #fff; }
-    </style></head><body>${html}<script>window.onload = function () { var s = document.createElement("style"); s.textContent = "@page { size: 80mm " + (Math.ceil(document.body.scrollHeight * 25.4 / 96) + 4) + "mm; margin: 0; }"; document.head.appendChild(s); window.print(); window.close(); }</script></body></html>`);
+    </style></head><body>${html}<script>window.onload = function () { var s = document.createElement("style"); s.textContent = "@page { size: ${PAPER_MM}mm " + (Math.ceil(document.body.scrollHeight * 25.4 / 96) + 4) + "mm; margin: 0; }"; document.head.appendChild(s); window.print(); window.close(); }</script></body></html>`);
   win.document.close();
   return true;
 }
