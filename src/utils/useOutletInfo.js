@@ -11,13 +11,13 @@ const cachedFor = (userId) => {
   }
 };
 
-/** The signed-in user's outlet name and address, for printing on bills (asked once, cached per user). */
+/** The signed-in user's outlet name and address, for printing on bills (cached per user, refreshed on each load). */
 export default function useOutletInfo() {
   const userId = localStorage.getItem("userId");
   const [outlet, setOutlet] = useState(() => cachedFor(userId) || {});
 
   useEffect(() => {
-    if (cachedFor(userId)) return;
+    // asked again on every screen load (the cache only shows something at once): an address changed in Outlets reaches the bill (client 17 Nov)
     const token = localStorage.getItem("authToken");
     if (!token) return;
     fetch(`${process.env.REACT_APP_BASE_URL}/bmsauth/me`, { headers: { Authorization: `Bearer ${token}` } })
