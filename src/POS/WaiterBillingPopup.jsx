@@ -14,6 +14,7 @@ import { confirmDialog } from "../component/ConfirmDialog";
 import CashQuickButtons from "../component/CashQuickButtons.jsx";
 import useOutletInfo from "../utils/useOutletInfo";
 import { PosPrintout } from "../component/print/ThermalPrint";
+import SaleSectionPicker from "../component/SaleSectionPicker";
 
 /**
  * The waiter's bill popup (owner 12 Nov: the same on New Sale and on Waiter Billing): pick the waiter, transfer, tick the
@@ -32,6 +33,7 @@ export default function WaiterBillingPopup({ products = [], waiter = null, onSel
     const [selectedWaiterItemIds, setSelectedWaiterItemIds] = useState([]);
     const [targetWaiterId, setTargetWaiterId] = useState('');
     const [waiterPaymentType, setWaiterPaymentType] = useState('CASH');
+    const [waiterSection, setWaiterSection] = useState('');   // Club / Outlet, required (owner 17 Nov)
     // a free meal is recorded with who asked and why, a staff meal with a checked Staff ID (as at the payment popup)
     const [waiterFreeMealReason, setWaiterFreeMealReason] = useState('');   // kept for the resets below
     const [waiterMeal, setWaiterMeal] = useState(EMPTY_MEAL);
@@ -127,6 +129,7 @@ export default function WaiterBillingPopup({ products = [], waiter = null, onSel
     // Waiter settlement paid and the bill sent to the customer's phone as an SMS (instead of printed)
     const settleWaiterWithEBill = async (phone) => {
         const discountVal = parseFloat(waiterDiscountAmount) || 0;
+        if (!waiterSection) { toast.error('Tick Club or Outlet for this bill.'); return; }
         try {
             const selectedItems = waiterUnpaid.filter(item => selectedWaiterItemIds.includes(item.id));
             const finished = await axios.post(`/api/pos/v1/waiter-billing/finish-billing`, {
@@ -134,6 +137,7 @@ export default function WaiterBillingPopup({ products = [], waiter = null, onSel
                 itemIdsToPay: selectedWaiterItemIds,
                 finalTotal: selectedSubTotal - discountVal,
                 paymentType: waiterPaymentType,
+                saleSection: waiterSection,
                 discountAmount: discountVal,
                 discountReason: (waiterPaymentType === 'FREE_MEAL' || waiterPaymentType === 'STAFF_MEAL') ? waiterMealReason : waiterDiscountReason,
                 manualDiscount: discountVal > 0,
@@ -154,7 +158,7 @@ export default function WaiterBillingPopup({ products = [], waiter = null, onSel
             }, outlet)).then((m) => toast.success(m)).catch((e) => toast.error(e.message));
             setWaiterDiscountAmount('0');
             setWaiterDiscountReason('');
-            setWaiterFreeMealReason(''); resetWaiterPay();
+            setWaiterFreeMealReason(''); resetWaiterPay(); setWaiterSection('');
             fetchWaiterDetails(selectedWaiter.userId); onChanged && onChanged();
         } catch (e) {
             console.error(e);
@@ -385,6 +389,7 @@ export default function WaiterBillingPopup({ products = [], waiter = null, onSel
                                                                     <span className="text-error">Rs. {waiterToPay.toLocaleString()}</span>
                                                                 </div>
                                                             </div>
+                                                            <SaleSectionPicker value={waiterSection} onChange={setWaiterSection} className="mb-3" />
                                                             {/* how the bill is paid: Cash / Card, the rest under More */}
                                                             <div className="grid grid-cols-3 gap-2 mb-3">
                                                                 <button type="button" onClick={() => setWaiterPaymentType('CASH')}
@@ -458,6 +463,7 @@ export default function WaiterBillingPopup({ products = [], waiter = null, onSel
                                                                     disabled={selectedWaiterItemIds.length === 0 || waiterPayBlocked}
                                                                     onClick={async () => {
                                                                         const discountVal = parseFloat(waiterDiscountAmount) || 0;
+        if (!waiterSection) { toast.error('Tick Club or Outlet for this bill.'); return; }
                                                                         if (await confirmDialog(`Process payment and complete sale (without printing) for the ${selectedWaiterItemIds.length} selected items?`, { confirmText: "Process payment" })) {
                                                                             try {
                                                                                 const payload = {
@@ -465,6 +471,7 @@ export default function WaiterBillingPopup({ products = [], waiter = null, onSel
                                                                                     itemIdsToPay: selectedWaiterItemIds,
                                                                                     finalTotal: selectedSubTotal - discountVal,
                                                                                     paymentType: waiterPaymentType,
+                saleSection: waiterSection,
                                                                                     discountAmount: discountVal,
                                                                                     discountReason: (waiterPaymentType === 'FREE_MEAL' || waiterPaymentType === 'STAFF_MEAL') ? waiterMealReason : waiterDiscountReason,
                                                                                     manualDiscount: discountVal > 0,
@@ -479,7 +486,7 @@ export default function WaiterBillingPopup({ products = [], waiter = null, onSel
                                                                                 toast.success("Payment successful! Sale completed.");
                                                                                 setWaiterDiscountAmount('0');
                                                                                 setWaiterDiscountReason('');
-                                                                                setWaiterFreeMealReason(''); resetWaiterPay();
+                                                                                setWaiterFreeMealReason(''); resetWaiterPay(); setWaiterSection('');
                                                                                 fetchWaiterDetails(selectedWaiter.userId); onChanged && onChanged();
                                                                             } catch (e) {
                                                                                 console.error(e);
@@ -495,6 +502,7 @@ export default function WaiterBillingPopup({ products = [], waiter = null, onSel
                                                                     disabled={selectedWaiterItemIds.length === 0 || waiterPayBlocked}
                                                                     onClick={async () => {
                                                                         const discountVal = parseFloat(waiterDiscountAmount) || 0;
+        if (!waiterSection) { toast.error('Tick Club or Outlet for this bill.'); return; }
                                                                         if (await confirmDialog(`Process payment and print invoice for the ${selectedWaiterItemIds.length} selected items?`, { confirmText: "Process payment" })) {
                                                                             try {
                                                                                 const selectedItems = waiterUnpaid.filter(item => selectedWaiterItemIds.includes(item.id));
@@ -503,6 +511,7 @@ export default function WaiterBillingPopup({ products = [], waiter = null, onSel
                                                                                     itemIdsToPay: selectedWaiterItemIds,
                                                                                     finalTotal: selectedSubTotal - discountVal,
                                                                                     paymentType: waiterPaymentType,
+                saleSection: waiterSection,
                                                                                     discountAmount: discountVal,
                                                                                     discountReason: (waiterPaymentType === 'FREE_MEAL' || waiterPaymentType === 'STAFF_MEAL') ? waiterMealReason : waiterDiscountReason,
                                                                                     manualDiscount: discountVal > 0,
@@ -541,7 +550,7 @@ export default function WaiterBillingPopup({ products = [], waiter = null, onSel
                                                                                 toast.success("Payment successful! Actual invoice printed.");
                                                                                 setWaiterDiscountAmount('0');
                                                                                 setWaiterDiscountReason('');
-                                                                                setWaiterFreeMealReason(''); resetWaiterPay();
+                                                                                setWaiterFreeMealReason(''); resetWaiterPay(); setWaiterSection('');
                                                                                 fetchWaiterDetails(selectedWaiter.userId); onChanged && onChanged();
                                                                             } catch (e) {
                                                                                 console.error(e);

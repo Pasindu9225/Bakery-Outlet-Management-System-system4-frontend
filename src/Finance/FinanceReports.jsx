@@ -309,6 +309,7 @@ function normaliseRow(raw, idx) {
         // exactQty keeps fractions (e.g. 0.4 kg of wasted flour) that the whole-number qty drops
         qty: raw.exactQty != null ? toNumber(raw.exactQty) : raw.qty != null ? toNumber(raw.qty) : null,
         unit: raw.unit || "",
+        section: raw.section || "—",   // Club / Outlet (owner 17 Nov)
         // average selling price per item before discount (client 17 Nov); null where the row has no quantity
         unitPrice: toNumber(raw.qty) > 0 ? Math.round((toNumber(raw.sales) / toNumber(raw.qty)) * 100) / 100 : null,
         costPerUnit: toNumber(raw.costPerUnit),
@@ -426,6 +427,7 @@ function ReportDetailModal({ row, reportType, columns, onClose }) {
                         { label: "Product", value: row.product },
                         { label: "Category", value: row.category },
                         { label: "Outlet", value: row.outlet },
+                        { label: "Club / Outlet", value: row.section },
                         { label: "Unit Price", value: row.unitPrice != null ? `Rs. ${row.unitPrice.toLocaleString()}` : "—" },
                         { label: "Qty Sold", value: row.qty ?? "—" },
                         { label: "Gross Sales", value: `Rs. ${row.sales?.toLocaleString()}` },
@@ -616,6 +618,7 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
                                 { key: "product", label: "Product" },
                                 { key: "category", label: "Category" },
                                 { key: "outlet", label: "Outlet" },
+                                { key: "section", label: "Club / Outlet" },
                                 { key: "unitPrice", label: "Unit Price (Rs.)" },
                                 { key: "qty", label: "Qty Sold" },
                                 { key: "sales", label: "Gross Sales (Rs.)" },
@@ -638,7 +641,7 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
                     </thead>
                     <tbody>
                         {paginated.length === 0 ? (
-                            <tr><td colSpan={13} className="py-16 text-center">
+                            <tr><td colSpan={14} className="py-16 text-center">
                                 <TrendingUp size={36} className="mx-auto text-fg-muted mb-3" />
                                 <p className="text-[14px] font-[500] text-fg">No sales data found</p>
                             </td></tr>
@@ -650,6 +653,7 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
                                     <td className="py-3.5 px-4"><p className="text-[13px] font-[600] text-fg">{row.product}</p></td>
                                     <td className="py-3.5 px-4"><span className="text-[12px] font-[500] px-2 py-0.5 rounded-full bg-hover text-brand-fg">{row.category}</span></td>
                                     <td className="py-3.5 px-4"><p className="text-[12px] text-fg-secondary">{row.outlet}</p></td>
+                                    <td className="py-3.5 px-4"><p className="text-[13px] font-[500] text-fg">{row.section}</p></td>
                                     <td className="py-3.5 px-4"><span className="text-[13px] text-fg whitespace-nowrap">{row.unitPrice != null ? `Rs. ${row.unitPrice.toLocaleString()}` : "—"}</span></td>
                                     <td className="py-3.5 px-4"><span className="text-[13px] font-[600] text-fg">{row.qty ?? "—"}</span></td>
                                     <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-fg">Rs. {row.sales.toLocaleString()}</span></td>
@@ -953,6 +957,9 @@ export default function FinanceReports({ asAdmin = false, only }) {
     const [periodOpen, setPeriodOpen] = useState(false);
     const [outlet, setOutlet] = useState("All Outlets");
     const [outletOpen, setOutletOpen] = useState(false);
+    // Club / Outlet filter on the sales reports (owner 17 Nov)
+    const [section, setSection] = useState("Club and Outlet");
+    const [sectionOpen, setSectionOpen] = useState(false);
     const [outletOptions, setOutletOptions] = useState(["All Outlets"]);
     const [outletList, setOutletList] = useState([]);
     const [startDate, setStartDate] = useState("");
@@ -1053,6 +1060,7 @@ export default function FinanceReports({ asAdmin = false, only }) {
             // sales and wastage filter by outlet id on the server
             const outletId = outletList.find((o) => o.label === outlet)?.id;
             if (outletServerSide && outletId != null) params.set("outlet", outletId);
+            if (selectedCategory.endpoint === "sales" && section !== "Club and Outlet") params.set("section", section.toUpperCase());
 
             const url = `${baseUrl}/api/v1/finance/reports/${selectedCategory.endpoint}${
                 params.toString() ? `?${params.toString()}` : ""
@@ -1072,7 +1080,7 @@ export default function FinanceReports({ asAdmin = false, only }) {
         } finally {
             setLoading(false);
         }
-    }, [baseUrl, selectedCategory, selectedReport, period, startDate, endDate, outletServerSide, outletList, outlet]);
+    }, [baseUrl, selectedCategory, selectedReport, period, startDate, endDate, outletServerSide, outletList, outlet, section]);
 
     const handleGenerate = () => {
         setGenerated(true);
@@ -1083,6 +1091,7 @@ export default function FinanceReports({ asAdmin = false, only }) {
     const handleReset = () => {
         setPeriod("Monthly");
         setOutlet("All Outlets");
+        setSection("Club and Outlet");
         setStartDate(""); setEndDate("");
         setSelectedProduct("All Products");
         setSearchTerm(""); setGenerated(false); setPage(1);
@@ -1103,13 +1112,13 @@ export default function FinanceReports({ asAdmin = false, only }) {
         if (sorted.length === 0) return;
         
         const headers = isPaymentReport ? ["Date", "Supplier", "Ref", "Invoiced (Rs.)", "Paid (Rs.)", "Outstanding (Rs.)", "Status"] :
-                        isSalesReport ? ["Date", "Product", "Category", "Outlet", "Unit Price (Rs.)", "Qty Sold", "Gross (Rs.)", "Net (Rs.)", "Cost (Rs.)", "GP (Rs.)"] :
+                        isSalesReport ? ["Date", "Product", "Category", "Outlet", "Club / Outlet", "Unit Price (Rs.)", "Qty Sold", "Gross (Rs.)", "Net (Rs.)", "Cost (Rs.)", "GP (Rs.)"] :
                         detailColumns(selectedCategory.id, selectedReport.type).map(([, label]) => label);
         
         const data = sorted.map(r => isPaymentReport ? [
             r.date, r.supplier, r.ref, r.totalInvoiced.toLocaleString(), r.paid.toLocaleString(), r.outstanding.toLocaleString(), r.status
         ] : isSalesReport ? [
-            r.date, r.product, r.category, r.outlet, r.unitPrice != null ? r.unitPrice.toLocaleString() : "—", r.qty ?? "—", r.sales.toLocaleString(), r.net.toLocaleString(), r.totalCost.toLocaleString(), (r.net - r.totalCost).toLocaleString()
+            r.date, r.product, r.category, r.outlet, r.section, r.unitPrice != null ? r.unitPrice.toLocaleString() : "—", r.qty ?? "—", r.sales.toLocaleString(), r.net.toLocaleString(), r.totalCost.toLocaleString(), (r.net - r.totalCost).toLocaleString()
         ] : detailColumns(selectedCategory.id, selectedReport.type).map(([key, , fmt]) => {
             const v = detailValue(r, key, fmt);
             return typeof v === "number" ? v.toLocaleString() : v;
@@ -1128,13 +1137,13 @@ export default function FinanceReports({ asAdmin = false, only }) {
     const handleExportExcel = () => {
         if (sorted.length === 0) return;
         const headers = isPaymentReport ? ["Date", "Supplier", "Ref", "Invoiced", "Paid", "Outstanding", "Status"] :
-                        isSalesReport ? ["Date", "Product", "Category", "Outlet", "Unit Price", "Qty Sold", "Gross", "Net", "Cost", "GP"] :
+                        isSalesReport ? ["Date", "Product", "Category", "Outlet", "Club / Outlet", "Unit Price", "Qty Sold", "Gross", "Net", "Cost", "GP"] :
                         detailColumns(selectedCategory.id, selectedReport.type).map(([, label]) => label.replace(" (Rs.)", ""));
         
         const rows = sorted.map(r => isPaymentReport ? [
             r.date, r.supplier, r.ref, r.totalInvoiced, r.paid, r.outstanding, r.status
         ] : isSalesReport ? [
-            r.date, r.product, r.category, r.outlet, r.unitPrice ?? "", r.qty ?? "", r.sales, r.net, r.totalCost, (r.net - r.totalCost)
+            r.date, r.product, r.category, r.outlet, r.section, r.unitPrice ?? "", r.qty ?? "", r.sales, r.net, r.totalCost, (r.net - r.totalCost)
         ] : detailColumns(selectedCategory.id, selectedReport.type).map(([key, , fmt]) => detailValue(r, key, fmt, true)));
 
         generateExcel({
@@ -1521,6 +1530,7 @@ export default function FinanceReports({ asAdmin = false, only }) {
 
                             {/* Outlet (only for reports that can be narrowed to one outlet) */}
                             <div className={selectedReport.label === "Sales by Product" ? "lg:col-span-1" : "lg:col-span-2"}>
+                                <div className={outletApplies && selectedCategory.endpoint === "sales" ? "grid grid-cols-2 gap-2" : ""}>
                                 {outletApplies && (
                                     <FilterDropdown
                                         label="Outlet"
@@ -1529,6 +1539,15 @@ export default function FinanceReports({ asAdmin = false, only }) {
                                         onChange={setOutlet}
                                     />
                                 )}
+                                {selectedCategory.endpoint === "sales" && (
+                                    <FilterDropdown
+                                        label="Club / Outlet"
+                                        open={sectionOpen} setOpen={setSectionOpen}
+                                        value={section} options={["Club and Outlet", "Club", "Outlet"]}
+                                        onChange={setSection}
+                                    />
+                                )}
+                                </div>
                             </div>
 
                             {/* Buttons */}

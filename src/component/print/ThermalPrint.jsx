@@ -169,6 +169,53 @@ export function KotSlip({ outlet = {}, index = 0, count = 1, info = [], item, it
   );
 }
 
+/**
+ * Day End Report, printed when the day end is finished (owner 17 Nov, laid out like the old system's): gross, discounts,
+ * tax, net, money by payment method, Club / Outlet and the number of bills. report = GET /api/pos/v1/day-end/report.
+ */
+export function DayEndReportSlip({ report }) {
+  const now = new Date();
+  const line = (label, value, key = label) => (
+    <div key={key} style={S.row}><span>{label}</span><span>{value}</span></div>
+  );
+  const tendersTotal = (report.tenders || []).reduce((s, t) => s + Number(t.amount || 0), 0);
+  return (
+    <div style={S.slip}>
+      <div style={S.center}>***Start of Report***</div>
+      <div style={{ ...S.title, fontSize: 15 }}>Day End Report<br />Sales Report</div>
+      <div style={S.company}>{companyInfo.name.toUpperCase()}</div>
+      {report.outletName && <div style={S.small}>{report.outletName}</div>}
+      <Rule />
+      <div style={S.row}>
+        <span>{now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</span>
+        <span>{`${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()}`}</span>
+      </div>
+      <div>Sales Date : {report.date}</div>
+      {report.serial != null && <div>Day End Serial : {report.serial}</div>}
+      <Rule />
+      {line("Description", "Amount")}
+      <Rule />
+      {line("Gross Sales", amt(report.grossSales))}
+      {Number(report.discounts) > 0 && line("Discounts", `-${amt(report.discounts)}`)}
+      {line("Total Additions", amt(report.tax))}
+      <Double />
+      <div style={{ ...S.row, fontSize: 15 }}><span>Net Sales</span><span>{amt(report.netSales)}</span></div>
+      <Double />
+      <div style={S.heading}>Tenders</div>
+      {(report.tenders || []).map((t) => line(t.name, amt(t.amount), "t-" + t.name))}
+      <Rule />
+      {line("Total Tenders", amt(tendersTotal))}
+      <Double />
+      <div style={S.heading}>Club / Outlet</div>
+      {(report.sections || []).map((s) => line(`${s.name} (${s.bills} bills)`, amt(s.amount), "s-" + s.name))}
+      <Rule />
+      {line("No Of Bills", report.bills ?? 0)}
+      <div style={{ ...S.center, marginTop: 8 }}>***End of Report***</div>
+      <div style={S.credit}>{DEVELOPER_CREDIT.split(" | ").map((part) => <div key={part}>{part}</div>)}</div>
+    </div>
+  );
+}
+
 /** Starts the next slip on a new piece of paper. */
 export const PageBreak = ({ children }) => <div style={S.pageBreak}>{children}</div>;
 
@@ -280,6 +327,7 @@ export function PosPrintout({ printData, outlet = {}, id = "print-receipt" }) {
           ["Cashier", printData.cashierName],
           ["Served by", printData.waiterName || printData.cashierName],
           ["Payment", printData.paymentMethod],
+          ["Bill for", printData.saleSection === "CLUB" ? "Club" : printData.saleSection === "OUTLET" ? "Outlet" : null],
           ["Card", printData.cardLast4 ? `**** ${printData.cardLast4}` : null],
           ["Card Ref", printData.cardRef],
         ]}

@@ -46,6 +46,7 @@ import toast from "react-hot-toast";
 import useOutletInfo from "../utils/useOutletInfo";
 import { companyInfo } from "../utils/companyInfo";
 import { BillSlip, printInWindow, printedAt } from "../component/print/ThermalPrint";
+import SaleSectionPicker from "../component/SaleSectionPicker";
 
 export default function POSSpecialOrders() {
     const outlet = useOutletInfo(); // outlet name/address printed on bills
@@ -77,6 +78,7 @@ export default function POSSpecialOrders() {
     const [searchTerm, setSearchTerm] = useState('');
     const [showProductSearch, setShowProductSearch] = useState(false);
     const [selectedProducts, setSelectedProducts] = useState([]);
+    const [saleSection, setSaleSection] = useState('');   // Club / Outlet, required (owner 17 Nov)
     const [availableProducts, setAvailableProducts] = useState([]);
     const [paymentMethods, setPaymentMethods] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -259,6 +261,7 @@ export default function POSSpecialOrders() {
         if (deliveryDateTime === '') return 'Choose the pickup / delivery date and time.';
         if (advanceAmount === '' || advanceAmountNum < 0) return 'Enter the advance amount (0 if none).';
         if (advanceAmountNum > totalAmount) return 'The advance cannot be more than the order total.';
+        if (!saleSection) return 'Tick Club or Outlet for this order.';
         return 'Get manager approval for the advance first.';
     };
 
@@ -268,6 +271,7 @@ export default function POSSpecialOrders() {
             customerDetails.name.trim() !== '' &&
             customerDetails.contactNumber.trim() !== '' &&
             selectedProducts.length > 0 &&
+            !!saleSection &&
             deliveryDateTime !== '' &&
             advanceAmount !== '' &&
             advanceAmountNum >= 0 &&
@@ -299,7 +303,8 @@ export default function POSSpecialOrders() {
                 deliveryDate: deliveryDateTime.split('T')[0], // Extract YYYY-MM-DD
                 cashierId: orderInfo.cashierId,
                 outletId: localStorage.getItem("outletId") ? parseInt(localStorage.getItem("outletId")) : 1,
-                managerVerificationCode: (parseFloat(advanceAmount) || 0) > 0 ? managerVerificationCode : (managerVerificationCode || "NONE")
+                managerVerificationCode: (parseFloat(advanceAmount) || 0) > 0 ? managerVerificationCode : (managerVerificationCode || "NONE"),
+                saleSection: saleSection
             };
 
             const response = await posService.initiateSpecialOrder(payload);
@@ -404,6 +409,7 @@ export default function POSSpecialOrders() {
     const resetForm = () => {
         setCustomerDetails({ name: '', contactNumber: '', email: '', address: '', type: 'New' });
         setSelectedProducts([]);
+        setSaleSection('');
         setDeliveryDateTime('');
         setOrderNotes('');
         setAdvanceAmount('');
@@ -1038,6 +1044,7 @@ export default function POSSpecialOrders() {
 
                                             {/* Action Buttons */}
                                             <div className="space-y-3">
+                                                <SaleSectionPicker value={saleSection} onChange={setSaleSection} className="p-3 rounded-lg border border-line" />
                                                 <button
                                                     onClick={submitSpecialOrder}
                                                     disabled={isLoading || !customerDetails.name.trim()}   // no name: cannot be pressed (owner 12 Nov); anything else missing: pressing says what

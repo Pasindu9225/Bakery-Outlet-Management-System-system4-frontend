@@ -50,6 +50,7 @@ import posService from "../services/posService";
 import toast from "react-hot-toast";
 import useOutletInfo from "../utils/useOutletInfo";
 import { PosPrintout } from "../component/print/ThermalPrint";
+import SaleSectionPicker from "../component/SaleSectionPicker";
 import SplitPayment, { splitMethods, startSplit, splitProblem, splitPayload, splitText } from "../component/SplitPayment";
 
 
@@ -256,6 +257,7 @@ export default function POSTableBilling() {
     const [payRef, setPayRef] = useState('');               // card / bank transfer reference
     const [cardLast4, setCardLast4] = useState('');         // card payments: last 4 digits, printed as **** 1234 (owner 12 Nov)   // staff meal: checked Staff ID; free meal: requested by + reason
     const [paymentMethod, setPaymentMethod] = useState('');
+    const [saleSection, setSaleSection] = useState('');   // Club / Outlet, required (owner 17 Nov)
     const [showKOTModal, setShowKOTModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [generatedBillId, setGeneratedBillId] = useState('');
@@ -601,6 +603,10 @@ export default function POSTableBilling() {
         }
     };
     const processPaymentNow = async () => {
+        if (!saleSection) {
+            toast.error('Tick Club or Outlet for this bill.');
+            return;
+        }
         if (splitMode) {
             const problem = splitProblem(splitParts, paymentMethods, totalPayable, splitCashGiven);
             if (problem) {
@@ -660,6 +666,7 @@ export default function POSTableBilling() {
             const requestBody = {
                 tableId: parseInt(selectedTable),
                 cashierId: cashierId,
+                saleSection: saleSection,
                 amountReceived: receivedAmount,
                 totalAmount: totalPayable,
                 managerCode: isFreeMeal ? (meal.approvalCode || '').trim() : (directDiscount > 0 ? direct.managerCode.trim() : null),
@@ -706,6 +713,7 @@ export default function POSTableBilling() {
                 cashierName: cashierInfo.name,
                 paymentMethod: splitMode ? splitText(splitParts, paymentMethods) : paymentMethod,
                 deliveryOption: 'Dine-In',
+                saleSection: saleSection,
                 items: pricedOrder.map(item => ({
                     productName: item.name,
                     qty: item.qty,
@@ -742,6 +750,7 @@ export default function POSTableBilling() {
 
             fetchTables(); // Refresh tables status
             setCurrentOrder([]);
+            setSaleSection('');
             fetchTodayItems(); // Refresh stock in product grid
             setSelectedTable('');
             setAmountReceived('');
@@ -1680,6 +1689,7 @@ export default function POSTableBilling() {
                             </div>
                             {/* Payment Section */}
                             <div className="space-y-4 mb-6">
+                                <SaleSectionPicker value={saleSection} onChange={setSaleSection} className="p-3 rounded-lg border border-line" />
 
                                 {splitMethods(paymentMethods).length > 1 && (
                                     <button

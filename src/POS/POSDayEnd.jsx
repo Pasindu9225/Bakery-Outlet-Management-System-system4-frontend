@@ -30,6 +30,7 @@ import POSNavBar from "../component/POSNavBar.jsx";
 import POSSidebar from "../component/POSSidebar.jsx";
 import Loader from "../component/Loader.jsx";
 import toast from "react-hot-toast";
+import { PrintArea, DayEndReportSlip } from "../component/print/ThermalPrint";
 
 export default function POSDayEnd() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -64,6 +65,7 @@ export default function POSDayEnd() {
     });
 
     const [dayEndSummary, setDayEndSummary] = useState(null);
+    const [dayEndReport, setDayEndReport] = useState(null);   // printed after the day end (owner 17 Nov)
 
     useEffect(() => {
         const fetchSummary = async () => {
@@ -409,6 +411,17 @@ export default function POSDayEnd() {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
+            // day end (not a shift end): print the Day End Report of the outlet (owner 17 Nov), then go back
+            if (activeTab !== 'finish-shift') {
+                try {
+                    const rep = await axios.get(`${baseUrl}/api/pos/v1/day-end/report?date=${today}`, { headers: { Authorization: `Bearer ${token}` } });
+                    setDayEndReport(rep.data);
+                    setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(() => window.print())), 150);
+                } catch (repErr) {
+                    toast.error(friendlyError(repErr, { fallback: 'The day is closed, but the Day End Report could not be printed.' }));
+                }
+            }
+
             toast.success(
                 activeTab === 'finish-shift' 
                     ? 'Shift ended and settled successfully!' 
@@ -417,7 +430,7 @@ export default function POSDayEnd() {
             setShowConfirmation(false);
             setTimeout(() => {
                 window.location.href = '/posDashboard';
-            }, 1500);
+            }, activeTab === 'finish-shift' ? 1500 : 4000);   // time for the report to print
         } catch (error) {
             toast.error(friendlyError(error, { fallback: "Error finalizing day end." }));
             setShowConfirmation(false);
@@ -1568,6 +1581,7 @@ export default function POSDayEnd() {
                     onClick={() => setSidebarOpen(false)}
                 />
             )}
+            {dayEndReport && <PrintArea id="print-dayend"><DayEndReportSlip report={dayEndReport} /></PrintArea>}
         </div>
     );
 }

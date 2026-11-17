@@ -54,6 +54,7 @@ import toast from "react-hot-toast";
 import useOutletInfo from "../utils/useOutletInfo";
 import { PosPrintout } from "../component/print/ThermalPrint";
 import WaiterBillingPopup from "./WaiterBillingPopup";
+import SaleSectionPicker from "../component/SaleSectionPicker";
 import SplitPayment, { splitMethods, startSplit, splitProblem, splitPayload, splitText } from "../component/SplitPayment";
 
 export default function POSSales() {
@@ -67,6 +68,8 @@ export default function POSSales() {
 
     // Cart state
     const [cart, setCart] = useState([]);
+    // Club or Outlet: ticked for every bill, cleared after each one (owner 17 Nov)
+    const [saleSection, setSaleSection] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [showPayment, setShowPayment] = useState(false);
@@ -805,6 +808,7 @@ export default function POSSales() {
     // Cart payment buttons, one per row: Cash (prints), E-Bill (cash, bill sent by SMS), More (the payment popup)
     const cartPayButtons = (
         <div className="space-y-2">
+            <SaleSectionPicker value={saleSection} onChange={setSaleSection} className="py-1" />
             <button
                 onClick={() => handleQuickCheckout()}
                 disabled={!!quickCheckout}
@@ -876,6 +880,10 @@ export default function POSSales() {
         }
     };
     const processPaymentNow = async (shouldPrint = false) => {
+        if (!saleSection) {
+            toast.error('Tick Club or Outlet for this bill.');
+            return;
+        }
         // an Uber / PickMe-only dish (no normal price) is sold only on an Uber / PickMe bill (owner 12 Nov)
         const appOnly = !saleChannel && cart.find(item => !(item.price > 0) && (item.uberPrice > 0 || item.pickmePrice > 0));
         if (appOnly) {
@@ -960,6 +968,7 @@ export default function POSSales() {
             redeemPoints: redeemPoints && otpVerified,
             otp: otpVerified ? otp : null,
             invoicePrinted: shouldPrint,
+            saleSection: saleSection,
             payments: splitMode ? splitPayload(splitParts) : null,
             managerCode: isFreeMeal ? (meal.approvalCode || '').trim() : (directDiscount > 0 ? directManagerCode.trim() : null),
             items: cart.map((item, i) => ({
@@ -1019,7 +1028,8 @@ export default function POSSales() {
                 change: !splitMode && paymentMethod === 'cash' ? calculateChange() : 0,
                 kotItems: kotItems,
                 printBill: shouldPrint,
-                isUberOrPickMe: isUberOrPickMe
+                isUberOrPickMe: isUberOrPickMe,
+                saleSection: saleSection
             };
 
             if (eBillPhoneRef.current) {
@@ -1046,6 +1056,7 @@ export default function POSSales() {
 
             // Clear everything and show success
             setCart([]);
+            setSaleSection('');
             setShowPayment(false);
             resetPaymentForm();
             removePromo();
@@ -1945,6 +1956,9 @@ export default function POSSales() {
                                 </div>
 
                                 <div>
+
+                            {/* Club / Outlet: the same choice as in the cart (owner 17 Nov) */}
+                            <SaleSectionPicker value={saleSection} onChange={setSaleSection} className="mb-3 p-3 rounded-lg border border-line" />
 
                             {/* Promo code: chosen here, in the payment popup (More) */}
                             {cart.length > 0 && (

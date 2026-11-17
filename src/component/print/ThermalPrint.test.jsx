@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { BillSlip, KotSlip, PosPrintout, money, posTotals } from "./ThermalPrint";
+import { BillSlip, KotSlip, PosPrintout, DayEndReportSlip, money, posTotals } from "./ThermalPrint";
 
 test("amounts are shown as Rs. with thousand separators and 2 decimals", () => {
   expect(money(1234.5)).toBe("Rs. 1,234.50");
@@ -65,4 +65,21 @@ test("a cash bill shows the big Total, then what the customer gave and the chang
   expect(html).toContain("500.00");
   expect(html).toContain(">Change<");
   expect(html).toContain("350.00");
+});
+
+test("day end report lists tenders, their total, Club / Outlet and the bill count", () => {
+  const html = renderToStaticMarkup(<DayEndReportSlip report={{
+    date: "2026-11-17", serial: 12, grossSales: 1500, discounts: 0, tax: 0, netSales: 1500, bills: 3,
+    tenders: [{ name: "Cash", amount: 1000 }, { name: "Card", amount: 500 }],
+    sections: [{ name: "Club", bills: 1, amount: 500 }, { name: "Outlet", bills: 2, amount: 1000 }],
+  }} />);
+  expect(html).toContain("Day End Serial : 12");
+  expect(html).toContain("1,500.00");
+  expect(html).toContain("Club (1 bills)");
+  expect(html).toContain("No Of Bills");
+});
+
+test("a bill prints who it was for (Club / Outlet)", () => {
+  const html = renderToStaticMarkup(<PosPrintout printData={{ type: "ACTUAL", items: [], saleSection: "CLUB" }} />);
+  expect(html).toMatch(/Bill for : (<!-- -->)?Club/);
 });

@@ -47,6 +47,7 @@ import axios from "../services/api";
 import posService from "../services/posService";
 import useOutletInfo from "../utils/useOutletInfo";
 import { PosPrintout } from "../component/print/ThermalPrint";
+import SaleSectionPicker from "../component/SaleSectionPicker";
 
 
 export default function POSWaiterBilling() {
@@ -233,6 +234,7 @@ export default function POSWaiterBilling() {
     const [cardLast4, setCardLast4] = useState('');         // card payments: last 4 digits, printed as **** 1234 (owner 12 Nov)
     const [skipIds, setSkipIds] = useState([]);             // partial bill: items not paid now (stay on the waiter's order)   // staff meal: checked Staff ID; free meal: requested by + reason
     const [paymentMethod, setPaymentMethod] = useState('');
+    const [saleSection, setSaleSection] = useState('');   // Club / Outlet, required (owner 17 Nov)
     const [showKOTModal, setShowKOTModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [generatedBillId, setGeneratedBillId] = useState('');
@@ -553,6 +555,10 @@ export default function POSWaiterBilling() {
             toast.error("A direct discount needs a Manager's code");
             return;
         }
+        if (!saleSection) {
+            toast.error('Tick Club or Outlet for this bill.');
+            return;
+        }
         try {
             // the waiter's open items, paid in one bill (same request as the POS Sale waiter panel)
             const requestBody = {
@@ -569,7 +575,8 @@ export default function POSWaiterBilling() {
                 paymentReference: paymentCategory === 'CARD' ? `${payRef.trim()} (card **** ${cardLast4})`
                     : paymentCategory === 'BANK_TRANSFER' ? (payRef.trim() || null) : null,
                 outletId: Number(localStorage.getItem("outletId")) || null,
-                invoicePrinted: true
+                invoicePrinted: true,
+                saleSection: saleSection
             };
 
             const response = await axios.post(`/api/pos/v1/waiter-billing/finish-billing`, requestBody);
@@ -1402,6 +1409,7 @@ export default function POSWaiterBilling() {
                             </div>
                             {/* Payment Section */}
                             <div className="space-y-4 mb-6">
+                                <SaleSectionPicker value={saleSection} onChange={setSaleSection} className="p-3 rounded-lg border border-line" />
                                 <div>
                                     <label className="block text-[14px] font-[500] text-fg mb-2">Payment Method</label>
                                     <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Payment Method">
