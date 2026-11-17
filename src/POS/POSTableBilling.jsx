@@ -468,7 +468,7 @@ export default function POSTableBilling() {
         setMovingCartToOrder(true);
         try {
             // the whole cart in one request: the server makes one KOT per production center
-            await axios.post(`/api/pos/v1/table-billing/add-items`, cart.map(item => ({
+            const added = await axios.post(`/api/pos/v1/table-billing/add-items`, cart.map(item => ({
                 tableId: parseInt(selectedTable),
                 productId: item.id,
                 productName: item.name,
@@ -481,11 +481,46 @@ export default function POSTableBilling() {
             setCart([]);
             fetchTableDetails();
             fetchTodayItems();
+            printProformaAndKots(Array.isArray(added.data) ? added.data : []);
         } catch (error) {
             console.error("Error adding the cart to the table:", error);
             toast.error(error.response?.data?.message || "Failed to add the items to the table");
         } finally {
             setMovingCartToOrder(false);
+        }
+    };
+
+    // After Add to Order (owner 17 Nov): the proforma of everything on the table so far, then a KOT for the kitchen
+    // items just added (only this round, so nothing goes to the kitchen twice). A print failure never undoes the order.
+    const printProformaAndKots = async (addedItems) => {
+        try {
+            const details = await axios.get(`/api/pos/v1/table-billing/table-details/${selectedTable}`);
+            const onTable = details.data?.unpaidItems || [];
+            const items = onTable.map(item => ({ productName: item.productName, qty: item.qty, unitPrice: item.unitPrice }));
+            const sub = onTable.reduce((s, item) => s + Number(item.unitPrice || 0) * item.qty, 0);
+            setPrintData({
+                type: 'PROFORMA',
+                tableName: tables.find(tb => String(tb.id) === String(selectedTable))?.name || details.data?.tableInfo?.tableName,
+                cashierName: cashierInfo.name,
+                deliveryOption: 'Dine-In',
+                items,
+                subTotal: sub,
+                discount: 0,
+                finalTotal: sub,
+                kotItems: addedItems.filter(item => item.kotId || item.isKotEnabled).map(item => ({
+                    productName: item.productName,
+                    qty: item.qty,
+                    kotNumber: item.kotNumber,
+                    specialInstructions: item.instructions || ""
+                })),
+            });
+            setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+                window.print();
+                setPrintData(null);
+            })), 150);
+        } catch (error) {
+            console.error("Could not print the proforma / KOT:", error);
+            toast.error('Items were added, but the proforma / KOT could not be printed.');
         }
     };
 
@@ -697,12 +732,6 @@ export default function POSTableBilling() {
                 totalAmount: saleData.totalAmount || totalPayable
             });
 
-            const kotItems = currentOrder.filter(item => item.isKotEnabled || item.kotBased).map(item => ({
-                productName: item.name,
-                qty: item.qty,
-                specialInstructions: item.instructions || item.specialInstructions || ""
-            }));
-
             const optionStr = `${paymentMethod || ''}`.toLowerCase();
             const isUberOrPickMe = optionStr.includes('uber') || optionStr.includes('pickme') || optionStr.includes('picme');
 
@@ -726,7 +755,7 @@ export default function POSTableBilling() {
                 cardLast4: !splitMode && selectedMethod.category === 'CARD' ? cardLast4 : null,
                 cashGiven: !splitMode && selectedMethod.category === 'CASH' ? receivedAmount : 0,
                 change: !splitMode && selectedMethod.category === 'CASH' ? Math.max(0, receivedAmount - totalPayable) : 0,
-                kotItems: kotItems,
+                kotItems: [],   // printed at Add to Order (owner 17 Nov)
                 isUberOrPickMe: isUberOrPickMe
             };
             setPrintPayloadToUse(printPayload);
