@@ -327,6 +327,8 @@ function normaliseRow(raw, idx) {
         wasted: raw.wasted != null ? toNumber(raw.wasted) : null,
         acceptedAt: raw.acceptedAt || "—",
         note: raw.note || "—",
+        // Sales by Payment Type: the items sold that way (client 17 Nov)
+        lines: Array.isArray(raw.lines) ? raw.lines.map((l) => ({ product: l.product || "—", qty: toNumber(l.qty), value: toNumber(l.sales) })) : null,
     };
 }
 
@@ -442,6 +444,31 @@ function ReportDetailModal({ row, reportType, columns, onClose }) {
                             <p className="text-[13px] font-[500] text-fg">{value}</p>
                         </div>
                     ))}
+                    {row.lines && row.lines.length > 0 && (
+                        <div className="mt-4">
+                            <p className="text-[12px] font-[600] text-fg-secondary mb-2">Items</p>
+                            <div className="max-h-64 overflow-y-auto">
+                                <table className="w-full text-[13px]">
+                                    <thead>
+                                        <tr className="border-b border-line text-fg-secondary text-[12px]">
+                                            <th className="text-left py-1.5">Item</th>
+                                            <th className="text-right py-1.5">Qty</th>
+                                            <th className="text-right py-1.5">Value (Rs.)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {row.lines.map((l) => (
+                                            <tr key={l.product} className="border-b border-line last:border-0">
+                                                <td className="py-1.5 text-fg">{l.product}</td>
+                                                <td className="py-1.5 text-right text-fg">{l.qty}</td>
+                                                <td className="py-1.5 text-right text-fg">{l.value.toLocaleString()}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
                 </div>
                 <div className="p-4 border-t border-line flex justify-end gap-2">
                     <button 
@@ -462,7 +489,7 @@ function ReportDetailModal({ row, reportType, columns, onClose }) {
                                 ["Qty Sold", row.qty ?? "—"],
                                 ["Gross Sales", `Rs. ${row.sales?.toLocaleString()}`],
                                 ["Net Sales", `Rs. ${row.net?.toLocaleString()}`]
-                            ] : detailFields;
+                            ] : [...detailFields, ...(row.lines || []).map((l) => [`${l.product} x ${l.qty}`, `Rs. ${l.value.toLocaleString()}`])];
 
                             generatePDF({
                                 title: "Record Details",
