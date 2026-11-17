@@ -176,8 +176,11 @@ export const PageBreak = ({ children }) => <div style={S.pageBreak}>{children}</
  * The printed page is made as long as the longest slip: with the printer's own paper length a long bill ran onto a
  * second page and the cutter cut it in two (owner 16 Nov). Each slip still starts on its own page.
  */
-/** Paper roll width: the client prints on 100 mm rolls (owner 16 Nov). */
-export const PAPER_MM = 100;
+/**
+ * Printed page width. 100 mm (owner 16 Nov) made Chrome add its own date / title / web address and shrink the bill on the
+ * client's printer (17 Nov), so back to 80 mm, which printed cleanly.
+ */
+export const PAPER_MM = 80;
 const pageCss = (heightPx) => (heightPx > 0 ? `@page { size: ${PAPER_MM}mm ${Math.ceil((heightPx * 25.4) / 96) + 4}mm; margin: 0; }` : "");
 const tallestSlip = (el) => Math.max(0, ...[...el.children].filter((c) => c.tagName !== "STYLE").map((c) => c.getBoundingClientRect().height));
 

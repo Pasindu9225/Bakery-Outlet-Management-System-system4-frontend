@@ -309,6 +309,8 @@ function normaliseRow(raw, idx) {
         // exactQty keeps fractions (e.g. 0.4 kg of wasted flour) that the whole-number qty drops
         qty: raw.exactQty != null ? toNumber(raw.exactQty) : raw.qty != null ? toNumber(raw.qty) : null,
         unit: raw.unit || "",
+        // average selling price per item before discount (client 17 Nov); null where the row has no quantity
+        unitPrice: toNumber(raw.qty) > 0 ? Math.round((toNumber(raw.sales) / toNumber(raw.qty)) * 100) / 100 : null,
         costPerUnit: toNumber(raw.costPerUnit),
         totalCost: toNumber(raw.totalCost),
         reason: raw.reason || "—",
@@ -422,6 +424,8 @@ function ReportDetailModal({ row, reportType, columns, onClose }) {
                         { label: "Product", value: row.product },
                         { label: "Category", value: row.category },
                         { label: "Outlet", value: row.outlet },
+                        { label: "Unit Price", value: row.unitPrice != null ? `Rs. ${row.unitPrice.toLocaleString()}` : "—" },
+                        { label: "Qty Sold", value: row.qty ?? "—" },
                         { label: "Gross Sales", value: `Rs. ${row.sales?.toLocaleString()}` },
                         { label: "Discounts", value: `Rs. ${row.discounts?.toLocaleString()}` },
                         { label: "Returns", value: `Rs. ${row.returns?.toLocaleString()}` },
@@ -454,6 +458,8 @@ function ReportDetailModal({ row, reportType, columns, onClose }) {
                                 ["Product", row.product],
                                 ["Category", row.category],
                                 ["Outlet", row.outlet],
+                                ["Unit Price", row.unitPrice != null ? `Rs. ${row.unitPrice.toLocaleString()}` : "—"],
+                                ["Qty Sold", row.qty ?? "—"],
                                 ["Gross Sales", `Rs. ${row.sales?.toLocaleString()}`],
                                 ["Net Sales", `Rs. ${row.net?.toLocaleString()}`]
                             ] : detailFields;
@@ -583,6 +589,8 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
                                 { key: "product", label: "Product" },
                                 { key: "category", label: "Category" },
                                 { key: "outlet", label: "Outlet" },
+                                { key: "unitPrice", label: "Unit Price (Rs.)" },
+                                { key: "qty", label: "Qty Sold" },
                                 { key: "sales", label: "Gross Sales (Rs.)" },
                                 { key: "discounts", label: "Discounts (Rs.)" },
                                 { key: "returns", label: "Returns (Rs.)" },
@@ -603,7 +611,7 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
                     </thead>
                     <tbody>
                         {paginated.length === 0 ? (
-                            <tr><td colSpan={11} className="py-16 text-center">
+                            <tr><td colSpan={13} className="py-16 text-center">
                                 <TrendingUp size={36} className="mx-auto text-fg-muted mb-3" />
                                 <p className="text-[14px] font-[500] text-fg">No sales data found</p>
                             </td></tr>
@@ -615,6 +623,8 @@ function SalesTable({ data, onView, sortCol, sortDir, onSort, page, setPage, PAG
                                     <td className="py-3.5 px-4"><p className="text-[13px] font-[600] text-fg">{row.product}</p></td>
                                     <td className="py-3.5 px-4"><span className="text-[12px] font-[500] px-2 py-0.5 rounded-full bg-hover text-brand-fg">{row.category}</span></td>
                                     <td className="py-3.5 px-4"><p className="text-[12px] text-fg-secondary">{row.outlet}</p></td>
+                                    <td className="py-3.5 px-4"><span className="text-[13px] text-fg whitespace-nowrap">{row.unitPrice != null ? `Rs. ${row.unitPrice.toLocaleString()}` : "—"}</span></td>
+                                    <td className="py-3.5 px-4"><span className="text-[13px] font-[600] text-fg">{row.qty ?? "—"}</span></td>
                                     <td className="py-3.5 px-4"><span className="text-[13px] font-[700] text-fg">Rs. {row.sales.toLocaleString()}</span></td>
                                     <td className="py-3.5 px-4"><span className="text-[12px] text-warning font-[600]">{row.discounts > 0 ? `-Rs. ${row.discounts.toLocaleString()}` : "—"}</span></td>
                                     <td className="py-3.5 px-4"><span className="text-[12px] text-error font-[600]">{row.returns > 0 ? `-Rs. ${row.returns.toLocaleString()}` : "—"}</span></td>
@@ -1066,13 +1076,13 @@ export default function FinanceReports({ asAdmin = false, only }) {
         if (sorted.length === 0) return;
         
         const headers = isPaymentReport ? ["Date", "Supplier", "Ref", "Invoiced (Rs.)", "Paid (Rs.)", "Outstanding (Rs.)", "Status"] :
-                        isSalesReport ? ["Date", "Product", "Category", "Outlet", "Gross (Rs.)", "Net (Rs.)", "Cost (Rs.)", "GP (Rs.)"] :
+                        isSalesReport ? ["Date", "Product", "Category", "Outlet", "Unit Price (Rs.)", "Qty Sold", "Gross (Rs.)", "Net (Rs.)", "Cost (Rs.)", "GP (Rs.)"] :
                         detailColumns(selectedCategory.id, selectedReport.type).map(([, label]) => label);
         
         const data = sorted.map(r => isPaymentReport ? [
             r.date, r.supplier, r.ref, r.totalInvoiced.toLocaleString(), r.paid.toLocaleString(), r.outstanding.toLocaleString(), r.status
         ] : isSalesReport ? [
-            r.date, r.product, r.category, r.outlet, r.sales.toLocaleString(), r.net.toLocaleString(), r.totalCost.toLocaleString(), (r.net - r.totalCost).toLocaleString()
+            r.date, r.product, r.category, r.outlet, r.unitPrice != null ? r.unitPrice.toLocaleString() : "—", r.qty ?? "—", r.sales.toLocaleString(), r.net.toLocaleString(), r.totalCost.toLocaleString(), (r.net - r.totalCost).toLocaleString()
         ] : detailColumns(selectedCategory.id, selectedReport.type).map(([key, , fmt]) => {
             const v = detailValue(r, key, fmt);
             return typeof v === "number" ? v.toLocaleString() : v;
@@ -1091,13 +1101,13 @@ export default function FinanceReports({ asAdmin = false, only }) {
     const handleExportExcel = () => {
         if (sorted.length === 0) return;
         const headers = isPaymentReport ? ["Date", "Supplier", "Ref", "Invoiced", "Paid", "Outstanding", "Status"] :
-                        isSalesReport ? ["Date", "Product", "Category", "Outlet", "Gross", "Net", "Cost", "GP"] :
+                        isSalesReport ? ["Date", "Product", "Category", "Outlet", "Unit Price", "Qty Sold", "Gross", "Net", "Cost", "GP"] :
                         detailColumns(selectedCategory.id, selectedReport.type).map(([, label]) => label.replace(" (Rs.)", ""));
         
         const rows = sorted.map(r => isPaymentReport ? [
             r.date, r.supplier, r.ref, r.totalInvoiced, r.paid, r.outstanding, r.status
         ] : isSalesReport ? [
-            r.date, r.product, r.category, r.outlet, r.sales, r.net, r.totalCost, (r.net - r.totalCost)
+            r.date, r.product, r.category, r.outlet, r.unitPrice ?? "", r.qty ?? "", r.sales, r.net, r.totalCost, (r.net - r.totalCost)
         ] : detailColumns(selectedCategory.id, selectedReport.type).map(([key, , fmt]) => detailValue(r, key, fmt, true)));
 
         generateExcel({
