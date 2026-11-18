@@ -65,7 +65,7 @@ const Up = ({ d }) => (d === 0 ? null : <span className={d > 0 ? "text-success" 
 export default function SalesDashboard() {
   const [f, setF] = useState(() => {
     const to = today();
-    return { m: "daily", wd: String(new Date().getDay()), g: "total", from: ds(dn(to) - 30), to, t0: "09:00", t1: "10:00", u: "val", vt: "amount", outlet: "" };
+    return { m: "daily", wd: String(new Date().getDay()), g: "total", from: ds(dn(to) - 30), to, t0: "09:00", t1: "10:00", u: "val", vt: "amount", outlet: "", section: "" };
   });
   const set = (k) => (v) => setF((s) => ({ ...s, [k]: v }));
   const [outlets, setOutlets] = useState([]);
@@ -87,12 +87,12 @@ export default function SalesDashboard() {
     if (!fetchFrom || !f.to) return;
     let gone = false;
     setLoading(true); setError("");
-    axiosInstance.get("/api/v1/finance/reports/sales-dashboard", { params: { from: fetchFrom, to: f.to, outlet: f.outlet || undefined } })
+    axiosInstance.get("/api/v1/finance/reports/sales-dashboard", { params: { from: fetchFrom, to: f.to, outlet: f.outlet || undefined, section: f.section || undefined } })
       .then((r) => { if (!gone) setLines((r.data || []).map((l) => ({ ...l, day: dn(String(l.d).slice(0, 10)), q: Number(l.q) || 0, v: Number(l.v) || 0 }))); })
       .catch((e) => { if (!gone) setError(e.response?.data?.message || "Could not load the sales."); })
       .finally(() => { if (!gone) setLoading(false); });
     return () => { gone = true; };
-  }, [fetchFrom, f.to, f.outlet]);
+  }, [fetchFrom, f.to, f.outlet, f.section]);
 
   const byDay = useMemo(() => {
     const m = new Map();
@@ -185,6 +185,10 @@ export default function SalesDashboard() {
             <Select value={f.outlet} onChange={set("outlet")} options={[["All outlets", ""], ...outlets.map((o) => [o.name, String(o.outletId ?? o.id)])]} />
           </Field>
         )}
+        {/* Club / Outlet of the bills (owner 18 Nov) */}
+        <Field label="Club / Outlet">
+          <Select value={f.section || ""} onChange={set("section")} options={[["Club and Outlet", ""], ["Club", "CLUB"], ["Outlet", "OUTLET"]]} />
+        </Field>
         <Field label="From"><input type="date" value={f.from} max={f.to} onChange={(e) => set("from")(e.target.value)} className={inputCls} /></Field>
         <Field label="To"><input type="date" value={f.to} onChange={(e) => set("to")(e.target.value)} className={inputCls} /></Field>
         <Field label="Time from"><input type="time" value={f.t0} onChange={(e) => set("t0")(e.target.value)} className={inputCls} /></Field>
