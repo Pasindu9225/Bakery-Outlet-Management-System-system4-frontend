@@ -11,7 +11,14 @@ import AdminNavBar from "../component/AdminNavBar.jsx";
 import AdminSidebar from "../component/AdminSidebar.jsx";
 
 // "unitPrice" -> "Unit Price": the same column headings as on screen
-const columnLabel = (key) => key.replace(/([A-Z])/g, ' $1').trim().replace(/^./, (c) => c.toUpperCase());
+const LABELS = { quantity: "Sales Qty", total: "Total Sales", id: "ID" };
+const columnLabel = (key) => LABELS[key] || key.replace(/([A-Z])/g, ' $1').trim().replace(/^./, (c) => c.toUpperCase());
+// Sales report column order (client 19 Nov); any other field the server sends goes after these
+const SALES_ORDER = ["date", "product", "unitPrice", "quantity", "total", "id", "category", "outlet"];
+const inSalesOrder = (row) => Object.fromEntries([
+    ...SALES_ORDER.filter((k) => k in row).map((k) => [k, row[k]]),
+    ...Object.entries(row).filter(([k]) => !SALES_ORDER.includes(k)),
+]);
 
 export default function AdminGenerateReports() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -111,7 +118,8 @@ export default function AdminGenerateReports() {
     };
 
     const getCurrentData = () => {
-        return fetchedReportData || [];
+        const data = fetchedReportData || [];
+        return reportType === 'Sales' ? data.map(inSalesOrder) : data;
     };
 
     const getReportIcon = () => {
@@ -367,7 +375,7 @@ export default function AdminGenerateReports() {
                         <tr className="border-b-2 border-line">
                             {Object.keys(data[0]).map((header) => (
                                 <th key={header} className="text-left py-4 text-[14px] font-[600] text-fg ">
-                                    {header.replace(/([A-Z])/g, ' $1').trim()}
+                                    {columnLabel(header)}
                                 </th>
                             ))}
                         </tr>
