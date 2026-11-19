@@ -20,6 +20,7 @@ import { ChefHat, ClipboardList, Truck } from "lucide-react";
 import { KpiCard, KpiGrid, num, useDashboard } from "../component/dashboard/DashboardKit";
 import ReportWastageModal from "../component/ReportWastageModal.jsx";
 import ExpiryTag from "../component/ExpiryTag.jsx";
+import MpcIouTab from "./MpcIouTab.jsx";
 
 const BASE_URL = getApiBaseUrl();
 
@@ -227,7 +228,7 @@ export default function MPCWorkerDashboard() {
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           activeSection={{ requestMaterials: "Production Plan & Request", deliveries: "Deliveries & Acceptance",
-            storeInventory: "MPC Store Inventory", kots: "Kitchen Orders (KOT)" }[activeTab] || "MPC Dashboard"}
+            storeInventory: "MPC Store Inventory", kots: "Kitchen Orders (KOT)", iou: "IOU", iouGrn: "IOU GRN" }[activeTab] || "MPC Dashboard"}
         />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {/* Header */}
@@ -427,6 +428,9 @@ export default function MPCWorkerDashboard() {
               )}
             </div>
           )}
+
+          {activeTab === "iou" && <MpcIouTab mode="create" />}
+          {activeTab === "iouGrn" && <MpcIouTab mode="grn" onReceived={fetchStore} />}
 
           {/* TAB 3: MPC Store Inventory (real data) */}
           {activeTab === "storeInventory" && (

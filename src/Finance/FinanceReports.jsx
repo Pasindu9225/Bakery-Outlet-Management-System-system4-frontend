@@ -116,6 +116,7 @@ const REPORT_CATEGORIES = [
         reports: [
             { label: "MPC Dish Sales", type: "mpcDishes" },
             { label: "MPC Material Use", type: "mpcMaterials" },
+            { label: "MPC IOU Purchases", type: "mpcIou" },   // owner 19 Nov
         ],
     },
     {
@@ -747,6 +748,9 @@ Object.assign(DETAIL_COLUMNS, {
     "mpc:mpcDishes": [["outlet", "MPC"], ["product", "Dish"], ["qty", "Sold"], ["sales", "Sales (Rs.)", "rs"],
         ["totalCost", "Recipe cost (Rs.)", "rs"], ["profit", "Profit (Rs.)", "rs"]],
     "mpc:mpcMaterials": [["outlet", "MPC"], ["product", "Material"], ["qty", "Used"], ["totalCost", "Cost (Rs.)", "rs"]],
+    "mpc:mpcIou": [["date", "Date"], ["ref", "IOU"], ["outlet", "MPC"], ["employee", "Set by"], ["product", "Material"], ["qty", "Qty"],
+        ["costPerUnit", "Price/Unit (Rs.)"], ["totalCost", "Total (Rs.)", "rs"], ["standard", "Estimated (Rs.)", "rs"],
+        ["supplier", "Bought from"], ["reason", "Status"]],
     // whole drawer counted (owner 12 Nov): float + cash sales since the last cash out = total cash, vs counted
     cashouts: [["date", "Date / time"], ["ref", "Cash out"], ["outlet", "Outlet"], ["employee", "Cashier"],
         ["outstanding", "Float (Rs.)", "rs"], ["totalInvoiced", "Cash sales (Rs.)", "rs"], ["change", "Advances (Rs.)", "rs"], ["standard", "Total cash (Rs.)", "rs"],
@@ -794,6 +798,7 @@ Object.assign(EMPTY_TEXT, {
     cashiers: "No bills in this period",
     dayend: "No shift closes or day ends in this period",
     mpc: "No MPC dishes sold in this period",
+    "mpc:mpcIou": "No MPC IOUs in this period",
 });
 const detailColumns = (categoryId, type) =>
     DETAIL_COLUMNS[`${categoryId}:${type}`] || DETAIL_COLUMNS[categoryId] || DETAIL_COLUMNS.production;
@@ -1306,6 +1311,11 @@ export default function FinanceReports({ asAdmin = false, only }) {
                 { label: "Expected Cash", value: money(sum("standard")) },
                 { label: "Counted Cash", value: money(sum("actual")) },
                 { label: "Difference", value: money(sum("variance")) },
+            ] : id === "mpc" && selectedReport.type === "mpcIou" ? [
+                { label: "IOUs", value: new Set(filtered.map((r) => r.ref)).size },
+                { label: "Spent / Estimated", value: money(sum("totalCost")) },
+                { label: "Estimated", value: money(sum("standard")) },
+                { label: "Waiting for GRN", value: new Set(filtered.filter((r) => String(r.reason).startsWith("Open")).map((r) => r.ref)).size },
             ] : id === "mpc" ? [
                 { label: selectedReport.type === "mpcMaterials" ? "Materials" : "Dishes", value: filtered.length },
                 { label: selectedReport.type === "mpcMaterials" ? "Material Cost" : "Sales", value: money(sum(selectedReport.type === "mpcMaterials" ? "totalCost" : "sales")) },

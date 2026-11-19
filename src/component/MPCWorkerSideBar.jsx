@@ -7,6 +7,8 @@ import {
   Layers,
   Clock,
   ArrowLeft,
+  Wallet,
+  PackageCheck,
   LogOut,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -44,6 +46,19 @@ export default function MPCWorkerSidebar({
       id: "storeInventory",
       name: "MPC Store Inventory",
       icon: Layers,
+      color: "text-success",
+    },
+    // MPC IOU (owner 19 Nov): set an IOU, then GRN it into the MPC store
+    {
+      id: "iou",
+      name: "IOU",
+      icon: Wallet,
+      color: "text-brand-fg",
+    },
+    {
+      id: "iouGrn",
+      name: "IOU GRN",
+      icon: PackageCheck,
       color: "text-success",
     },
     {
